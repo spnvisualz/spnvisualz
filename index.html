@@ -1,348 +1,256 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SPNVISUALZ</title>
-
-<style>
-
-/* ================= GLOBAL ================= */
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  background: #050505;
-  color: white;
-  font-family: Arial, Helvetica, sans-serif;
-  overflow-x: hidden;
-}
-
-/* ================= SPLASH ================= */
-
-#splash {
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle at center, #0c0c0c 0%, #000 80%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  transition: opacity 0.8s ease;
-}
-
-#splash img {
-  width: 200px;
-  animation: rotate 12s linear infinite;
-}
-
-#enterBtn {
-  margin-top: 40px;
-  padding: 12px 40px;
-  border: 1px solid silver;
-  background: transparent;
-  color: white;
-  letter-spacing: 2px;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
-
-#enterBtn:hover {
-  background: white;
-  color: black;
-}
-
-/* ================= HERO ================= */
-
-#hero {
-  position: relative;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-#hero video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: -1;
-}
-
-.hero-content img {
-  width: 180px;
-  animation: rotate 25s linear infinite;
-}
-
-.hero-content button {
-  margin-top: 30px;
-  padding: 14px 45px;
-  border: 1px solid #aaa;
-  background: transparent;
-  color: white;
-  letter-spacing: 3px;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
-
-.hero-content button:hover {
-  border-color: #00ff88;
-  box-shadow: 0 0 12px #00ff88;
-}
-
-/* ================= SHOWCASE ================= */
-
-#showcase {
-  position: relative;
-  height: 600vh; /* 6 videos */
-}
-
-.showcase-track {
-  display: flex;
-  height: 100vh;
-  position: sticky;
-  top: 0;
-}
-
-.showcase-item {
-  min-width: 100vw;
-  height: 100vh;
-}
-
-.showcase-item video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* ================= PRICING ================= */
-
-#pricing {
-  padding: 100px 8%;
-  background: #000;
-}
-
-.pricing-title {
-  font-size: 40px;
-  margin-bottom: 20px;
-}
-
-.sale-badge {
-  color: #00ff88;
-  text-shadow: 0 0 12px #00ff88;
-  font-weight: bold;
-  margin-bottom: 50px;
-  animation: pulse 2s infinite;
-}
-
-.pricing-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 30px;
-}
-
-.price-card {
-  background: #0c0c0c;
-  padding: 40px;
-  border: 1px solid #222;
-}
-
-.old-price {
-  text-decoration: line-through;
-  color: #777;
-}
-
-.new-price {
-  font-size: 28px;
-  margin: 10px 0;
-}
-
-/* ================= CONTACT ================= */
-
-#contact {
-  padding: 80px 8%;
-  background: #050505;
-  text-align: center;
-}
-
-footer img {
-  width: 60px;
-  margin-top: 30px;
-}
-
-/* ================= ANIMATIONS ================= */
-
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.6; }
-  100% { opacity: 1; }
-}
-
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SPNVISUALZ</title>
+  <meta name="description" content="SPNVISUALZ — Luxury motion-first creative studio." />
+  <meta name="theme-color" content="#050608" />
+  <link rel="stylesheet" href="./style.css" />
 </head>
 
-<body>
+<body class="page page-main">
+  <header class="hero" id="top">
+    <div class="bg-cosmic" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
 
-<!-- SPLASH -->
-<div id="splash">
-  <img src="assets/logo/SPNvisualz logo.png" alt="SPNVISUALZ Logo">
-  <button id="enterBtn">ENTER</button>
-</div>
+    <nav class="nav">
+      <a class="nav-brand" href="#top">SPNVISUALZ</a>
+      <div class="nav-links">
+        <a href="#pricing">Pricing</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </nav>
 
-<!-- HERO -->
-<section id="hero">
-  <video autoplay muted loop playsinline preload="auto">
-    <source src="assets/videos/spn-visual-01.mp4" type="video/mp4">
-  </video>
-  <div class="hero-content">
-    <img src="assets/logo/SPNvisualz logo.png" alt="SPNVISUALZ Logo">
-    <br>
-    <button onclick="document.getElementById('showcase').scrollIntoView()">
-      VIEW SELECTED WORK
-    </button>
-  </div>
-</section>
+    <section class="hero-center">
+      <div class="hero-life" aria-hidden="true"></div>
+      <div class="hero-orbit" aria-hidden="true"></div>
 
-<!-- SHOWCASE -->
-<section id="showcase">
-  <div class="showcase-track" id="track">
+      <img class="hero-logo chrome-sweep float"
+           src="./assets/images/spnvisualz.PNG"
+           alt="SPNVISUALZ"
+           draggable="false" />
 
-    <div class="showcase-item">
-      <video autoplay muted loop playsinline preload="auto">
-        <source src="assets/videos/spn-visual-01.mp4" type="video/mp4">
-      </video>
-    </div>
+      <div class="hero-cta">
+        <a class="btn btn-ghost" href="#pricing">View Packages</a>
+        <a class="btn btn-solid" href="#contact">Book Now</a>
+      </div>
+    </section>
+  </header>
 
-    <div class="showcase-item">
-      <video muted loop playsinline preload="metadata">
-        <source src="assets/videos/spn-visual-02.mp4" type="video/mp4">
-      </video>
-    </div>
+  <main>
+    <!-- PRICING -->
+    <section class="section" id="pricing">
+      <div class="container">
+        <h2 class="section-title">Packages &amp; Pricing</h2>
 
-    <div class="showcase-item">
-      <video muted loop playsinline preload="metadata">
-        <source src="assets/videos/spn-visual-03.mp4" type="video/mp4">
-      </video>
-    </div>
+        <div class="badges">
+          <div class="badge badge-green">💚 LAUNCH SALE – UP TO 80%</div>
+          <div class="badge badge-silver">💎 BUNDLE DEAL – UP TO 20% OFF</div>
+        </div>
 
-    <div class="showcase-item">
-      <video muted loop playsinline preload="metadata">
-        <source src="assets/videos/spn-visual-04.mp4" type="video/mp4">
-      </video>
-    </div>
+        <div class="pricing-grid">
+          <!-- Regular packages (80% off) -->
+          <article class="card expandable" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Logo — Basic</h3>
+                <div class="prices"><span class="old">€70</span><span class="new green">€14</span></div>
+                <div class="save">Save 80%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Best for</span><span>Artists / quick identity</span></div>
+                <div class="detail-row"><span>Includes</span><span>Chrome logo export pack</span></div>
+                <div class="detail-row"><span>Use</span><span>IG, Spotify, watermark</span></div>
+              </div>
+            </button>
+          </article>
 
-    <div class="showcase-item">
-      <video muted loop playsinline preload="metadata">
-        <source src="assets/videos/spn-visual-05.mp4" type="video/mp4">
-      </video>
-    </div>
+          <article class="card expandable" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Logo — Premium</h3>
+                <div class="prices"><span class="old">€140</span><span class="new green">€28</span></div>
+                <div class="save">Save 80%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Best for</span><span>Full brand presence</span></div>
+                <div class="detail-row"><span>Includes</span><span>More polish + variants</span></div>
+                <div class="detail-row"><span>Use</span><span>Web, merch, profiles</span></div>
+              </div>
+            </button>
+          </article>
 
-    <div class="showcase-item">
-      <video muted loop playsinline preload="metadata">
-        <source src="assets/videos/spn-visual-06.mp4" type="video/mp4">
-      </video>
-    </div>
+          <article class="card expandable" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Intro — Standard</h3>
+                <div class="prices"><span class="old">€90</span><span class="new green">€18</span></div>
+                <div class="save">Save 80%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Best for</span><span>Reels / shorts</span></div>
+                <div class="detail-row"><span>Includes</span><span>Short motion intro</span></div>
+                <div class="detail-row"><span>Use</span><span>Open your content</span></div>
+              </div>
+            </button>
+          </article>
 
-  </div>
-</section>
+          <article class="card expandable" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Intro — Premium</h3>
+                <div class="prices"><span class="old">€170</span><span class="new green">€34</span></div>
+                <div class="save">Save 80%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Best for</span><span>High-impact opener</span></div>
+                <div class="detail-row"><span>Includes</span><span>Premium motion polish</span></div>
+                <div class="detail-row"><span>Use</span><span>YouTube / campaigns</span></div>
+              </div>
+            </button>
+          </article>
 
-<!-- PRICING -->
-<section id="pricing">
-  <div class="pricing-title">Packages & Pricing</div>
-  <div class="sale-badge">LAUNCH SALE – UP TO 80%</div>
+          <article class="card expandable" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Loops — Basic</h3>
+                <div class="prices"><span class="old">€110</span><span class="new green">€22</span></div>
+                <div class="save">Save 80%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Includes</span><span>Seamless loop</span></div>
+                <div class="detail-row"><span>Use</span><span>Story / promo backgrounds</span></div>
+              </div>
+            </button>
+          </article>
 
-  <div class="pricing-grid">
+          <article class="card expandable" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Loops — Premium</h3>
+                <div class="prices"><span class="old">€190</span><span class="new green">€38</span></div>
+                <div class="save">Save 80%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Includes</span><span>More depth + texture</span></div>
+                <div class="detail-row"><span>Use</span><span>Brand loops / drops</span></div>
+              </div>
+            </button>
+          </article>
 
-    <div class="price-card">
-      <h3>Logo Basic</h3>
-      <div class="old-price">€70</div>
-      <div class="new-price">€14</div>
-      <div>80% OFF</div>
-    </div>
+          <article class="card expandable" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Visuals — Social</h3>
+                <div class="prices"><span class="old">€85</span><span class="new green">€17</span></div>
+                <div class="save">Save 80%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Includes</span><span>Social visual pack</span></div>
+                <div class="detail-row"><span>Use</span><span>Posts / reels graphics</span></div>
+              </div>
+            </button>
+          </article>
 
-    <div class="price-card">
-      <h3>Intro Standard</h3>
-      <div class="old-price">€90</div>
-      <div class="new-price">€27</div>
-      <div>70% OFF</div>
-    </div>
+          <article class="card expandable" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Visuals — Brand</h3>
+                <div class="prices"><span class="old">€150</span><span class="new green">€30</span></div>
+                <div class="save">Save 80%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Includes</span><span>Brand-grade visuals</span></div>
+                <div class="detail-row"><span>Use</span><span>Campaign system</span></div>
+              </div>
+            </button>
+          </article>
 
-    <div class="price-card">
-      <h3>Loops Basic</h3>
-      <div class="old-price">€110</div>
-      <div class="new-price">€33</div>
-      <div>70% OFF</div>
-    </div>
+          <!-- Bundles (20% off max) -->
+          <article class="card expandable bundle" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Bundle — Starter</h3>
+                <div class="prices"><span class="old">€210</span><span class="new silver">€168</span></div>
+                <div class="save">Save 20%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Best for</span><span>Launch kit</span></div>
+                <div class="detail-row"><span>Includes</span><span>Logo + intro + social pack</span></div>
+              </div>
+            </button>
+          </article>
 
-  </div>
-</section>
+          <article class="card expandable bundle" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Bundle — Creator</h3>
+                <div class="prices"><span class="old">€300</span><span class="new silver">€240</span></div>
+                <div class="save">Save 20%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Best for</span><span>Consistency</span></div>
+                <div class="detail-row"><span>Includes</span><span>Creator pack + loops</span></div>
+              </div>
+            </button>
+          </article>
 
-<!-- CONTACT -->
-<section id="contact">
-  <h2>Contact</h2>
-  <p>Instagram: @spnvisualz</p>
-  <p>Email: spnvisualz@gmail.com</p>
+          <article class="card expandable bundle" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Bundle — Business</h3>
+                <div class="prices"><span class="old">€420</span><span class="new silver">€336</span></div>
+                <div class="save">Save 20%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Best for</span><span>Brand foundation</span></div>
+                <div class="detail-row"><span>Includes</span><span>Full brand system</span></div>
+              </div>
+            </button>
+          </article>
+        </div>
 
-  <footer>
-    <img src="assets/logo/Chubae Logo.png" alt="Chubae Logo">
-  </footer>
-</section>
+        <div class="delivery">
+          <div class="delivery-box">
+            <div class="delivery-title">Delivery</div>
+            <div class="delivery-row"><span>Standard</span><span>3–5 days</span></div>
+            <div class="delivery-row"><span>Express</span><span>24–48h <strong>+€40</strong></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<script>
+    <!-- CONTACT -->
+    <section class="section" id="contact">
+      <div class="container">
+        <h2 class="section-title">Contact</h2>
 
-/* Splash Fade */
-document.getElementById("enterBtn").addEventListener("click", function(){
-  const splash = document.getElementById("splash");
-  splash.style.opacity = "0";
-  setTimeout(() => {
-    splash.style.display = "none";
-  }, 800);
-});
+        <div class="contact-grid">
+          <a class="contact-card" href="https://instagram.com/spnvisualz" target="_blank" rel="noreferrer">
+            <div class="contact-label">Instagram</div>
+            <div class="contact-value">@spnvisualz</div>
+          </a>
 
-/* Horizontal Scroll Logic */
-const track = document.getElementById("track");
-const section = document.getElementById("showcase");
-const videos = document.querySelectorAll(".showcase-item video");
+          <a class="contact-card" href="https://tiktok.com/@spnvisualz" target="_blank" rel="noreferrer">
+            <div class="contact-label">TikTok</div>
+            <div class="contact-value">@spnvisualz</div>
+          </a>
 
-function updateScroll() {
-  const rect = section.getBoundingClientRect();
-  const scrollAmount = Math.min(Math.max(-rect.top, 0), window.innerHeight * 5);
-  const horizontalMove = scrollAmount * (window.innerWidth / window.innerHeight);
+          <a class="contact-card" href="mailto:spnvisualz@gmail.com">
+            <div class="contact-label">Email</div>
+            <div class="contact-value">spnvisualz@gmail.com</div>
+          </a>
+        </div>
 
-  track.style.transform = `translateX(-${horizontalMove}px)`;
+        <footer class="footer">
+          <img class="footer-logo" src="./assets/images/chubae.PNG" alt="CHUBAE" draggable="false" />
+          <div class="footer-text">Created by CHUBAE</div>
+        </footer>
+      </div>
+    </section>
+  </main>
 
-  let activeIndex = Math.round(scrollAmount / window.innerHeight);
-
-  videos.forEach((video, i) => {
-    if (i === activeIndex) {
-      if (video.paused) video.play();
-    } else {
-      video.pause();
-    }
-  });
-}
-
-window.addEventListener("scroll", updateScroll);
-window.addEventListener("resize", updateScroll);
-
-</script>
-
+  <script src="./script.js"></script>
 </body>
 </html>
