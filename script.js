@@ -1,15 +1,16 @@
-// script.js
+(() => {
+  // Always start at top (prevents opening mid-page on refresh)
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  window.scrollTo(0, 0);
 
-/*
- * This JavaScript file provides a place to add client‑side interactivity to the website.
- * For now, it simply logs a message to the console once the DOM is fully loaded.
- *
- * In the future, additional features—such as a spinning logo or other animations—
- * can be implemented here. To add a spinning logo, you might target an element
- * by its ID or class and apply CSS transformations or animations using
- * JavaScript or CSS keyframes.
- */
-
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("Website loaded. Ready for modifications.");
-});
+  // Splash enter transition
+  const enterBtn = document.getElementById("enterBtn");
+  if (enterBtn) {
+    enterBtn.addEventListener("click", () => {
+      document.body.classList.add("fade-out");
+      setTimeout(() => {
+        window.location.href = "./index.html";
+      }, 450);
+    });
+  }
+})();
