@@ -1,306 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SPNVISUALZ</title>
-  <meta name="description" content="SPNVISUALZ — Luxury motion-first creative studio." />
-  <meta name="theme-color" content="#050608" />
-  <link rel="stylesheet" href="./style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SPNVISUALZ</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 
-<body class="page main-page">
-  <!-- HERO -->
-  <header class="hero" id="top">
-    <!-- Optional video later. Site still looks correct without it. -->
-    <video class="hero-video"
-      src="./assets/videos/hero.mp4"
-      poster="./assets/images/spnvisualz.png"
-      autoplay muted loop playsinline preload="metadata"></video>
+<body>
 
-    <div class="hero-fallback" aria-hidden="true"></div>
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-glow"></div>
+    <img src="./assets/images/spnvisualz.PNG" class="hero-logo" alt="SPNVISUALZ">
+</section>
 
-    <div class="hero-overlay">
-      <div class="cosmic-grain" aria-hidden="true"></div>
+<!-- PRICING -->
+<section class="pricing">
 
-      <nav class="nav">
-        <a class="nav-brand" href="#top" aria-label="SPNVISUALZ Home">
-          <span class="nav-dot" aria-hidden="true"></span>
-          SPNVISUALZ
-        </a>
-        <div class="nav-links">
-          <a href="#pricing">Pricing</a>
-          <a href="#contact">Contact</a>
-        </div>
-      </nav>
-
-      <div class="hero-center">
-        <div class="hero-life" aria-hidden="true"></div>
-
-        <img
-          class="hero-logo logo-float chrome-sweep"
-          src="./assets/images/spnvisualz.png"
-          alt="SPNVISUALZ"
-          draggable="false"
-        />
-
-        <p class="hero-sub">Motion-first. Dark. Chrome. Premium.</p>
-
-        <div class="hero-cta">
-          <a class="btn btn-ghost" href="#pricing">View Packages</a>
-          <a class="btn btn-solid" href="#contact">Book via DM / Email</a>
-        </div>
-      </div>
+    <div class="badges">
+        <div class="badge launch">LAUNCH SALE — UP TO 80%</div>
+        <div class="badge bundle">BUNDLE DEAL — UP TO 20% OFF</div>
     </div>
-  </header>
 
-  <!-- PRICING -->
-  <section class="section pricing" id="pricing">
-    <div class="container">
-      <h2 class="section-title">Packages &amp; Pricing</h2>
+    <div class="cards">
 
-      <div class="badges">
-        <div class="badge badge-green">💚 LAUNCH SALE – UP TO 80%</div>
-        <div class="badge badge-silver">💎 BUNDLE DEAL – UP TO 20% OFF</div>
-      </div>
-
-      <div class="pricing-grid">
-
-        <!-- Helper: each card uses the same structure -->
-        <article class="price-card expandable">
-          <button class="card-toggle" type="button" aria-expanded="false">
-            <div class="card-top">
-              <h3>Logo — Basic</h3>
-              <div class="prices"><span class="old">€70</span><span class="new">€14</span></div>
-              <div class="save">Save 80%</div>
+        <!-- LOGO BASIC -->
+        <div class="card" onclick="toggleCard(this)">
+            <h3>LOGO — BASIC</h3>
+            <div class="price">
+                <span class="old">€70</span>
+                <span class="new">€14</span>
             </div>
-            <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Best for</p>
-              <p class="detail-text">Artists, small brands, quick identity refresh.</p>
-              <p class="detail-title">Includes</p>
-              <ul class="detail-list">
-                <li>Primary logo + 1 alternate</li>
-                <li>PNG exports (transparent)</li>
-                <li>Social-ready sizing</li>
-              </ul>
-              <p class="detail-title">Use cases</p>
-              <p class="detail-text">Spotify cover, Instagram profile, watermark.</p>
+            <div class="details">
+                • 1 Chrome Logo  
+                • 1 Revision  
+                • Perfect for Instagram brands  
             </div>
-          </button>
-        </article>
-
-        <article class="price-card expandable">
-          <button class="card-toggle" type="button" aria-expanded="false">
-            <div class="card-top">
-              <h3>Logo — Premium</h3>
-              <div class="prices"><span class="old">€140</span><span class="new">€28</span></div>
-              <div class="save">Save 80%</div>
-            </div>
-            <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Best for</p>
-              <p class="detail-text">Premium identity and stronger brand presence.</p>
-              <p class="detail-title">Includes</p>
-              <ul class="detail-list">
-                <li>Primary + 2 alternates</li>
-                <li>Icon / mark variation</li>
-                <li>Extended PNG export pack</li>
-              </ul>
-              <p class="detail-title">Use cases</p>
-              <p class="detail-text">Website header, merch tags, business profiles.</p>
-            </div>
-          </button>
-        </article>
-
-        <article class="price-card expandable">
-          <button class="card-toggle" type="button" aria-expanded="false">
-            <div class="card-top">
-              <h3>Intro — Standard</h3>
-              <div class="prices"><span class="old">€90</span><span class="new">€18</span></div>
-              <div class="save">Save 80%</div>
-            </div>
-            <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Best for</p>
-              <p class="detail-text">Reels, shorts, quick branded opener.</p>
-              <p class="detail-title">Includes</p>
-              <ul class="detail-list">
-                <li>Short animated intro</li>
-                <li>Clean transitions</li>
-                <li>Social format export</li>
-              </ul>
-            </div>
-          </button>
-        </article>
-
-        <article class="price-card expandable">
-          <button class="card-toggle" type="button" aria-expanded="false">
-            <div class="card-top">
-              <h3>Intro — Premium</h3>
-              <div class="prices"><span class="old">€170</span><span class="new">€34</span></div>
-              <div class="save">Save 80%</div>
-            </div>
-            <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Best for</p>
-              <p class="detail-text">More cinematic timing and stronger polish.</p>
-              <p class="detail-title">Includes</p>
-              <ul class="detail-list">
-                <li>Premium motion pass</li>
-                <li>Extra refinement</li>
-                <li>Export pack for socials</li>
-              </ul>
-            </div>
-          </button>
-        </article>
-
-        <article class="price-card expandable">
-          <button class="card-toggle" type="button" aria-expanded="false">
-            <div class="card-top">
-              <h3>Loops — Basic</h3>
-              <div class="prices"><span class="old">€110</span><span class="new">€22</span></div>
-              <div class="save">Save 80%</div>
-            </div>
-            <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Includes</p>
-              <ul class="detail-list">
-                <li>Seamless loop</li>
-                <li>Muted premium motion</li>
-                <li>Optimized export</li>
-              </ul>
-            </div>
-          </button>
-        </article>
-
-        <article class="price-card expandable">
-          <button class="card-toggle" type="button" aria-expanded="false">
-            <div class="card-top">
-              <h3>Loops — Premium</h3>
-              <div class="prices"><span class="old">€190</span><span class="new">€38</span></div>
-              <div class="save">Save 80%</div>
-            </div>
-            <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Includes</p>
-              <ul class="detail-list">
-                <li>More depth + lighting</li>
-                <li>Texture polish pass</li>
-                <li>Export pack</li>
-              </ul>
-            </div>
-          </button>
-        </article>
-
-        <article class="price-card expandable">
-          <button class="card-toggle" type="button" aria-expanded="false">
-            <div class="card-top">
-              <h3>Visuals — Social</h3>
-              <div class="prices"><span class="old">€85</span><span class="new">€17</span></div>
-              <div class="save">Save 80%</div>
-            </div>
-            <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Includes</p>
-              <ul class="detail-list">
-                <li>Social-ready layout</li>
-                <li>Typography system</li>
-                <li>Export pack</li>
-              </ul>
-            </div>
-          </button>
-        </article>
-
-        <article class="price-card expandable">
-          <button class="card-toggle" type="button" aria-expanded="false">
-            <div class="card-top">
-              <h3>Visuals — Brand</h3>
-              <div class="prices"><span class="old">€150</span><span class="new">€30</span></div>
-              <div class="save">Save 80%</div>
-            </div>
-            <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Includes</p>
-              <ul class="detail-list">
-                <li>Brand-level layout system</li>
-                <li>Refined motion options</li>
-                <li>Export pack</li>
-              </ul>
-            </div>
-          </button>
-        </article>
-
-        <article class="price-card bundle expandable">
-          <button class="card-toggle" type="button" aria-expanded="false">
-            <div class="card-top">
-              <h3>Bundle — Starter</h3>
-              <div class="prices"><span class="old">€210</span><span class="new silver">€168</span></div>
-              <div class="save">Save 20%</div>
-            </div>
-            <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Use cases</p>
-              <p class="detail-text">A clean brand start: logo + motion presence.</p>
-            </div>
-          </button>
-        </article>
-
-        <article class="price-card bundle expandable">
-          <button class="card-toggle" type="button" aria-expanded="false">
-            <div class="card-top">
-              <h3>Bundle — Creator</h3>
-              <div class="prices"><span class="old">€300</span><span class="new silver">€240</span></div>
-              <div class="save">Save 20%</div>
-            </div>
-            <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Use cases</p>
-              <p class="detail-text">Consistent content system for frequent posting.</p>
-            </div>
-          </button>
-        </article>
-
-        <article class="price-card bundle expandable">
-          <button class="card-toggle" type="button" aria-expanded="false">
-            <div class="card-top">
-              <h3>Bundle — Business</h3>
-              <div class="prices"><span class="old">€420</span><span class="new silver">€336</span></div>
-              <div class="save">Save 20%</div>
-            </div>
-            <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Use cases</p>
-              <p class="detail-text">Brand visuals foundation for campaigns + identity.</p>
-            </div>
-          </button>
-        </article>
-
-      </div>
-
-      <div class="delivery">
-        <div class="delivery-box">
-          <h4>Delivery</h4>
-          <p><strong>Standard:</strong> 3–5 days</p>
-          <p><strong>Express:</strong> 24–48h <span class="express">+€40</span></p>
         </div>
-      </div>
+
+        <!-- LOGO PREMIUM -->
+        <div class="card" onclick="toggleCard(this)">
+            <h3>LOGO — PREMIUM</h3>
+            <div class="price">
+                <span class="old">€140</span>
+                <span class="new">€28</span>
+            </div>
+            <div class="details">
+                • 2 Concepts  
+                • 3 Revisions  
+                • Branding Use  
+            </div>
+        </div>
+
+        <!-- INTRO STANDARD -->
+        <div class="card" onclick="toggleCard(this)">
+            <h3>INTRO — STANDARD</h3>
+            <div class="price">
+                <span class="old">€90</span>
+                <span class="new">€18</span>
+            </div>
+            <div class="details">
+                • 8s Motion Intro  
+                • Logo Animation  
+                • Social Ready  
+            </div>
+        </div>
+
+        <!-- INTRO PREMIUM -->
+        <div class="card" onclick="toggleCard(this)">
+            <h3>INTRO — PREMIUM</h3>
+            <div class="price">
+                <span class="old">€170</span>
+                <span class="new">€34</span>
+            </div>
+            <div class="details">
+                • 12s Cinematic Intro  
+                • Sound Design  
+                • High Impact Motion  
+            </div>
+        </div>
+
     </div>
-  </section>
 
-  <!-- CONTACT -->
-  <section class="section contact" id="contact">
-    <div class="container">
-      <h2 class="section-title">Contact</h2>
+</section>
 
-      <div class="contact-cards">
-        <a class="contact-card" href="https://instagram.com/spnvisualz" target="_blank" rel="noreferrer">
-          <div class="contact-label">Instagram</div>
-          <div class="contact-value">@spnvisualz</div>
-        </a>
+<!-- FOOTER -->
+<footer>
+    <img src="./assets/images/chubae.PNG" class="footer-logo" alt="CHUBAE">
+</footer>
 
-        <a class="contact-card" href="mailto:spnvisualz@gmail.com">
-          <div class="contact-label">Email</div>
-          <div class="contact-value">spnvisualz@gmail.com</div>
-        </a>
-      </div>
-
-      <footer class="footer">
-        <img class="footer-logo" src="./assets/images/chubae.png" alt="CHUBAE" draggable="false" />
-        <div class="footer-text">Created by CHUBAE</div>
-      </footer>
-    </div>
-  </section>
-
-  <script src="./script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
