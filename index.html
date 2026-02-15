@@ -12,16 +12,11 @@
 <body class="page main-page">
   <!-- HERO -->
   <header class="hero" id="top">
-    <video
-      class="hero-video"
+    <!-- Optional video later. Site still looks correct without it. -->
+    <video class="hero-video"
       src="./assets/videos/hero.mp4"
       poster="./assets/images/spnvisualz.png"
-      autoplay
-      muted
-      loop
-      playsinline
-      preload="metadata"
-    ></video>
+      autoplay muted loop playsinline preload="metadata"></video>
 
     <div class="hero-fallback" aria-hidden="true"></div>
 
@@ -71,298 +66,205 @@
 
       <div class="pricing-grid">
 
-        <!-- LOGO BASIC -->
-        <article class="price-card expandable" tabindex="0">
+        <!-- Helper: each card uses the same structure -->
+        <article class="price-card expandable">
           <button class="card-toggle" type="button" aria-expanded="false">
             <div class="card-top">
               <h3>Logo — Basic</h3>
-              <div class="prices">
-                <span class="old">€70</span>
-                <span class="new">€14</span>
-              </div>
+              <div class="prices"><span class="old">€70</span><span class="new">€14</span></div>
               <div class="save">Save 80%</div>
             </div>
-
             <div class="card-details" aria-hidden="true">
               <p class="detail-title">Best for</p>
               <p class="detail-text">Artists, small brands, quick identity refresh.</p>
-
               <p class="detail-title">Includes</p>
               <ul class="detail-list">
-                <li>Clean logo design (primary + 1 alternate)</li>
-                <li>Export pack (PNG + transparent)</li>
+                <li>Primary logo + 1 alternate</li>
+                <li>PNG exports (transparent)</li>
                 <li>Social-ready sizing</li>
               </ul>
-
               <p class="detail-title">Use cases</p>
-              <p class="detail-text">Spotify cover, Instagram profile, brand stamp.</p>
+              <p class="detail-text">Spotify cover, Instagram profile, watermark.</p>
             </div>
           </button>
         </article>
 
-        <!-- LOGO PREMIUM -->
-        <article class="price-card expandable" tabindex="0">
+        <article class="price-card expandable">
           <button class="card-toggle" type="button" aria-expanded="false">
             <div class="card-top">
               <h3>Logo — Premium</h3>
-              <div class="prices">
-                <span class="old">€140</span>
-                <span class="new">€28</span>
-              </div>
+              <div class="prices"><span class="old">€140</span><span class="new">€28</span></div>
               <div class="save">Save 80%</div>
             </div>
-
             <div class="card-details" aria-hidden="true">
               <p class="detail-title">Best for</p>
-              <p class="detail-text">Full brand identity and premium presence.</p>
-
+              <p class="detail-text">Premium identity and stronger brand presence.</p>
               <p class="detail-title">Includes</p>
               <ul class="detail-list">
                 <li>Primary + 2 alternates</li>
                 <li>Icon / mark variation</li>
-                <li>Extended export pack (PNG)</li>
+                <li>Extended PNG export pack</li>
               </ul>
-
               <p class="detail-title">Use cases</p>
               <p class="detail-text">Website header, merch tags, business profiles.</p>
             </div>
           </button>
         </article>
 
-        <!-- INTRO STANDARD -->
-        <article class="price-card expandable" tabindex="0">
+        <article class="price-card expandable">
           <button class="card-toggle" type="button" aria-expanded="false">
             <div class="card-top">
               <h3>Intro — Standard</h3>
-              <div class="prices">
-                <span class="old">€90</span>
-                <span class="new">€18</span>
-              </div>
+              <div class="prices"><span class="old">€90</span><span class="new">€18</span></div>
               <div class="save">Save 80%</div>
             </div>
-
             <div class="card-details" aria-hidden="true">
               <p class="detail-title">Best for</p>
-              <p class="detail-text">Content creators, reels, quick brand opener.</p>
-
+              <p class="detail-text">Reels, shorts, quick branded opener.</p>
               <p class="detail-title">Includes</p>
               <ul class="detail-list">
                 <li>Short animated intro</li>
                 <li>Clean transitions</li>
                 <li>Social format export</li>
               </ul>
-
-              <p class="detail-title">Use cases</p>
-              <p class="detail-text">TikTok, IG Reels, YouTube shorts.</p>
             </div>
           </button>
         </article>
 
-        <!-- INTRO PREMIUM -->
-        <article class="price-card expandable" tabindex="0">
+        <article class="price-card expandable">
           <button class="card-toggle" type="button" aria-expanded="false">
             <div class="card-top">
               <h3>Intro — Premium</h3>
-              <div class="prices">
-                <span class="old">€170</span>
-                <span class="new">€34</span>
-              </div>
+              <div class="prices"><span class="old">€170</span><span class="new">€34</span></div>
               <div class="save">Save 80%</div>
             </div>
-
             <div class="card-details" aria-hidden="true">
               <p class="detail-title">Best for</p>
-              <p class="detail-text">High-end intros with stronger motion design.</p>
-
+              <p class="detail-text">More cinematic timing and stronger polish.</p>
               <p class="detail-title">Includes</p>
               <ul class="detail-list">
-                <li>More cinematic timing</li>
-                <li>Custom polish pass</li>
+                <li>Premium motion pass</li>
+                <li>Extra refinement</li>
                 <li>Export pack for socials</li>
               </ul>
-
-              <p class="detail-title">Use cases</p>
-              <p class="detail-text">YouTube intros, brand trailers, event promos.</p>
             </div>
           </button>
         </article>
 
-        <!-- LOOPS BASIC -->
-        <article class="price-card expandable" tabindex="0">
+        <article class="price-card expandable">
           <button class="card-toggle" type="button" aria-expanded="false">
             <div class="card-top">
               <h3>Loops — Basic</h3>
-              <div class="prices">
-                <span class="old">€110</span>
-                <span class="new">€22</span>
-              </div>
+              <div class="prices"><span class="old">€110</span><span class="new">€22</span></div>
               <div class="save">Save 80%</div>
             </div>
-
             <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Best for</p>
-              <p class="detail-text">IG story backgrounds and subtle motion branding.</p>
-
               <p class="detail-title">Includes</p>
               <ul class="detail-list">
-                <li>Seamless looping visual</li>
+                <li>Seamless loop</li>
                 <li>Muted premium motion</li>
                 <li>Optimized export</li>
               </ul>
-
-              <p class="detail-title">Use cases</p>
-              <p class="detail-text">Backdrop for lyrics, promos, announcements.</p>
             </div>
           </button>
         </article>
 
-        <!-- LOOPS PREMIUM -->
-        <article class="price-card expandable" tabindex="0">
+        <article class="price-card expandable">
           <button class="card-toggle" type="button" aria-expanded="false">
             <div class="card-top">
               <h3>Loops — Premium</h3>
-              <div class="prices">
-                <span class="old">€190</span>
-                <span class="new">€38</span>
-              </div>
+              <div class="prices"><span class="old">€190</span><span class="new">€38</span></div>
               <div class="save">Save 80%</div>
             </div>
-
             <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Best for</p>
-              <p class="detail-text">Stronger visuals with higher-end polish.</p>
-
               <p class="detail-title">Includes</p>
               <ul class="detail-list">
                 <li>More depth + lighting</li>
-                <li>Premium texture pass</li>
+                <li>Texture polish pass</li>
                 <li>Export pack</li>
               </ul>
-
-              <p class="detail-title">Use cases</p>
-              <p class="detail-text">Brand reels, covers, promo loops.</p>
             </div>
           </button>
         </article>
 
-        <!-- VISUALS SOCIAL -->
-        <article class="price-card expandable" tabindex="0">
+        <article class="price-card expandable">
           <button class="card-toggle" type="button" aria-expanded="false">
             <div class="card-top">
               <h3>Visuals — Social</h3>
-              <div class="prices">
-                <span class="old">€85</span>
-                <span class="new">€17</span>
-              </div>
+              <div class="prices"><span class="old">€85</span><span class="new">€17</span></div>
               <div class="save">Save 80%</div>
             </div>
-
             <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Best for</p>
-              <p class="detail-text">Fast content that still feels expensive.</p>
-
               <p class="detail-title">Includes</p>
               <ul class="detail-list">
-                <li>Social-ready visuals</li>
-                <li>Typography + layout</li>
+                <li>Social-ready layout</li>
+                <li>Typography system</li>
                 <li>Export pack</li>
               </ul>
-
-              <p class="detail-title">Use cases</p>
-              <p class="detail-text">Reels, story drops, promo posts.</p>
             </div>
           </button>
         </article>
 
-        <!-- VISUALS BRAND -->
-        <article class="price-card expandable" tabindex="0">
+        <article class="price-card expandable">
           <button class="card-toggle" type="button" aria-expanded="false">
             <div class="card-top">
               <h3>Visuals — Brand</h3>
-              <div class="prices">
-                <span class="old">€150</span>
-                <span class="new">€30</span>
-              </div>
+              <div class="prices"><span class="old">€150</span><span class="new">€30</span></div>
               <div class="save">Save 80%</div>
             </div>
-
             <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Best for</p>
-              <p class="detail-text">Brand-level visuals with consistent identity.</p>
-
               <p class="detail-title">Includes</p>
               <ul class="detail-list">
-                <li>Higher-end layout system</li>
-                <li>More refined motion options</li>
+                <li>Brand-level layout system</li>
+                <li>Refined motion options</li>
                 <li>Export pack</li>
               </ul>
-
-              <p class="detail-title">Use cases</p>
-              <p class="detail-text">Campaign visuals, brand drops, product promos.</p>
             </div>
           </button>
         </article>
 
-        <!-- Bundles (20% OFF max) -->
-        <article class="price-card bundle expandable" tabindex="0">
+        <article class="price-card bundle expandable">
           <button class="card-toggle" type="button" aria-expanded="false">
             <div class="card-top">
               <h3>Bundle — Starter</h3>
-              <div class="prices">
-                <span class="old">€210</span>
-                <span class="new silver">€168</span>
-              </div>
+              <div class="prices"><span class="old">€210</span><span class="new silver">€168</span></div>
               <div class="save">Save 20%</div>
             </div>
-
             <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Best for</p>
-              <p class="detail-text">New creators launching a clean brand look.</p>
               <p class="detail-title">Use cases</p>
-              <p class="detail-text">Logo + intro + basic motion system.</p>
+              <p class="detail-text">A clean brand start: logo + motion presence.</p>
             </div>
           </button>
         </article>
 
-        <article class="price-card bundle expandable" tabindex="0">
+        <article class="price-card bundle expandable">
           <button class="card-toggle" type="button" aria-expanded="false">
             <div class="card-top">
               <h3>Bundle — Creator</h3>
-              <div class="prices">
-                <span class="old">€300</span>
-                <span class="new silver">€240</span>
-              </div>
+              <div class="prices"><span class="old">€300</span><span class="new silver">€240</span></div>
               <div class="save">Save 20%</div>
             </div>
-
             <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Best for</p>
-              <p class="detail-text">Frequent posting with a consistent premium vibe.</p>
               <p class="detail-title">Use cases</p>
-              <p class="detail-text">Loop + visuals + intro presence.</p>
+              <p class="detail-text">Consistent content system for frequent posting.</p>
             </div>
           </button>
         </article>
 
-        <article class="price-card bundle expandable" tabindex="0">
+        <article class="price-card bundle expandable">
           <button class="card-toggle" type="button" aria-expanded="false">
             <div class="card-top">
               <h3>Bundle — Business</h3>
-              <div class="prices">
-                <span class="old">€420</span>
-                <span class="new silver">€336</span>
-              </div>
+              <div class="prices"><span class="old">€420</span><span class="new silver">€336</span></div>
               <div class="save">Save 20%</div>
             </div>
-
             <div class="card-details" aria-hidden="true">
-              <p class="detail-title">Best for</p>
-              <p class="detail-text">Brands that need a full pro identity set.</p>
               <p class="detail-title">Use cases</p>
-              <p class="detail-text">Brand visuals + premium assets foundation.</p>
+              <p class="detail-text">Brand visuals foundation for campaigns + identity.</p>
             </div>
           </button>
         </article>
+
       </div>
 
       <div class="delivery">
