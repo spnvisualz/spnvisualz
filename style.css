@@ -393,3 +393,33 @@ img{max-width:100%; display:block}
   .nav-links{ gap:14px; }
   .hero-orbit{ width:380px; height:380px; }
 }
+/* ================= SHOWCASE ================= */
+
+.showcase-section {
+  position: relative;
+  height: 600vh;
+  overflow: hidden;
+}
+
+.showcase-wrap {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.showcase-track {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+}
+
+.showcase-item {
+  min-width: 100vw;
+  height: 100vh;
+}
+
+.showcase-item video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
