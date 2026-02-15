@@ -1,41 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Website</title>
-    <!-- Link to the site stylesheet -->
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SPNVISUALZ</title>
+  <meta name="description" content="SPNVISUALZ — Luxury motion-first creative studio." />
+  <link rel="stylesheet" href="./style.css" />
 </head>
-<body>
-    <header>
-        <h1>Welcome to My Website</h1>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
 
-    <main>
-        <section id="hero">
-            <h2>Hero Section</h2>
-            <p>This is the hero section of the website. We will add more content here later.</p>
-        </section>
+<body class="page main-page">
+  <!-- HERO -->
+  <header class="hero" id="top">
+    <video
+      class="hero-video"
+      src="./assets/videos/hero.mp4"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="metadata"
+    ></video>
 
-        <section id="content">
-            <h2>Content Section</h2>
-            <p>This is a placeholder for the content. We'll fill it with the latest modifications.</p>
-        </section>
-    </main>
+    <div class="hero-overlay">
+      <div class="cosmic-grain"></div>
 
-    <footer>
-        <p>&copy; 2026 My Website. All rights reserved.</p>
-    </footer>
+      <nav class="nav">
+        <a class="nav-brand" href="#top" aria-label="SPNVISUALZ Home">
+          <span class="nav-dot"></span>
+          SPNVISUALZ
+        </a>
+        <div class="nav-links">
+          <a href="#pricing">Pricing</a>
+          <a href="#contact">Contact</a>
+        </div>
+      </nav>
 
-    <!-- Link to the site script -->
-    <script src="script.js"></script>
+      <div class="hero-center">
+        <img
+          class="hero-logo logo-orbit"
+          src="./assets/images/spnvisualz-logo.png"
+          alt="SPNVISUALZ"
+          draggable="false"
+        />
+        <p class="hero-sub">
+          Motion-first. Dark. Chrome. Premium.
+        </p>
+
+        <div class="hero-cta">
+          <a class="btn btn-ghost" href="#pricing">View Packages</a>
+          <a class="btn btn-solid" href="#contact">Book via DM / Email</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- PRICING -->
+  <section class="section pricing" id="pricing">
+    <div class="container">
+      <h2 class="section-title">Packages &amp; Pricing</h2>
+
+      <div class="badges">
+        <div class="badge badge-green">💚 LAUNCH SALE – UP TO 80%</div>
+        <div class="badge badge-silver">💎 BUNDLE DEAL – UP TO 20% OFF</div>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Regular packages (80% OFF) -->
+        <article class="price-card">
+          <h3>Logo — Basic</h3>
+          <div class="prices">
+            <span class="old">€70</span>
+            <span class="new">€14</span>
+          </div>
+          <div class="save">Save 80%</div>
+        </article>
+
+        <article class="price-card">
+          <h3>Logo — Premium</h3>
+          <div class="prices">
+            <span class="old">€140</span>
+            <span class="new">€28</span>
+          </div>
+          <div class="save">Save 80%</div>
+        </article>
+
+        <article class="price-card">
+          <h3>Intro — Standard</h3>
+          <div class="prices">
+            <span class="old">€90</span>
+            <span class="new">€18</span>
+          </div>
+          <div class="save">Save 80%</div>
+        </article>
+
+        <article class="price-card">
+          <h3>Intro — Premium</h3>
+          <div class="prices">
+            <span class="old">€170</span>
+            <span class="new">€34</span>
+          </div>
+          <div class="save">Save 80%</div>
+        </article>
+
+        <article class="price-card">
+          <h3>Loops — Basic</h3>
+          <div class="prices">
+            <span class="old">€110</span>
+            <span class="new">€22</span>
+          </div>
+          <div class="save">Save 80%</div>
+        </article>
+
+        <article class="price-card">
+          <h3>Loops — Premium</h3>
+          <div class="prices">
+            <span class="old">€190</span>
+            <span class="new">€38</span>
+          </div>
+          <div class="save">Save 80%</div>
+        </article>
+
+        <article class="price-card">
+          <h3>Visuals — Social</h3>
+          <div class="prices">
+            <span class="old">€85</span>
+            <span class="new">€17</span>
+          </div>
+          <div class="save">Save 80%</div>
+        </article>
+
+        <article class="price-card">
+          <h3>Visuals — Brand</h3>
+          <div class="prices">
+            <span class="old">€150</span>
+            <span class="new">€30</span>
+          </div>
+          <div class="save">Save 80%</div>
+        </article>
+
+        <!-- Bundles (max 20% OFF) -->
+        <article class="price-card bundle">
+          <h3>Bundle — Starter</h3>
+          <div class="prices">
+            <span class="old">€210</span>
+            <span class="new silver">€168</span>
+          </div>
+          <div class="save">Save 20%</div>
+        </article>
+
+        <article class="price-card bundle">
+          <h3>Bundle — Creator</h3>
+          <div class="prices">
+            <span class="old">€300</span>
+            <span class="new silver">€240</span>
+          </div>
+          <div class="save">Save 20%</div>
+        </article>
+
+        <article class="price-card bundle">
+          <h3>Bundle — Business</h3>
+          <div class="prices">
+            <span class="old">€420</span>
+            <span class="new silver">€336</span>
+          </div>
+          <div class="save">Save 20%</div>
+        </article>
+      </div>
+
+      <!-- Delivery -->
+      <div class="delivery">
+        <div class="delivery-box">
+          <h4>Delivery</h4>
+          <p><strong>Standard:</strong> 3–5 days</p>
+          <p><strong>Express:</strong> 24–48h <span class="express">+€40</span> <span class="muted">(no discount)</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="section contact" id="contact">
+    <div class="container">
+      <h2 class="section-title">Contact</h2>
+
+      <div class="contact-cards">
+        <a class="contact-card" href="https://instagram.com/spnvisualz" target="_blank" rel="noreferrer">
+          <div class="contact-label">Instagram</div>
+          <div class="contact-value">@spnvisualz</div>
+        </a>
+
+        <a class="contact-card" href="mailto:spnvisualz@gmail.com">
+          <div class="contact-label">Email</div>
+          <div class="contact-value">spnvisualz@gmail.com</div>
+        </a>
+      </div>
+
+      <footer class="footer">
+        <img
+          class="footer-logo"
+          src="./assets/images/chubae-logo.png"
+          alt="CHUBAE"
+          draggable="false"
+        />
+        <div class="footer-text">CHUBAE — creator credit</div>
+      </footer>
+    </div>
+  </section>
+
+  <script src="./script.js"></script>
 </body>
 </html>
