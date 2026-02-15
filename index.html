@@ -1,95 +1,245 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SPNVISUALZ</title>
-<link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SPNVISUALZ</title>
+  <meta name="description" content="SPNVISUALZ — Luxury motion-first creative studio." />
+  <meta name="theme-color" content="#050608" />
+  <link rel="stylesheet" href="./style.css" />
 </head>
 
-<body>
+<body class="page page-main">
+  <header class="hero" id="top">
+    <div class="bg-cosmic" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
 
-<!-- HERO -->
-<section class="hero">
-    <div class="hero-glow"></div>
-    <img src="./assets/images/spnvisualz.PNG" class="hero-logo" alt="SPNVISUALZ">
-</section>
+    <nav class="nav">
+      <a class="nav-brand" href="#top">SPNVISUALZ</a>
+      <div class="nav-links">
+        <a href="#pricing">Pricing</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </nav>
 
-<!-- PRICING -->
-<section class="pricing">
+    <section class="hero-center">
+      <div class="hero-life" aria-hidden="true"></div>
+      <div class="hero-orbit" aria-hidden="true"></div>
 
-    <div class="badges">
-        <div class="badge launch">LAUNCH SALE — UP TO 80%</div>
-        <div class="badge bundle">BUNDLE DEAL — UP TO 20% OFF</div>
-    </div>
+      <img class="hero-logo chrome-sweep float" src="./assets/images/spnvisualz.PNG" alt="SPNVISUALZ" draggable="false" />
 
-    <div class="cards">
+      <p class="hero-sub">Premium motion. Dark chrome. No templates.</p>
 
-        <!-- LOGO BASIC -->
-        <div class="card" onclick="toggleCard(this)">
-            <h3>LOGO — BASIC</h3>
-            <div class="price">
-                <span class="old">€70</span>
-                <span class="new">€14</span>
-            </div>
-            <div class="details">
-                • 1 Chrome Logo  
-                • 1 Revision  
-                • Perfect for Instagram brands  
-            </div>
+      <div class="hero-cta">
+        <a class="btn btn-ghost" href="#pricing">View Packages</a>
+        <a class="btn btn-solid" href="#contact">Book Now</a>
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section class="section" id="pricing">
+      <div class="container">
+        <h2 class="section-title">Packages &amp; Pricing</h2>
+
+        <div class="badges">
+          <div class="badge badge-green">💚 LAUNCH SALE – UP TO 80%</div>
+          <div class="badge badge-silver">💎 BUNDLE DEAL – UP TO 20% OFF</div>
         </div>
 
-        <!-- LOGO PREMIUM -->
-        <div class="card" onclick="toggleCard(this)">
-            <h3>LOGO — PREMIUM</h3>
-            <div class="price">
-                <span class="old">€140</span>
-                <span class="new">€28</span>
-            </div>
-            <div class="details">
-                • 2 Concepts  
-                • 3 Revisions  
-                • Branding Use  
-            </div>
+        <div class="pricing-grid">
+          <!-- Regular packages (80% off shown here exactly like your screenshot) -->
+          <article class="card expandable" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Logo — Basic</h3>
+                <div class="prices"><span class="old">€70</span><span class="new green">€14</span></div>
+                <div class="save">Save 80%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Best for</span><span>Artists / quick identity</span></div>
+                <div class="detail-row"><span>Includes</span><span>1 logo + export pack</span></div>
+                <div class="detail-row"><span>Use</span><span>IG, Spotify, watermark</span></div>
+              </div>
+            </button>
+          </article>
+
+          <article class="card expandable" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Logo — Premium</h3>
+                <div class="prices"><span class="old">€140</span><span class="new green">€28</span></div>
+                <div class="save">Save 80%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Best for</span><span>Full brand presence</span></div>
+                <div class="detail-row"><span>Includes</span><span>More variants + polish</span></div>
+                <div class="detail-row"><span>Use</span><span>Web, merch, profiles</span></div>
+              </div>
+            </button>
+          </article>
+
+          <article class="card expandable" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Intro — Standard</h3>
+                <div class="prices"><span class="old">€90</span><span class="new green">€18</span></div>
+                <div class="save">Save 80%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Best for</span><span>Reels / shorts</span></div>
+                <div class="detail-row"><span>Includes</span><span>Short intro + export</span></div>
+                <div class="detail-row"><span>Use</span><span>Social opens</span></div>
+              </div>
+            </button>
+          </article>
+
+          <article class="card expandable" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Intro — Premium</h3>
+                <div class="prices"><span class="old">€170</span><span class="new green">€34</span></div>
+                <div class="save">Save 80%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Best for</span><span>Cinematic brand opener</span></div>
+                <div class="detail-row"><span>Includes</span><span>Premium motion polish</span></div>
+                <div class="detail-row"><span>Use</span><span>YouTube / campaigns</span></div>
+              </div>
+            </button>
+          </article>
+
+          <article class="card expandable" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Loops — Basic</h3>
+                <div class="prices"><span class="old">€110</span><span class="new green">€22</span></div>
+                <div class="save">Save 80%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Includes</span><span>Seamless loop</span></div>
+                <div class="detail-row"><span>Use</span><span>Story / promo backgrounds</span></div>
+              </div>
+            </button>
+          </article>
+
+          <article class="card expandable" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Loops — Premium</h3>
+                <div class="prices"><span class="old">€190</span><span class="new green">€38</span></div>
+                <div class="save">Save 80%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Includes</span><span>More depth + texture</span></div>
+                <div class="detail-row"><span>Use</span><span>Brand loops / drops</span></div>
+              </div>
+            </button>
+          </article>
+
+          <article class="card expandable" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Visuals — Social</h3>
+                <div class="prices"><span class="old">€85</span><span class="new green">€17</span></div>
+                <div class="save">Save 80%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Includes</span><span>Social layout pack</span></div>
+                <div class="detail-row"><span>Use</span><span>Posts / reels graphics</span></div>
+              </div>
+            </button>
+          </article>
+
+          <article class="card expandable" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Visuals — Brand</h3>
+                <div class="prices"><span class="old">€150</span><span class="new green">€30</span></div>
+                <div class="save">Save 80%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Includes</span><span>Brand-grade visuals</span></div>
+                <div class="detail-row"><span>Use</span><span>Campaign system</span></div>
+              </div>
+            </button>
+          </article>
+
+          <!-- Bundles (20% off max) -->
+          <article class="card expandable bundle" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Bundle — Starter</h3>
+                <div class="prices"><span class="old">€210</span><span class="new silver">€168</span></div>
+                <div class="save">Save 20%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Use</span><span>Clean launch kit</span></div>
+              </div>
+            </button>
+          </article>
+
+          <article class="card expandable bundle" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Bundle — Creator</h3>
+                <div class="prices"><span class="old">€300</span><span class="new silver">€240</span></div>
+                <div class="save">Save 20%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Use</span><span>Consistent content</span></div>
+              </div>
+            </button>
+          </article>
+
+          <article class="card expandable bundle" data-card>
+            <button class="card-btn" type="button" aria-expanded="false">
+              <div class="card-top">
+                <h3>Bundle — Business</h3>
+                <div class="prices"><span class="old">€420</span><span class="new silver">€336</span></div>
+                <div class="save">Save 20%</div>
+              </div>
+              <div class="details" aria-hidden="true">
+                <div class="detail-row"><span>Use</span><span>Brand foundation</span></div>
+              </div>
+            </button>
+          </article>
         </div>
 
-        <!-- INTRO STANDARD -->
-        <div class="card" onclick="toggleCard(this)">
-            <h3>INTRO — STANDARD</h3>
-            <div class="price">
-                <span class="old">€90</span>
-                <span class="new">€18</span>
-            </div>
-            <div class="details">
-                • 8s Motion Intro  
-                • Logo Animation  
-                • Social Ready  
-            </div>
+        <div class="delivery">
+          <div class="delivery-box">
+            <div class="delivery-title">Delivery</div>
+            <div class="delivery-row"><span>Standard</span><span>3–5 days</span></div>
+            <div class="delivery-row"><span>Express</span><span>24–48h <strong>+€40</strong></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="container">
+        <h2 class="section-title">Contact</h2>
+
+        <div class="contact-grid">
+          <a class="contact-card" href="https://instagram.com/spnvisualz" target="_blank" rel="noreferrer">
+            <div class="contact-label">Instagram</div>
+            <div class="contact-value">@spnvisualz</div>
+          </a>
+
+          <a class="contact-card" href="mailto:spnvisualz@gmail.com">
+            <div class="contact-label">Email</div>
+            <div class="contact-value">spnvisualz@gmail.com</div>
+          </a>
         </div>
 
-        <!-- INTRO PREMIUM -->
-        <div class="card" onclick="toggleCard(this)">
-            <h3>INTRO — PREMIUM</h3>
-            <div class="price">
-                <span class="old">€170</span>
-                <span class="new">€34</span>
-            </div>
-            <div class="details">
-                • 12s Cinematic Intro  
-                • Sound Design  
-                • High Impact Motion  
-            </div>
-        </div>
+        <footer class="footer">
+          <img class="footer-logo" src="./assets/images/chubae.PNG" alt="CHUBAE" draggable="false" />
+          <div class="footer-text">Created by CHUBAE</div>
+        </footer>
+      </div>
+    </section>
+  </main>
 
-    </div>
-
-</section>
-
-<!-- FOOTER -->
-<footer>
-    <img src="./assets/images/chubae.PNG" class="footer-logo" alt="CHUBAE">
-</footer>
-
-<script src="script.js"></script>
+  <script src="./script.js"></script>
 </body>
 </html>
