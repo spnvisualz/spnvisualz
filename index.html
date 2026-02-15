@@ -5,15 +5,19 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>SPNVISUALZ</title>
   <meta name="description" content="SPNVISUALZ — Luxury motion-first creative studio." />
+  <meta name="theme-color" content="#050608" />
   <link rel="stylesheet" href="./style.css" />
 </head>
 
 <body class="page main-page">
   <!-- HERO -->
   <header class="hero" id="top">
+    <!-- Optional: if you add /assets/videos/hero.mp4 later, it will autoplay.
+         If it doesn't exist, the image fallback still shows. -->
     <video
       class="hero-video"
       src="./assets/videos/hero.mp4"
+      poster="./assets/images/spnvisualz.png"
       autoplay
       muted
       loop
@@ -21,12 +25,15 @@
       preload="metadata"
     ></video>
 
+    <!-- Always-visible fallback background image -->
+    <div class="hero-fallback" aria-hidden="true"></div>
+
     <div class="hero-overlay">
-      <div class="cosmic-grain"></div>
+      <div class="cosmic-grain" aria-hidden="true"></div>
 
       <nav class="nav">
         <a class="nav-brand" href="#top" aria-label="SPNVISUALZ Home">
-          <span class="nav-dot"></span>
+          <span class="nav-dot" aria-hidden="true"></span>
           SPNVISUALZ
         </a>
         <div class="nav-links">
@@ -37,14 +44,13 @@
 
       <div class="hero-center">
         <img
-          class="hero-logo logo-orbit"
-          src="./assets/images/spnvisualz-logo.png"
+          class="hero-logo logo-float"
+          src="./assets/images/spnvisualz.png"
           alt="SPNVISUALZ"
           draggable="false"
         />
-        <p class="hero-sub">
-          Motion-first. Dark. Chrome. Premium.
-        </p>
+
+        <p class="hero-sub">Motion-first. Dark. Chrome. Premium.</p>
 
         <div class="hero-cta">
           <a class="btn btn-ghost" href="#pricing">View Packages</a>
@@ -65,7 +71,7 @@
       </div>
 
       <div class="pricing-grid">
-        <!-- Regular packages (80% OFF) -->
+        <!-- Regular (80% OFF) -->
         <article class="price-card">
           <h3>Logo — Basic</h3>
           <div class="prices">
@@ -138,7 +144,7 @@
           <div class="save">Save 80%</div>
         </article>
 
-        <!-- Bundles (max 20% OFF) -->
+        <!-- Bundles (20% OFF max) -->
         <article class="price-card bundle">
           <h3>Bundle — Starter</h3>
           <div class="prices">
@@ -167,7 +173,6 @@
         </article>
       </div>
 
-      <!-- Delivery -->
       <div class="delivery">
         <div class="delivery-box">
           <h4>Delivery</h4>
@@ -198,11 +203,11 @@
       <footer class="footer">
         <img
           class="footer-logo"
-          src="./assets/images/chubae-logo.png"
+          src="./assets/images/chubae.png"
           alt="CHUBAE"
           draggable="false"
         />
-        <div class="footer-text">CHUBAE — creator credit</div>
+        <div class="footer-text">Created by CHUBAE</div>
       </footer>
     </div>
   </section>
