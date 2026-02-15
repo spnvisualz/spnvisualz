@@ -1,11 +1,7 @@
 (() => {
 
-  /* ================= SCROLL RESET ================= */
-
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   window.scrollTo(0, 0);
-
-  /* ================= EXPANDABLE CARDS ================= */
 
   const cards = Array.from(document.querySelectorAll("[data-card]"));
 
@@ -41,19 +37,18 @@
     if (!el.closest("[data-card]")) closeAll(null);
   });
 
-  /* ================= SHOWCASE SCROLL ================= */
-
   const showcase = document.getElementById("showcase");
   const showcaseTrack = document.getElementById("showcaseTrack");
 
   if (showcase && showcaseTrack) {
 
     const videos = showcaseTrack.querySelectorAll("video");
-    const totalPanels = videos.length;
 
     function updateShowcaseScroll() {
 
       const rect = showcase.getBoundingClientRect();
+      const totalPanels = videos.length;
+
       const scrollAmount = Math.min(
         Math.max(-rect.top, 0),
         window.innerHeight * (totalPanels - 1)
