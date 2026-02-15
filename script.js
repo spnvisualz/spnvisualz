@@ -1,6 +1,11 @@
 (() => {
+
+  /* ================= SCROLL RESET ================= */
+
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   window.scrollTo(0, 0);
+
+  /* ================= EXPANDABLE CARDS ================= */
 
   const cards = Array.from(document.querySelectorAll("[data-card]"));
 
@@ -35,4 +40,43 @@
     if (!(el instanceof Element)) return;
     if (!el.closest("[data-card]")) closeAll(null);
   });
+
+  /* ================= SHOWCASE SCROLL ================= */
+
+  const showcase = document.getElementById("showcase");
+  const showcaseTrack = document.getElementById("showcaseTrack");
+
+  if (showcase && showcaseTrack) {
+
+    const videos = showcaseTrack.querySelectorAll("video");
+    const totalPanels = videos.length;
+
+    function updateShowcaseScroll() {
+
+      const rect = showcase.getBoundingClientRect();
+      const scrollAmount = Math.min(
+        Math.max(-rect.top, 0),
+        window.innerHeight * (totalPanels - 1)
+      );
+
+      const horizontalMove =
+        scrollAmount * (window.innerWidth / window.innerHeight);
+
+      showcaseTrack.style.transform = `translateX(-${horizontalMove}px)`;
+
+      const activeIndex = Math.round(scrollAmount / window.innerHeight);
+
+      videos.forEach((video, i) => {
+        if (i === activeIndex) {
+          if (video.paused) video.play();
+        } else {
+          video.pause();
+        }
+      });
+    }
+
+    window.addEventListener("scroll", updateShowcaseScroll);
+    window.addEventListener("resize", updateShowcaseScroll);
+  }
+
 })();
