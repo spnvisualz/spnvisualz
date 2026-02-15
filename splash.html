@@ -1,18 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPNVISUALZ — Enter</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SPNVISUALZ — Enter</title>
+  <meta name="robots" content="index,follow" />
+  <link rel="stylesheet" href="./style.css" />
 </head>
-<body class="splash-body">
-    <div id="splash" class="splash-container">
-        <!-- Rotating logo -->
-        <img src="assets/images/monochrome-logo.png" alt="SPNVISUALZ Logo" class="logo-rotate splash-logo" />
-        <!-- Enter button -->
-        <a href="index.html" class="enter-button">Enter</a>
+<body class="page splash-page">
+  <main class="splash">
+    <div class="cosmic-grain" aria-hidden="true"></div>
+
+    <div class="splash-center">
+      <img
+        class="splash-logo logo-spin"
+        src="./assets/images/spnvisualz.png"
+        alt="SPNVISUALZ"
+        draggable="false"
+      />
+
+      <button class="btn enter-btn" id="enterBtn" type="button">
+        ENTER
+      </button>
+
+      <p class="splash-note">Luxury motion-first creative studio</p>
     </div>
-    <script src="script.js"></script>
+  </main>
+
+  <script src="./script.js"></script>
 </body>
 </html>
