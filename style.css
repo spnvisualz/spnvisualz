@@ -81,33 +81,112 @@ img{max-width:100%; display:block}
 .btn-solid{ background: linear-gradient(180deg, rgba(0,255,150,.18), rgba(0,255,150,.06)); border-color: rgba(0,255,150,.35); }
 .btn-ghost{ background: rgba(255,255,255,.02); }
 
-/* NAV */
+/* =========================
+   NAV — STUDIO CONTROL BAR
+========================= */
+
 .nav{
-  position:sticky;
+  position:fixed;
   top:0;
-  z-index:10;
+  left:0;
+  width:100%;
+  z-index:999;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:18px min(40px, 4vw);
-  backdrop-filter: blur(12px);
-  background: rgba(0,0,0,.20);
+  padding:20px min(50px, 5vw);
+  backdrop-filter: blur(18px);
+  background: rgba(0,0,0,.35);
   border-bottom:1px solid rgba(255,255,255,.06);
+  transition: background .35s ease, border-color .35s ease, padding .35s ease;
 }
+
+/* Darkens when scrolling */
+.nav.scrolled{
+  background: rgba(0,0,0,.65);
+  border-bottom:1px solid rgba(0,255,150,.18);
+  box-shadow: 0 10px 40px rgba(0,0,0,.6);
+}
+
+.nav::after{
+  content:"";
+  position:absolute;
+  bottom:-1px;
+  left:0;
+  width:100%;
+  height:1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0,255,150,.6),
+    transparent
+  );
+  opacity:.4;
+}
+
+/* Brand */
 .nav-brand{
-  letter-spacing:.16em;
+  position:relative;
+  letter-spacing:.18em;
   text-transform:uppercase;
   font-size:12px;
-  color: rgba(255,255,255,.88);
+  color: rgba(255,255,255,.9);
+  transition: opacity .3s ease;
 }
-.nav-links{ display:flex; gap:18px; }
+
+.nav-brand:hover{
+  opacity:.7;
+}
+
+/* Links */
+.nav-links{
+  display:flex;
+  gap:28px;
+  position:relative;
+}
+
 .nav-links a{
+  position:relative;
   font-size:12px;
-  letter-spacing:.14em;
+  letter-spacing:.18em;
   text-transform:uppercase;
-  color: rgba(255,255,255,.70);
+  color: rgba(255,255,255,.65);
+  transition: color .3s ease;
 }
-.nav-links a:hover{ color: rgba(255,255,255,.95); }
+
+/* Animated underline */
+.nav-links a::after{
+  content:"";
+  position:absolute;
+  bottom:-6px;
+  left:0;
+  width:0%;
+  height:1px;
+  background: var(--green);
+  transition: width .3s ease;
+}
+
+.nav-links a:hover{
+  color: rgba(255,255,255,.95);
+}
+
+.nav-links a:hover::after{
+  width:100%;
+}
+
+/* Active page highlight */
+.nav-links a.active{
+  color: var(--green);
+}
+
+.nav-links a.active::after{
+  width:100%;
+}
+
+/* Push content below fixed nav */
+body{
+  padding-top:90px;
+}
 
 /* HERO */
 .hero{
