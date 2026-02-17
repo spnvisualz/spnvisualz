@@ -1,19 +1,33 @@
 const track = document.querySelector(".horizontal-track");
 const section = document.querySelector(".horizontal-section");
 
-function updateScroll() {
+let current = 0;
+let target = 0;
+let ease = 0.08;
+
+function smoothScroll(){
+  current += (target - current) * ease;
+  track.style.transform = `translateX(-${current}px)`;
+  requestAnimationFrame(smoothScroll);
+}
+
+function updateScroll(){
+  if(window.innerWidth < 900) return; // disable desktop scroll logic on mobile
+
   const scrollTop = window.scrollY;
   const sectionTop = section.offsetTop;
   const sectionHeight = section.offsetHeight;
   const viewportHeight = window.innerHeight;
 
-  if (scrollTop >= sectionTop && scrollTop <= sectionTop + sectionHeight - viewportHeight) {
+  if(scrollTop >= sectionTop && scrollTop <= sectionTop + sectionHeight - viewportHeight){
     const progress = (scrollTop - sectionTop) / (sectionHeight - viewportHeight);
     const maxMove = track.scrollWidth - window.innerWidth;
-    track.style.transform = `translateX(-${progress * maxMove}px)`;
+    target = progress * maxMove;
   }
 }
 
 window.addEventListener("scroll", updateScroll);
-window.addEventListener("load", updateScroll);
 window.addEventListener("resize", updateScroll);
+window.addEventListener("load", updateScroll);
+
+smoothScroll();
