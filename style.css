@@ -514,6 +514,7 @@ body{
   transition:transform .15s ease-out;
 }
 
+/* DESKTOP */
 .work-card{
   height: 65vh;
   aspect-ratio: 9 / 16;
@@ -552,10 +553,10 @@ body{
   }
 
   .work-card{
-  height: 75vh;
-  aspect-ratio: 9 / 16;
-  width: auto;
-  scroll-snap-align:center;
-}
+    height: 70vh;
+    aspect-ratio: 9 / 16;
+    width: auto;
+    scroll-snap-align:center;
+  }
 
 }
