@@ -36,3 +36,13 @@
     if (!el.closest("[data-card]")) closeAll(null);
   });
 })();
+
+/* ACTIVE LINK AUTO-DETECT */
+const links = document.querySelectorAll(".nav-links a");
+const currentPath = window.location.pathname;
+
+links.forEach(link => {
+  if(currentPath.includes(link.getAttribute("href"))){
+    link.classList.add("active");
+  }
+});
