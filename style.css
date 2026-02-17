@@ -24,6 +24,10 @@ body{
 a{color:inherit; text-decoration:none}
 img{max-width:100%; display:block}
 
+/* ========================================
+   PAGE BACKGROUND
+======================================== */
+
 .page{
   background:
     radial-gradient(1200px 800px at 70% 10%, rgba(255,255,255,.06), transparent 55%),
@@ -32,7 +36,20 @@ img{max-width:100%; display:block}
     #050608;
 }
 
-/* ================= NAV ================= */
+.container{ width:min(1120px, calc(100% - 40px)); margin:0 auto; }
+.section{ padding:96px 0; }
+
+.section-title{
+  margin:0 0 22px;
+  text-align:center;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-size: clamp(18px, 2.2vw, 32px);
+}
+
+/* ========================================
+   NAV – ELITE FIXED
+======================================== */
 
 .nav{
   position:fixed;
@@ -45,14 +62,15 @@ img{max-width:100%; display:block}
   align-items:center;
   padding:20px min(50px, 5vw);
   backdrop-filter: blur(18px);
-  background: rgba(0,0,0,.45);
+  background: rgba(0,0,0,.35);
   border-bottom:1px solid rgba(255,255,255,.06);
-  transition: background .35s ease, border-color .35s ease;
+  transition: background .35s ease;
 }
 
 .nav.scrolled{
-  background: rgba(0,0,0,.75);
-  border-bottom:1px solid rgba(0,255,150,.18);
+  background: rgba(0,0,0,.7);
+  border-bottom:1px solid rgba(0,255,150,.25);
+  box-shadow:0 10px 40px rgba(0,0,0,.6);
 }
 
 .nav-brand{
@@ -62,10 +80,7 @@ img{max-width:100%; display:block}
   color: rgba(255,255,255,.9);
 }
 
-.nav-links{
-  display:flex;
-  gap:28px;
-}
+.nav-links{ display:flex; gap:28px; }
 
 .nav-links a{
   position:relative;
@@ -87,130 +102,229 @@ img{max-width:100%; display:block}
   transition: width .3s ease;
 }
 
-.nav-links a:hover{
-  color:#fff;
-}
+.nav-links a:hover{ color:#fff; }
+.nav-links a:hover::after{ width:100%; }
 
-.nav-links a:hover::after{
-  width:100%;
-}
-
-/* ================= HERO ================= */
+/* ========================================
+   HERO
+======================================== */
 
 .hero{
   position:relative;
   min-height:100vh;
+  overflow:hidden;
+}
+
+.hero-center{
+  position:relative;
+  z-index:2;
+  min-height:calc(100vh - 90px);
   display:flex;
+  flex-direction:column;
   align-items:center;
   justify-content:center;
+  gap:18px;
   text-align:center;
 }
 
 .hero-logo{
-  width:min(900px, 90vw);
+  width:min(980px, 94vw);
   filter: drop-shadow(0 22px 90px rgba(0,0,0,.75));
 }
 
 .hero-cta{
   display:flex;
-  gap:12px;
+  flex-wrap:wrap;
   justify-content:center;
-  margin-top:20px;
+  gap:12px;
+  margin-top:6px;
 }
 
-/* ================= ARCHIVE ================= */
+/* HERO LIFE LAYERS */
+
+.hero-life{
+  position:absolute;
+  inset:-40%;
+  background:
+    radial-gradient(800px 500px at 50% 40%, rgba(255,255,255,.07), transparent 60%),
+    radial-gradient(700px 600px at 30% 60%, rgba(0,255,150,.08), transparent 65%),
+    radial-gradient(700px 600px at 70% 30%, rgba(180,180,180,.06), transparent 65%);
+  filter: blur(12px);
+  opacity:.55;
+  animation: drift 10s ease-in-out infinite;
+  pointer-events:none;
+  z-index:-1;
+}
+
+@keyframes drift{
+  0%,100%{ transform: translate3d(-12px, 8px, 0) scale(1.03); }
+  50%{ transform: translate3d(14px, -10px, 0) scale(1.05); }
+}
+
+.hero-orbit{
+  position:absolute;
+  width:520px;
+  height:520px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.07);
+  box-shadow: 0 0 70px rgba(255,255,255,.06);
+  animation: orbit 12s linear infinite;
+  opacity:.55;
+  pointer-events:none;
+  z-index:-1;
+}
+
+@keyframes orbit{ to{ transform: rotate(360deg); } }
+
+/* ========================================
+   BUTTONS
+======================================== */
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:12px 18px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background: rgba(255,255,255,.03);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-size:12px;
+  cursor:pointer;
+  backdrop-filter: blur(10px);
+  transition: transform .18s ease, border-color .18s ease;
+}
+
+.btn:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.20); }
+
+.btn-solid{
+  background: linear-gradient(180deg, rgba(0,255,150,.18), rgba(0,255,150,.06));
+  border-color: rgba(0,255,150,.35);
+}
+
+/* ========================================
+   PRICING (UNCHANGED)
+======================================== */
+
+.pricing-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+  gap:16px;
+}
+
+.card{
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.10);
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  box-shadow: var(--shadow);
+  overflow:hidden;
+  transition: transform .18s ease;
+}
+
+.card:hover{ transform: translateY(-2px); }
+
+/* ========================================
+   ARCHIVE
+======================================== */
 
 .archive-intro{
   height:60vh;
   display:flex;
   align-items:center;
   justify-content:center;
+  text-align:center;
 }
 
 .archive-intro h1{
   font-size:clamp(40px,8vw,110px);
   letter-spacing:.35em;
   text-transform:uppercase;
-  color:rgba(255,255,255,.9);
+  background: linear-gradient(180deg, #ffffff, #aaaaaa);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
 }
 
-/* ================= DESKTOP ================= */
-
-@media (min-width: 901px){
-
-  .horizontal-section{
-    position:relative;
-    height:220vh;
-  }
-
-  .horizontal-wrapper{
-    position:sticky;
-    top:0;
-    height:100vh;
-    display:flex;
-    align-items:center;
-    overflow:hidden;
-  }
-
-  .horizontal-track{
-    display:flex;
-    gap:40px;
-    padding:0 10vw;
-    transition:transform .15s ease-out;
-  }
-
-  .work-card{
-    width:420px;
-    aspect-ratio:9 / 16;
-    flex-shrink:0;
-    border-radius:24px;
-    overflow:hidden;
-    border:1px solid rgba(255,255,255,.10);
-    box-shadow: 0 30px 100px rgba(0,0,0,.7);
-  }
-
+.horizontal-section{
+  position:relative;
+  height:250vh;
 }
 
-/* ================= MOBILE ================= */
-
-@media (max-width: 900px){
-
-  .horizontal-section{
-    height:auto;
-    padding:40px 0;
-  }
-
-  .horizontal-wrapper{
-    position:relative;
-    overflow-x:auto;
-    overflow-y:hidden;
-    scroll-snap-type:x mandatory;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .horizontal-track{
-    display:flex;
-    gap:20px;
-    padding:0 5vw;
-  }
-
-  .work-card{
-    width:70vw;
-    aspect-ratio:9 / 16;
-    flex-shrink:0;
-    scroll-snap-align:center;
-    border-radius:20px;
-    overflow:hidden;
-    border:1px solid rgba(255,255,255,.10);
-    box-shadow: 0 20px 60px rgba(0,0,0,.6);
-  }
-
+.horizontal-wrapper{
+  position:sticky;
+  top:0;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  overflow:hidden;
 }
 
-/* Shared video rules */
+.horizontal-track{
+  display:flex;
+  gap:40px;
+  padding:0 10vw;
+  transition:transform .15s ease-out;
+}
+
+.work-card{
+  aspect-ratio: 9 / 16;
+  width: clamp(300px, 40vw, 520px);
+  flex-shrink:0;
+  border-radius:24px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow: 0 30px 100px rgba(0,0,0,.7);
+  position:relative;
+}
 
 .work-card video{
   width:100%;
   height:100%;
   object-fit:cover;
+}
+
+/* ========================================
+   MOBILE SWIPE MODE
+======================================== */
+
+@media (max-width:900px){
+
+  .horizontal-section{ height:auto; }
+
+  .horizontal-wrapper{
+    position:relative;
+    height:auto;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .horizontal-track{ transform:none !important; }
+
+  .work-card{
+    scroll-snap-align:center;
+    width:75vw;
+  }
+
+}
+
+/* ========================================
+   FOOTER
+======================================== */
+
+.footer{
+  margin-top:34px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  opacity:.92;
+}
+
+.footer-text{
+  font-size:11px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color: rgba(255,255,255,.50);
 }
