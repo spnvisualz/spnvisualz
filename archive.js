@@ -1,7 +1,7 @@
 const track = document.querySelector(".horizontal-track");
 const section = document.querySelector(".horizontal-section");
 
-window.addEventListener("scroll", () => {
+function updateScroll() {
   const scrollTop = window.scrollY;
   const sectionTop = section.offsetTop;
   const sectionHeight = section.offsetHeight;
@@ -12,4 +12,8 @@ window.addEventListener("scroll", () => {
     const maxMove = track.scrollWidth - window.innerWidth;
     track.style.transform = `translateX(-${progress * maxMove}px)`;
   }
-});
+}
+
+window.addEventListener("scroll", updateScroll);
+window.addEventListener("load", updateScroll);
+window.addEventListener("resize", updateScroll);
