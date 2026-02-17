@@ -517,7 +517,7 @@ body{
 /* DESKTOP */
 .work-card{
   height: 65vh;
-  aspect-ratio: 9 / 16;
+  aspect-ratio: 16 / 9;   /* ← THIS IS THE FIX */
   width: auto;
   flex-shrink:0;
   border-radius:24px;
