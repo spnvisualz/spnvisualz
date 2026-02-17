@@ -512,8 +512,10 @@ body{
 }
 
 .work-card{
-  min-width:70vw;
-  height:70vh;
+  aspect-ratio: 9 / 16;
+  width: clamp(260px, 70vw, 500px);
+  height: auto;
+}
   border-radius:24px;
   overflow:hidden;
   border:1px solid rgba(255,255,255,.10);
