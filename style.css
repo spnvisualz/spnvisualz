@@ -515,8 +515,9 @@ body{
 }
 
 .work-card{
+  height: 65vh;
   aspect-ratio: 9 / 16;
-  width: clamp(260px, 32vw, 480px);
+  width: auto;
   flex-shrink:0;
   border-radius:24px;
   overflow:hidden;
@@ -550,8 +551,10 @@ body{
   }
 
   .work-card{
-    width:75vw;
-    scroll-snap-align:center;
-  }
+  height: 75vh;
+  aspect-ratio: 9 / 16;
+  width: auto;
+  scroll-snap-align:center;
+}
 
 }
