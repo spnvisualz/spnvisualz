@@ -393,3 +393,16 @@ img{max-width:100%; display:block}
   .nav-links{ gap:14px; }
   .hero-orbit{ width:380px; height:380px; }
 }
+.work-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap:20px;
+  margin-top:30px;
+}
+
+.work-grid video{
+  width:100%;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow: var(--shadow);
+}
