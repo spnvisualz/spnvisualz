@@ -412,7 +412,8 @@ img{max-width:100%; display:block}
 
 .horizontal-section{
   position:relative;
-  height:300vh;
+  height:250vh;
+  background: transparent;
 }
 
 .horizontal-wrapper{
