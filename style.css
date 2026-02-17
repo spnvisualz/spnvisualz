@@ -533,7 +533,7 @@ body{
   background:#000;
 }
 
-/* MOBILE */
+/* MOBILE — REAL FIX */
 @media (max-width:900px){
 
   .horizontal-section{
@@ -546,6 +546,7 @@ body{
     overflow-x:auto;
     overflow-y:hidden;
     scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
   }
 
   .horizontal-track{
@@ -553,10 +554,17 @@ body{
   }
 
   .work-card{
-    height: 70vh;
-    aspect-ratio: 9 / 16;
-    width: auto;
+    width:85vw;
+    height:auto;              /* remove forced height */
+    aspect-ratio:auto;        /* remove forced 9:16 */
     scroll-snap-align:center;
+  }
+
+  .work-card video{
+    width:100%;
+    height:auto;              /* keep natural ratio */
+    object-fit:contain;
+    background:#000;
   }
 
 }
