@@ -516,7 +516,7 @@ body{
 
 .work-card{
   aspect-ratio: 9 / 16;
-  width: clamp(280px, 40vw, 520px);
+  width: clamp(260px, 32vw, 480px);
   flex-shrink:0;
   border-radius:24px;
   overflow:hidden;
