@@ -472,6 +472,33 @@ body{
   .nav-links{ gap:14px; }
   .hero-orbit{ width:380px; height:380px; }
 }
+/* ===== ARCHIVE MOBILE SWIPE FIX ===== */
+@media (max-width:900px){
+
+  .horizontal-section{
+    height:auto !important;
+  }
+
+  .horizontal-wrapper{
+    position:relative !important;
+    height:auto !important;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .horizontal-track{
+    transform:none !important;
+  }
+
+  .work-card{
+    scroll-snap-align:center;
+    width:75vw;
+  }
+
+}
+
 /* ARCHIVE PAGE */
 
 .archive-intro{
@@ -512,8 +539,9 @@ body{
 }
 
 .work-card{
-  min-width:70vw;
-  height:70vh;
+  aspect-ratio: 9 / 16;
+  width: clamp(280px, 40vw, 520px);
+  flex-shrink:0;
   border-radius:24px;
   overflow:hidden;
   border:1px solid rgba(255,255,255,.10);
