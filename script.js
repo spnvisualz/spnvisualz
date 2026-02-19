@@ -58,7 +58,7 @@ links.forEach(link => {
   }
 });
 /* =============================
-   INTRO VIDEO LOGIC
+   INTRO VIDEO STABLE VERSION
 ============================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -66,24 +66,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const intro = document.getElementById("intro");
   const video = document.getElementById("introVideo");
 
-  if(!intro || !video) return;
+  if (!intro || !video) return;
 
-  video.muted = false; // allow audio
+  video.play();
 
-  video.play().catch(() => {
-    // If autoplay blocked, start on first click
-    document.addEventListener("click", () => {
-      video.play();
-    }, { once: true });
-  });
-
-  // When video ends → fade out
-  video.addEventListener("ended", () => {
+  // Fade after 5 seconds (your intro length)
+  setTimeout(() => {
     intro.classList.add("fade-out");
-
-    setTimeout(() => {
-      intro.remove();
-    }, 1000);
-  });
+    setTimeout(() => intro.remove(), 1000);
+  }, 5000);
 
 });
