@@ -57,22 +57,3 @@ links.forEach(link => {
     link.classList.add("active");
   }
 });
-
-/* ===== BACKGROUND MUSIC ===== */
-
-document.addEventListener("DOMContentLoaded", () => {
-  const music = document.getElementById("bgMusic");
-  if (!music) return;
-
-  music.volume = 0.35;
-
-  const startMusic = () => {
-    music.play().catch(() => {
-      // If autoplay blocked (iOS), wait for first interaction
-      document.addEventListener("click", startMusic, { once: true });
-      document.addEventListener("touchstart", startMusic, { once: true });
-    });
-  };
-
-  startMusic();
-});
