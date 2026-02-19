@@ -57,49 +57,22 @@ links.forEach(link => {
     link.classList.add("active");
   }
 });
+
+/* ===== BACKGROUND MUSIC ===== */
+
 document.addEventListener("DOMContentLoaded", () => {
-
-  const music = document.getElementById("introMusic");
-
+  const music = document.getElementById("bgMusic");
   if (!music) return;
 
-  const duration = 10;      // total seconds to play
-  const fadeTime = 2.5;     // fade in & out time
-
-  music.volume = 0;
+  music.volume = 0.35;
 
   const startMusic = () => {
-
-    music.currentTime = 0;
     music.play().catch(() => {
-      // If autoplay blocked, wait for first interaction
+      // If autoplay blocked (iOS), wait for first interaction
       document.addEventListener("click", startMusic, { once: true });
-      return;
+      document.addEventListener("touchstart", startMusic, { once: true });
     });
-
-    // Fade In
-    let fadeInInterval = setInterval(() => {
-      if (music.volume < 1) {
-        music.volume += 0.05;
-      } else {
-        clearInterval(fadeInInterval);
-      }
-    }, (fadeTime * 1000) / 20);
-
-    // Fade Out
-    setTimeout(() => {
-      let fadeOutInterval = setInterval(() => {
-        if (music.volume > 0) {
-          music.volume -= 0.05;
-        } else {
-          clearInterval(fadeOutInterval);
-          music.pause();
-          music.currentTime = 0;
-        }
-      }, (fadeTime * 1000) / 20);
-    }, (duration - fadeTime) * 1000);
   };
 
   startMusic();
-
 });
