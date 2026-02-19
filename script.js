@@ -58,7 +58,7 @@ links.forEach(link => {
   }
 });
 /* =============================
-   INTRO VIDEO STABLE VERSION
+   INTRO VIDEO WITH SOUND
 ============================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -68,9 +68,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!intro || !video) return;
 
-  video.play();
+  // Try autoplay with sound
+  const playPromise = video.play();
 
-  // Fade after 5 seconds (your intro length)
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+      // If browser blocks autoplay,
+      // wait for first user interaction
+      const enableSound = () => {
+        video.play();
+        document.removeEventListener("click", enableSound);
+      };
+      document.addEventListener("click", enableSound);
+    });
+  }
+
+  // Fade after 5 seconds
   setTimeout(() => {
     intro.classList.add("fade-out");
     setTimeout(() => intro.remove(), 1000);
