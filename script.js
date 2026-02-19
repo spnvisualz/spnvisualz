@@ -57,3 +57,33 @@ links.forEach(link => {
     link.classList.add("active");
   }
 });
+/* =============================
+   INTRO VIDEO LOGIC
+============================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const intro = document.getElementById("intro");
+  const video = document.getElementById("introVideo");
+
+  if(!intro || !video) return;
+
+  video.muted = false; // allow audio
+
+  video.play().catch(() => {
+    // If autoplay blocked, start on first click
+    document.addEventListener("click", () => {
+      video.play();
+    }, { once: true });
+  });
+
+  // When video ends → fade out
+  video.addEventListener("ended", () => {
+    intro.classList.add("fade-out");
+
+    setTimeout(() => {
+      intro.remove();
+    }, 1000);
+  });
+
+});
