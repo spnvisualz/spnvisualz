@@ -583,10 +583,27 @@ body{
   transition:opacity 1s ease, visibility 1s ease;
 }
 
+/* =============================
+   INTRO VIDEO RESPONSIVE
+============================= */
+
 #intro video{
   width:100%;
   height:100%;
-  object-fit:cover;
+  object-fit:cover; /* desktop cinematic */
+}
+
+/* MOBILE FIX */
+@media (max-width:900px){
+
+  #intro video{
+    width:100%;
+    height:auto;
+    max-height:100vh;
+    object-fit:contain; /* prevent zoom crop */
+    background:#000;
+  }
+
 }
 
 #intro.fade-out{
