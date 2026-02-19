@@ -58,7 +58,7 @@ links.forEach(link => {
   }
 });
 /* =============================
-   INTRO VIDEO WITH SOUND
+   INTRO VIDEO — SMART FADE
 ============================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -68,25 +68,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!intro || !video) return;
 
-  // Try autoplay with sound
-  const playPromise = video.play();
+  let faded = false;
 
-  if (playPromise !== undefined) {
-    playPromise.catch(() => {
-      // If browser blocks autoplay,
-      // wait for first user interaction
-      const enableSound = () => {
-        video.play();
-        document.removeEventListener("click", enableSound);
-      };
-      document.addEventListener("click", enableSound);
-    });
-  }
+  const fadeOut = () => {
+    if (faded) return; // prevent double fade
+    faded = true;
 
-  // Fade after 5 seconds
-  setTimeout(() => {
     intro.classList.add("fade-out");
-    setTimeout(() => intro.remove(), 1000);
-  }, 5000);
+
+    setTimeout(() => {
+      intro.remove();
+    }, 1000); // matches CSS transition
+  };
+
+  // Try to play video
+  video.play().catch(() => {
+    // If autoplay fails, user must press play manually
+  });
+
+  // Fade when video finishes
+  video.addEventListener("ended", fadeOut);
+
+  // Failsafe: force fade after 6 seconds
+  setTimeout(fadeOut, 6000);
 
 });
