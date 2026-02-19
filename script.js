@@ -58,7 +58,7 @@ links.forEach(link => {
   }
 });
 /* =============================
-   INTRO VIDEO — SMART FADE
+   INTRO VIDEO — PERFECT VERSION
 ============================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -71,25 +71,28 @@ document.addEventListener("DOMContentLoaded", () => {
   let faded = false;
 
   const fadeOut = () => {
-    if (faded) return; // prevent double fade
+    if (faded) return;
     faded = true;
 
     intro.classList.add("fade-out");
-
-    setTimeout(() => {
-      intro.remove();
-    }, 1000); // matches CSS transition
+    setTimeout(() => intro.remove(), 1000);
   };
 
-  // Try to play video
-  video.play().catch(() => {
-    // If autoplay fails, user must press play manually
+  // When metadata loads, we know video duration
+  video.addEventListener("loadedmetadata", () => {
+
+    // Safety fallback (duration + 0.3 buffer)
+    const duration = video.duration * 1000 + 300;
+
+    setTimeout(fadeOut, duration);
   });
 
-  // Fade when video finishes
+  // Fade exactly when video ends
   video.addEventListener("ended", fadeOut);
 
-  // Failsafe: force fade after 6 seconds
-  setTimeout(fadeOut, 6000);
+  // Try autoplay
+  video.play().catch(() => {
+    // If autoplay blocked, user must tap
+  });
 
 });
