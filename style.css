@@ -580,31 +580,16 @@ body{
   align-items:center;
   justify-content:center;
   transition:opacity 1s ease, visibility 1s ease;
+  overflow:hidden;
 }
-
-/* =============================
-   INTRO VIDEO RESPONSIVE
-============================= */
 
 #intro video{
   width:100%;
   height:100%;
-  object-fit:cover; /* desktop cinematic */
+  object-fit:cover; /* works on both desktop & mobile */
 }
 
-/* MOBILE FIX */
-@media (max-width:900px){
-
-  #intro video{
-    width:100%;
-    height:auto;
-    max-height:100vh;
-    object-fit:contain; /* prevent zoom crop */
-    background:#000;
-  }
-
-}
-
+/* Fade state */
 #intro.fade-out{
   opacity:0;
   visibility:hidden;
