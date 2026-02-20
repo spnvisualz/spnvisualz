@@ -58,7 +58,7 @@ links.forEach(link => {
   }
 });
 /* =============================
-   INTRO VIDEO — PERFECT VERSION
+   INTRO VIDEO — DESKTOP SOUND + MOBILE SAFE
 ============================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -68,6 +68,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!intro || !video) return;
 
+  // Detect mobile
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  // iOS requires muted for autoplay
+  if (isMobile) {
+    video.muted = true;
+  }
+
   let faded = false;
 
   const fadeOut = () => {
@@ -75,24 +83,30 @@ document.addEventListener("DOMContentLoaded", () => {
     faded = true;
 
     intro.classList.add("fade-out");
-    setTimeout(() => intro.remove(), 1000);
+
+    setTimeout(() => {
+      intro.remove();
+    }, 1000);
   };
-
-  // When metadata loads, we know video duration
-  video.addEventListener("loadedmetadata", () => {
-
-    // Safety fallback (duration + 0.3 buffer)
-    const duration = video.duration * 1000 + 300;
-
-    setTimeout(fadeOut, duration);
-  });
 
   // Fade exactly when video ends
   video.addEventListener("ended", fadeOut);
 
-  // Try autoplay
+  // Failsafe (in case ended doesn't fire)
+  video.addEventListener("loadedmetadata", () => {
+    const duration = video.duration * 1000 + 400;
+    setTimeout(fadeOut, duration);
+  });
+
+  // Attempt autoplay
   video.play().catch(() => {
-    // If autoplay blocked, user must tap
+    // If desktop blocks autoplay for any reason
+    // require first interaction
+    const unlock = () => {
+      video.play().catch(() => {});
+      document.removeEventListener("click", unlock);
+    };
+    document.addEventListener("click", unlock);
   });
 
 });
