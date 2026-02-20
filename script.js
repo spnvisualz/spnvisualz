@@ -58,7 +58,7 @@ links.forEach(link => {
   }
 });
 /* =============================
-   INTRO VIDEO — DESKTOP SOUND + MOBILE SAFE
+   INTRO VIDEO — STABLE VERSION
 ============================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -68,11 +68,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!intro || !video) return;
 
-  // Detect mobile
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-  // iOS requires muted for autoplay
+  // iOS must be muted BEFORE autoplay attempt
   if (isMobile) {
+    video.setAttribute("muted", "true");
     video.muted = true;
   }
 
@@ -89,24 +89,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1000);
   };
 
-  // Fade exactly when video ends
+  // Wait until video is ready before playing
+  video.addEventListener("canplay", () => {
+    video.play().catch(() => {});
+  });
+
+  // Fade exactly when finished
   video.addEventListener("ended", fadeOut);
 
-  // Failsafe (in case ended doesn't fire)
-  video.addEventListener("loadedmetadata", () => {
-    const duration = video.duration * 1000 + 400;
-    setTimeout(fadeOut, duration);
-  });
-
-  // Attempt autoplay
-  video.play().catch(() => {
-    // If desktop blocks autoplay for any reason
-    // require first interaction
-    const unlock = () => {
-      video.play().catch(() => {});
-      document.removeEventListener("click", unlock);
-    };
-    document.addEventListener("click", unlock);
-  });
+  // Safety fallback (7 seconds)
+  setTimeout(fadeOut, 7000);
 
 });
