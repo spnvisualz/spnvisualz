@@ -1,0 +1,11 @@
+# robots.txt
+#
+# This file tells search engines which URLs on your site they can access. By
+# default we allow all crawlers to crawl every page. We also reference the
+# sitemap to help crawlers discover all pages efficiently.
+
+User-agent: *
+Allow: /
+
+# Provide a link to your XML sitemap
+Sitemap: https://spnvisualz.com/sitemap.xml
