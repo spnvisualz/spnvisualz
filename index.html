@@ -2,60 +2,237 @@
 <html lang="en">
 <head>
   <!--
-    This improved index page includes additional SEO features such as a more
-    descriptive title, meta description, keyword tags, robots directive,
-    canonical link, Open Graph and Twitter meta tags, and JSON‑LD structured data.
-    These enhancements help search engines and social platforms understand and
-    display your content, improving click‑through rates and visibility.
+    SPNVISUALZ website upgrade
+    This version removes the unstable intro video and focuses on a clean,
+    cinematic hero section and dark cosmic aesthetic. It includes improved
+    SEO metadata (title, description, keywords, canonical, Open Graph and
+    Twitter card tags) and structured data. The layout follows a custom,
+    premium record‑label energy with horizontal showcase and responsive
+    pricing grid. Assets referenced in /assets should be provided by the
+    project (videos and logos).
   -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>SPNVISUALZ — Luxury motion‑first creative studio</title>
-  <meta name="description" content="SPNVISUALZ — Luxury motion‑first creative studio. Elevate your brand with motion‑first design for logos, intros, loops and social media visuals.">
-  <meta name="keywords" content="SPNVISUALZ, luxury motion‑first creative studio, motion design, logo design, intros, loops, social visuals, creative studio">
-  <!-- Encourage search engines to index and follow links on this page -->
+  <meta name="description" content="SPNVISUALZ is a luxury motion‑first creative studio. Explore our premium packages for logos, intros, loops and visuals crafted with a cosmic aesthetic.">
+  <meta name="keywords" content="SPNVISUALZ, luxury creative studio, motion design, logo design, intros, loops, visual branding">
   <meta name="robots" content="index, follow">
-  <!-- Canonical URL ensures duplicate URLs are consolidated -->
   <link rel="canonical" href="https://spnvisualz.com/">
-  <!-- Open Graph metadata improves link previews on social platforms -->
   <meta property="og:title" content="SPNVISUALZ — Luxury motion‑first creative studio">
-  <meta property="og:description" content="Elevate your brand with motion‑first design. Explore packages for logos, intros, loops and social visuals.">
-  <meta property="og:image" content="https://spnvisualz.com/assets/images/spnvisualz.PNG">
+  <meta property="og:description" content="Explore premium motion‑first packages for logos, intros, loops and visuals. Crafted with a dark cosmic aesthetic.">
+  <meta property="og:image" content="https://spnvisualz.com/assets/spn-logo.png">
   <meta property="og:url" content="https://spnvisualz.com/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SPNVISUALZ">
-  <!-- Twitter card metadata -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="SPNVISUALZ — Luxury motion‑first creative studio">
-  <meta name="twitter:description" content="Elevate your brand with motion‑first design from SPNVISUALZ.">
-  <meta name="twitter:image" content="https://spnvisualz.com/assets/images/spnvisualz.PNG">
-  <!-- Structured data describing the organization -->
+  <meta name="twitter:description" content="Explore premium motion‑first packages for logos, intros, loops and visuals. Crafted with a dark cosmic aesthetic.">
+  <meta name="twitter:image" content="https://spnvisualz.com/assets/spn-logo.png">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "SPNVISUALZ",
       "url": "https://spnvisualz.com/",
-      "logo": "https://spnvisualz.com/assets/images/spnvisualz.PNG",
-      "description": "Luxury motion‑first creative studio offering packages for logos, intros, loops and social visuals.",
+      "logo": "https://spnvisualz.com/assets/spn-logo.png",
+      "description": "Luxury motion‑first creative studio offering packages for logos, intros, loops and visuals.",
       "contactPoint": {
         "@type": "ContactPoint",
         "email": "spnvisualz@gmail.com",
         "contactType": "customer support"
       },
       "sameAs": [
-        "https://www.instagram.com/spnvisualz",
-        "https://www.tiktok.com/@spnvisualz"
+        "https://instagram.com/spnvisualz",
+        "https://tiktok.com/@spnvisualz"
       ]
     }
   </script>
-  <!-- Link to existing stylesheet -->
   <link rel="stylesheet" href="./style.css">
 </head>
-<body class="page page-main">
-  <!-- The rest of your existing HTML content goes here. We leave it unchanged to
-       preserve the site’s look and feel. For brevity it’s omitted in this
-       improved version, but you should merge this <head> section into your
-       current index.html around the rest of your page. -->
+<body>
+  <!-- Hero Section -->
+  <header class="hero">
+    <video class="hero-bg" autoplay muted loop playsinline>
+      <source src="assets/work-1.mp4" type="video/mp4">
+    </video>
+    <div class="hero-overlay">
+      <img src="assets/spn-logo.png" alt="SPNVISUALZ logo" class="hero-logo">
+    </div>
+  </header>
+
+  <!-- Showcase Section -->
+  <section class="showcase">
+    <h2>Selected Work (Showcase Only)</h2>
+    <div class="showcase-track">
+      <div class="showcase-card">
+        <video autoplay muted loop playsinline>
+          <source src="assets/work-2.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="showcase-card">
+        <video autoplay muted loop playsinline>
+          <source src="assets/work-3.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="showcase-card">
+        <video autoplay muted loop playsinline>
+          <source src="assets/work-4.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="showcase-card">
+        <video autoplay muted loop playsinline>
+          <source src="assets/work-5.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="showcase-card">
+        <video autoplay muted loop playsinline>
+          <source src="assets/work-6.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="showcase-card">
+        <video autoplay muted loop playsinline>
+          <source src="assets/work-7.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="pricing">
+    <h2>Packages &amp; Pricing</h2>
+    <div class="badges">
+      <span class="badge badge-green">💚 LAUNCH SALE – UP TO 80%</span>
+      <span class="badge badge-silver">💎 BUNDLE DEAL – UP TO 20% OFF</span>
+    </div>
+    <div class="price-grid">
+      <!-- Logo packages -->
+      <div class="card">
+        <h3>Logo — Basic</h3>
+        <div class="old-price">€70</div>
+        <div class="new-price">€14</div>
+        <div class="save">Save 80%</div>
+        <ul>
+          <li>Best for artists / quick identity</li>
+          <li>Chrome logo export pack</li>
+          <li>Use: IG, Spotify, watermark</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Logo — Premium</h3>
+        <div class="old-price">€140</div>
+        <div class="new-price">€28</div>
+        <div class="save">Save 80%</div>
+        <ul>
+          <li>Best for full brand presence</li>
+          <li>More polish &amp; variants</li>
+          <li>Use: Web, merch, profiles</li>
+        </ul>
+      </div>
+      <!-- Intro packages -->
+      <div class="card">
+        <h3>Intro — Standard</h3>
+        <div class="old-price">€90</div>
+        <div class="new-price">€18</div>
+        <div class="save">Save 80%</div>
+        <ul>
+          <li>Best for reels / shorts</li>
+          <li>Short motion intro</li>
+          <li>Use: Open your content</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Intro — Premium</h3>
+        <div class="old-price">€170</div>
+        <div class="new-price">€34</div>
+        <div class="save">Save 80%</div>
+        <ul>
+          <li>High‑impact opener</li>
+          <li>Premium motion polish</li>
+          <li>Use: YouTube / campaigns</li>
+        </ul>
+      </div>
+      <!-- Loops packages -->
+      <div class="card">
+        <h3>Loops — Basic</h3>
+        <div class="old-price">€110</div>
+        <div class="new-price">€22</div>
+        <div class="save">Save 80%</div>
+        <ul>
+          <li>Seamless loop</li>
+          <li>Story / promo backgrounds</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Loops — Premium</h3>
+        <div class="old-price">€190</div>
+        <div class="new-price">€38</div>
+        <div class="save">Save 80%</div>
+        <ul>
+          <li>More depth &amp; texture</li>
+          <li>Brand loops / drops</li>
+        </ul>
+      </div>
+      <!-- Visuals packages -->
+      <div class="card">
+        <h3>Visuals — Social</h3>
+        <div class="old-price">€85</div>
+        <div class="new-price">€17</div>
+        <div class="save">Save 80%</div>
+        <ul>
+          <li>Social visual pack</li>
+          <li>Posts / reels graphics</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Visuals — Brand</h3>
+        <div class="old-price">€150</div>
+        <div class="new-price">€30</div>
+        <div class="save">Save 80%</div>
+        <ul>
+          <li>Brand‑grade visuals</li>
+          <li>Campaign system</li>
+        </ul>
+      </div>
+      <!-- Bundles -->
+      <div class="card">
+        <h3>Bundle — Starter</h3>
+        <div class="old-price">€210</div>
+        <div class="new-price">€168</div>
+        <div class="save">Save 20%</div>
+        <ul>
+          <li>Launch kit: Logo + intro + social pack</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Bundle — Creator</h3>
+        <div class="old-price">€300</div>
+        <div class="new-price">€240</div>
+        <div class="save">Save 20%</div>
+        <ul>
+          <li>Consistency kit: Creator pack + loops</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Bundle — Business</h3>
+        <div class="old-price">€420</div>
+        <div class="new-price">€336</div>
+        <div class="save">Save 20%</div>
+        <ul>
+          <li>Brand foundation: Full brand system</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="contact">
+    <h2>Contact</h2>
+    <p><a href="https://instagram.com/spnvisualz" target="_blank" rel="noopener">Instagram @spnvisualz</a></p>
+    <p><a href="mailto:spnvisualz@gmail.com">spnvisualz@gmail.com</a></p>
+  </section>
+  <footer class="footer">
+    <img src="assets/chubae-logo.png" alt="CHUBAE logo" class="footer-logo">
+    <p>Created by CHUBAE</p>
+  </footer>
 </body>
 </html>
