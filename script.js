@@ -101,25 +101,3 @@ document.addEventListener("DOMContentLoaded", () => {
   setTimeout(fadeOut, 7000);
 
 });
-  // Inject Packages and Cart links into nav on index page
-  const navLinksContainer = document.querySelector('.nav-links');
-  if (navLinksContainer) {
-    if (!document.querySelector('.nav-links a[href="shop.html"]')) {
-      const shopLink = document.createElement('a');
-      shopLink.href = 'shop.html';
-      shopLink.textContent = 'Packages';
-      navLinksContainer.appendChild(shopLink);
-
-      const cartLink = document.createElement('a');
-      cartLink.href = 'cart.html';
-      cartLink.innerHTML = 'Cart <span id="cart-count">0</span>';
-      navLinksContainer.appendChild(cartLink);
-    }
-    const cartCountSpan = document.getElementById('cart-count');
-    if (cartCountSpan) {
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-      cartCountSpan.textContent = totalItems;
-    }
-  }
-
