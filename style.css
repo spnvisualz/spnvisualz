@@ -10,7 +10,15 @@
 }
 
 *{box-sizing:border-box}
-html,body{height:100%}
+/*
+  Occupy full viewport height and enable smooth scrolling between anchor
+  links.  Smooth scrolling contributes to a premium, fluid experience by
+  easing transitions rather than jumping directly to anchors.
+*/
+html,body{
+  height:100%;
+  scroll-behavior: smooth;
+}
 body{
   margin:0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue";
@@ -465,6 +473,179 @@ body{
   color: rgba(255,255,255,.50);
 }
 
+/* =======================================
+   Case study overlay styles
+======================================= */
+.case-overlay{
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5,6,8,.95);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .35s ease;
+  z-index: 10000;
+}
+.case-overlay.active{
+  opacity: 1;
+  pointer-events: auto;
+}
+.case-content{
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 14px;
+  padding: 32px 28px;
+  max-width: 650px;
+  width: calc(100% - 40px);
+  color: rgba(255,255,255,.92);
+  box-shadow: 0 20px 60px rgba(0,0,0,.65);
+  position: relative;
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+}
+.case-content h2{
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: clamp(22px, 3vw, 42px);
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.95);
+}
+.case-content p{
+  margin: 10px 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: rgba(255,255,255,.85);
+}
+.case-content strong{
+  font-weight: 600;
+  color: rgba(255,255,255,.9);
+}
+.case-close{
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: transparent;
+  border: 0;
+  font-size: 28px;
+  line-height: 1;
+  color: rgba(255,255,255,.7);
+  cursor: pointer;
+  transition: color .2s ease;
+}
+.case-close:hover{
+  color: rgba(255,255,255,1);
+}
+
+/* =======================================
+   Booking & payment forms
+======================================= */
+.booking-form{
+  margin-top:30px;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+.booking-form .form-group{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.booking-form label{
+  font-size:12px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color: rgba(255,255,255,.58);
+}
+.booking-form input,
+.booking-form select,
+.booking-form textarea{
+  width:100%;
+  padding:12px 14px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.92);
+  font-size:14px;
+}
+.booking-form input::placeholder,
+.booking-form textarea::placeholder{
+  color: rgba(255,255,255,.45);
+}
+.booking-form input:focus,
+.booking-form select:focus,
+.booking-form textarea:focus{
+  outline:none;
+  border-color: rgba(0,255,150,.35);
+}
+.booking-submit{
+  margin-top:10px;
+  width:100%;
+  font-size:14px;
+  letter-spacing:.15em;
+}
+.payment-options{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  align-items:center;
+  margin-top:32px;
+}
+.payment-options .btn{
+  width:100%;
+}
+.muted-note{
+  margin-top:24px;
+  font-size:12px;
+  text-align:center;
+  color: rgba(255,255,255,.55);
+}
+
+/* =======================================
+   Subtle background depth layer
+   Adds a drifting nebula effect behind all content
+======================================= */
+.page::before{
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 900px at 20% 30%, rgba(255,255,255,.04), transparent 60%),
+    radial-gradient(1000px 800px at 80% 40%, rgba(0,255,150,.03), transparent 65%),
+    radial-gradient(1000px 900px at 50% 80%, rgba(190,190,190,.04), transparent 65%);
+  opacity: .12;
+  animation: nebula-drift 80s linear infinite;
+}
+
+@keyframes nebula-drift {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-200px); }
+}
+
+/* Cursor halo */
+#cursor-halo{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.25);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  transition: transform .08s ease-out;
+  mix-blend-mode: difference;
+  z-index: 9999;
+}
+
 /* Mobile */
 @media (max-width:720px){
   .section{ padding:72px 0; }
@@ -525,11 +706,23 @@ body{
   box-shadow: 0 30px 100px rgba(0,0,0,.7);
 }
 
+/* Hover lift for work cards
+   Provide a subtle lift and highlight when users hover over a case study card.
+   This signals interactivity without being gimmicky. */
+.work-card:hover{
+  transform: translateY(-4px) scale(1.02);
+  border-color: rgba(255,255,255,.16);
+  box-shadow: 0 40px 120px rgba(0,0,0,.75);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
 .work-card video{
   width:100%;
   height:100%;
   object-fit:contain;
   background:#000;
+  /* Allow clicks on the card wrapper to propagate by disabling pointer events on the video */
+  pointer-events: none;
 }
 
 /* MOBILE — REAL FIX */
@@ -538,6 +731,77 @@ body{
   .horizontal-section{
     height:auto;
   }
+
+/* Authority positioning block */
+.authority-block{
+  margin: 0 auto 32px;
+  max-width: 600px;
+  text-align: center;
+}
+.authority-headline{
+  margin: 0 0 12px;
+  font-size: clamp(20px, 2.5vw, 34px);
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.95);
+}
+.authority-list{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px 24px;
+}
+.authority-list li{
+  font-size: 14px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.65);
+}
+
+/* Social proof text */
+.social-proof{
+  margin-top: 22px;
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  text-align: center;
+  color: rgba(255,255,255,.55);
+  opacity: .85;
+}
+
+/* Contact tagline */
+.contact-tagline{
+  margin-top: -6px;
+  margin-bottom: 18px;
+  text-align: center;
+  font-size: 14px;
+  letter-spacing: .12em;
+  color: rgba(255,255,255,.55);
+  font-style: italic;
+  /* Display as a block-level element so auto margins take effect.  By
+     restricting the intrinsic width to fit the text (up to a maximum),
+     the tagline will naturally center within its container when both
+     side margins are set to auto.  This avoids flexbox complexities. */
+  display: block;
+  width: fit-content;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Featured pricing card emphasis */
+.card.featured{
+  border-color: rgba(0,255,150,.35);
+  transform: scale(1.03);
+  box-shadow: 0 20px 55px rgba(0,0,0,.65);
+}
+.card.featured:hover{
+  transform: scale(1.05) translateY(-2px);
+}
 
   .horizontal-wrapper{
     position:relative;

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Book Project — SPNVISUALZ</title>
+  <meta name="description" content="Book your project with SPNVISUALZ" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body class="page page-booking">
+  <nav class="nav">
+    <a class="nav-brand" href="index.html">SPNVISUALZ</a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="section booking-section">
+      <div class="container">
+        <h2 class="section-title">Book Project</h2>
+        <p class="contact-tagline">Choose your package and tell us about your vision.</p>
+
+        <form class="booking-form" action="https://formsubmit.co/spnvisualz@gmail.com" method="POST">
+          <!-- FormSubmit configuration -->
+          <input type="hidden" name="_next" value="thank-you.html" />
+          <input type="hidden" name="_subject" value="New Project Booking" />
+
+          <div class="form-group">
+            <label for="package">Select Package</label>
+            <select id="package" name="Package" required>
+              <option value="" disabled selected>Choose…</option>
+              <option value="Starter">Starter</option>
+              <option value="Professional">Professional</option>
+              <option value="Signature">Signature</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" name="Name" required placeholder="Name" />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="Email" required placeholder="Email" />
+          </div>
+
+          <div class="form-group">
+            <label for="details">Project Details</label>
+            <textarea id="details" name="Details" rows="5" required placeholder="Describe your project…"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-solid booking-submit">Submit &amp; Continue to Payment</button>
+        </form>
+      </div>
+    </section>
+  </main>
+  <script src="./script.js"></script>
+</body>
+</html>

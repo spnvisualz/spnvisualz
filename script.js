@@ -57,3 +57,37 @@ links.forEach(link => {
     link.classList.add("active");
   }
 });
+
+/* Custom cursor halo */
+document.addEventListener('DOMContentLoaded', () => {
+  // Create a halo element that follows the pointer
+  const halo = document.createElement('div');
+  halo.id = 'cursor-halo';
+  document.body.appendChild(halo);
+  // Hide the native cursor to enhance the premium feel
+  document.body.style.cursor = 'none';
+  window.addEventListener('mousemove', (e) => {
+    // Translate the halo to the pointer location
+    halo.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Parallax background movement
+//
+// To add subtle depth to the page without sacrificing performance, certain
+// decorative layers are assigned the class `parallax`.  This listener
+// translates those elements slightly on scroll, scaling the movement to a
+// fraction of the scroll distance.  The effect is subtle and only applied
+// when the page contains such elements (e.g. hero backgrounds).
+
+const parallaxEls = document.querySelectorAll('.parallax');
+if (parallaxEls.length) {
+  window.addEventListener('scroll', () => {
+    // Multiply scrollY by a small factor for a gentle effect
+    const offsetY = window.scrollY * 0.05;
+    parallaxEls.forEach(el => {
+      el.style.transform = `translateY(${offsetY}px)`;
+    });
+  });
+}

@@ -11,8 +11,13 @@
 
 <body class="page page-main">
   <header class="hero" id="top">
-    <div class="bg-cosmic" aria-hidden="true"></div>
-    <div class="grain" aria-hidden="true"></div>
+    <!--
+      Apply a 'parallax' class to background layers so they respond subtly
+      to scroll events via JavaScript.  This adds depth without impacting
+      performance or distracting from the content.
+    -->
+    <div class="bg-cosmic parallax" aria-hidden="true"></div>
+    <div class="grain parallax" aria-hidden="true"></div>
 
     <nav class="nav">
       <a class="nav-brand" href="#top">SPNVISUALZ</a>
@@ -34,8 +39,11 @@
       <div class="hero-cta">
   <a class="btn btn-ghost" href="work.html">View Work</a>
   <a class="btn btn-ghost" href="#pricing">View Packages</a>
-  <a class="btn btn-solid" href="#contact">Book Now</a>
+  <a class="btn btn-solid" href="booking.html">Book Now</a>
 </div>
+
+        <!-- Social proof -->
+        <p class="social-proof">Trusted by rising artists &amp; visionary labels</p>
     </section>
   </header>
 
@@ -44,6 +52,17 @@
     <section class="section" id="pricing">
       <div class="container">
         <h2 class="section-title">Packages &amp; Pricing</h2>
+
+        <!-- Authority positioning block -->
+        <div class="authority-block">
+          <p class="authority-headline">Motion Design for Visionaries</p>
+          <ul class="authority-list">
+            <li>Logo &amp; Brand Identity</li>
+            <li>Intro &amp; Loop Animations</li>
+            <li>Visual Packs &amp; Bundles</li>
+            <li>Creative Direction</li>
+          </ul>
+        </div>
 
         <div class="badges">
           <div class="badge badge-green">💚 LAUNCH SALE – UP TO 80%</div>
@@ -172,7 +191,7 @@
           <article class="card expandable bundle" data-card>
             <button class="card-btn" type="button" aria-expanded="false">
               <div class="card-top">
-                <h3>Bundle — Starter</h3>
+              <h3>Starter</h3>
                 <div class="prices"><span class="old">€210</span><span class="new silver">€168</span></div>
                 <div class="save">Save 20%</div>
               </div>
@@ -183,10 +202,10 @@
             </button>
           </article>
 
-          <article class="card expandable bundle" data-card>
+          <article class="card expandable bundle featured" data-card>
             <button class="card-btn" type="button" aria-expanded="false">
               <div class="card-top">
-                <h3>Bundle — Creator</h3>
+              <h3>Professional</h3>
                 <div class="prices"><span class="old">€300</span><span class="new silver">€240</span></div>
                 <div class="save">Save 20%</div>
               </div>
@@ -200,7 +219,7 @@
           <article class="card expandable bundle" data-card>
             <button class="card-btn" type="button" aria-expanded="false">
               <div class="card-top">
-                <h3>Bundle — Business</h3>
+              <h3>Signature</h3>
                 <div class="prices"><span class="old">€420</span><span class="new silver">€336</span></div>
                 <div class="save">Save 20%</div>
               </div>
@@ -225,19 +244,18 @@
     <!-- CONTACT -->
     <section class="section" id="contact">
       <div class="container">
-        <h2 class="section-title">Contact</h2>
+        <h2 class="section-title">Let’s Build Something Unreal.</h2>
+        <!-- Tagline is wrapped with inline styling to ensure centering across
+             different rendering contexts.  By setting margin auto and
+             constraining the width, the line sits confidently beneath the
+             heading. -->
+        <p class="contact-tagline" style="max-width:600px;margin:0 auto;text-align:center;">Serious inquiries only.</p>
 
         <div class="contact-grid">
           <a class="contact-card" href="https://instagram.com/spnvisualz" target="_blank" rel="noreferrer">
             <div class="contact-label">Instagram</div>
             <div class="contact-value">@spnvisualz</div>
           </a>
-
-          <a class="contact-card" href="https://tiktok.com/@spnvisualz" target="_blank" rel="noreferrer">
-            <div class="contact-label">TikTok</div>
-            <div class="contact-value">@spnvisualz</div>
-          </a>
-
           <a class="contact-card" href="mailto:spnvisualz@gmail.com">
             <div class="contact-label">Email</div>
             <div class="contact-value">spnvisualz@gmail.com</div>
@@ -246,7 +264,7 @@
 
         <footer class="footer">
           <img class="footer-logo" src="./assets/images/chubae.PNG" alt="CHUBAE" draggable="false" />
-          <div class="footer-text">Created by CHUBAE</div>
+          <div class="footer-text">CHUBAE — Founder, SPNVISUALZ</div>
         </footer>
       </div>
     </section>

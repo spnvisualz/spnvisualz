@@ -50,3 +50,5 @@ window.addEventListener("load", () => {
 });
 
 smoothScroll();
+
+// Case study overlay logic moved into work.html
