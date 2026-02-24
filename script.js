@@ -6,6 +6,14 @@
   window.scrollTo({ top: 0, left: 0, behavior: "auto" });
 
   /* ==========================
+     REMOVE CURSOR HALO (NORMAL CURSOR)
+     - If you still have <div id="cursor-halo"></div> in HTML, remove it too.
+     - This makes sure any leftover halo code/element is gone.
+  =========================== */
+  const halo = document.getElementById("cursor-halo");
+  if (halo) halo.remove();
+
+  /* ==========================
      PRICING / FAQ ACCORDION
      - Only one open at a time
      - Click outside closes all
@@ -36,7 +44,7 @@
     const details = card.querySelector(".details");
     if (!btn || !details) continue;
 
-    // default closed
+    // keep markup default (if card already has is-open)
     setCardState(card, card.classList.contains("is-open"));
 
     btn.addEventListener("click", (e) => {
@@ -57,11 +65,9 @@
   /* ==========================
      NAV SCROLL EFFECT
   =========================== */
-  const nav = document.querySelector(".nav");
+  const nav = document.querySelector(".nav, .navbar");
   if (nav) {
-    const onScroll = () => {
-      nav.classList.toggle("scrolled", window.scrollY > 40);
-    };
+    const onScroll = () => nav.classList.toggle("scrolled", window.scrollY > 40);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
   }
@@ -70,41 +76,36 @@
      ACTIVE LINK AUTO-DETECT
      - avoids accidental partial matches
      - supports "/" properly
+     - supports .nav-links a and .nav-item
   =========================== */
-  const links = document.querySelectorAll(".nav-links a[href]");
+  const links = document.querySelectorAll(".nav-links a[href], a.nav-item[href]");
   const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
 
   links.forEach((link) => {
     const href = link.getAttribute("href");
     if (!href) return;
 
-    // Only treat internal paths like "/contact" or "contact.html"
+    // If it's an absolute URL, ignore
+    if (/^https?:\/\//i.test(href)) return;
+
     const normalizedHref = href.startsWith("/")
       ? href.replace(/\/+$/, "") || "/"
       : href;
 
-    // If it's an absolute URL, ignore
-    if (/^https?:\/\//i.test(href)) return;
-
-    // Match logic:
-    // - If link is "/" only match exact "/"
-    // - Otherwise: match exact path OR path starts with "/href/"
     if (normalizedHref === "/") {
       if (currentPath === "/") link.classList.add("active");
       return;
     }
 
-    // Convert "contact.html" -> "/contact.html" for pathname check
     const hrefPath = normalizedHref.startsWith("/") ? normalizedHref : `/${normalizedHref}`;
     if (currentPath === hrefPath || currentPath.startsWith(`${hrefPath}/`)) {
       link.classList.add("active");
     }
   });
-  
+
   /* ==========================
      PARALLAX (smooth + performant)
      - Uses requestAnimationFrame
-     - Won't fight other transforms if you use CSS variables
   =========================== */
   const parallaxEls = Array.from(document.querySelectorAll(".parallax"));
   if (parallaxEls.length) {
@@ -112,10 +113,7 @@
 
     const update = () => {
       const offsetY = window.scrollY * 0.05;
-      for (const el of parallaxEls) {
-        // If you need to preserve existing transforms, switch to CSS var approach
-        el.style.transform = `translateY(${offsetY}px)`;
-      }
+      for (const el of parallaxEls) el.style.transform = `translateY(${offsetY}px)`;
       ticking = false;
     };
 
@@ -130,7 +128,71 @@
       { passive: true }
     );
 
-    // Initial
     requestAnimationFrame(update);
+  }
+
+  /* ==========================
+     BOOK YOUR WORK — PACKAGE SELECT (ALL OPTIONS)
+     - Put all your packages here and they will appear in the dropdown.
+     - Requires: <select id="packageSelect">...</select>
+     - Optional: <div id="packagePrice"></div> for live price display
+  =========================== */
+
+  const PACKAGES = [
+    // ✅ Replace these with ALL your real packages (names + prices)
+    { id: "starter", label: "Starter", price: 999 },
+    { id: "growth", label: "Growth", price: 2499 },
+    { id: "pro", label: "Pro", price: 4499 },
+    { id: "ultra", label: "Ultra", price: 6999 },
+    { id: "retainer", label: "Monthly Retainer", price: 9999 },
+    { id: "custom", label: "Custom Package", price: null }
+  ];
+
+  const packageSelect =
+    document.getElementById("packageSelect") ||
+    document.querySelector('select[name="package"]') ||
+    document.querySelector('select[data-package-select]');
+
+  if (packageSelect) {
+    // Keep a placeholder at top
+    const placeholderText =
+      packageSelect.getAttribute("data-placeholder") || "Select package";
+
+    // Clear existing options
+    packageSelect.innerHTML = "";
+
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = placeholderText;
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    packageSelect.appendChild(placeholder);
+
+    // Add ALL packages
+    for (const p of PACKAGES) {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent =
+        p.price == null ? p.label : `${p.label} — ${p.price} NOK`;
+      packageSelect.appendChild(opt);
+    }
+
+    // Optional live price display
+    const priceEl =
+      document.getElementById("packagePrice") ||
+      document.querySelector("[data-package-price]");
+
+    if (priceEl) {
+      const renderPrice = () => {
+        const picked = PACKAGES.find((p) => p.id === packageSelect.value);
+        priceEl.textContent = !picked
+          ? ""
+          : picked.price == null
+          ? "Custom pricing — we'll contact you."
+          : `Price: ${picked.price} NOK`;
+      };
+      packageSelect.addEventListener("change", renderPrice);
+      renderPrice();
+    }
   }
 })();
