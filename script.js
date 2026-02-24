@@ -100,21 +100,7 @@
       link.classList.add("active");
     }
   });
-
-  /* ==========================
-     REMOVE CURSOR HALO
-     - DO NOT create #cursor-halo
-     - Ensure native cursor is visible
-  =========================== */
-  document.addEventListener("DOMContentLoaded", () => {
-    // If an old halo exists in DOM from previous builds, remove it
-    const existingHalo = document.getElementById("cursor-halo");
-    if (existingHalo) existingHalo.remove();
-
-    // Ensure cursor is not hidden (your old code set cursor:none)
-    document.body.style.cursor = "";
-  });
-
+  
   /* ==========================
      PARALLAX (smooth + performant)
      - Uses requestAnimationFrame
