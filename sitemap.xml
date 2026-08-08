@@ -13,4 +13,10 @@
       <image:loc>https://spnvisualz.com/assets/favicon-512.png</image:loc>
     </image:image>
   </url>
+  <url>
+    <loc>https://spnvisualz.com/websites/</loc>
+    <lastmod>2026-08-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
 </urlset>
