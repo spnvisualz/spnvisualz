@@ -2,22 +2,27 @@
   const $ = (selector, context = document) => context.querySelector(selector);
   const $$ = (selector, context = document) => [...context.querySelectorAll(selector)];
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = matchMedia('(pointer:fine)').matches;
 
   addEventListener('DOMContentLoaded', () => {
-    requestAnimationFrame(() => document.body.classList.remove('is-loading'));
+    requestAnimationFrame(() => {
+      document.body.classList.remove('is-loading');
+      cachePageMetrics();
+      renderScroll();
+    });
     const year = $('#year');
     if (year) year.textContent = new Date().getFullYear();
   });
 
   const header = $('#siteHeader');
   const progress = $('#pageProgress');
-  let latestScroll = 0;
+  let latestScroll = scrollY;
+  let pageMax = Math.max(1, document.documentElement.scrollHeight - innerHeight);
   let ticking = false;
 
   const renderScroll = () => {
-    const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
-    const pageP = latestScroll / max;
-    if (progress) progress.style.width = `${Math.min(100, pageP * 100)}%`;
+    const pageP = Math.min(1, Math.max(0, latestScroll / pageMax));
+    if (progress) progress.style.transform = `scaleX(${pageP})`;
     header?.classList.toggle('is-scrolled', latestScroll > 24);
 
     if (!reduceMotion) {
@@ -34,30 +39,52 @@
 
   addEventListener('scroll', () => {
     latestScroll = scrollY;
+    if (videoTimer) scheduleActiveVideo(160);
     if (!ticking) {
       ticking = true;
       requestAnimationFrame(renderScroll);
     }
   }, { passive: true });
 
-  if (!reduceMotion && matchMedia('(pointer:fine)').matches) {
+  if (!reduceMotion && finePointer) {
     const object = $('#heroObject');
+    let heroPointerFrame = 0;
+    let heroPointerX = 0;
+    let heroPointerY = 0;
     addEventListener('pointermove', (event) => {
       if (!object || scrollY > innerHeight) return;
-      const x = event.clientX / innerWidth - .5;
-      const y = event.clientY / innerHeight - .5;
-      object.style.setProperty('--ry', `${x * 6}deg`);
-      object.style.setProperty('--rx', `${-y * 5}deg`);
+      heroPointerX = event.clientX / innerWidth - .5;
+      heroPointerY = event.clientY / innerHeight - .5;
+      if (heroPointerFrame) return;
+      heroPointerFrame = requestAnimationFrame(() => {
+        object.style.setProperty('--ry', `${heroPointerX * 5}deg`);
+        object.style.setProperty('--rx', `${-heroPointerY * 4}deg`);
+        heroPointerFrame = 0;
+      });
     }, { passive: true });
 
     $$('[data-tilt]').forEach(card => {
+      let tiltBounds = null;
+      let tiltFrame = 0;
+      let tiltX = 0;
+      let tiltY = 0;
+      card.addEventListener('pointerenter', () => {
+        tiltBounds = card.getBoundingClientRect();
+      }, { passive: true });
       card.addEventListener('pointermove', event => {
-        const bounds = card.getBoundingClientRect();
-        const x = (event.clientX - bounds.left) / bounds.width - .5;
-        const y = (event.clientY - bounds.top) / bounds.height - .5;
-        card.style.transform = `rotateX(${-y * 4}deg) rotateY(${x * 5}deg) translateY(-3px)`;
-      });
+        const bounds = tiltBounds || card.getBoundingClientRect();
+        tiltX = (event.clientX - bounds.left) / bounds.width - .5;
+        tiltY = (event.clientY - bounds.top) / bounds.height - .5;
+        if (tiltFrame) return;
+        tiltFrame = requestAnimationFrame(() => {
+          card.style.transform = `rotateX(${-tiltY * 3}deg) rotateY(${tiltX * 4}deg) translateY(-2px)`;
+          tiltFrame = 0;
+        });
+      }, { passive: true });
       card.addEventListener('pointerleave', () => {
+        if (tiltFrame) cancelAnimationFrame(tiltFrame);
+        tiltFrame = 0;
+        tiltBounds = null;
         card.style.transform = '';
       });
     });
@@ -115,52 +142,98 @@
   const workProgress = $('#workProgress');
   let activeWork = 0;
   let previousWork = 0;
+  let workRailTop = 0;
+  let workRailDistance = 1;
+  let workInView = false;
+  let videoTimer = 0;
+  let metricFrame = 0;
+
+  const pauseWorkVideos = () => {
+    workPanels.forEach(panel => panel.querySelector('video')?.pause());
+  };
+
+  const scheduleActiveVideo = (delay = 140) => {
+    clearTimeout(videoTimer);
+    videoTimer = 0;
+    if (!workInView || document.hidden) return;
+    videoTimer = setTimeout(() => {
+      videoTimer = 0;
+      workPanels[activeWork]?.querySelector('video')?.play().catch(() => {});
+    }, reduceMotion ? 0 : delay);
+  };
+
+  function cachePageMetrics() {
+    pageMax = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+    if (!workRail) return;
+    const rect = workRail.getBoundingClientRect();
+    workRailTop = scrollY + rect.top;
+    workRailDistance = Math.max(1, workRail.offsetHeight - innerHeight);
+  }
+
+  const scheduleMetricRefresh = () => {
+    if (metricFrame) return;
+    metricFrame = requestAnimationFrame(() => {
+      cachePageMetrics();
+      latestScroll = scrollY;
+      renderScroll();
+      metricFrame = 0;
+    });
+  };
+
+  addEventListener('resize', scheduleMetricRefresh, { passive: true });
+  addEventListener('load', scheduleMetricRefresh, { once: true });
+  if ('ResizeObserver' in window) new ResizeObserver(scheduleMetricRefresh).observe(document.body);
 
   const activateWork = (index) => {
     if (index === activeWork || index < 0 || index >= workPanels.length) return;
     previousWork = activeWork;
     activeWork = index;
+    clearTimeout(videoTimer);
+    videoTimer = 0;
     workPanels.forEach((panel, panelIndex) => {
       panel.classList.remove('is-active', 'is-leaving');
       const video = $('video', panel);
       if (panelIndex === index) {
         panel.classList.add('is-active');
-        if (video) video.play().catch(() => {});
       } else {
         if (panelIndex === previousWork) panel.classList.add('is-leaving');
         if (video) video.pause();
       }
     });
     if (workCurrent) workCurrent.textContent = String(index + 1).padStart(2, '0');
+    scheduleActiveVideo();
   };
 
   function updateWork() {
     if (!workRail || !workPanels.length) return;
-    const railTop = workRail.offsetTop;
-    const distance = Math.max(1, workRail.offsetHeight - innerHeight);
-    const raw = (latestScroll - railTop) / distance;
+    const raw = (latestScroll - workRailTop) / workRailDistance;
     const value = Math.min(1, Math.max(0, raw));
-    if (workProgress) workProgress.style.width = `${value * 100}%`;
+    if (workProgress) workProgress.style.transform = `scaleX(${value})`;
     const index = Math.min(workPanels.length - 1, Math.floor(value * workPanels.length));
     activateWork(index);
-    const local = (value * workPanels.length) % 1;
-    const activePanel = workPanels[index];
-    if (activePanel && !reduceMotion) activePanel.style.setProperty('--sceneRotate', `${(local - .5) * 2.2}deg`);
   }
 
   const firstVideo = workPanels[0]?.querySelector('video');
   const workVisibility = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      if (entry.isIntersecting) workPanels[activeWork]?.querySelector('video')?.play().catch(() => {});
-      else workPanels.forEach(panel => panel.querySelector('video')?.pause());
+      workInView = entry.isIntersecting;
+      if (workInView) scheduleActiveVideo(60);
+      else {
+        clearTimeout(videoTimer);
+        videoTimer = 0;
+        pauseWorkVideos();
+      }
     });
   }, { threshold: .08 });
   if (workRail) workVisibility.observe(workRail);
   firstVideo?.pause();
 
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) $$('video').forEach(video => video.pause());
-    else if (workRail?.getBoundingClientRect().top < innerHeight && workRail?.getBoundingClientRect().bottom > 0) workPanels[activeWork]?.querySelector('video')?.play().catch(() => {});
+    if (document.hidden) {
+      clearTimeout(videoTimer);
+      videoTimer = 0;
+      pauseWorkVideos();
+    } else if (workInView) scheduleActiveVideo(40);
   });
 
   const serviceImage = $('#serviceImage');
@@ -241,5 +314,7 @@
     location.href = `mailto:spnvisualz@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   });
 
+  cachePageMetrics();
+  latestScroll = scrollY;
   renderScroll();
 })();
