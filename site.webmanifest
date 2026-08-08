@@ -1,0 +1,22 @@
+{
+  "name": "SPNVISUALZ",
+  "short_name": "SPNVISUALZ",
+  "description": "Logo design, motion graphics and visual identities for artists, brands and events.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#030207",
+  "theme_color": "#030207",
+  "icons": [
+    {
+      "src": "/assets/favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
