@@ -1,275 +1,297 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SPNVISUALZ</title>
-  <meta name="description" content="SPNVISUALZ — Luxury motion-first creative studio." />
-  <meta name="theme-color" content="#050608" />
-  <link rel="stylesheet" href="./style.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#030207">
+  <meta name="description" content="SPNVISUALZ creates high-impact logos, motion graphics, intros and visual identities for artists, brands and events.">
+  <meta property="og:title" content="SPNVISUALZ — Visuals That Connect">
+  <meta property="og:description" content="A luxury motion-first creative studio based in Oslo, working worldwide.">
+  <meta property="og:image" content="assets/images/hero.png">
+  <title>SPNVISUALZ — Visuals That Connect</title>
+  <link rel="icon" href="assets/spn-orbit.jpg">
+  <link rel="preload" href="assets/spn-orbit.jpg" as="image">
+  <link rel="stylesheet" href="styles.css">
 </head>
+<body class="is-loading">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="page-progress" aria-hidden="true"><span id="pageProgress"></span></div>
 
-<body class="page page-main">
-  <header class="hero" id="top">
-    <!--
-      Apply a 'parallax' class to background layers so they respond subtly
-      to scroll events via JavaScript.  This adds depth without impacting
-      performance or distracting from the content.
-    -->
-    <div class="bg-cosmic parallax" aria-hidden="true"></div>
-    <div class="grain parallax" aria-hidden="true"></div>
+  <header class="site-header" id="siteHeader">
+    <a class="wordmark" href="#top" aria-label="SPNVISUALZ home">
+      <span>SPN</span>VISUALZ
+      <small>VISUALS THAT CONNECT</small>
+    </a>
 
-    <nav class="nav">
-      <a class="nav-brand" href="#top">SPNVISUALZ</a>
-      <div class="nav-links">
-        <a href="#pricing">Pricing</a>
-        <a href="#contact">Contact</a>
-      </div>
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      <a href="#work">Work</a>
+      <a href="#services">Services</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#contact">Contact</a>
     </nav>
 
-    <section class="hero-center">
-      <div class="hero-life" aria-hidden="true"></div>
-      <div class="hero-orbit" aria-hidden="true"></div>
-
-      <img class="hero-logo chrome-sweep float"
-           src="./assets/images/spnvisualz.PNG"
-           alt="SPNVISUALZ"
-           draggable="false" />
-
-      <div class="hero-cta">
-  <a class="btn btn-ghost" href="work.html">View Work</a>
-  <a class="btn btn-ghost" href="#pricing">View Packages</a>
-  <a class="btn btn-solid" href="booking.html">Book Now</a>
-</div>
-
-        <!-- Social proof -->
-        <p class="social-proof">Trusted by rising artists &amp; visionary labels</p>
-    </section>
+    <div class="header-actions">
+      <button class="project-button" type="button" data-order>
+        <span>Start a project</span><i aria-hidden="true">↗</i>
+      </button>
+      <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="mobileMenu">
+        <span>Menu</span><i></i>
+      </button>
+    </div>
   </header>
 
-  <main>
-    <!-- PRICING -->
-    <section class="section" id="pricing">
-      <div class="container">
-        <h2 class="section-title">Packages &amp; Pricing</h2>
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <nav aria-label="Mobile navigation">
+      <a href="#work" data-menu-link><span>01</span>Work</a>
+      <a href="#services" data-menu-link><span>02</span>Services</a>
+      <a href="#pricing" data-menu-link><span>03</span>Pricing</a>
+      <a href="#contact" data-menu-link><span>04</span>Contact</a>
+    </nav>
+    <div class="mobile-contact">
+      <a href="https://instagram.com/spnvisualz" target="_blank" rel="noreferrer">Instagram ↗</a>
+      <a href="mailto:spnvisualz@gmail.com">Email ↗</a>
+    </div>
+  </div>
 
-        <!-- Authority positioning block -->
-        <div class="authority-block">
-          <p class="authority-headline">Motion Design for Visionaries</p>
-          <ul class="authority-list">
-            <li>Logo &amp; Brand Identity</li>
-            <li>Intro &amp; Loop Animations</li>
-            <li>Visual Packs &amp; Bundles</li>
-            <li>Creative Direction</li>
-          </ul>
+  <main id="main">
+    <section class="hero" id="top" data-section="Home">
+      <div class="hero-cosmos" aria-hidden="true"></div>
+      <div class="hero-lines" aria-hidden="true"></div>
+
+      <div class="hero-copy">
+        <p class="eyebrow"><span></span> Luxury motion-first creative studio</p>
+        <h1>Your vision.<br><em>In motion.</em></h1>
+        <p class="hero-lead">We create cinematic logos, motion graphics and visual worlds that make artists, brands and events impossible to ignore.</p>
+        <div class="hero-buttons">
+          <a class="button button-light" href="#work"><span>Explore the work</span><i>↓</i></a>
+          <button class="button button-outline" type="button" data-order><span>Order artwork</span><i>↗</i></button>
         </div>
+      </div>
 
-        <div class="badges">
-          <div class="badge badge-green">💚 LAUNCH SALE – UP TO 80%</div>
-          <div class="badge badge-silver">💎 BUNDLE DEAL – UP TO 20% OFF</div>
-        </div>
+      <div class="hero-object" id="heroObject" aria-hidden="true">
+        <div class="planet-glow"></div>
+        <div class="orbit-trace orbit-trace-one"></div>
+        <div class="orbit-trace orbit-trace-two"></div>
+        <img src="assets/spn-orbit.jpg" alt="">
+      </div>
 
-        <div class="pricing-grid">
-          <!-- Regular packages (80% off) -->
-          <article class="card expandable" data-card>
-            <button class="card-btn" type="button" aria-expanded="false">
-              <div class="card-top">
-                <h3>Logo — Basic</h3>
-                <div class="prices"><span class="old">€70</span><span class="new green">€14</span></div>
-                <div class="save">Save 80%</div>
-              </div>
-              <div class="details" aria-hidden="true">
-                <div class="detail-row"><span>Best for</span><span>Artists / quick identity</span></div>
-                <div class="detail-row"><span>Includes</span><span>Chrome logo export pack</span></div>
-                <div class="detail-row"><span>Use</span><span>IG, Spotify, watermark</span></div>
-              </div>
-            </button>
-          </article>
+      <div class="hero-foot">
+        <div><span>Based in</span><strong>Oslo / Worldwide</strong></div>
+        <div><span>Specialized in</span><strong>Identity / Motion / Visuals</strong></div>
+        <a href="#work"><span>Scroll to discover</span><b aria-hidden="true"></b></a>
+      </div>
+    </section>
 
-          <article class="card expandable" data-card>
-            <button class="card-btn" type="button" aria-expanded="false">
-              <div class="card-top">
-                <h3>Logo — Premium</h3>
-                <div class="prices"><span class="old">€140</span><span class="new green">€28</span></div>
-                <div class="save">Save 80%</div>
-              </div>
-              <div class="details" aria-hidden="true">
-                <div class="detail-row"><span>Best for</span><span>Full brand presence</span></div>
-                <div class="detail-row"><span>Includes</span><span>More polish + variants</span></div>
-                <div class="detail-row"><span>Use</span><span>Web, merch, profiles</span></div>
-              </div>
-            </button>
-          </article>
-
-          <article class="card expandable" data-card>
-            <button class="card-btn" type="button" aria-expanded="false">
-              <div class="card-top">
-                <h3>Intro — Standard</h3>
-                <div class="prices"><span class="old">€90</span><span class="new green">€18</span></div>
-                <div class="save">Save 80%</div>
-              </div>
-              <div class="details" aria-hidden="true">
-                <div class="detail-row"><span>Best for</span><span>Reels / shorts</span></div>
-                <div class="detail-row"><span>Includes</span><span>Short motion intro</span></div>
-                <div class="detail-row"><span>Use</span><span>Open your content</span></div>
-              </div>
-            </button>
-          </article>
-
-          <article class="card expandable" data-card>
-            <button class="card-btn" type="button" aria-expanded="false">
-              <div class="card-top">
-                <h3>Intro — Premium</h3>
-                <div class="prices"><span class="old">€170</span><span class="new green">€34</span></div>
-                <div class="save">Save 80%</div>
-              </div>
-              <div class="details" aria-hidden="true">
-                <div class="detail-row"><span>Best for</span><span>High-impact opener</span></div>
-                <div class="detail-row"><span>Includes</span><span>Premium motion polish</span></div>
-                <div class="detail-row"><span>Use</span><span>YouTube / campaigns</span></div>
-              </div>
-            </button>
-          </article>
-
-          <article class="card expandable" data-card>
-            <button class="card-btn" type="button" aria-expanded="false">
-              <div class="card-top">
-                <h3>Loops — Basic</h3>
-                <div class="prices"><span class="old">€110</span><span class="new green">€22</span></div>
-                <div class="save">Save 80%</div>
-              </div>
-              <div class="details" aria-hidden="true">
-                <div class="detail-row"><span>Includes</span><span>Seamless loop</span></div>
-                <div class="detail-row"><span>Use</span><span>Story / promo backgrounds</span></div>
-              </div>
-            </button>
-          </article>
-
-          <article class="card expandable" data-card>
-            <button class="card-btn" type="button" aria-expanded="false">
-              <div class="card-top">
-                <h3>Loops — Premium</h3>
-                <div class="prices"><span class="old">€190</span><span class="new green">€38</span></div>
-                <div class="save">Save 80%</div>
-              </div>
-              <div class="details" aria-hidden="true">
-                <div class="detail-row"><span>Includes</span><span>More depth + texture</span></div>
-                <div class="detail-row"><span>Use</span><span>Brand loops / drops</span></div>
-              </div>
-            </button>
-          </article>
-
-          <article class="card expandable" data-card>
-            <button class="card-btn" type="button" aria-expanded="false">
-              <div class="card-top">
-                <h3>Visuals — Social</h3>
-                <div class="prices"><span class="old">€85</span><span class="new green">€17</span></div>
-                <div class="save">Save 80%</div>
-              </div>
-              <div class="details" aria-hidden="true">
-                <div class="detail-row"><span>Includes</span><span>Social visual pack</span></div>
-                <div class="detail-row"><span>Use</span><span>Posts / reels graphics</span></div>
-              </div>
-            </button>
-          </article>
-
-          <article class="card expandable" data-card>
-            <button class="card-btn" type="button" aria-expanded="false">
-              <div class="card-top">
-                <h3>Visuals — Brand</h3>
-                <div class="prices"><span class="old">€150</span><span class="new green">€30</span></div>
-                <div class="save">Save 80%</div>
-              </div>
-              <div class="details" aria-hidden="true">
-                <div class="detail-row"><span>Includes</span><span>Brand-grade visuals</span></div>
-                <div class="detail-row"><span>Use</span><span>Campaign system</span></div>
-              </div>
-            </button>
-          </article>
-
-          <!-- Bundles (20% off max) -->
-          <article class="card expandable bundle" data-card>
-            <button class="card-btn" type="button" aria-expanded="false">
-              <div class="card-top">
-              <h3>Starter</h3>
-                <div class="prices"><span class="old">€210</span><span class="new silver">€168</span></div>
-                <div class="save">Save 20%</div>
-              </div>
-              <div class="details" aria-hidden="true">
-                <div class="detail-row"><span>Best for</span><span>Launch kit</span></div>
-                <div class="detail-row"><span>Includes</span><span>Logo + intro + social pack</span></div>
-              </div>
-            </button>
-          </article>
-
-          <article class="card expandable bundle featured" data-card>
-            <button class="card-btn" type="button" aria-expanded="false">
-              <div class="card-top">
-              <h3>Professional</h3>
-                <div class="prices"><span class="old">€300</span><span class="new silver">€240</span></div>
-                <div class="save">Save 20%</div>
-              </div>
-              <div class="details" aria-hidden="true">
-                <div class="detail-row"><span>Best for</span><span>Consistency</span></div>
-                <div class="detail-row"><span>Includes</span><span>Creator pack + loops</span></div>
-              </div>
-            </button>
-          </article>
-
-          <article class="card expandable bundle" data-card>
-            <button class="card-btn" type="button" aria-expanded="false">
-              <div class="card-top">
-              <h3>Signature</h3>
-                <div class="prices"><span class="old">€420</span><span class="new silver">€336</span></div>
-                <div class="save">Save 20%</div>
-              </div>
-              <div class="details" aria-hidden="true">
-                <div class="detail-row"><span>Best for</span><span>Brand foundation</span></div>
-                <div class="detail-row"><span>Includes</span><span>Full brand system</span></div>
-              </div>
-            </button>
-          </article>
-        </div>
-
-        <div class="delivery">
-          <div class="delivery-box">
-            <div class="delivery-title">Delivery</div>
-            <div class="delivery-row"><span>Standard</span><span>3–5 days</span></div>
-            <div class="delivery-row"><span>Express</span><span>24–48h <strong>+€40</strong></span></div>
-          </div>
+    <section class="manifesto section-pad" data-section="Studio">
+      <div class="manifesto-label reveal">
+        <p class="section-label">SPNVISUALZ / 2026</p>
+        <span>Creative direction by CHUBAE</span>
+      </div>
+      <div class="manifesto-copy">
+        <p class="reveal">A logo is only the start.</p>
+        <h2 class="reveal">We build the <em>world</em><br>around your idea.</h2>
+        <div class="manifesto-note reveal">
+          <span>01</span>
+          <p>Every visual is shaped to feel intentional, recognisable and fully yours — from the first frame to the final detail.</p>
         </div>
       </div>
     </section>
 
-    <!-- CONTACT -->
-    <section class="section" id="contact">
-      <div class="container">
-        <h2 class="section-title">Let’s Build Something Unreal.</h2>
-        <!-- Tagline is wrapped with inline styling to ensure centering across
-             different rendering contexts.  By setting margin auto and
-             constraining the width, the line sits confidently beneath the
-             heading. -->
-        <p class="contact-tagline" style="max-width:600px;margin:0 auto;text-align:center;">Serious inquiries only.</p>
+    <section class="work-rail" id="work" data-section="Selected Work">
+      <div class="work-sticky">
+        <header class="work-header">
+          <div>
+            <p class="section-label">Selected work</p>
+            <h2>Seven visual worlds</h2>
+          </div>
+          <div class="work-count"><strong id="workCurrent">01</strong><span>/</span><em>07</em></div>
+        </header>
 
-        <div class="contact-grid">
-          <a class="contact-card" href="https://instagram.com/spnvisualz" target="_blank" rel="noreferrer">
-            <div class="contact-label">Instagram</div>
-            <div class="contact-value">@spnvisualz</div>
-          </a>
-          <a class="contact-card" href="mailto:spnvisualz@gmail.com">
-            <div class="contact-label">Email</div>
-            <div class="contact-value">spnvisualz@gmail.com</div>
-          </a>
+        <div class="work-stage" id="workStage">
+          <article class="work-panel is-active" data-title="Getana Events" data-index="0">
+            <p class="work-ghost" aria-hidden="true">IDENTITY</p>
+            <div class="work-media">
+              <video muted loop playsinline preload="metadata" poster="assets/work-1.jpg"><source src="assets/videos/spn-visual-01.mp4" type="video/mp4"></video>
+              <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
+            </div>
+            <div class="work-copy"><span>01 / EVENT IDENTITY</span><h3>Getana Events</h3><p>Luxury emblem animation built for nightlife, events and social campaigns.</p></div>
+          </article>
+
+          <article class="work-panel" data-title="3 Nation Studios" data-index="1">
+            <p class="work-ghost" aria-hidden="true">CHROME</p>
+            <div class="work-media">
+              <video muted loop playsinline preload="metadata" poster="assets/work-2.jpg"><source src="assets/videos/spn-visual-02.mp4" type="video/mp4"></video>
+              <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
+            </div>
+            <div class="work-copy"><span>02 / LOGO MOTION</span><h3>3 Nation Studios</h3><p>Diamond-set type, high-gloss lighting and a reveal made to feel expensive.</p></div>
+          </article>
+
+          <article class="work-panel" data-title="TAJO" data-index="2">
+            <p class="work-ghost" aria-hidden="true">INTRO</p>
+            <div class="work-media work-media-wide">
+              <video muted loop playsinline preload="metadata" poster="assets/work-3.jpg"><source src="assets/videos/spn-visual-03.mp4" type="video/mp4"></video>
+              <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
+            </div>
+            <div class="work-copy"><span>03 / ARTIST INTRO</span><h3>TAJO</h3><p>A cinematic artist mark shaped through metal, movement and atmosphere.</p></div>
+          </article>
+
+          <article class="work-panel" data-title="R Star" data-index="3">
+            <p class="work-ghost" aria-hidden="true">SYMBOL</p>
+            <div class="work-media">
+              <video muted loop playsinline preload="metadata" poster="assets/work-4.jpg"><source src="assets/videos/spn-visual-04.mp4" type="video/mp4"></video>
+              <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
+            </div>
+            <div class="work-copy"><span>04 / EMBLEM MOTION</span><h3>R Star</h3><p>A dark chrome signature engineered to land with impact in every reveal.</p></div>
+          </article>
+
+          <article class="work-panel" data-title="SPNVISUALZ Archive" data-index="4">
+            <p class="work-ghost" aria-hidden="true">STUDIO</p>
+            <div class="work-media">
+              <video muted loop playsinline preload="metadata" poster="assets/work-5.jpg"><source src="assets/videos/spn-intro.mp4" type="video/mp4"></video>
+              <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
+            </div>
+            <div class="work-copy"><span>05 / STUDIO IDENT</span><h3>SPNVISUALZ Archive</h3><p>A motion-first studio identity built to turn the brand itself into an experience.</p></div>
+          </article>
+
+          <article class="work-panel" data-title="ODAB" data-index="5">
+            <p class="work-ghost" aria-hidden="true">COVER</p>
+            <div class="work-media work-media-wide">
+              <video muted loop playsinline preload="metadata" poster="assets/work-6.jpg"><source src="assets/videos/spn-visual-06.mp4" type="video/mp4"></video>
+              <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
+            </div>
+            <div class="work-copy"><span>06 / RELEASE VISUAL</span><h3>ODAB</h3><p>Artwork and motion designed as one loud, recognisable release system.</p></div>
+          </article>
+
+          <article class="work-panel" data-title="TAJO Custom" data-index="6">
+            <p class="work-ghost" aria-hidden="true">CUSTOM</p>
+            <div class="work-media">
+              <video muted loop playsinline preload="metadata" poster="assets/work-7.jpg"><source src="assets/videos/spn-visual-05.mp4" type="video/mp4"></video>
+              <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
+            </div>
+            <div class="work-copy"><span>07 / CUSTOM WORLD</span><h3>TAJO Custom</h3><p>When the package list is not enough, we build the visual world from zero.</p></div>
+          </article>
         </div>
 
-        <footer class="footer">
-          <img class="footer-logo" src="./assets/images/chubae.PNG" alt="CHUBAE" draggable="false" />
-          <div class="footer-text">CHUBAE — Founder, SPNVISUALZ</div>
+        <footer class="work-footer">
+          <div class="work-progress"><span id="workProgress"></span></div>
+          <p>Keep scrolling to move through the collection</p>
         </footer>
       </div>
     </section>
+
+    <section class="services section-pad" id="services" data-section="Services">
+      <header class="section-head reveal">
+        <div><p class="section-label">What we create</p><h2>From one mark<br>to a full <em>world.</em></h2></div>
+        <p>Choose a direction below or bring us something completely custom.</p>
+      </header>
+
+      <div class="service-layout">
+        <div class="service-preview reveal" aria-hidden="true">
+          <img id="serviceImage" src="assets/work-2.jpg" alt="">
+          <span>Selected preview</span>
+        </div>
+        <div class="service-list">
+          <button class="service-row reveal is-active" type="button" data-image="assets/work-2.jpg" data-product="Logo Design">
+            <span>01</span><strong>Logo design</strong><em>Identity / Custom / Chrome</em><b>From €14</b><i>↗</i>
+          </button>
+          <button class="service-row reveal" type="button" data-image="assets/work-1.jpg" data-product="Animated Logo">
+            <span>02</span><strong>Animated logos</strong><em>Motion / Reveal / Social</em><b>From €18</b><i>↗</i>
+          </button>
+          <button class="service-row reveal" type="button" data-image="assets/work-3.jpg" data-product="Intro">
+            <span>03</span><strong>Intros</strong><em>Reels / YouTube / Campaigns</em><b>From €18</b><i>↗</i>
+          </button>
+          <button class="service-row reveal" type="button" data-image="assets/work-4.jpg" data-product="Motion Loop">
+            <span>04</span><strong>Motion loops</strong><em>Seamless / Screens / Social</em><b>From €22</b><i>↗</i>
+          </button>
+          <button class="service-row reveal" type="button" data-image="assets/work-6.jpg" data-product="Social Visuals">
+            <span>05</span><strong>Social visuals</strong><em>Posts / Drops / Releases</em><b>From €17</b><i>↗</i>
+          </button>
+          <button class="service-row reveal" type="button" data-image="assets/work-5.jpg" data-product="Brand Visuals">
+            <span>06</span><strong>Brand visuals</strong><em>Campaign / System / Direction</em><b>From €30</b><i>↗</i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <div class="marquee" aria-hidden="true">
+      <div><span>LOGOS</span><i>✦</i><span>INTROS</span><i>✦</i><span>LOOPS</span><i>✦</i><span>VISUALS</span><i>✦</i><span>CREATIVE DIRECTION</span><i>✦</i><span>LOGOS</span><i>✦</i><span>INTROS</span><i>✦</i><span>LOOPS</span><i>✦</i></div>
+    </div>
+
+    <section class="pricing section-pad" id="pricing" data-section="Pricing">
+      <header class="section-head pricing-head reveal">
+        <div><p class="section-label">Clear packages</p><h2>Pick your<br><em>starting point.</em></h2></div>
+        <div class="offer-note"><span>Launch pricing</span><strong>Up to 80% off</strong><p>Express delivery available in 24–48 hours.</p></div>
+      </header>
+
+      <div class="price-tabs reveal" role="tablist" aria-label="Pricing type">
+        <button id="singleTab" class="is-active" type="button" role="tab" aria-selected="true" aria-controls="singlePrices">Single services</button>
+        <button id="bundleTab" type="button" role="tab" aria-selected="false" aria-controls="bundlePrices">Bundles — save 20%</button>
+      </div>
+
+      <div class="price-panel is-active" id="singlePrices" role="tabpanel" aria-labelledby="singleTab">
+        <article class="price-card reveal"><div class="price-top"><span>01 / LOGO</span><em>Most flexible</em></div><h3>Logo design</h3><div class="price-tier"><div><strong>Basic</strong><p>Quick identity / social-ready</p></div><div><del>€70</del><b>€14</b></div></div><div class="price-tier"><div><strong>Premium</strong><p>More polish + variants</p></div><div><del>€140</del><b>€28</b></div></div><button data-order data-product="Logo Design">Order logo <span>↗</span></button></article>
+        <article class="price-card reveal"><div class="price-top"><span>02 / INTRO</span><em>Motion-ready</em></div><h3>Intro visual</h3><div class="price-tier"><div><strong>Standard</strong><p>Short motion intro</p></div><div><del>€90</del><b>€18</b></div></div><div class="price-tier"><div><strong>Premium</strong><p>High-impact motion polish</p></div><div><del>€170</del><b>€34</b></div></div><button data-order data-product="Intro">Order intro <span>↗</span></button></article>
+        <article class="price-card reveal"><div class="price-top"><span>03 / LOOP</span><em>Screen-ready</em></div><h3>Motion loop</h3><div class="price-tier"><div><strong>Basic</strong><p>Seamless motion loop</p></div><div><del>€110</del><b>€22</b></div></div><div class="price-tier"><div><strong>Premium</strong><p>More depth + texture</p></div><div><del>€190</del><b>€38</b></div></div><button data-order data-product="Motion Loop">Order loop <span>↗</span></button></article>
+        <article class="price-card reveal"><div class="price-top"><span>04 / VISUAL</span><em>Campaign-ready</em></div><h3>Visuals</h3><div class="price-tier"><div><strong>Social</strong><p>Posts / reels visual pack</p></div><div><del>€85</del><b>€17</b></div></div><div class="price-tier"><div><strong>Brand</strong><p>Campaign-grade visual system</p></div><div><del>€150</del><b>€30</b></div></div><button data-order data-product="Social Visuals">Order visual <span>↗</span></button></article>
+      </div>
+
+      <div class="price-panel bundle-panel" id="bundlePrices" role="tabpanel" aria-labelledby="bundleTab" hidden>
+        <article class="bundle-card reveal"><span>Starter</span><h3>€168</h3><del>€210</del><p>Logo + intro + social visual pack</p><ul><li>Complete starting identity</li><li>Ready for social launch</li><li>One clear visual direction</li></ul><button data-order data-product="Starter Bundle">Choose starter <i>↗</i></button></article>
+        <article class="bundle-card featured reveal"><div class="popular">Most popular</div><span>Creator</span><h3>€240</h3><del>€300</del><p>Creator pack + motion loops</p><ul><li>Identity and intro motion</li><li>Looping visual assets</li><li>Built for regular content</li></ul><button data-order data-product="Creator Bundle">Choose creator <i>↗</i></button></article>
+        <article class="bundle-card reveal"><span>Business</span><h3>€336</h3><del>€420</del><p>Full visual brand foundation</p><ul><li>Campaign-ready identity</li><li>Complete visual system</li><li>Premium creative direction</li></ul><button data-order data-product="Business Bundle">Choose business <i>↗</i></button></article>
+      </div>
+
+      <div class="delivery-bar reveal"><span><small>Standard</small>3–5 day delivery</span><span><small>Express</small>24–48h / +€40</span><span><small>Something different?</small><button type="button" data-order data-product="Custom Project">Ask for custom ↗</button></span></div>
+    </section>
+
+    <section class="process section-pad" data-section="Process">
+      <header class="section-head reveal"><div><p class="section-label">Simple process</p><h2>From message<br>to <em>finished visual.</em></h2></div><p>No confusing booking system. Tell us what you need and we take it from there.</p></header>
+      <ol class="process-grid">
+        <li class="reveal"><span>01</span><strong>Choose</strong><p>Select a service or ask for a custom project.</p></li>
+        <li class="reveal"><span>02</span><strong>Send your idea</strong><p>Share the name, references and feeling you want.</p></li>
+        <li class="reveal"><span>03</span><strong>We create</strong><p>Your direction becomes a polished visual world.</p></li>
+        <li class="reveal"><span>04</span><strong>Receive</strong><p>Final files arrive ready for the platforms you use.</p></li>
+      </ol>
+    </section>
+
+    <section class="contact" id="contact" data-section="Contact">
+      <div class="contact-art" aria-hidden="true"><img src="assets/spn-orbit.jpg" alt=""></div>
+      <div class="contact-inner">
+        <p class="section-label reveal">Ready when you are</p>
+        <h2 class="reveal">Let’s make something<br><em>people remember.</em></h2>
+        <p class="contact-lead reveal">Start with a quick project brief, send an Instagram DM, or email us directly.</p>
+        <div class="contact-actions reveal">
+          <button class="button button-light" type="button" data-order><span>Start a project</span><i>↗</i></button>
+          <a class="button button-outline" href="https://instagram.com/spnvisualz" target="_blank" rel="noreferrer"><span>Instagram</span><i>↗</i></a>
+        </div>
+        <div class="contact-details reveal">
+          <a href="mailto:spnvisualz@gmail.com"><span>Email</span><strong>spnvisualz@gmail.com</strong><i>↗</i></a>
+          <a href="https://instagram.com/spnvisualz" target="_blank" rel="noreferrer"><span>Instagram</span><strong>@spnvisualz</strong><i>↗</i></a>
+        </div>
+      </div>
+    </section>
   </main>
-    </main>
-    <script src="./script.js"></script>
+
+  <footer class="site-footer">
+    <a class="wordmark" href="#top"><span>SPN</span>VISUALZ<small>VISUALS THAT CONNECT</small></a>
+    <p>© <span id="year">2026</span> SPNVISUALZ. All rights reserved.</p>
+    <div class="chubae"><span>Creative direction</span><img src="assets/images/chubae.PNG" alt="CHUBAE"></div>
+  </footer>
+
+  <dialog class="order-dialog" id="orderDialog" aria-labelledby="orderTitle">
+    <div class="dialog-shell">
+      <header><div><p class="section-label">Project enquiry</p><h2 id="orderTitle">Tell us your idea.</h2></div><button id="closeDialog" type="button" aria-label="Close project form">Close ×</button></header>
+      <form id="orderForm">
+        <label><span>Your name</span><input name="name" autocomplete="name" placeholder="Name" required></label>
+        <label><span>Email or Instagram</span><input name="contact" placeholder="How should we reach you?" required></label>
+        <label><span>What do you need?</span><select name="service" id="serviceSelect" required><option value="">Select a service</option><option>Logo Design</option><option>Animated Logo</option><option>Intro</option><option>Motion Loop</option><option>Social Visuals</option><option>Brand Visuals</option><option>Starter Bundle</option><option>Creator Bundle</option><option>Business Bundle</option><option>Custom Project</option></select></label>
+        <label class="wide"><span>Describe the vision</span><textarea name="brief" rows="4" placeholder="Name, style, colours, deadline and any references…" required></textarea></label>
+        <div class="form-foot wide"><p>This opens your email app with the brief already filled in.</p><button class="button button-light" type="submit"><span>Send project brief</span><i>↗</i></button></div>
+      </form>
+    </div>
+  </dialog>
+
+  <script src="app.js" defer></script>
 </body>
 </html>
