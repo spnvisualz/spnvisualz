@@ -49,6 +49,18 @@
       object.style.setProperty('--ry', `${x * 6}deg`);
       object.style.setProperty('--rx', `${-y * 5}deg`);
     }, { passive: true });
+
+    $$('[data-tilt]').forEach(card => {
+      card.addEventListener('pointermove', event => {
+        const bounds = card.getBoundingClientRect();
+        const x = (event.clientX - bounds.left) / bounds.width - .5;
+        const y = (event.clientY - bounds.top) / bounds.height - .5;
+        card.style.transform = `rotateX(${-y * 4}deg) rotateY(${x * 5}deg) translateY(-3px)`;
+      });
+      card.addEventListener('pointerleave', () => {
+        card.style.transform = '';
+      });
+    });
   }
 
   const menuToggle = $('#menuToggle');

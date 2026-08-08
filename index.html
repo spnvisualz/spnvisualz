@@ -9,13 +9,18 @@
   <meta property="og:description" content="A luxury motion-first creative studio based in Oslo, working worldwide.">
   <meta property="og:image" content="assets/images/hero.png">
   <title>SPNVISUALZ — Visuals That Connect</title>
-  <link rel="icon" href="assets/spn-orbit.jpg">
-  <link rel="preload" href="assets/spn-orbit.jpg" as="image">
+  <link rel="icon" href="assets/spn-orbit-transparent.png">
+  <link rel="preload" href="assets/spn-orbit-transparent.png" as="image">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="is-loading">
   <a class="skip-link" href="#main">Skip to content</a>
   <div class="grain" aria-hidden="true"></div>
+  <div class="site-atmosphere" aria-hidden="true">
+    <span class="atmosphere-orb atmosphere-orb-a"></span>
+    <span class="atmosphere-orb atmosphere-orb-b"></span>
+    <span class="atmosphere-stars"></span>
+  </div>
   <div class="page-progress" aria-hidden="true"><span id="pageProgress"></span></div>
 
   <header class="site-header" id="siteHeader">
@@ -70,10 +75,13 @@
       </div>
 
       <div class="hero-object" id="heroObject" aria-hidden="true">
+        <div class="logo-aura"></div>
         <div class="planet-glow"></div>
         <div class="orbit-trace orbit-trace-one"></div>
         <div class="orbit-trace orbit-trace-two"></div>
-        <img src="assets/spn-orbit.jpg" alt="">
+        <div class="orbit-signal orbit-signal-one"></div>
+        <div class="orbit-signal orbit-signal-two"></div>
+        <img src="assets/spn-orbit-transparent.png" alt="">
       </div>
 
       <div class="hero-foot">
@@ -103,19 +111,19 @@
         <header class="work-header">
           <div>
             <p class="section-label">Selected work</p>
-            <h2>Seven visual worlds</h2>
+            <h2>Five visual worlds</h2>
           </div>
-          <div class="work-count"><strong id="workCurrent">01</strong><span>/</span><em>07</em></div>
+          <div class="work-count"><strong id="workCurrent">01</strong><span>/</span><em>05</em></div>
         </header>
 
         <div class="work-stage" id="workStage">
-          <article class="work-panel is-active" data-title="Getana Events" data-index="0">
+          <article class="work-panel is-active" data-title="Gezana Events" data-index="0">
             <p class="work-ghost" aria-hidden="true">IDENTITY</p>
             <div class="work-media">
               <video muted loop playsinline preload="metadata" poster="assets/work-1.jpg"><source src="assets/videos/spn-visual-01.mp4" type="video/mp4"></video>
               <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
             </div>
-            <div class="work-copy"><span>01 / EVENT IDENTITY</span><h3>Getana Events</h3><p>Luxury emblem animation built for nightlife, events and social campaigns.</p></div>
+            <div class="work-copy"><span>01 / EVENT IDENTITY</span><h3>Gezana Events</h3><p>Luxury emblem animation built for nightlife, events and social campaigns.</p></div>
           </article>
 
           <article class="work-panel" data-title="3 Nation Studios" data-index="1">
@@ -127,13 +135,13 @@
             <div class="work-copy"><span>02 / LOGO MOTION</span><h3>3 Nation Studios</h3><p>Diamond-set type, high-gloss lighting and a reveal made to feel expensive.</p></div>
           </article>
 
-          <article class="work-panel" data-title="TAJO" data-index="2">
+          <article class="work-panel" data-title="TAO" data-index="2">
             <p class="work-ghost" aria-hidden="true">INTRO</p>
             <div class="work-media work-media-wide">
               <video muted loop playsinline preload="metadata" poster="assets/work-3.jpg"><source src="assets/videos/spn-visual-03.mp4" type="video/mp4"></video>
               <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
             </div>
-            <div class="work-copy"><span>03 / ARTIST INTRO</span><h3>TAJO</h3><p>A cinematic artist mark shaped through metal, movement and atmosphere.</p></div>
+            <div class="work-copy"><span>03 / ARTIST INTRO</span><h3>TAO</h3><p>A cinematic artist mark shaped through metal, movement and atmosphere.</p></div>
           </article>
 
           <article class="work-panel" data-title="R Star" data-index="3">
@@ -145,31 +153,13 @@
             <div class="work-copy"><span>04 / EMBLEM MOTION</span><h3>R Star</h3><p>A dark chrome signature engineered to land with impact in every reveal.</p></div>
           </article>
 
-          <article class="work-panel" data-title="SPNVISUALZ Archive" data-index="4">
-            <p class="work-ghost" aria-hidden="true">STUDIO</p>
-            <div class="work-media">
-              <video muted loop playsinline preload="metadata" poster="assets/work-5.jpg"><source src="assets/videos/spn-intro.mp4" type="video/mp4"></video>
-              <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
-            </div>
-            <div class="work-copy"><span>05 / STUDIO IDENT</span><h3>SPNVISUALZ Archive</h3><p>A motion-first studio identity built to turn the brand itself into an experience.</p></div>
-          </article>
-
-          <article class="work-panel" data-title="ODAB" data-index="5">
-            <p class="work-ghost" aria-hidden="true">COVER</p>
-            <div class="work-media work-media-wide">
-              <video muted loop playsinline preload="metadata" poster="assets/work-6.jpg"><source src="assets/videos/spn-visual-06.mp4" type="video/mp4"></video>
-              <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
-            </div>
-            <div class="work-copy"><span>06 / RELEASE VISUAL</span><h3>ODAB</h3><p>Artwork and motion designed as one loud, recognisable release system.</p></div>
-          </article>
-
-          <article class="work-panel" data-title="TAJO Custom" data-index="6">
+          <article class="work-panel" data-title="TAO Special" data-index="4">
             <p class="work-ghost" aria-hidden="true">CUSTOM</p>
             <div class="work-media">
               <video muted loop playsinline preload="metadata" poster="assets/work-7.jpg"><source src="assets/videos/spn-visual-05.mp4" type="video/mp4"></video>
               <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
             </div>
-            <div class="work-copy"><span>07 / CUSTOM WORLD</span><h3>TAJO Custom</h3><p>When the package list is not enough, we build the visual world from zero.</p></div>
+            <div class="work-copy"><span>05 / CUSTOM WORLD</span><h3>TAO Special</h3><p>When the package list is not enough, we build the visual world from zero.</p></div>
           </article>
         </div>
 
@@ -188,11 +178,11 @@
 
       <div class="service-layout">
         <div class="service-preview reveal" aria-hidden="true">
-          <img id="serviceImage" src="assets/work-2.jpg" alt="">
-          <span>Selected preview</span>
+          <img id="serviceImage" src="assets/brand-glowvana.jpg" alt="">
+          <span>Logo package preview</span>
         </div>
         <div class="service-list">
-          <button class="service-row reveal is-active" type="button" data-image="assets/work-2.jpg" data-product="Logo Design">
+          <button class="service-row reveal is-active" type="button" data-image="assets/brand-glowvana.jpg" data-product="Logo Design">
             <span>01</span><strong>Logo design</strong><em>Identity / Custom / Chrome</em><b>From €14</b><i>↗</i>
           </button>
           <button class="service-row reveal" type="button" data-image="assets/work-1.jpg" data-product="Animated Logo">
@@ -207,9 +197,26 @@
           <button class="service-row reveal" type="button" data-image="assets/work-6.jpg" data-product="Social Visuals">
             <span>05</span><strong>Social visuals</strong><em>Posts / Drops / Releases</em><b>From €17</b><i>↗</i>
           </button>
-          <button class="service-row reveal" type="button" data-image="assets/work-5.jpg" data-product="Brand Visuals">
+          <button class="service-row reveal" type="button" data-image="assets/brand-gezana.jpg" data-product="Brand Visuals">
             <span>06</span><strong>Brand visuals</strong><em>Campaign / System / Direction</em><b>From €30</b><i>↗</i>
           </button>
+        </div>
+      </div>
+
+      <div class="brand-systems">
+        <header class="brand-systems-head reveal">
+          <div><p class="section-label">Logo package preview</p><h3>Recent brand systems</h3></div>
+          <p>More than a logo — complete visual systems built to stay recognisable everywhere the brand shows up.</p>
+        </header>
+        <div class="brand-systems-grid">
+          <figure class="brand-card reveal" data-tilt>
+            <div class="brand-card-image"><img src="assets/brand-glowvana.jpg" alt="Glowvana Beauty Studio complete logo and brand identity package" loading="lazy"></div>
+            <figcaption><span>01 / Beauty identity</span><strong>Glowvana</strong><em>Logo suite · Social marks · Print</em></figcaption>
+          </figure>
+          <figure class="brand-card reveal" data-tilt>
+            <div class="brand-card-image"><img src="assets/brand-gezana.jpg" alt="Gezana Events complete logo and brand identity package" loading="lazy"></div>
+            <figcaption><span>02 / Event identity</span><strong>Gezana Events</strong><em>Logo suite · VIP system · Social</em></figcaption>
+          </figure>
         </div>
       </div>
     </section>
@@ -256,7 +263,7 @@
     </section>
 
     <section class="contact" id="contact" data-section="Contact">
-      <div class="contact-art" aria-hidden="true"><img src="assets/spn-orbit.jpg" alt=""></div>
+      <div class="contact-art" aria-hidden="true"><img src="assets/spn-orbit-transparent.png" alt=""></div>
       <div class="contact-inner">
         <p class="section-label reveal">Ready when you are</p>
         <h2 class="reveal">Let’s make something<br><em>people remember.</em></h2>
