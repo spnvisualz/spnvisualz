@@ -51,6 +51,27 @@
     <image:image><image:loc>https://spnvisualz.com/assets/work-1.jpg</image:loc></image:image>
   </url>
   <url>
+    <loc>https://spnvisualz.com/visual-lab/articles/gezana-events-visual-identity-case-study/</loc>
+    <lastmod>2026-08-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://spnvisualz.com/assets/brand-gezana.jpg</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://spnvisualz.com/visual-lab/articles/glowvana-beauty-brand-identity-case-study/</loc>
+    <lastmod>2026-08-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://spnvisualz.com/assets/brand-glowvana.jpg</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://spnvisualz.com/visual-lab/articles/tao-black-chrome-motion-loop-case-study/</loc>
+    <lastmod>2026-08-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://spnvisualz.com/assets/work-3.jpg</image:loc></image:image>
+  </url>
+  <url>
     <loc>https://spnvisualz.com/privacy/</loc>
     <lastmod>2026-08-09</lastmod>
     <changefreq>yearly</changefreq>
