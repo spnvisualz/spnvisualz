@@ -134,17 +134,27 @@
 
   const menuToggle = $('#menuToggle');
   const mobileMenu = $('#mobileMenu');
-  const setMenu = (open) => {
+  let menuReturnFocus = null;
+  const setMenu = (open, restoreFocus = true) => {
     if (!menuToggle || !mobileMenu) return;
+    if (open) menuReturnFocus = document.activeElement;
     menuToggle.setAttribute('aria-expanded', String(open));
     menuToggle.querySelector('span').textContent = open ? 'Close' : 'Menu';
     mobileMenu.classList.toggle('is-open', open);
     mobileMenu.setAttribute('aria-hidden', String(!open));
     document.body.classList.toggle('menu-open', open);
+    if (open) {
+      requestAnimationFrame(() => $('[data-menu-link]', mobileMenu)?.focus());
+    } else if (restoreFocus && menuReturnFocus instanceof HTMLElement) {
+      menuReturnFocus.focus();
+    }
   };
   menuToggle?.addEventListener('click', () => setMenu(menuToggle.getAttribute('aria-expanded') !== 'true'));
-  $$('[data-menu-link]').forEach(link => link.addEventListener('click', () => setMenu(false)));
-  $$('[data-menu-project]').forEach(button => button.addEventListener('click', () => setMenu(false)));
+  $('[data-menu-link]').forEach(link => link.addEventListener('click', () => setMenu(false, false)));
+  $('[data-menu-project]').forEach(button => button.addEventListener('click', () => setMenu(false, false)));
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && menuToggle?.getAttribute('aria-expanded') === 'true') setMenu(false);
+  });
 
   document.addEventListener('click', (event) => {
     const anchor = event.target.closest('a[href^="#"]');
@@ -425,6 +435,7 @@
   });
   serviceDialog?.addEventListener('close', () => {
     stopServiceVideo(serviceDialogVideo, serviceDialogVideoSource);
+    if (serviceLastFocus instanceof HTMLElement && !dialog?.open) serviceLastFocus.focus();
     setTimeout(() => { serviceMediaLocked = false; }, 0);
   });
   serviceOrderButton?.addEventListener('click', () => {
@@ -441,19 +452,36 @@
     }, 0);
   });
 
-  const tabs = $$('.price-tabs [role="tab"]');
-  tabs.forEach(tab => tab.addEventListener('click', () => {
+  const tabs = $('.price-tabs [role="tab"]');
+  const activatePriceTab = (tab, moveFocus = false) => {
     tabs.forEach(item => {
       const active = item === tab;
       item.classList.toggle('is-active', active);
       item.setAttribute('aria-selected', String(active));
+      item.tabIndex = active ? 0 : -1;
       const panel = $(`#${item.getAttribute('aria-controls')}`);
       if (panel) {
         panel.hidden = !active;
         panel.classList.toggle('is-active', active);
       }
     });
-  }));
+    if (moveFocus) tab.focus();
+  };
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => activatePriceTab(tab));
+    tab.addEventListener('keydown', event => {
+      let nextIndex = null;
+      if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+      if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+      if (event.key === 'Home') nextIndex = 0;
+      if (event.key === 'End') nextIndex = tabs.length - 1;
+      if (nextIndex === null) return;
+      event.preventDefault();
+      activatePriceTab(tabs[nextIndex], true);
+    });
+  });
+  const selectedPriceTab = tabs.find(tab => tab.getAttribute('aria-selected') === 'true') || tabs[0];
+  if (selectedPriceTab) activatePriceTab(selectedPriceTab);
 
   const dialog = $('#orderDialog');
   const closeDialog = $('#closeDialog');
@@ -469,9 +497,7 @@
     setTimeout(() => dialog.querySelector('input')?.focus(), 60);
   }
 
-  const closeOrder = () => {
-    if (!dialog?.open) return;
-    dialog.close();
+  const cleanOrderState = () => {
     const url = new URL(location.href);
     if (url.searchParams.has('order')) {
       url.searchParams.delete('order');
@@ -480,8 +506,13 @@
     if (lastFocus instanceof HTMLElement) lastFocus.focus();
   };
 
+  const closeOrder = () => {
+    if (dialog?.open) dialog.close();
+  };
+
   $$('[data-order]').forEach(button => button.addEventListener('click', () => openOrder(button.dataset.product || '')));
   closeDialog?.addEventListener('click', closeOrder);
+  dialog?.addEventListener('close', cleanOrderState);
   dialog?.addEventListener('click', event => {
     const rect = $('.dialog-shell', dialog)?.getBoundingClientRect();
     if (rect && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) closeOrder();
