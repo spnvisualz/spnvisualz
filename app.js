@@ -150,8 +150,8 @@
     }
   };
   menuToggle?.addEventListener('click', () => setMenu(menuToggle.getAttribute('aria-expanded') !== 'true'));
-  $('[data-menu-link]').forEach(link => link.addEventListener('click', () => setMenu(false, false)));
-  $('[data-menu-project]').forEach(button => button.addEventListener('click', () => setMenu(false, false)));
+  $$('[data-menu-link]').forEach(link => link.addEventListener('click', () => setMenu(false, false)));
+  $$('[data-menu-project]').forEach(button => button.addEventListener('click', () => setMenu(false, false)));
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && menuToggle?.getAttribute('aria-expanded') === 'true') setMenu(false);
   });
