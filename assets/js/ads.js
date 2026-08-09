@@ -57,10 +57,18 @@
   };
 
   const reflectState = () => {
+    const eligible = canServe();
     document.querySelectorAll("[data-ad-slot-key]").forEach(container => {
-      container.dataset.adState = canServe() ? "eligible" : "reserved";
+      if (!eligible && container.dataset.adRendered === "true") {
+        container.querySelector(".adsbygoogle")?.remove();
+        container.dataset.adRendered = "false";
+        const fallback = container.querySelector(".spn-ad-reserve__fallback");
+        if (fallback) fallback.hidden = false;
+      }
+      container.dataset.adState = eligible ? "eligible" : "reserved";
     });
-    loadAdSense();
+    if (eligible && scriptRequested) renderSlots();
+    else loadAdSense();
   };
 
   window.SPNAds = Object.freeze({
