@@ -4,6 +4,48 @@
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = matchMedia('(pointer:fine)').matches;
 
+  const bootIntro = $('#bootIntro');
+  const bootPercent = $('#bootPercent');
+  const bootStatus = $('#bootStatus');
+  let bootFinished = false;
+  let bootFrame = 0;
+  let bootFailsafe = 0;
+
+  const finishBoot = () => {
+    if (bootFinished) return;
+    bootFinished = true;
+    if (bootFrame) cancelAnimationFrame(bootFrame);
+    clearTimeout(bootFailsafe);
+    try { sessionStorage.setItem('spn_boot_seen_v1', '1'); } catch (_) {}
+    bootIntro?.classList.add('is-complete');
+    setTimeout(() => bootIntro?.remove(), 560);
+  };
+
+  if (bootIntro) {
+    let bootSeen = false;
+    try { bootSeen = sessionStorage.getItem('spn_boot_seen_v1') === '1'; } catch (_) {}
+    if (reduceMotion || bootSeen) {
+      bootFinished = true;
+      bootIntro.remove();
+    } else {
+      const bootStarted = performance.now();
+      const updateBoot = (now) => {
+        const elapsed = now - bootStarted;
+        const linear = Math.min(1, elapsed / 1420);
+        const eased = 1 - Math.pow(1 - linear, 3);
+        const value = Math.min(100, Math.floor(eased * 100));
+        if (bootPercent) bootPercent.textContent = String(value).padStart(2, '0');
+        if (bootStatus) {
+          bootStatus.textContent = linear < .28 ? 'INITIALIZING' : linear < .62 ? 'CALIBRATING MOTION' : linear < .9 ? 'BUILDING THE WORLD' : 'READY';
+        }
+        if (linear < 1) bootFrame = requestAnimationFrame(updateBoot);
+        else finishBoot();
+      };
+      bootFrame = requestAnimationFrame(updateBoot);
+      bootFailsafe = setTimeout(finishBoot, 2300);
+    }
+  }
+
   addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(() => {
       document.body.classList.remove('is-loading');
@@ -137,9 +179,12 @@
   $$('[data-section]').forEach(section => sectionObserver.observe(section));
 
   const workRail = $('#work');
+  const workStage = $('#workStage');
   const workPanels = $$('.work-panel');
   const workCurrent = $('#workCurrent');
   const workProgress = $('#workProgress');
+  const workSignal = $('#workSignal');
+  const worldIndexItems = $$('.world-index span');
   let activeWork = 0;
   let previousWork = 0;
   let workRailTop = 0;
@@ -147,6 +192,7 @@
   let workInView = false;
   let videoTimer = 0;
   let metricFrame = 0;
+  let workFxTimer = 0;
 
   const pauseWorkVideos = () => {
     workPanels.forEach(panel => panel.querySelector('video')?.pause());
@@ -200,7 +246,17 @@
         if (video) video.pause();
       }
     });
-    if (workCurrent) workCurrent.textContent = String(index + 1).padStart(2, '0');
+    const worldNumber = String(index + 1).padStart(2, '0');
+    if (workCurrent) workCurrent.textContent = worldNumber;
+    if (workSignal) workSignal.textContent = worldNumber;
+    worldIndexItems.forEach((item, itemIndex) => item.classList.toggle('is-active', itemIndex === index));
+    if (workStage && !reduceMotion) {
+      workStage.classList.remove('is-switching');
+      void workStage.offsetWidth;
+      workStage.classList.add('is-switching');
+      clearTimeout(workFxTimer);
+      workFxTimer = setTimeout(() => workStage.classList.remove('is-switching'), 760);
+    }
     scheduleActiveVideo();
   };
 
@@ -238,19 +294,82 @@
 
   const serviceImage = $('#serviceImage');
   const servicePreview = $('.service-preview');
+  const servicePreviewLabel = $('#servicePreviewLabel');
+  const serviceDialog = $('#serviceDialog');
+  const closeServiceDialog = $('#closeServiceDialog');
+  const serviceDialogImage = $('#serviceDialogImage');
+  const serviceDialogCaption = $('#serviceDialogCaption');
+  const serviceDialogNumber = $('#serviceDialogNumber');
+  const serviceDialogTitle = $('#serviceDialogTitle');
+  const serviceDialogDescription = $('#serviceDialogDescription');
+  const serviceDialogIncludes = $('#serviceDialogIncludes');
+  const serviceDialogPrice = $('#serviceDialogPrice');
+  const serviceOrderButton = $('#serviceOrderButton');
+  let selectedService = '';
+  let serviceLastFocus = null;
+  let serviceImageTimer = 0;
+
+  const activateService = (row) => {
+    $$('.service-row').forEach(item => item.classList.toggle('is-active', item === row));
+    if (servicePreviewLabel) servicePreviewLabel.textContent = row.dataset.label || '';
+    if (!serviceImage || serviceImage.getAttribute('src') === row.dataset.image) return;
+    clearTimeout(serviceImageTimer);
+    servicePreview?.classList.add('is-changing');
+    serviceImageTimer = setTimeout(() => {
+      serviceImage.src = row.dataset.image;
+      servicePreview?.classList.remove('is-changing');
+    }, reduceMotion ? 0 : 170);
+  };
+
+  const openServiceDetails = (row) => {
+    if (!serviceDialog) return;
+    serviceLastFocus = document.activeElement;
+    selectedService = row.dataset.product || 'Custom Project';
+    if (serviceDialogImage) serviceDialogImage.src = row.dataset.image || '';
+    if (serviceDialogCaption) serviceDialogCaption.textContent = row.dataset.label || selectedService;
+    if (serviceDialogNumber) serviceDialogNumber.textContent = row.dataset.number || '';
+    if (serviceDialogTitle) serviceDialogTitle.textContent = $('strong', row)?.textContent || selectedService;
+    if (serviceDialogDescription) serviceDialogDescription.textContent = row.dataset.description || '';
+    if (serviceDialogPrice) serviceDialogPrice.textContent = row.dataset.price || '';
+    if (serviceDialogIncludes) {
+      const items = (row.dataset.includes || '').split('|').filter(Boolean);
+      serviceDialogIncludes.replaceChildren(...items.map(item => {
+        const entry = document.createElement('li');
+        entry.textContent = item;
+        return entry;
+      }));
+    }
+    serviceDialog.showModal();
+    setTimeout(() => closeServiceDialog?.focus(), 50);
+  };
+
+  const closeServiceDetails = () => {
+    if (!serviceDialog?.open) return;
+    serviceDialog.close();
+    if (serviceLastFocus instanceof HTMLElement) serviceLastFocus.focus();
+  };
+
   $$('.service-row').forEach(row => {
-    const activate = () => {
-      $$('.service-row').forEach(item => item.classList.toggle('is-active', item === row));
-      if (!serviceImage || serviceImage.getAttribute('src') === row.dataset.image) return;
-      servicePreview?.classList.add('is-changing');
-      setTimeout(() => {
-        serviceImage.src = row.dataset.image;
-        servicePreview?.classList.remove('is-changing');
-      }, 170);
-    };
-    row.addEventListener('mouseenter', activate);
-    row.addEventListener('focus', activate);
-    row.addEventListener('click', () => openOrder(row.dataset.product || ''));
+    row.addEventListener('mouseenter', () => activateService(row));
+    row.addEventListener('focus', () => activateService(row));
+    row.addEventListener('click', () => {
+      activateService(row);
+      openServiceDetails(row);
+    });
+  });
+  closeServiceDialog?.addEventListener('click', closeServiceDetails);
+  serviceDialog?.addEventListener('click', event => {
+    const rect = $('.service-dialog-shell', serviceDialog)?.getBoundingClientRect();
+    if (rect && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) closeServiceDetails();
+  });
+  serviceOrderButton?.addEventListener('click', () => {
+    const product = selectedService;
+    const returnFocus = serviceLastFocus;
+    serviceDialog?.close();
+    setTimeout(() => {
+      openOrder(product);
+      if (returnFocus instanceof HTMLElement) lastFocus = returnFocus;
+    }, 0);
   });
 
   const tabs = $$('.price-tabs [role="tab"]');
