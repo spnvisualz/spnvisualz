@@ -60,3 +60,12 @@ Use these data attributes on future UI:
 ## Editorial quality rule
 
 Publishing less is acceptable. Every file must provide a useful point of view, original examples or a clear decision framework, and a natural route into the service most relevant to the reader.
+
+## Search and social launch
+
+1. Verify `https://spnvisualz.com/` in Google Search Console and submit `https://spnvisualz.com/sitemap.xml`.
+2. Request indexing for the Visual Lab landing page and each finished article after the live page passes QA.
+3. Use this tagged URL in the Instagram bio so GA4 can separate it from Direct traffic:
+   `https://spnvisualz.com/?utm_source=instagram&utm_medium=social&utm_campaign=bio`
+4. Add descriptive links between future articles and the closest service or selected project.
+5. Review Search Console queries monthly. Expand articles only when the new section genuinely improves the answer.
