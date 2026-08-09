@@ -313,6 +313,16 @@
   let serviceLastFocus = null;
   let serviceImageTimer = 0;
 
+  const stopServiceVideo = (video, source) => {
+    if (!video) return;
+    video.pause();
+    video.hidden = true;
+    if (source?.hasAttribute('src')) {
+      source.removeAttribute('src');
+      video.load();
+    }
+  };
+
   const setServiceMedia = (image, video, source, row, autoplay = false) => {
     const videoPath = row.dataset.video || '';
     const useVideo = Boolean(videoPath) && !reduceMotion && video && source;
@@ -353,7 +363,11 @@
     if (!serviceDialog) return;
     clearTimeout(serviceImageTimer);
     servicePreview?.classList.remove('is-changing');
-    serviceVideo?.pause();
+    stopServiceVideo(serviceVideo, serviceVideoSource);
+    if (serviceImage) {
+      serviceImage.hidden = false;
+      serviceImage.src = row.dataset.image || '';
+    }
     serviceLastFocus = document.activeElement;
     selectedService = row.dataset.product || 'Custom Project';
     setServiceMedia(serviceDialogImage, serviceDialogVideo, serviceDialogVideoSource, row, true);
@@ -376,7 +390,7 @@
 
   const closeServiceDetails = () => {
     if (!serviceDialog?.open) return;
-    serviceDialogVideo?.pause();
+    stopServiceVideo(serviceDialogVideo, serviceDialogVideoSource);
     serviceDialog.close();
     if (serviceLastFocus instanceof HTMLElement) serviceLastFocus.focus();
   };
@@ -394,11 +408,12 @@
     const rect = $('.service-dialog-shell', serviceDialog)?.getBoundingClientRect();
     if (rect && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) closeServiceDetails();
   });
-  serviceDialog?.addEventListener('close', () => serviceDialogVideo?.pause());
+  serviceDialog?.addEventListener('close', () => stopServiceVideo(serviceDialogVideo, serviceDialogVideoSource));
   serviceOrderButton?.addEventListener('click', () => {
     const product = selectedService;
     const returnFocus = serviceLastFocus;
-    serviceDialogVideo?.pause();
+    stopServiceVideo(serviceVideo, serviceVideoSource);
+    stopServiceVideo(serviceDialogVideo, serviceDialogVideoSource);
     serviceDialog?.close();
     setTimeout(() => {
       openOrder(product);
