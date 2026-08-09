@@ -501,7 +501,7 @@
         return;
       }
       const wanted = requestedService.trim().toLowerCase();
-      const row = $('.service-row').find(item => {
+      const row = $$('.service-row').find(item => {
         const product = (item.dataset.product || '').trim().toLowerCase();
         const title = ($('strong', item)?.textContent || '').trim().toLowerCase();
         return product === wanted || title === wanted;
