@@ -3,15 +3,15 @@
 
   /*
    * SPNVISUALZ measurement and monetization configuration.
-   * Replace only the placeholder values after creating the matching Google accounts.
-   * No Google script loads while a placeholder remains in place.
+   * GA4 and AdSense ownership IDs are active below.
+   * Content ad units still require valid slot IDs, advertising consent, and certified CMP activation.
    */
   window.SPN_CONFIG = Object.freeze({
     ga4: {
-      measurementId: "GA_MEASUREMENT_ID"
+      measurementId: "G-QYJX274KM5"
     },
     adsense: {
-      publisherId: "ADSENSE_PUBLISHER_ID",
+      publisherId: "ca-pub-6262494647963659",
       certifiedCmpReady: false,
       slots: {
         visualLabInline: "ADSENSE_SLOT_ID",
