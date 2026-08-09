@@ -221,3 +221,49 @@ em{font-family:Georgia,"Times New Roman",serif;font-weight:400;color:var(--purpl
 
 /* Motion-backed service preview */
 .service-preview video{width:100%;height:100%;object-fit:contain;transition:opacity .28s,transform .6s;background:#010103}.service-preview.is-changing video{opacity:.1;transform:scale(1.04)}.service-preview img[hidden],.service-preview video[hidden],.service-dialog-visual img[hidden],.service-dialog-visual video[hidden]{display:none}.service-dialog-visual video{width:100%;height:100%;object-fit:contain;background:#010103}
+
+
+/* Visual Lab bridge — editorial traffic without interrupting conversion */
+.home-lab{position:relative;overflow:hidden;background:linear-gradient(180deg,#030207,#08050d 48%,#030207);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.home-lab:before{content:"";position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.023) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.023) 1px,transparent 1px);background-size:84px 84px;mask-image:linear-gradient(90deg,transparent,black 30%,black 80%,transparent)}
+.home-lab__head,.home-lab__index,.home-lab__enter{position:relative;z-index:2}
+.home-lab__signal{position:absolute;right:-11vw;top:3%;width:min(52vw,760px);aspect-ratio:1;border:1px solid rgba(198,167,255,.13);border-radius:50%;pointer-events:none;animation:home-lab-orbit 36s linear infinite}
+.home-lab__signal:before,.home-lab__signal:after{content:"";position:absolute;border-radius:50%}
+.home-lab__signal:before{inset:17%;border:1px solid rgba(255,255,255,.08)}
+.home-lab__signal:after{inset:36%;border:1px solid rgba(198,167,255,.18)}
+.home-lab__signal span{position:absolute;left:18%;top:20%;width:6px;height:6px;border-radius:50%;background:#e5d9ff;box-shadow:0 0 25px 8px rgba(138,77,255,.44)}
+.home-lab__signal i{position:absolute;inset:8%;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.04);border-radius:50%;transform:rotate(-22deg) scaleY(.4)}
+@keyframes home-lab-orbit{to{transform:rotate(360deg)}}
+.home-lab__head>p{max-width:420px}
+.home-lab__index{border-top:1px solid var(--line)}
+.home-lab__index>a{display:grid;grid-template-columns:minmax(130px,.35fr) minmax(0,1fr) 48px;align-items:center;gap:28px;min-height:142px;border-bottom:1px solid var(--line);transition:background .3s,padding .35s cubic-bezier(.2,.7,.2,1)}
+.home-lab__index>a:hover,.home-lab__index>a:focus-visible{padding-left:20px;background:rgba(138,77,255,.055)}
+.home-lab__index span{color:var(--purple-light);font-size:8px;letter-spacing:.17em;text-transform:uppercase}
+.home-lab__index strong{font-size:clamp(25px,3.6vw,54px);font-weight:500;line-height:1;letter-spacing:-.05em}
+.home-lab__arrow{position:relative;display:block;width:36px;height:36px;border:1px solid rgba(255,255,255,.24);border-radius:50%;transition:border-color .2s,background .2s}
+.home-lab__arrow:before{content:"";position:absolute;left:10px;top:17px;width:14px;height:1px;background:currentColor}
+.home-lab__arrow:after{content:"";position:absolute;right:10px;top:13px;width:7px;height:7px;border-top:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg)}
+.home-lab__index>a:hover .home-lab__arrow{border-color:var(--purple-light);background:rgba(198,167,255,.09)}
+.home-lab__enter{width:max-content;display:flex;align-items:center;gap:18px;margin:48px 0 0 auto;padding-bottom:11px;border-bottom:1px solid rgba(255,255,255,.48);font-size:9px;font-weight:700;letter-spacing:.17em;text-transform:uppercase}
+.home-lab__enter .home-lab__arrow{width:28px;height:28px;border:0}
+.home-lab__enter .home-lab__arrow:before{left:5px;top:13px}
+.home-lab__enter .home-lab__arrow:after{right:5px;top:9px}
+.site-footer{grid-template-columns:1fr auto auto;grid-template-areas:"brand links chubae" "copy copy chubae";align-items:end}
+.site-footer>.wordmark{grid-area:brand}
+.site-footer-links{grid-area:links;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:18px}
+.site-footer-links a{color:var(--quiet);font-size:7px;letter-spacing:.12em;text-transform:uppercase;transition:color .2s}
+.site-footer-links a:hover,.site-footer-links a:focus-visible{color:var(--text)}
+.site-footer>p{grid-area:copy;margin:0}
+.site-footer>.chubae{grid-area:chubae}
+@media(max-width:720px){
+  .home-lab__signal{right:-48vw;top:18%;width:115vw;opacity:.6}
+  .home-lab__index>a{grid-template-columns:1fr 42px;gap:10px;min-height:128px;padding:22px 0}
+  .home-lab__index>a>span{grid-column:1 / -1}
+  .home-lab__index>a>strong{font-size:31px}
+  .home-lab__index>a:hover,.home-lab__index>a:focus-visible{padding-left:10px}
+  .home-lab__enter{margin-top:36px}
+  .site-footer{grid-template-columns:1fr;grid-template-areas:"brand" "links" "copy" "chubae";align-items:start}
+  .site-footer-links{justify-content:flex-start;gap:14px 18px}
+  .site-footer>.chubae{justify-self:start}
+}
+@media(prefers-reduced-motion:reduce){.home-lab__signal{animation:none}}
