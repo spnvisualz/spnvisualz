@@ -1,12 +1,17 @@
 {
-  "name": "SPNVISUALZ",
+  "name": "SPNVISUALZ — Creative Studio",
   "short_name": "SPNVISUALZ",
-  "description": "Logo design, motion graphics and visual identities for artists, brands and events.",
+  "description": "Luxury motion-first creative studio for identities, visual worlds, websites and original design intelligence.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#030207",
   "theme_color": "#030207",
+  "categories": [
+    "design",
+    "business",
+    "entertainment"
+  ],
   "icons": [
     {
       "src": "/assets/favicon-192.png",
