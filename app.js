@@ -452,7 +452,7 @@
     }, 0);
   });
 
-  const tabs = $('.price-tabs [role="tab"]');
+  const tabs = $$('.price-tabs [role="tab"]');
   const activatePriceTab = (tab, moveFocus = false) => {
     tabs.forEach(item => {
       const active = item === tab;
