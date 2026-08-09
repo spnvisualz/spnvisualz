@@ -218,3 +218,6 @@ em{font-family:Georgia,"Times New Roman",serif;font-weight:400;color:var(--purpl
 }
 @media(max-width:430px){.service-row{grid-template-columns:28px 1fr 34px}.service-row i.service-arrow{width:32px;height:32px}}
 @media(prefers-reduced-motion:reduce){.boot-intro{display:none!important}.boot-intro *,.world-orbit,.work-signature span i,.work-stage.is-switching .world-scan,.work-stage.is-switching .work-panel.is-active .work-media:before,.work-panel.is-active .work-ghost{animation:none!important}}
+
+/* Motion-backed service preview */
+.service-preview video{width:100%;height:100%;object-fit:contain;transition:opacity .28s,transform .6s;background:#010103}.service-preview.is-changing video{opacity:.1;transform:scale(1.04)}.service-preview img[hidden],.service-preview video[hidden],.service-dialog-visual img[hidden],.service-dialog-visual video[hidden]{display:none}.service-dialog-visual video{width:100%;height:100%;object-fit:contain;background:#010103}
