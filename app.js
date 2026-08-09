@@ -491,6 +491,39 @@
     location.href = `mailto:spnvisualz@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   });
 
+
+  // Deep-link editorial readers into the relevant service preview.
+  const requestedService = new URLSearchParams(location.search).get('service');
+  if (requestedService) {
+    const revealRequestedService = () => {
+      if (!bootFinished) {
+        setTimeout(revealRequestedService, 120);
+        return;
+      }
+      const wanted = requestedService.trim().toLowerCase();
+      const row = $('.service-row').find(item => {
+        const product = (item.dataset.product || '').trim().toLowerCase();
+        const title = ($('strong', item)?.textContent || '').trim().toLowerCase();
+        return product === wanted || title === wanted;
+      });
+      if (!row) return;
+      $('#services')?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      setTimeout(() => {
+        activateService(row);
+        openServiceDetails(row);
+        window.SPNAnalytics?.track('service_preview_opened', {
+          service_name: row.dataset.product || requestedService,
+          entry_method: 'visual_lab_cta'
+        });
+      }, reduceMotion ? 0 : 420);
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', revealRequestedService, { once: true });
+    } else {
+      revealRequestedService();
+    }
+  }
+
   cachePageMetrics();
   latestScroll = scrollY;
   renderScroll();
