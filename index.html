@@ -28,7 +28,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
   <link rel="preload" href="assets/spn-orbit-transparent.png" as="image">
-  <link rel="stylesheet" href="styles.css?v=20260809.1">
+  <link rel="stylesheet" href="styles.css?v=20260809.2">
 
   <script type="application/ld+json">
   {
@@ -278,6 +278,7 @@
       <div class="service-layout">
         <div class="service-preview reveal" aria-hidden="true">
           <img id="serviceImage" src="assets/brand-gezana.jpg" alt="">
+          <video id="serviceVideo" muted loop playsinline preload="none" poster="assets/work-3.jpg" hidden><source id="serviceVideoSource" type="video/mp4"></video>
           <span id="servicePreviewLabel">Gezana Events / Logo design</span>
         </div>
         <div class="service-list">
@@ -293,7 +294,7 @@
           <button class="service-row reveal" type="button" aria-haspopup="dialog" data-number="04" data-image="assets/work-4.jpg" data-label="R Star / Motion loop" data-product="Motion Loop" data-price="From €22" data-description="A seamless animated visual built to repeat cleanly behind music, on screens or across social content." data-includes="Seamless playback|Atmospheric motion|Social export">
             <span>04</span><strong>Motion loops</strong><em>Seamless / Screens / Social</em><b>From €22</b><i class="service-arrow" aria-hidden="true"></i>
           </button>
-          <button class="service-row reveal" type="button" aria-haspopup="dialog" data-number="05" data-image="assets/work-3.jpg" data-label="TAO / Black chrome social loop" data-product="Social Visuals" data-price="From €17" data-description="Scroll-stopping artwork for announcements, releases and campaigns — designed to feel like one clear visual world." data-includes="Campaign artwork|Platform-ready sizes|Consistent direction">
+          <button class="service-row reveal" type="button" aria-haspopup="dialog" data-number="05" data-image="assets/work-3.jpg" data-video="assets/videos/spn-visual-03.mp4" data-label="TAO / Black chrome social loop" data-product="Social Visuals" data-price="From €17" data-description="Scroll-stopping artwork for announcements, releases and campaigns — designed to feel like one clear visual world." data-includes="Campaign artwork|Platform-ready sizes|Consistent direction">
             <span>05</span><strong>Social visuals</strong><em>Posts / Drops / Releases</em><b>From €17</b><i class="service-arrow" aria-hidden="true"></i>
           </button>
           <button class="service-row reveal" type="button" aria-haspopup="dialog" data-number="06" data-image="assets/brand-glowvana.jpg" data-label="Glowvana / Brand visuals" data-product="Brand Visuals" data-price="From €30" data-description="A complete visual direction that brings your logo, colours, type and content together as one recognisable brand." data-includes="Visual direction|Colour and type system|Campaign-ready assets">
@@ -390,6 +391,7 @@
       <button class="service-dialog-close" id="closeServiceDialog" type="button" aria-label="Close service details"><span>Close</span><i aria-hidden="true"></i></button>
       <div class="service-dialog-visual">
         <img id="serviceDialogImage" src="assets/brand-gezana.jpg" alt="">
+        <video id="serviceDialogVideo" muted loop playsinline preload="none" poster="assets/work-3.jpg" hidden><source id="serviceDialogVideoSource" type="video/mp4"></video>
         <span id="serviceDialogCaption">Gezana Events / Logo design</span>
       </div>
       <div class="service-dialog-copy">
@@ -421,6 +423,6 @@
     </div>
   </dialog>
 
-  <script src="app.js?v=20260809.1" defer></script>
+  <script src="app.js?v=20260809.2" defer></script>
 </body>
 </html>
