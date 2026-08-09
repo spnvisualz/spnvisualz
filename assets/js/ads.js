@@ -5,7 +5,10 @@
   const rawPublisherId = String(config.publisherId || "").trim();
   const validPublisher = /^(ca-)?pub-\d{10,20}$/i.test(rawPublisherId) && rawPublisherId !== "ADSENSE_PUBLISHER_ID";
   const publisherId = rawPublisherId.startsWith("ca-") ? rawPublisherId : `ca-${rawPublisherId}`;
-  let scriptRequested = false;
+  const existingAdSenseScript = document.querySelector(
+    `script[src*="pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"][src*="${publisherId}"]`
+  );
+  let scriptRequested = Boolean(existingAdSenseScript);
 
   const consentAllowsAds = () => window.SPNConsent?.get().advertising === true;
   const canServe = () => validPublisher && config.certifiedCmpReady === true && consentAllowsAds();
