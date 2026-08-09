@@ -1,3 +1,3 @@
-# SPNVISUALZ AdSense placeholder — advertising is not active yet.
-# After AdSense approval, replace the publisher value below and remove the leading #.
-# google.com, pub-ADSENSE_PUBLISHER_ID, DIRECT, f08c47fec0942fa0
+# SPNVISUALZ AdSense ownership record.
+# Editorial ad units remain consent/CMP gated until site approval and slot activation.
+google.com, pub-6262494647963659, DIRECT, f08c47fec0942fa0
