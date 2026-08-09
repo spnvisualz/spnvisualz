@@ -347,7 +347,7 @@
 
   const activateService = (row) => {
     if (serviceMediaLocked) return;
-    $('.service-row').forEach(item => item.classList.toggle('is-active', item === row));
+    $$('.service-row').forEach(item => item.classList.toggle('is-active', item === row));
     if (servicePreviewLabel) servicePreviewLabel.textContent = row.dataset.label || '';
     const wantsVideo = Boolean(row.dataset.video) && !reduceMotion;
     const videoIsCurrent = wantsVideo && serviceVideo && !serviceVideo.hidden && serviceVideoSource?.getAttribute('src') === row.dataset.video;
