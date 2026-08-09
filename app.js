@@ -293,11 +293,15 @@
   });
 
   const serviceImage = $('#serviceImage');
+  const serviceVideo = $('#serviceVideo');
+  const serviceVideoSource = $('#serviceVideoSource');
   const servicePreview = $('.service-preview');
   const servicePreviewLabel = $('#servicePreviewLabel');
   const serviceDialog = $('#serviceDialog');
   const closeServiceDialog = $('#closeServiceDialog');
   const serviceDialogImage = $('#serviceDialogImage');
+  const serviceDialogVideo = $('#serviceDialogVideo');
+  const serviceDialogVideoSource = $('#serviceDialogVideoSource');
   const serviceDialogCaption = $('#serviceDialogCaption');
   const serviceDialogNumber = $('#serviceDialogNumber');
   const serviceDialogTitle = $('#serviceDialogTitle');
@@ -309,23 +313,50 @@
   let serviceLastFocus = null;
   let serviceImageTimer = 0;
 
+  const setServiceMedia = (image, video, source, row, autoplay = false) => {
+    const videoPath = row.dataset.video || '';
+    const useVideo = Boolean(videoPath) && !reduceMotion && video && source;
+    if (useVideo) {
+      if (image) image.hidden = true;
+      video.hidden = false;
+      if (source.getAttribute('src') !== videoPath) {
+        source.setAttribute('src', videoPath);
+        video.load();
+      }
+      if (autoplay) video.play().catch(() => {});
+      return;
+    }
+    video?.pause();
+    if (video) video.hidden = true;
+    if (image) {
+      image.hidden = false;
+      if (image.getAttribute('src') !== row.dataset.image) image.src = row.dataset.image || '';
+    }
+  };
+
   const activateService = (row) => {
     $$('.service-row').forEach(item => item.classList.toggle('is-active', item === row));
     if (servicePreviewLabel) servicePreviewLabel.textContent = row.dataset.label || '';
-    if (!serviceImage || serviceImage.getAttribute('src') === row.dataset.image) return;
+    const wantsVideo = Boolean(row.dataset.video) && !reduceMotion;
+    const videoIsCurrent = wantsVideo && serviceVideo && !serviceVideo.hidden && serviceVideoSource?.getAttribute('src') === row.dataset.video;
+    const imageIsCurrent = !wantsVideo && serviceImage && !serviceImage.hidden && serviceImage.getAttribute('src') === row.dataset.image;
+    if (videoIsCurrent || imageIsCurrent) return;
     clearTimeout(serviceImageTimer);
     servicePreview?.classList.add('is-changing');
     serviceImageTimer = setTimeout(() => {
-      serviceImage.src = row.dataset.image;
+      setServiceMedia(serviceImage, serviceVideo, serviceVideoSource, row, true);
       servicePreview?.classList.remove('is-changing');
     }, reduceMotion ? 0 : 170);
   };
 
   const openServiceDetails = (row) => {
     if (!serviceDialog) return;
+    clearTimeout(serviceImageTimer);
+    servicePreview?.classList.remove('is-changing');
+    serviceVideo?.pause();
     serviceLastFocus = document.activeElement;
     selectedService = row.dataset.product || 'Custom Project';
-    if (serviceDialogImage) serviceDialogImage.src = row.dataset.image || '';
+    setServiceMedia(serviceDialogImage, serviceDialogVideo, serviceDialogVideoSource, row, true);
     if (serviceDialogCaption) serviceDialogCaption.textContent = row.dataset.label || selectedService;
     if (serviceDialogNumber) serviceDialogNumber.textContent = row.dataset.number || '';
     if (serviceDialogTitle) serviceDialogTitle.textContent = $('strong', row)?.textContent || selectedService;
@@ -345,6 +376,7 @@
 
   const closeServiceDetails = () => {
     if (!serviceDialog?.open) return;
+    serviceDialogVideo?.pause();
     serviceDialog.close();
     if (serviceLastFocus instanceof HTMLElement) serviceLastFocus.focus();
   };
@@ -362,9 +394,11 @@
     const rect = $('.service-dialog-shell', serviceDialog)?.getBoundingClientRect();
     if (rect && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) closeServiceDetails();
   });
+  serviceDialog?.addEventListener('close', () => serviceDialogVideo?.pause());
   serviceOrderButton?.addEventListener('click', () => {
     const product = selectedService;
     const returnFocus = serviceLastFocus;
+    serviceDialogVideo?.pause();
     serviceDialog?.close();
     setTimeout(() => {
       openOrder(product);
