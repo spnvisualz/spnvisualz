@@ -312,6 +312,7 @@
   let selectedService = '';
   let serviceLastFocus = null;
   let serviceImageTimer = 0;
+  let serviceMediaLocked = false;
 
   const stopServiceVideo = (video, source) => {
     if (!video) return;
@@ -345,7 +346,8 @@
   };
 
   const activateService = (row) => {
-    $$('.service-row').forEach(item => item.classList.toggle('is-active', item === row));
+    if (serviceMediaLocked) return;
+    $('.service-row').forEach(item => item.classList.toggle('is-active', item === row));
     if (servicePreviewLabel) servicePreviewLabel.textContent = row.dataset.label || '';
     const wantsVideo = Boolean(row.dataset.video) && !reduceMotion;
     const videoIsCurrent = wantsVideo && serviceVideo && !serviceVideo.hidden && serviceVideoSource?.getAttribute('src') === row.dataset.video;
@@ -361,6 +363,7 @@
 
   const openServiceDetails = (row) => {
     if (!serviceDialog) return;
+    serviceMediaLocked = true;
     clearTimeout(serviceImageTimer);
     servicePreview?.classList.remove('is-changing');
     stopServiceVideo(serviceVideo, serviceVideoSource);
@@ -393,6 +396,7 @@
     stopServiceVideo(serviceDialogVideo, serviceDialogVideoSource);
     serviceDialog.close();
     if (serviceLastFocus instanceof HTMLElement) serviceLastFocus.focus();
+    setTimeout(() => { serviceMediaLocked = false; }, 0);
   };
 
   $$('.service-row').forEach(row => {
@@ -408,7 +412,10 @@
     const rect = $('.service-dialog-shell', serviceDialog)?.getBoundingClientRect();
     if (rect && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) closeServiceDetails();
   });
-  serviceDialog?.addEventListener('close', () => stopServiceVideo(serviceDialogVideo, serviceDialogVideoSource));
+  serviceDialog?.addEventListener('close', () => {
+    stopServiceVideo(serviceDialogVideo, serviceDialogVideoSource);
+    setTimeout(() => { serviceMediaLocked = false; }, 0);
+  });
   serviceOrderButton?.addEventListener('click', () => {
     const product = selectedService;
     const returnFocus = serviceLastFocus;
@@ -416,8 +423,10 @@
     stopServiceVideo(serviceDialogVideo, serviceDialogVideoSource);
     serviceDialog?.close();
     setTimeout(() => {
+      serviceMediaLocked = true;
       openOrder(product);
       if (returnFocus instanceof HTMLElement) lastFocus = returnFocus;
+      serviceMediaLocked = false;
     }, 0);
   });
 
