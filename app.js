@@ -18,7 +18,7 @@
     clearTimeout(bootFailsafe);
     try { sessionStorage.setItem('spn_boot_seen_v1', '1'); } catch (_) {}
     bootIntro?.classList.add('is-complete');
-    setTimeout(() => bootIntro?.remove(), 560);
+    setTimeout(() => bootIntro?.remove(), 420);
   };
 
   if (bootIntro) {
@@ -31,7 +31,7 @@
       const bootStarted = performance.now();
       const updateBoot = (now) => {
         const elapsed = now - bootStarted;
-        const linear = Math.min(1, elapsed / 1420);
+        const linear = Math.min(1, elapsed / 980);
         const eased = 1 - Math.pow(1 - linear, 3);
         const value = Math.min(100, Math.floor(eased * 100));
         if (bootPercent) bootPercent.textContent = String(value).padStart(2, '0');
@@ -42,7 +42,7 @@
         else finishBoot();
       };
       bootFrame = requestAnimationFrame(updateBoot);
-      bootFailsafe = setTimeout(finishBoot, 2300);
+      bootFailsafe = setTimeout(finishBoot, 1600);
     }
   }
 
@@ -152,7 +152,17 @@
     const target = id && id !== '#' ? $(id) : null;
     if (!target) return;
     event.preventDefault();
-    target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    const distance = Math.abs(target.getBoundingClientRect().top);
+    const longJump = distance > innerHeight * 3.25;
+    if (reduceMotion || longJump) {
+      const root = document.documentElement;
+      const previousBehavior = root.style.scrollBehavior;
+      root.style.scrollBehavior = 'auto';
+      target.scrollIntoView({ behavior: 'auto', block: 'start' });
+      requestAnimationFrame(() => { root.style.scrollBehavior = previousBehavior; });
+      return;
+    }
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
   const revealObserver = new IntersectionObserver((entries) => {
@@ -461,6 +471,11 @@
   const closeOrder = () => {
     if (!dialog?.open) return;
     dialog.close();
+    const url = new URL(location.href);
+    if (url.searchParams.has('order')) {
+      url.searchParams.delete('order');
+      history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+    }
     if (lastFocus instanceof HTMLElement) lastFocus.focus();
   };
 
@@ -493,8 +508,10 @@
 
 
   // Deep-link editorial readers into the relevant service preview.
-  const requestedService = new URLSearchParams(location.search).get('service');
-  if (requestedService) {
+  const queryParams = new URLSearchParams(location.search);
+  const requestedService = queryParams.get('service');
+  const requestedOrder = queryParams.get('order');
+  if (requestedService && !requestedOrder) {
     const revealRequestedService = () => {
       if (!bootFinished) {
         setTimeout(revealRequestedService, 120);
@@ -521,6 +538,21 @@
       document.addEventListener('DOMContentLoaded', revealRequestedService, { once: true });
     } else {
       revealRequestedService();
+    }
+  }
+
+  if (requestedOrder) {
+    const revealRequestedOrder = () => {
+      if (!bootFinished) {
+        setTimeout(revealRequestedOrder, 80);
+        return;
+      }
+      openOrder(requestedOrder.trim() || 'Custom Project');
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', revealRequestedOrder, { once: true });
+    } else {
+      revealRequestedOrder();
     }
   }
 

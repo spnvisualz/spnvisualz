@@ -27,8 +27,8 @@
   <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="preload" href="assets/spn-orbit-transparent.png" as="image">
-  <link rel="stylesheet" href="styles.css?v=20260809.3">
+  <link rel="preload" href="assets/spn-orbit-transparent.png" as="image" fetchpriority="high">
+  <link rel="stylesheet" href="styles.css?v=20260809.4">
   <link rel="stylesheet" href="/assets/css/monetization.css?v=20260809.1">
 
   <script type="application/ld+json">
@@ -195,7 +195,7 @@
         <div class="orbit-trace orbit-trace-two"></div>
         <div class="orbit-signal orbit-signal-one"></div>
         <div class="orbit-signal orbit-signal-two"></div>
-        <img src="assets/spn-orbit-transparent.png" alt="">
+        <img src="assets/spn-orbit-transparent.png" alt="" width="1097" height="706" fetchpriority="high" decoding="async">
       </div>
 
       <div class="hero-foot">
@@ -243,7 +243,7 @@
           <article class="work-panel is-active" data-title="Gezana Events" data-index="0">
             <p class="work-ghost" aria-hidden="true">IDENTITY</p>
             <div class="work-media">
-              <video muted loop playsinline preload="metadata" poster="assets/work-1.jpg"><source src="assets/videos/spn-visual-01.mp4" type="video/mp4"></video>
+              <video muted loop playsinline preload="none" poster="assets/work-1.jpg"><source src="assets/videos/spn-visual-01.mp4" type="video/mp4"></video>
               <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
             </div>
             <div class="work-copy"><span>01 / EVENT IDENTITY</span><h3>Gezana Events</h3><p>Luxury emblem animation built for nightlife, events and social campaigns.</p></div>
@@ -301,7 +301,7 @@
 
       <div class="service-layout">
         <div class="service-preview reveal" aria-hidden="true">
-          <img id="serviceImage" src="assets/brand-gezana.jpg" alt="">
+          <img id="serviceImage" src="assets/brand-gezana.jpg" alt="" loading="lazy" decoding="async">
           <video id="serviceVideo" muted loop playsinline preload="none" poster="assets/work-3.jpg" hidden><source id="serviceVideoSource" type="video/mp4"></video>
           <span id="servicePreviewLabel">Gezana Events / Logo design</span>
         </div>
@@ -352,7 +352,7 @@
     <section class="pricing section-pad" id="pricing" data-section="Pricing">
       <header class="section-head pricing-head reveal">
         <div><p class="section-label">Clear packages</p><h2>Pick your<br><em>starting point.</em></h2></div>
-        <div class="offer-note"><span>Launch pricing</span><strong>Up to 80% off</strong><p>Express delivery available in 24–48 hours.</p></div>
+        <div class="offer-note"><span>Launch pricing</span><strong>Up to 80% off</strong><p>Creative services are priced in EUR. Express delivery is available in 24–48 hours.</p></div>
       </header>
 
       <div class="price-tabs reveal" role="tablist" aria-label="Pricing type">
@@ -405,6 +405,9 @@
         <a href="/visual-lab/articles/dark-website-design-inspiration/" data-visual-lab-article class="reveal">
           <span>03 / Website design</span><strong>Dark Website Design Inspiration</strong><i class="home-lab__arrow" aria-hidden="true"></i>
         </a>
+        <a href="/visual-lab/articles/animated-logo-vs-static-logo/" data-visual-lab-article class="reveal">
+          <span>04 / Motion identity</span><strong>Animated Logo vs Static Logo</strong><i class="home-lab__arrow" aria-hidden="true"></i>
+        </a>
       </div>
       <a class="home-lab__enter reveal" href="/visual-lab/">
         Enter Visual Lab <span class="home-lab__arrow" aria-hidden="true"></span>
@@ -412,7 +415,7 @@
     </section>
 
     <section class="contact" id="contact" data-section="Contact">
-      <div class="contact-art" aria-hidden="true"><img src="assets/spn-orbit-transparent.png" alt=""></div>
+      <div class="contact-art" aria-hidden="true"><img src="assets/spn-orbit-transparent.png" alt="" width="1097" height="706" loading="lazy" decoding="async"></div>
       <div class="contact-inner">
         <p class="section-label reveal">Ready when you are</p>
         <h2 class="reveal">Let’s make something<br><em>people remember.</em></h2>
@@ -438,7 +441,7 @@
       <a href="#" data-consent-settings>Privacy settings</a>
     </nav>
     <p>© <span id="year">2026</span> SPNVISUALZ. All rights reserved.</p>
-    <div class="chubae"><span>Creative direction</span><img src="assets/images/chubae.PNG" alt="CHUBAE"></div>
+    <div class="chubae"><span>Creative direction</span><img src="assets/images/chubae-mark.webp" alt="CHUBAE" width="480" height="270" loading="lazy" decoding="async"></div>
   </footer>
 
   <dialog class="service-dialog" id="serviceDialog" aria-labelledby="serviceDialogTitle">
@@ -471,13 +474,13 @@
       <form id="orderForm">
         <label><span>Your name</span><input name="name" autocomplete="name" placeholder="Name" required></label>
         <label><span>Email or Instagram</span><input name="contact" placeholder="How should we reach you?" required></label>
-        <label><span>What do you need?</span><select name="service" id="serviceSelect" required><option value="">Select a service</option><option>Logo Design</option><option>Animated Logo</option><option>Intro</option><option>Motion Loop</option><option>Social Visuals</option><option>Brand Visuals</option><option>Starter Bundle</option><option>Creator Bundle</option><option>Business Bundle</option><option>Custom Project</option></select></label>
+        <label><span>What do you need?</span><select name="service" id="serviceSelect" required><option value="">Select a service</option><option>Logo Design</option><option>Animated Logo</option><option>Intro</option><option>Motion Loop</option><option>Social Visuals</option><option>Brand Visuals</option><option>Starter Bundle</option><option>Creator Bundle</option><option>Business Bundle</option><option>Website Basic</option><option>Website Premium</option><option>Website Exclusive</option><option>Custom Website</option><option>Custom Project</option></select></label>
         <label class="wide"><span>Describe the vision</span><textarea name="brief" rows="4" placeholder="Name, style, colours, deadline and any references…" required></textarea></label>
         <div class="form-foot wide"><p>This opens your email app with the brief already filled in.</p><button class="button button-light" type="submit"><span>Send project brief</span><i>↗︎</i></button></div>
       </form>
     </div>
   </dialog>
 
-  <script src="app.js?v=20260809.7" defer></script>
+  <script src="app.js?v=20260809.8" defer></script>
 </body>
 </html>

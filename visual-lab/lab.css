@@ -468,7 +468,7 @@ button, input { font: inherit; }
 }
 .lab-card {
   position: relative;
-  grid-column: span 4;
+  grid-column: span 6;
   min-height: 540px;
   display: flex;
   flex-direction: column;
@@ -478,7 +478,7 @@ button, input { font: inherit; }
   text-decoration: none;
   overflow: hidden;
 }
-.lab-card:nth-child(2) { margin-top: 70px; }
+.lab-card:nth-child(even) { margin-top: 70px; }
 .lab-card__image {
   position: relative;
   aspect-ratio: 4 / 3;
@@ -961,7 +961,7 @@ button, input { font: inherit; }
   .lab-hero__side { max-width: 560px; }
   .lab-feature__visual { min-height: 480px; }
   .lab-card { grid-column: span 6; }
-  .lab-card:nth-child(2) { margin-top: 0; }
+  .lab-card:nth-child(even) { margin-top: 0; }
   .lab-article-layout {
     grid-template-columns: minmax(0, 780px);
   }

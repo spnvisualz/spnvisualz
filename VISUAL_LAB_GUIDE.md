@@ -3,7 +3,7 @@
 ## Activate GA4
 
 1. Open `assets/js/spn-config.js`.
-2. Replace `GA_MEASUREMENT_ID` with the GA4 web stream ID (format: `G-XXXXXXXXXX`).
+2. Keep the production web stream set to `G-QYJX274KM5` unless the GA4 property is intentionally replaced.
 3. Leave the consent defaults denied. The tag loads only after the visitor allows Analytics.
 4. In GA4, mark `generate_lead` as a key event. The site also records the studio-specific events documented below.
 
@@ -26,11 +26,11 @@ Automatic GA4 reporting covers users, page views, acquisition source/medium, dev
 
 1. Complete AdSense approval and install a Google-certified CMP for EEA/UK/Switzerland traffic.
 2. Connect that CMP to `window.SPNConsent.syncFromCmp({ analytics, advertising })`.
-3. Replace `ADSENSE_PUBLISHER_ID` with the full `ca-pub-...` value.
+3. Keep the verified publisher ID set to `ca-pub-6262494647963659` unless the AdSense account is intentionally replaced.
 4. Replace each `ADSENSE_SLOT_ID` with its numeric ad-unit slot.
 5. Set `certifiedCmpReady: true` only after the certified CMP is live and verified.
 
-Until every check passes, the AdSense script is not requested. Ad reserves have fixed minimum heights to protect layout stability.
+Until every check passes, no content ad unit is rendered. The base AdSense tag and seller record are present for site ownership verification, while ad slots stay gated behind valid slot IDs, advertising consent and certified CMP readiness. Ad reserves have fixed minimum heights to protect layout stability.
 
 ## Publish a Visual Lab article
 

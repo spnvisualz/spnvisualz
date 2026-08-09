@@ -200,6 +200,8 @@ main {
 .section-head h2, .care-copy h2, .faq h2, .final-cta h2 { margin: 0; font-size: clamp(48px, 6vw, 86px); line-height: .95; letter-spacing: -.06em; font-weight: 590; }
 .section-head.compact h2 { font-size: clamp(48px, 5vw, 76px); }
 .section-head.compact > p { max-width: 390px; margin: 0 0 5px; color: #89928d; line-height: 1.6; }
+.package-controls { display: grid; justify-items: end; gap: 10px; }
+.package-currency { margin: 0; color: #6f7873; font: 500 9px ui-monospace, "SFMono-Regular", Consolas, monospace; letter-spacing: .11em; text-transform: uppercase; }
 .billing-toggle { display: flex; gap: 4px; padding: 5px; border: 1px solid var(--line); border-radius: 14px; background: #090b0a; }
 .billing-toggle button { min-width: 105px; height: 43px; border: 0; border-radius: 9px; color: #77817b; background: transparent; cursor: pointer; }
 .billing-toggle button.active { color: #101612; background: var(--green); }
@@ -340,6 +342,7 @@ footer a:hover { color: #fff; }
   .section-head, .section-head.compact { align-items: flex-start; flex-direction: column; margin-bottom: 38px; }
   .section-head h2, .section-head.compact h2 { font-size: clamp(46px, 14vw, 67px); }
   .section-head.compact > p { font-size: 14px; }
+  .package-controls { width: 100%; justify-items: start; }
   .billing-toggle { width: 100%; }
   .billing-toggle button { flex: 1; }
   .plan-card { display: block; padding: 24px; }

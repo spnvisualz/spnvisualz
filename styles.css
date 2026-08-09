@@ -33,6 +33,7 @@ img,video{display:block;max-width:100%}
 @keyframes atmosphereDriftA{to{transform:translate3d(34vw,35vh,0) scale(1.18)}}@keyframes atmosphereDriftB{to{transform:translate3d(-30vw,-38vh,0) scale(.85)}}
 .page-progress{position:fixed;z-index:1000;left:0;top:0;width:100%;height:2px;background:transparent;pointer-events:none}.page-progress span{display:block;height:100%;width:100%;transform:scaleX(0);transform-origin:left center;will-change:transform;background:linear-gradient(90deg,#4e1eae,var(--purple-light),#fff);box-shadow:0 0 12px var(--purple)}
 .section-pad{padding:clamp(100px,12vw,190px) var(--pad)}
+#work,#services,#pricing,#contact{scroll-margin-top:72px}
 .section-label{text-transform:uppercase;letter-spacing:.2em;font-size:10px;line-height:1.4;color:var(--purple-light);margin:0}
 .eyebrow{display:flex;align-items:center;gap:10px;text-transform:uppercase;letter-spacing:.16em;font-size:10px;color:rgba(255,255,255,.72);margin:0 0 26px}.eyebrow span{width:28px;height:1px;background:var(--purple-light);box-shadow:0 0 9px var(--purple)}
 .reveal{opacity:0;transform:translateY(32px);transition:opacity .8s cubic-bezier(.2,.75,.2,1),transform .8s cubic-bezier(.2,.75,.2,1)}.reveal.is-visible{opacity:1;transform:none}
@@ -47,7 +48,7 @@ em{font-family:Georgia,"Times New Roman",serif;font-weight:400;color:var(--purpl
 
 .hero{position:relative;min-height:100svh;overflow:hidden;display:flex;align-items:center;padding:calc(var(--header) + 40px) var(--pad) 120px;background:radial-gradient(circle at 76% 43%,rgba(83,27,188,.25),transparent 31%),linear-gradient(145deg,#020104,#07030d 55%,#020104)}
 .hero:before{content:"";position:absolute;z-index:1;width:85vw;height:24vw;right:-18vw;top:34%;border:1px solid rgba(189,153,255,.13);border-radius:50%;transform:rotate(-16deg);box-shadow:0 0 90px rgba(122,54,244,.13),inset 0 0 70px rgba(122,54,244,.08);animation:heroRibbon 11s ease-in-out infinite alternate}.hero:after{content:"";position:absolute;z-index:3;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(2,1,4,.96) 0%,rgba(2,1,4,.73) 40%,transparent 72%),linear-gradient(to bottom,transparent 65%,var(--bg) 100%)}
-.hero-cosmos{position:absolute;inset:-7%;background:linear-gradient(90deg,rgba(3,2,7,.92) 0%,rgba(3,2,7,.62) 48%,rgba(3,2,7,.18) 100%),url("assets/images/hero.png") center/cover no-repeat;opacity:.38;filter:saturate(1.4) contrast(1.12);transform:scale(1.08);animation:cosmosBreathe 16s ease-in-out infinite alternate}
+.hero-cosmos{position:absolute;inset:-7%;background:linear-gradient(90deg,rgba(3,2,7,.92) 0%,rgba(3,2,7,.62) 48%,rgba(3,2,7,.18) 100%),url("assets/images/hero.webp") center/cover no-repeat;opacity:.38;filter:saturate(1.4) contrast(1.12);transform:scale(1.08);animation:cosmosBreathe 16s ease-in-out infinite alternate}
 .hero-cosmos:after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(3,2,7,.2),var(--bg) 102%)}
 .hero-lines{position:absolute;z-index:1;inset:0;background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);background-size:76px 76px;mask-image:radial-gradient(circle at 74% 46%,black,transparent 58%)}
 .hero-copy{position:relative;z-index:4;width:min(760px,62vw)}
@@ -179,7 +180,7 @@ em{font-family:Georgia,"Times New Roman",serif;font-weight:400;color:var(--purpl
 
 
 /* Fast visual-engine boot sequence */
-.boot-intro{position:fixed;z-index:4000;inset:0;overflow:hidden;background:#010104;color:#f7f4fb;opacity:1;visibility:visible;transition:opacity .48s ease,visibility .48s;animation:bootSafetyHide 0s 2.8s forwards;contain:strict}
+.boot-intro{position:fixed;z-index:4000;inset:0;overflow:hidden;background:#010104;color:#f7f4fb;opacity:1;visibility:visible;transition:opacity .42s ease,visibility .42s;animation:bootSafetyHide 0s 1.9s forwards;contain:strict}
 .boot-intro:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(198,167,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(198,167,255,.045) 1px,transparent 1px);background-size:58px 58px;mask-image:radial-gradient(circle at center,#000,transparent 78%)}
 .boot-intro:after{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--purple-light),transparent);box-shadow:0 0 20px var(--purple);animation:bootScan 1.35s cubic-bezier(.2,.75,.2,1) both}
 .boot-intro.is-complete{opacity:0;visibility:hidden;pointer-events:none}

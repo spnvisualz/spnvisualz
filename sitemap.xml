@@ -4,7 +4,7 @@
   <url>
     <loc>https://spnvisualz.com/</loc>
     <lastmod>2026-08-09</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image><image:loc>https://spnvisualz.com/assets/spnvisualz-social.jpg</image:loc></image:image>
   </url>
@@ -41,6 +41,13 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image><image:loc>https://spnvisualz.com/assets/work-3.jpg</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://spnvisualz.com/visual-lab/articles/animated-logo-vs-static-logo/</loc>
+    <lastmod>2026-08-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://spnvisualz.com/assets/work-1.jpg</image:loc></image:image>
   </url>
   <url>
     <loc>https://spnvisualz.com/privacy/</loc>
