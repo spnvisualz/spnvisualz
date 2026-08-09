@@ -7,6 +7,7 @@
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image><image:loc>https://spnvisualz.com/assets/spnvisualz-social.jpg</image:loc></image:image>
+    <image:image><image:loc>https://spnvisualz.com/assets/images/spnvisualz.PNG</image:loc></image:image>
   </url>
   <url>
     <loc>https://spnvisualz.com/websites/</loc>

@@ -144,6 +144,7 @@
   };
   menuToggle?.addEventListener('click', () => setMenu(menuToggle.getAttribute('aria-expanded') !== 'true'));
   $$('[data-menu-link]').forEach(link => link.addEventListener('click', () => setMenu(false)));
+  $$('[data-menu-project]').forEach(button => button.addEventListener('click', () => setMenu(false)));
 
   document.addEventListener('click', (event) => {
     const anchor = event.target.closest('a[href^="#"]');

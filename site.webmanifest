@@ -1,7 +1,8 @@
 {
-  "name": "SPNVISUALZ — Creative Studio",
+  "name": "SPNVISUALZ",
   "short_name": "SPNVISUALZ",
-  "description": "Luxury motion-first creative studio for identities, visual worlds, websites and original design intelligence.",
+  "description": "Luxury motion-first creative studio for cinematic identities, visual campaigns and premium websites.",
+  "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
