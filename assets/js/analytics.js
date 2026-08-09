@@ -8,6 +8,7 @@
   const seenSections = new Set();
   let loaded = false;
   let articleFrame = 0;
+  let pageContextTracked = false;
   const articleMilestones = new Set();
 
   const consentAllowsAnalytics = () => window.SPNConsent?.get().analytics === true;
@@ -38,12 +39,13 @@
   );
 
   const track = (eventName, params = {}) => {
-    if (!validMeasurementId || !consentAllowsAnalytics()) return;
+    if (!validMeasurementId || !consentAllowsAnalytics()) return false;
     ensureLoaded();
     window.gtag("event", String(eventName).slice(0, 40), {
       ...cleanParams(params),
       page_type: document.body.dataset.pageType || (location.pathname.startsWith("/visual-lab") ? "visual_lab" : location.pathname.startsWith("/websites") ? "website_services" : "portfolio")
     });
+    return true;
   };
 
   const labelFor = (element) => (
@@ -118,7 +120,7 @@
   };
 
   const trackProject = (panel) => {
-    if (!panel?.classList.contains("is-active")) return;
+    if (!consentAllowsAnalytics() || !panel?.classList.contains("is-active")) return;
     const name = panel.dataset.title || panel.querySelector("h3")?.textContent?.trim();
     if (!name || seenProjects.has(name)) return;
     seenProjects.add(name);
@@ -143,7 +145,7 @@
     const sections = [...document.querySelectorAll("#work,#services,#pricing,#contact,[data-track-section],[data-section-track]")];
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
+        if (!entry.isIntersecting || !consentAllowsAnalytics()) return;
         const section = entry.target.parentElement;
         const name = section?.dataset.sectionTrack || section?.dataset.trackSection || section?.dataset.section || section?.id || "section";
         if (seenSections.has(name)) return;
@@ -170,7 +172,7 @@
       const total = Math.max(1, article.offsetHeight - innerHeight);
       const read = Math.min(1, Math.max(0, -rect.top / total));
       [25, 50, 75, 90].forEach(milestone => {
-        if (read * 100 >= milestone && !articleMilestones.has(milestone)) {
+        if (consentAllowsAnalytics() && read * 100 >= milestone && !articleMilestones.has(milestone)) {
           articleMilestones.add(milestone);
           track("article_read_progress", {
             article_title: article.dataset.article || document.body.dataset.articleSlug || document.title,
@@ -187,26 +189,46 @@
     render();
   };
 
+  const trackPageContext = () => {
+    if (pageContextTracked || !document.body.dataset.articleSlug) return;
+    pageContextTracked = track("visual_lab_article_opened", {
+      article_path: location.pathname,
+      article_title: document.querySelector("h1")?.textContent?.trim() || document.title,
+      article_category: document.body.dataset.articleCategory,
+      entry_method: "page_load"
+    }) === true;
+  };
+
+  const trackVisibleContext = () => {
+    document.querySelectorAll(".work-panel.is-active").forEach(trackProject);
+    document.querySelectorAll(".spn-analytics-sentinel").forEach(sentinel => {
+      const rect = sentinel.getBoundingClientRect();
+      if (rect.top < 0 || rect.bottom > innerHeight) return;
+      const section = sentinel.parentElement;
+      const name = section?.dataset.sectionTrack || section?.dataset.trackSection || section?.dataset.section || section?.id || "section";
+      if (seenSections.has(name)) return;
+      seenSections.add(name);
+      track("section_bottom_reached", { section_name: name });
+    });
+  };
+
   const init = () => {
     ensureLoaded();
     setupClickTracking();
     setupProjectTracking();
     setupSectionTracking();
     setupArticleProgress();
-    if (document.body.dataset.articleSlug) {
-      track("visual_lab_article_opened", {
-        article_path: location.pathname,
-        article_title: document.querySelector("h1")?.textContent?.trim() || document.title,
-        article_category: document.body.dataset.articleCategory,
-        entry_method: "page_load"
-      });
-    }
+    trackPageContext();
   };
 
   window.SPNAnalytics = Object.freeze({ track, isConfigured: () => validMeasurementId });
 
   window.addEventListener("spn:consent", (event) => {
-    if (event.detail?.analytics) ensureLoaded();
+    if (event.detail?.analytics) {
+      ensureLoaded();
+      trackPageContext();
+      trackVisibleContext();
+    }
     if (loaded) {
       window.gtag("set", {
         allow_google_signals: event.detail?.advertising === true,
