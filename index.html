@@ -28,7 +28,8 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
   <link rel="preload" href="assets/spn-orbit-transparent.png" as="image">
-  <link rel="stylesheet" href="styles.css?v=20260809.2">
+  <link rel="stylesheet" href="styles.css?v=20260809.3">
+  <link rel="stylesheet" href="/assets/css/monetization.css?v=20260809.1">
 
   <script type="application/ld+json">
   {
@@ -82,6 +83,24 @@
     ]
   }
   </script>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"ItemList",
+    "@id":"https://spnvisualz.com/#selected-work",
+    "name":"SPNVISUALZ Selected Work",
+    "itemListElement":[
+      {"@type":"ListItem","position":1,"item":{"@type":"CreativeWork","name":"Gezana Events Visual Identity","creator":{"@id":"https://spnvisualz.com/#organization"},"url":"https://spnvisualz.com/#work"}},
+      {"@type":"ListItem","position":2,"item":{"@type":"CreativeWork","name":"3 Nation Studios Motion Identity","creator":{"@id":"https://spnvisualz.com/#organization"},"url":"https://spnvisualz.com/#work"}},
+      {"@type":"ListItem","position":3,"item":{"@type":"CreativeWork","name":"TAO Chrome Visual World","creator":{"@id":"https://spnvisualz.com/#organization"},"url":"https://spnvisualz.com/#work"}},
+      {"@type":"ListItem","position":4,"item":{"@type":"CreativeWork","name":"R Star Visual Identity","creator":{"@id":"https://spnvisualz.com/#organization"},"url":"https://spnvisualz.com/#work"}},
+      {"@type":"ListItem","position":5,"item":{"@type":"CreativeWork","name":"TAO Special Motion Piece","creator":{"@id":"https://spnvisualz.com/#organization"},"url":"https://spnvisualz.com/#work"}}
+    ]
+  }
+  </script>
+  <script src="/assets/js/spn-config.js?v=20260809.1" defer></script>
+  <script src="/assets/js/consent.js?v=20260809.1" defer></script>
+  <script src="/assets/js/analytics.js?v=20260809.1" defer></script>
 </head>
 <body class="is-loading">
   <div class="boot-intro" id="bootIntro" role="status" aria-live="polite" aria-label="Opening SPNVISUALZ">
@@ -118,6 +137,7 @@
       <a href="#work">Work</a>
       <a href="#services">Services</a>
       <a href="#pricing">Pricing</a>
+      <a href="/visual-lab/">Visual Lab</a>
       <a href="#contact">Contact</a>
     </nav>
 
@@ -137,6 +157,7 @@
       <a href="#services" data-menu-link><span>02</span>Services</a>
       <a href="#pricing" data-menu-link><span>03</span>Pricing</a>
       <a href="#contact" data-menu-link><span>04</span>Contact</a>
+      <a href="/visual-lab/" data-menu-link><span>05</span>Visual Lab</a>
     </nav>
     <a class="websites-menu-entry" href="/websites/" data-menu-link aria-label="Explore SPNVISUALZ website packages">
       <small>NEW SERVICE</small>
@@ -144,8 +165,8 @@
       <span aria-hidden="true">→︎</span>
     </a>
     <div class="mobile-contact">
-      <a href="https://instagram.com/na.flamez" target="_blank" rel="noreferrer">Instagram ↗︎</a>
-      <a href="mailto:spnvisualz@gmail.com">Email ↗︎</a>
+      <a href="https://instagram.com/na.flamez" target="_blank" rel="noreferrer" data-instagram-link>Instagram ↗︎</a>
+      <a href="mailto:spnvisualz@gmail.com" data-email-link>Email ↗︎</a>
     </div>
   </div>
 
@@ -362,6 +383,31 @@
       </ol>
     </section>
 
+    <section class="home-lab section-pad" id="visual-lab" data-section="Visual Lab" data-section-track="visual_lab_teaser">
+      <div class="home-lab__signal" aria-hidden="true"><span></span><i></i></div>
+      <header class="section-head home-lab__head reveal">
+        <div>
+          <p class="section-label">SPNVISUALZ / Visual Lab</p>
+          <h2>Ideas with<br><em>a pulse.</em></h2>
+        </div>
+        <p>Original studio notes on identity, motion, chrome and digital worlds—made to help brands choose stronger visual directions.</p>
+      </header>
+      <div class="home-lab__index">
+        <a href="/visual-lab/articles/how-to-make-a-brand-look-expensive/" data-visual-lab-article class="reveal">
+          <span>01 / Branding</span><strong>How to Make a Brand Look Expensive</strong><i class="home-lab__arrow" aria-hidden="true"></i>
+        </a>
+        <a href="/visual-lab/articles/logo-design-trends-2026/" data-visual-lab-article class="reveal">
+          <span>02 / Logo design</span><strong>Logo Design Trends 2026</strong><i class="home-lab__arrow" aria-hidden="true"></i>
+        </a>
+        <a href="/visual-lab/articles/dark-website-design-inspiration/" data-visual-lab-article class="reveal">
+          <span>03 / Website design</span><strong>Dark Website Design Inspiration</strong><i class="home-lab__arrow" aria-hidden="true"></i>
+        </a>
+      </div>
+      <a class="home-lab__enter reveal" href="/visual-lab/">
+        Enter Visual Lab <span class="home-lab__arrow" aria-hidden="true"></span>
+      </a>
+    </section>
+
     <section class="contact" id="contact" data-section="Contact">
       <div class="contact-art" aria-hidden="true"><img src="assets/spn-orbit-transparent.png" alt=""></div>
       <div class="contact-inner">
@@ -370,11 +416,11 @@
         <p class="contact-lead reveal">Start with a quick project brief, send an Instagram DM, or email us directly.</p>
         <div class="contact-actions reveal">
           <button class="button button-light" type="button" data-order><span>Start a project</span><i>↗︎</i></button>
-          <a class="button button-outline" href="https://instagram.com/na.flamez" target="_blank" rel="noreferrer"><span>Instagram</span><i>↗︎</i></a>
+          <a class="button button-outline" href="https://instagram.com/na.flamez" target="_blank" rel="noreferrer" data-instagram-link data-contact-button><span>Instagram</span><i>↗︎</i></a>
         </div>
         <div class="contact-details reveal">
-          <a href="mailto:spnvisualz@gmail.com"><span>Email</span><strong>spnvisualz@gmail.com</strong><i>↗︎</i></a>
-          <a href="https://instagram.com/na.flamez" target="_blank" rel="noreferrer"><span>Instagram</span><strong>@na.flamez</strong><i>↗︎</i></a>
+          <a href="mailto:spnvisualz@gmail.com" data-email-link><span>Email</span><strong>spnvisualz@gmail.com</strong><i>↗︎</i></a>
+          <a href="https://instagram.com/na.flamez" target="_blank" rel="noreferrer" data-instagram-link><span>Instagram</span><strong>@na.flamez</strong><i>↗︎</i></a>
         </div>
       </div>
     </section>
@@ -382,6 +428,12 @@
 
   <footer class="site-footer">
     <a class="wordmark" href="#top"><span>SPN</span>VISUALZ<small>VISUALS THAT CONNECT</small></a>
+    <nav class="site-footer-links" aria-label="Footer navigation">
+      <a href="/visual-lab/">Visual Lab</a>
+      <a href="/websites/">Websites</a>
+      <a href="/privacy/">Privacy</a>
+      <a href="#" data-consent-settings>Privacy settings</a>
+    </nav>
     <p>© <span id="year">2026</span> SPNVISUALZ. All rights reserved.</p>
     <div class="chubae"><span>Creative direction</span><img src="assets/images/chubae.PNG" alt="CHUBAE"></div>
   </footer>
@@ -423,6 +475,6 @@
     </div>
   </dialog>
 
-  <script src="app.js?v=20260809.5" defer></script>
+  <script src="app.js?v=20260809.6" defer></script>
 </body>
 </html>
