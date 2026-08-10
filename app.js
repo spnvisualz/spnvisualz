@@ -218,7 +218,7 @@
     if (!target) return;
     event.preventDefault();
     const distance = Math.abs(target.getBoundingClientRect().top);
-    const longJump = distance > innerHeight * 3.25;
+    const longJump = distance > innerHeight * 2.25;
     if (reduceMotion || longJump) {
       const root = document.documentElement;
       const previousBehavior = root.style.scrollBehavior;
