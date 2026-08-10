@@ -3,6 +3,40 @@
   const $$ = (selector, context = document) => [...context.querySelectorAll(selector)];
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = matchMedia('(pointer:fine)').matches;
+  const depthField = $('#depthField');
+  const hero = $('.hero');
+  const heroCosmos = $('.hero-cosmos');
+  const heroArchitecture = $('#heroArchitecture');
+  const depthLayers = $$('[data-depth]').map(element => ({
+    element,
+    scene: element.closest('.depth-scene') || element.parentElement,
+    distance: Number(element.dataset.depthDistance || 120),
+    rotate: Number(element.dataset.depthRotate || 0),
+    top: 0,
+    height: 1
+  }));
+
+  const cacheDepthMetrics = () => {
+    depthLayers.forEach(item => {
+      const rect = item.scene.getBoundingClientRect();
+      item.top = scrollY + rect.top;
+      item.height = Math.max(1, rect.height);
+    });
+  };
+
+  function updateDepthLayers() {
+    if (reduceMotion || !depthLayers.length) return;
+    const motionScale = innerWidth <= 720 ? .28 : innerWidth <= 1050 ? .62 : 1;
+    depthLayers.forEach(item => {
+      const raw = (latestScroll + innerHeight - item.top) / (item.height + innerHeight);
+      const progress = Math.min(1, Math.max(0, raw));
+      const centered = progress - .5;
+      const depthCurve = Math.sin(progress * Math.PI);
+      item.element.style.setProperty('--depth-y', `${(centered * item.distance * motionScale).toFixed(2)}px`);
+      item.element.style.setProperty('--depth-rotate', `${(centered * item.rotate * motionScale).toFixed(2)}deg`);
+      item.element.style.setProperty('--depth-z', `${(depthCurve * 55 * motionScale).toFixed(2)}px`);
+    });
+  }
 
   const bootIntro = $('#bootIntro');
   const bootPercent = $('#bootPercent');
@@ -71,10 +105,19 @@
       const object = $('#heroObject');
       if (object && latestScroll < innerHeight * 1.25) {
         const p = Math.min(1, latestScroll / innerHeight);
-        object.style.setProperty('--scrollY', `${p * 70}px`);
-        object.style.setProperty('--heroScale', `${1 - p * .12}`);
+        const mobileScale = innerWidth <= 720 ? .55 : 1;
+        object.style.setProperty('--scrollY', `${p * 105 * mobileScale}px`);
+        object.style.setProperty('--heroScale', `${1 - p * .16}`);
+        object.style.setProperty('--hero-object-z', `${p * -210 * mobileScale}px`);
+        hero?.style.setProperty('--hero-copy-y', `${p * -72 * mobileScale}px`);
+        hero?.style.setProperty('--hero-architecture-y', `${p * 128 * mobileScale}px`);
+        heroCosmos?.style.setProperty('--hero-cosmos-scroll-y', `${p * 68 * mobileScale}px`);
+        heroCosmos?.style.setProperty('--hero-cosmos-scale', `${1.08 + p * .075}`);
       }
+      depthField?.style.setProperty('--depth-page-y', `${pageP * -130}px`);
+      depthField?.style.setProperty('--depth-page-y-near', `${pageP * -260}px`);
     }
+    updateDepthLayers();
     updateWork();
     ticking = false;
   };
@@ -99,8 +142,17 @@
       heroPointerY = event.clientY / innerHeight - .5;
       if (heroPointerFrame) return;
       heroPointerFrame = requestAnimationFrame(() => {
-        object.style.setProperty('--ry', `${heroPointerX * 5}deg`);
-        object.style.setProperty('--rx', `${-heroPointerY * 4}deg`);
+        object.style.setProperty('--ry', `${heroPointerX * 8}deg`);
+        object.style.setProperty('--rx', `${-heroPointerY * 6}deg`);
+        object.style.setProperty('--hero-object-x', `${heroPointerX * 28}px`);
+        hero?.style.setProperty('--depth-pointer-x', `${heroPointerX * 26}px`);
+        hero?.style.setProperty('--depth-pointer-y', `${heroPointerY * 18}px`);
+        heroCosmos?.style.setProperty('--hero-cosmos-x', `${heroPointerX * -18}px`);
+        heroCosmos?.style.setProperty('--hero-cosmos-y', `${heroPointerY * -11}px`);
+        depthField?.style.setProperty('--depth-pointer-x', `${heroPointerX * 17}px`);
+        depthField?.style.setProperty('--depth-pointer-y', `${heroPointerY * 11}px`);
+        depthField?.style.setProperty('--depth-pointer-x-inverse', `${heroPointerX * -17}px`);
+        depthField?.style.setProperty('--depth-pointer-y-inverse', `${heroPointerY * -11}px`);
         heroPointerFrame = 0;
       });
     }, { passive: true });
@@ -119,7 +171,9 @@
         tiltY = (event.clientY - bounds.top) / bounds.height - .5;
         if (tiltFrame) return;
         tiltFrame = requestAnimationFrame(() => {
-          card.style.transform = `rotateX(${-tiltY * 3}deg) rotateY(${tiltX * 4}deg) translateY(-2px)`;
+          card.style.setProperty('--tilt-light-x', `${(tiltX + .5) * 100}%`);
+          card.style.setProperty('--tilt-light-y', `${(tiltY + .5) * 100}%`);
+          card.style.transform = `perspective(1200px) rotateX(${-tiltY * 5}deg) rotateY(${tiltX * 6}deg) translate3d(0,-3px,24px)`;
           tiltFrame = 0;
         });
       }, { passive: true });
@@ -231,6 +285,7 @@
 
   function cachePageMetrics() {
     pageMax = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+    cacheDepthMetrics();
     if (!workRail) return;
     const rect = workRail.getBoundingClientRect();
     workRailTop = scrollY + rect.top;
@@ -286,7 +341,27 @@
     const raw = (latestScroll - workRailTop) / workRailDistance;
     const value = Math.min(1, Math.max(0, raw));
     if (workProgress) workProgress.style.transform = `scaleX(${value})`;
-    const index = Math.min(workPanels.length - 1, Math.floor(value * workPanels.length));
+    const segment = value * workPanels.length;
+    const index = Math.min(workPanels.length - 1, Math.floor(segment));
+    const phase = index === workPanels.length - 1 && value === 1 ? 1 : segment - Math.floor(segment);
+    const centered = phase - .5;
+    const curve = Math.sin(phase * Math.PI);
+    const motionScale = reduceMotion ? 0 : innerWidth <= 720 ? .38 : innerWidth <= 1050 ? .7 : 1;
+    if (workStage) {
+      workStage.style.setProperty('--world-phase', phase.toFixed(4));
+      workStage.style.setProperty('--world-rail-x', `${(phase * 1.5 * motionScale).toFixed(2)}deg`);
+      workStage.style.setProperty('--world-rail-y', `${(centered * -4 * motionScale).toFixed(2)}deg`);
+      workStage.style.setProperty('--world-drift-y', `${(centered * -22 * motionScale).toFixed(2)}px`);
+      workStage.style.setProperty('--world-z', `${((42 + curve * 68) * motionScale).toFixed(2)}px`);
+      workStage.style.setProperty('--world-rotate-x', `${(centered * -2.2 * motionScale).toFixed(2)}deg`);
+      workStage.style.setProperty('--world-rotate-y', `${(centered * 4.4 * motionScale).toFixed(2)}deg`);
+      workStage.style.setProperty('--world-scale', `${(1 - Math.abs(centered) * .045 * motionScale).toFixed(4)}`);
+      workStage.style.setProperty('--world-copy-x', `${(centered * -24 * motionScale).toFixed(2)}px`);
+      workStage.style.setProperty('--world-copy-y', `${(centered * 18 * motionScale).toFixed(2)}px`);
+      workStage.style.setProperty('--world-copy-rotate', `${(centered * -3 * motionScale).toFixed(2)}deg`);
+      workStage.style.setProperty('--world-ghost-y', `${(centered * 34 * motionScale).toFixed(2)}px`);
+      workStage.style.setProperty('--world-ghost-scale', `${(.96 + curve * .04 * motionScale).toFixed(4)}`);
+    }
     activateWork(index);
   }
 
