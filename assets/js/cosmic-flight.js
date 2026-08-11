@@ -17,6 +17,16 @@
   const chapterNumber = document.getElementById("cosmicFlightChapterNo");
   const chapterName = document.getElementById("cosmicFlightChapter");
   const progressRail = document.getElementById("cosmicFlightProgress");
+  const prologue = document.getElementById("flightExperience");
+  const prologueGlobe = document.getElementById("flightExperienceGlobe");
+  const prologueCopy = document.getElementById("flightExperienceCopy");
+  const prologueCards = [...document.querySelectorAll(".flight-prologue__card")];
+  const prologueNumber = document.getElementById("flightExperienceNumber");
+  const prologueName = document.getElementById("flightExperienceName");
+  const prologueGhost = document.getElementById("flightExperienceGhost");
+  const prologueProgress = document.getElementById("flightExperienceProgress");
+  const prologuePercent = document.getElementById("flightExperiencePercent");
+  const prologueExit = document.querySelector(".flight-prologue__exit");
   const TAU = Math.PI * 2;
   const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
   const lerp = (from, to, amount) => from + (to - from) * amount;
@@ -56,8 +66,22 @@
   let activeChapter = -1;
   let keyframes = [];
   let chapterMetrics = [];
+  let prologueTop = 0;
+  let prologueTravel = 1;
+  let prologueHeight = 1;
+  let activePrologueWorld = -2;
+  let prologueIsActive = false;
   let stars = [];
   let visible = !document.hidden;
+
+  const prologueWorlds = [
+    ["00", "SPN ORIGIN", "SPN"],
+    ["01", "GEZANA", "GEZANA"],
+    ["02", "3 NATION", "3N"],
+    ["03", "TAO", "TAO"],
+    ["04", "R STAR", "R★"],
+    ["05", "TAO SPECIAL", "TAO"]
+  ];
 
   const randomBetween = (min, max) => min + Math.random() * (max - min);
 
@@ -83,6 +107,12 @@
 
   const cacheFlightPath = () => {
     pageMax = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+    if (prologue) {
+      const prologueRect = prologue.getBoundingClientRect();
+      prologueTop = scrollY + prologueRect.top;
+      prologueHeight = prologueRect.height;
+      prologueTravel = Math.max(1, prologueHeight - innerHeight);
+    }
     chapterMetrics = chapterDefinitions.map(([selector, name], index) => {
       const element = document.querySelector(selector);
       const rect = element?.getBoundingClientRect();
@@ -124,7 +154,7 @@
   const resize = () => {
     width = Math.max(1, innerWidth);
     height = Math.max(1, innerHeight);
-    dpr = Math.min(devicePixelRatio || 1, saveData ? 1 : 1.5);
+    dpr = Math.min(devicePixelRatio || 1, saveData ? 1 : width <= 720 ? 1.15 : 1.5);
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
     canvas.style.width = `${width}px`;
@@ -246,6 +276,94 @@
     document.body.dataset.flightChapter = chapter.name.toLowerCase().replace(/\s+/g, "-");
   };
 
+  const updatePrologue = time => {
+    if (!prologue || !prologueGlobe) return;
+
+    const progress = clamp((scrollY - prologueTop) / prologueTravel);
+    const intersects = scrollY + height > prologueTop && scrollY < prologueTop + prologueHeight;
+    const exitAmount = smoothstep(.87, .97, progress);
+    const compact = width <= 720;
+    const dive = smoothstep(.82, 1, progress);
+    const intro = smoothstep(.015, .2, progress);
+    const orbitWave = reduceMotion ? 0 : Math.sin(progress * TAU * 1.45 + time * .00024);
+
+    prologue.style.setProperty("--prologue-progress", progress.toFixed(4));
+    prologue.style.setProperty("--prologue-exit", exitAmount.toFixed(3));
+    if (prologueProgress) prologueProgress.style.transform = `scaleX(${progress.toFixed(4)})`;
+    if (prologuePercent) prologuePercent.textContent = String(Math.round(progress * 100)).padStart(3, "0");
+
+    if (intersects !== prologueIsActive) {
+      prologueIsActive = intersects;
+      document.body.classList.toggle("is-world-flight", intersects);
+    }
+    const complete = reduceMotion || progress > .91;
+    prologue.classList.toggle("is-complete", complete);
+    if (prologueExit) prologueExit.tabIndex = complete ? 0 : -1;
+
+    if (reduceMotion) {
+      if (activePrologueWorld !== 0) {
+        activePrologueWorld = 0;
+        if (prologueNumber) prologueNumber.textContent = "00";
+        if (prologueName) prologueName.textContent = "SPN ORIGIN";
+      }
+      return;
+    }
+
+    let globeX = lerp(compact ? .68 : .76, compact ? .5 : .235, intro);
+    let globeY = lerp(compact ? .62 : .53, compact ? .48 : .5, intro) + orbitWave * (compact ? .012 : .018);
+    let globeScale = lerp(compact ? .62 : .84, compact ? .42 : .5, intro);
+    globeX = lerp(globeX, .5, dive);
+    globeY = lerp(globeY, .5, dive);
+    globeScale = lerp(globeScale, compact ? 2.75 : 3.45, dive);
+    const globeOpacity = lerp(1, .12, smoothstep(.9, 1, progress));
+    const globeRotate = lerp(-4, 22, progress) + orbitWave * 2.2;
+    const globePitch = orbitWave * (compact ? 2.5 : 4.5);
+    prologueGlobe.style.opacity = globeOpacity.toFixed(3);
+    prologueGlobe.style.filter = `blur(${(dive * 2.3).toFixed(2)}px) brightness(${(1 + dive * .28).toFixed(2)})`;
+    prologueGlobe.style.transform = `translate3d(${(globeX * width).toFixed(2)}px,${(globeY * height).toFixed(2)}px,0) translate(-50%,-50%) scale(${globeScale.toFixed(4)}) rotateX(${globePitch.toFixed(2)}deg) rotateY(${(-orbitWave * 5).toFixed(2)}deg) rotateZ(${globeRotate.toFixed(2)}deg)`;
+
+    const starts = compact ? [.145, .295, .445, .595, .745] : [.13, .282, .434, .586, .738];
+    const duration = compact ? .235 : .255;
+    const verticalOffsets = compact ? [-.02, .025, -.015, .02, -.01] : [-.17, .14, -.06, .16, -.13];
+
+    prologueCards.forEach((card, index) => {
+      const local = clamp((progress - starts[index]) / duration);
+      const enter = smoothstep(0, .23, local);
+      const leave = smoothstep(.7, 1, local);
+      const visibilityAmount = enter * (1 - leave);
+      const arc = Math.sin(local * Math.PI);
+      const direction = index % 2 === 0 ? 1 : -1;
+      const startX = compact ? (direction > 0 ? 1.24 : -.24) : (direction > 0 ? 1.13 : -.13);
+      const endX = compact ? (direction > 0 ? -.26 : 1.26) : (direction > 0 ? -.2 : 1.2);
+      const middleX = .5 + direction * (compact ? .01 : .08);
+      const firstHalf = smoothstep(0, .5, local);
+      const secondHalf = smoothstep(.5, 1, local);
+      const cardX = local <= .5 ? lerp(startX, middleX, firstHalf) : lerp(middleX, endX, secondHalf);
+      const cardY = .52 + verticalOffsets[index] + Math.sin(local * Math.PI * 2) * (compact ? .018 : .035);
+      const cardZ = lerp(-520, compact ? 30 : 100, arc);
+      const cardScale = (compact ? .42 : .38) + arc * (compact ? .58 : .68);
+      const rotateY = lerp(direction * -54, direction * 38, local);
+      const rotateZ = lerp(direction * -5.5, direction * 3.5, local);
+      const edgeBlur = (1 - arc) * (compact ? 2.4 : 4.5);
+      card.style.zIndex = String(16 + Math.round(arc * 12));
+      card.style.opacity = visibilityAmount.toFixed(3);
+      card.style.filter = `blur(${edgeBlur.toFixed(2)}px) brightness(${(.68 + arc * .38).toFixed(2)})`;
+      card.style.transform = `translate3d(${(cardX * width).toFixed(2)}px,${(cardY * height).toFixed(2)}px,${cardZ.toFixed(2)}px) translate(-50%,-50%) scale(${cardScale.toFixed(4)}) rotateY(${rotateY.toFixed(2)}deg) rotateZ(${rotateZ.toFixed(2)}deg)`;
+    });
+
+    let worldIndex = 0;
+    if (progress >= .115) worldIndex = clamp(Math.floor((progress - .115) / .152) + 1, 1, 5);
+    if (worldIndex !== activePrologueWorld) {
+      activePrologueWorld = worldIndex;
+      const world = prologueWorlds[worldIndex];
+      if (prologueNumber) prologueNumber.textContent = world[0];
+      if (prologueName) prologueName.textContent = world[1];
+      if (prologueGhost) prologueGhost.textContent = world[2];
+    }
+
+    if (prologueCopy) prologueCopy.setAttribute("aria-hidden", progress > .28 ? "true" : "false");
+  };
+
   const updateGuide = (path, time) => {
     if (width <= 720 || reduceMotion) return;
     const parallaxX = pointerX * 22;
@@ -307,6 +425,7 @@
 
     const path = pathAt(currentProgress);
     drawSpace(now);
+    updatePrologue(now);
     updateGuide(path, now);
     updateSatellites(path, now);
     updateChapter();
@@ -328,6 +447,7 @@
       currentProgress = targetProgress;
       const path = pathAt(currentProgress);
       drawSpace(now);
+      updatePrologue(now);
       updateGuide(path, now);
       updateChapter();
       if (progressRail) progressRail.style.transform = `scaleX(${currentProgress.toFixed(5)})`;

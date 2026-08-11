@@ -289,8 +289,523 @@ main,
   box-shadow: 0 0 10px rgba(134,255,189,.8);
 }
 
+/* The hero now announces the flight instead of leaving the scroll experience hidden. */
+.hero-flight-entry {
+  display: grid;
+  width: min(352px, 100%);
+  gap: 8px;
+  margin-top: 25px;
+  padding: 13px 16px 14px;
+  border: 1px solid rgba(211,190,255,.24);
+  background: linear-gradient(110deg,rgba(198,167,255,.07),rgba(7,4,12,.35));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035),0 22px 60px rgba(0,0,0,.22);
+  backdrop-filter: blur(10px);
+  transition: border-color .25s ease,background .25s ease,transform .25s ease;
+}
+
+.hero-flight-entry:hover,
+.hero-flight-entry:focus-visible {
+  border-color: rgba(198,167,255,.62);
+  background: linear-gradient(110deg,rgba(134,77,255,.14),rgba(7,4,12,.52));
+  transform: translateY(-2px);
+}
+
+.hero-flight-entry > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,.48);
+  font: 7px/1 "Courier New",monospace;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.hero-flight-entry > span i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #86ffbd;
+  box-shadow: 0 0 7px #86ffbd,0 0 18px rgba(134,255,189,.68);
+  animation: flight-live-pulse 1.7s ease-in-out infinite;
+}
+
+.hero-flight-entry strong {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #f8f5ff;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.hero-flight-entry strong b {
+  color: var(--purple-light);
+  font-size: 15px;
+  font-weight: 400;
+}
+
+@keyframes flight-live-pulse {
+  50% { opacity: .44; transform: scale(.72); }
+}
+
+/*
+   WORLD FLIGHT / FOREGROUND SEQUENCE
+   This is a real sticky chapter in the document, so it remains unmistakable even
+   when the global canvas is simplified on a smaller or lower-power device.
+*/
+.flight-prologue {
+  --prologue-progress: 0;
+  --prologue-exit: 0;
+  position: relative;
+  z-index: 7;
+  height: 460svh;
+  color: #f8f5ff;
+  background: #020104;
+  contain: layout style;
+}
+
+.flight-prologue__sticky {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100svh;
+  min-height: 640px;
+  overflow: hidden;
+  isolation: isolate;
+  perspective: 1700px;
+  transform-style: preserve-3d;
+  background:
+    radial-gradient(circle at 50% 48%,rgba(105,40,223,.22),transparent 26%),
+    radial-gradient(circle at 74% 28%,rgba(133,78,255,.1),transparent 26%),
+    linear-gradient(155deg,rgba(2,1,4,.98),rgba(7,3,12,.94) 52%,rgba(2,1,4,.99));
+}
+
+.flight-prologue__sticky::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: -8%;
+  opacity: calc(.28 + var(--prologue-progress) * .34);
+  background-image:
+    radial-gradient(circle,rgba(255,255,255,.76) 0 1px,transparent 1.4px),
+    radial-gradient(circle,rgba(174,126,255,.82) 0 1px,transparent 1.7px);
+  background-position: 17px 29px,0 0;
+  background-size: 137px 137px,223px 223px;
+  transform: translate3d(calc(var(--prologue-progress) * -4vw),calc(var(--prologue-progress) * 7vh),-100px) scale(calc(1.04 + var(--prologue-progress) * .16));
+  will-change: transform,opacity;
+}
+
+.flight-prologue__sticky::after {
+  content: "";
+  position: absolute;
+  z-index: 30;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg,rgba(2,1,4,.48),transparent 18% 78%,rgba(2,1,4,.82)),
+    radial-gradient(ellipse at center,transparent 47%,rgba(2,1,4,.42) 78%,rgba(2,1,4,.9) 116%);
+}
+
+.flight-prologue__backdrop {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  width: min(102vw,1500px);
+  aspect-ratio: 1;
+  transform: translate3d(-50%,-50%,-180px) rotateX(69deg) rotateZ(calc(-18deg + var(--prologue-progress) * 64deg)) scale(calc(.72 + var(--prologue-progress) * 1.36));
+  transform-style: preserve-3d;
+  opacity: calc(.4 + var(--prologue-progress) * .44);
+  will-change: transform,opacity;
+}
+
+.flight-prologue__backdrop::before,
+.flight-prologue__backdrop::after,
+.flight-prologue__backdrop span {
+  content: "";
+  position: absolute;
+  inset: var(--flight-ring-inset);
+  border: 1px solid rgba(203,175,255,var(--flight-ring-alpha));
+  border-radius: 50%;
+  box-shadow: inset 0 0 55px rgba(116,49,229,.05),0 0 55px rgba(116,49,229,.05);
+  transform: translateZ(var(--flight-ring-z));
+}
+
+.flight-prologue__backdrop::before { --flight-ring-inset: 0; --flight-ring-alpha: .11; --flight-ring-z: -280px; }
+.flight-prologue__backdrop::after { --flight-ring-inset: 13%; --flight-ring-alpha: .17; --flight-ring-z: -120px; }
+.flight-prologue__backdrop span:nth-child(1) { --flight-ring-inset: 26%; --flight-ring-alpha: .25; --flight-ring-z: 30px; }
+.flight-prologue__backdrop span:nth-child(2) { --flight-ring-inset: 37%; --flight-ring-alpha: .34; --flight-ring-z: 170px; }
+.flight-prologue__backdrop span:nth-child(3) {
+  --flight-ring-inset: 48% -10%;
+  --flight-ring-alpha: 0;
+  --flight-ring-z: 250px;
+  height: 1px;
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(90deg,transparent,rgba(224,207,255,.72),transparent);
+  box-shadow: 0 0 20px rgba(145,85,255,.42);
+}
+.flight-prologue__backdrop span:nth-child(4) {
+  --flight-ring-inset: -8% 50%;
+  --flight-ring-alpha: 0;
+  --flight-ring-z: 180px;
+  width: 1px;
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(transparent,rgba(224,207,255,.44),transparent);
+}
+
+.flight-prologue__header {
+  position: absolute;
+  z-index: 35;
+  left: var(--pad);
+  right: var(--pad);
+  top: max(96px,calc(env(safe-area-inset-top) + 82px));
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  color: rgba(255,255,255,.42);
+  font: 7px/1 "Courier New",monospace;
+  letter-spacing: .18em;
+}
+
+.flight-prologue__header p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.flight-prologue__header i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #86ffbd;
+  box-shadow: 0 0 12px rgba(134,255,189,.9);
+}
+
+.flight-prologue__copy {
+  position: absolute;
+  z-index: 16;
+  left: var(--pad);
+  top: 50%;
+  width: min(670px,48vw);
+  transform: translate3d(0,calc(-50% - var(--prologue-progress) * 15vh),120px) scale(calc(1 - var(--prologue-progress) * .08));
+  transform-origin: left center;
+  opacity: calc(1 - var(--prologue-progress) * 5.2);
+  will-change: transform,opacity;
+}
+
+.flight-prologue__copy h2 {
+  margin: 17px 0 0;
+  font-size: clamp(62px,7.7vw,126px);
+  font-weight: 800;
+  line-height: .81;
+  letter-spacing: -.068em;
+  text-transform: uppercase;
+  text-shadow: 0 28px 90px rgba(0,0,0,.7);
+}
+
+.flight-prologue__copy h2 em {
+  display: inline-block;
+  color: transparent;
+  background: linear-gradient(112deg,#6f39d5,#faf7ff 26%,#a970ff 46%,#f7f2ff 59%,#7439dd 82%,#d2baff);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 28px rgba(141,79,255,.24));
+}
+
+.flight-prologue__copy > p:last-child {
+  width: min(470px,90%);
+  margin: 28px 0 0;
+  color: rgba(255,255,255,.58);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.flight-prologue__globe {
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  top: 0;
+  width: min(78vw,1180px);
+  aspect-ratio: 1.553;
+  pointer-events: none;
+  transform: translate3d(73vw,52vh,0) translate(-50%,-50%) scale(.82);
+  transform-origin: center;
+  transform-style: preserve-3d;
+  will-change: transform,opacity,filter;
+}
+
+.flight-prologue__globe img {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 34px rgba(173,124,255,.72)) drop-shadow(0 55px 110px rgba(0,0,0,.82));
+  transform: translateZ(70px);
+}
+
+.flight-prologue__aura {
+  position: absolute;
+  z-index: 0;
+  inset: 15% 22%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 42% 37%,rgba(245,238,255,.42),rgba(121,53,241,.45) 21%,rgba(75,20,165,.2) 47%,transparent 72%);
+  filter: blur(40px);
+  transform: translateZ(-100px) scale(calc(.9 + var(--prologue-progress) * .38));
+}
+
+.flight-prologue__orbit {
+  position: absolute;
+  z-index: 4;
+  border: 1px solid rgba(225,206,255,.48);
+  border-radius: 50%;
+  box-shadow: 0 0 34px rgba(137,72,255,.14),inset 0 0 32px rgba(137,72,255,.1);
+}
+
+.flight-prologue__orbit::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 9px #fff,0 0 25px #a474ff,0 0 50px #7130e6;
+}
+
+.flight-prologue__orbit--one {
+  inset: 17% -2%;
+  transform: translateZ(20px) rotate(-13deg);
+  animation: prologue-orbit-one 10s linear infinite;
+}
+
+.flight-prologue__orbit--two {
+  inset: 2% 28%;
+  opacity: .7;
+  transform: translateZ(-45px) rotate(62deg);
+  animation: prologue-orbit-two 15s linear infinite reverse;
+}
+
+.flight-prologue__equator {
+  position: absolute;
+  z-index: 7;
+  left: 4%;
+  right: 1%;
+  top: 50%;
+  height: 1px;
+  opacity: .5;
+  background: linear-gradient(90deg,transparent,#fff 46%,#ae7dff 54%,transparent);
+  box-shadow: 0 0 21px rgba(162,105,255,.9);
+  transform: translateZ(130px) rotate(-11deg);
+}
+
+@keyframes prologue-orbit-one { to { transform: translateZ(20px) rotate(347deg); } }
+@keyframes prologue-orbit-two { to { transform: translateZ(-45px) rotate(422deg); } }
+
+.flight-prologue__cards {
+  position: absolute;
+  z-index: 15;
+  inset: 0;
+  pointer-events: none;
+  perspective: 1800px;
+  transform-style: preserve-3d;
+}
+
+.flight-prologue__card {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: clamp(310px,35vw,570px);
+  margin: 0;
+  opacity: 0;
+  color: #f8f5ff;
+  transform-origin: center;
+  transform-style: preserve-3d;
+  will-change: transform,opacity,filter;
+}
+
+.flight-prologue__card > div {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid rgba(231,217,255,.46);
+  background: radial-gradient(circle at 50% 45%,rgba(94,36,192,.16),transparent 52%),#020104;
+  box-shadow: 0 48px 120px rgba(0,0,0,.78),0 0 82px rgba(117,54,227,.2),inset 0 0 0 1px rgba(255,255,255,.04);
+  transform: translateZ(50px);
+}
+
+.flight-prologue__card > div::before,
+.flight-prologue__card > div::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  width: 27px;
+  height: 27px;
+}
+
+.flight-prologue__card > div::before {
+  left: 10px;
+  top: 10px;
+  border-left: 1px solid #c6a7ff;
+  border-top: 1px solid #c6a7ff;
+}
+
+.flight-prologue__card > div::after {
+  right: 10px;
+  bottom: 10px;
+  border-right: 1px solid #c6a7ff;
+  border-bottom: 1px solid #c6a7ff;
+}
+
+.flight-prologue__card img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #020104;
+  filter: saturate(.94) contrast(1.08) brightness(.86);
+}
+
+.flight-prologue__card figcaption {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 13px;
+  padding: 13px 2px 0;
+  text-transform: uppercase;
+  text-shadow: 0 3px 18px #020104;
+  transform: translateZ(85px);
+}
+
+.flight-prologue__card figcaption span,
+.flight-prologue__card figcaption em {
+  font: 7px/1 "Courier New",monospace;
+  letter-spacing: .15em;
+}
+
+.flight-prologue__card figcaption span { color: #c6a7ff; }
+.flight-prologue__card figcaption strong { font-size: 15px; letter-spacing: .02em; }
+.flight-prologue__card figcaption em { color: rgba(255,255,255,.48); font-style: normal; }
+
+.flight-prologue__ghost {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 48%;
+  margin: 0;
+  color: transparent;
+  font-size: min(44vw,690px);
+  font-weight: 900;
+  line-height: .65;
+  letter-spacing: -.12em;
+  -webkit-text-stroke: 1px rgba(203,174,255,.12);
+  opacity: calc(.3 + var(--prologue-progress) * .4);
+  transform: translate3d(calc(-50% - var(--prologue-progress) * 10vw),-50%,-320px) scale(calc(.86 + var(--prologue-progress) * .34));
+  transform-style: preserve-3d;
+  pointer-events: none;
+  will-change: transform,opacity;
+}
+
+.flight-prologue__chapter {
+  position: absolute;
+  z-index: 35;
+  left: var(--pad);
+  bottom: max(34px,calc(env(safe-area-inset-bottom) + 23px));
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.flight-prologue__chapter > span {
+  color: #c6a7ff;
+  font: 500 32px/.8 Arial,sans-serif;
+  letter-spacing: -.05em;
+}
+
+.flight-prologue__chapter p {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+}
+
+.flight-prologue__chapter small {
+  color: rgba(255,255,255,.35);
+  font: 6px/1 "Courier New",monospace;
+  letter-spacing: .17em;
+}
+
+.flight-prologue__chapter strong {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .13em;
+}
+
+.flight-prologue__exit {
+  position: absolute;
+  z-index: 36;
+  right: var(--pad);
+  bottom: max(27px,calc(env(safe-area-inset-bottom) + 17px));
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  min-width: 220px;
+  padding: 13px 15px;
+  border: 1px solid rgba(198,167,255,.4);
+  background: rgba(5,2,9,.74);
+  box-shadow: 0 22px 65px rgba(0,0,0,.46),inset 0 1px rgba(255,255,255,.05);
+  backdrop-filter: blur(12px);
+  opacity: var(--prologue-exit);
+  transform: translate3d(0,calc(18px - var(--prologue-exit) * 18px),120px);
+  pointer-events: none;
+  transition: border-color .25s ease,background .25s ease;
+}
+
+.flight-prologue.is-complete .flight-prologue__exit { pointer-events: auto; }
+.flight-prologue__exit:hover,
+.flight-prologue__exit:focus-visible { border-color: #86ffbd; background: rgba(12,7,18,.92); }
+.flight-prologue__exit span { color: rgba(255,255,255,.4); font: 6px/1 "Courier New",monospace; letter-spacing: .16em; text-transform: uppercase; }
+.flight-prologue__exit strong { margin-top: 6px; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; }
+.flight-prologue__exit i { grid-column: 2; grid-row: 1 / 3; align-self: center; color: #86ffbd; font-style: normal; font-size: 19px; }
+
+.flight-prologue__progress {
+  position: absolute;
+  z-index: 35;
+  left: 50%;
+  bottom: max(38px,calc(env(safe-area-inset-bottom) + 28px));
+  display: grid;
+  grid-template-columns: min(18vw,230px) 25px;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255,255,255,.44);
+  font: 6px/1 "Courier New",monospace;
+  letter-spacing: .12em;
+  transform: translateX(-50%);
+}
+
+.flight-prologue__progress > span { height: 1px; overflow: visible; background: rgba(255,255,255,.18); }
+.flight-prologue__progress i { position: relative; display: block; width: 100%; height: 1px; background: linear-gradient(90deg,#7040d4,#e3d4ff 76%,#86ffbd); box-shadow: 0 0 12px rgba(153,96,255,.7); transform: scaleX(0); transform-origin: left; }
+.flight-prologue__progress i::after { content: ""; position: absolute; right: 25px; top: 50%; width: 5px; height: 5px; border-radius: 50%; background: #86ffbd; box-shadow: 0 0 12px rgba(134,255,189,.85); transform: translate(50%,-50%); }
+
+body.is-world-flight .site-header {
+  background: linear-gradient(180deg,rgba(2,1,4,.88),rgba(2,1,4,.42));
+  border-color: rgba(198,167,255,.16);
+}
+
+body.is-world-flight .cosmic-flight__guide,
+body.is-world-flight .cosmic-flight__satellites {
+  opacity: 0!important;
+}
+
 /* Let the flight world breathe through existing surfaces without flattening them. */
-.flight-ready .hero-object { opacity: .62; }
+.flight-ready .hero-object { opacity: .84; }
+.flight-ready .hero-object img { filter: drop-shadow(0 0 34px rgba(159,101,255,.66)) drop-shadow(0 35px 90px rgba(0,0,0,.78)); }
 .flight-ready .manifesto {
   background: linear-gradient(180deg, rgba(3,2,7,.92), rgba(7,4,11,.79));
 }
@@ -313,6 +828,8 @@ main,
   .cosmic-flight__satellite { width: clamp(108px, 19vw, 180px); }
   .cosmic-flight__hud { grid-template-columns: auto auto minmax(70px, 12vw); }
   .cosmic-flight__status { display: none; }
+  .flight-prologue__copy { width: min(610px,56vw); }
+  .flight-prologue__card { width: clamp(290px,42vw,500px); }
 }
 
 @media (max-width: 720px) {
@@ -323,7 +840,7 @@ main,
   .cosmic-flight__satellites,
   .cosmic-flight__corridor,
   .cosmic-flight__hud { display: none; }
-  .flight-ready .hero-object { opacity: .34; }
+  .flight-ready .hero-object { opacity: .74; }
   .flight-ready .manifesto,
   .flight-ready .work-sticky,
   .flight-ready .services,
@@ -331,6 +848,61 @@ main,
   .flight-ready .process,
   .flight-ready .home-lab,
   .flight-ready .contact { background-color: var(--bg); }
+
+  .hero-flight-entry {
+    width: min(100%,350px);
+    margin-top: 17px;
+    padding: 11px 13px 12px;
+    background: rgba(5,2,9,.58);
+    backdrop-filter: none;
+  }
+
+  .flight-prologue { height: 390svh; }
+  .flight-prologue__sticky { min-height: 600px; }
+  .flight-prologue__sticky::before {
+    opacity: calc(.32 + var(--prologue-progress) * .3);
+    background-size: 119px 119px,191px 191px;
+  }
+  .flight-prologue__header {
+    left: 18px;
+    right: 18px;
+    top: max(80px,calc(env(safe-area-inset-top) + 70px));
+  }
+  .flight-prologue__header p:last-child { display: none; }
+  .flight-prologue__copy {
+    left: 20px;
+    top: 35%;
+    width: calc(100% - 40px);
+    transform: translate3d(0,calc(-50% - var(--prologue-progress) * 12vh),80px) scale(calc(1 - var(--prologue-progress) * .06));
+  }
+  .flight-prologue__copy h2 { margin-top: 13px; font-size: clamp(50px,14.5vw,72px); line-height: .82; }
+  .flight-prologue__copy > p:last-child { width: min(340px,94%); margin-top: 20px; font-size: 12px; }
+  .flight-prologue__globe { width: 138vw; }
+  .flight-prologue__aura { filter: blur(24px); }
+  .flight-prologue__orbit::after { width: 6px; height: 6px; }
+  .flight-prologue__backdrop { width: 168vw; opacity: calc(.35 + var(--prologue-progress) * .4); }
+  .flight-prologue__card { width: calc(100vw - 32px); }
+  .flight-prologue__card > div { box-shadow: 0 32px 88px rgba(0,0,0,.8),0 0 60px rgba(117,54,227,.18); }
+  .flight-prologue__card figcaption { grid-template-columns: auto 1fr; gap: 9px; padding-top: 11px; }
+  .flight-prologue__card figcaption strong { font-size: 13px; }
+  .flight-prologue__card figcaption em { display: none; }
+  .flight-prologue__ghost { top: 47%; font-size: 63vw; }
+  .flight-prologue__chapter { left: 18px; bottom: max(85px,calc(env(safe-area-inset-bottom) + 75px)); }
+  .flight-prologue__chapter > span { font-size: 27px; }
+  .flight-prologue__exit {
+    left: 18px;
+    right: 18px;
+    bottom: max(18px,calc(env(safe-area-inset-bottom) + 9px));
+    min-width: 0;
+    padding: 11px 13px;
+  }
+  .flight-prologue__progress {
+    left: auto;
+    right: 18px;
+    bottom: max(91px,calc(env(safe-area-inset-bottom) + 81px));
+    grid-template-columns: 78px 22px;
+    transform: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -340,4 +912,13 @@ main,
   .cosmic-flight__hud { display: none; }
   .cosmic-flight__canvas { opacity: .28; transform: none; }
   .cosmic-flight__orbit { animation: none; }
+  .hero-flight-entry > span i,
+  .flight-prologue__orbit,
+  .flight-prologue__backdrop { animation: none; }
+  .flight-prologue { height: 110svh; min-height: 760px; }
+  .flight-prologue__sticky { position: relative; height: 110svh; min-height: 760px; }
+  .flight-prologue__copy { opacity: 1; transform: translateY(-50%); }
+  .flight-prologue__globe { opacity: .62!important; transform: translate3d(73vw,54vh,0) translate(-50%,-50%) scale(.72)!important; }
+  .flight-prologue__card { display: none; }
+  .flight-prologue__exit { opacity: 1; transform: none; pointer-events: auto; }
 }
