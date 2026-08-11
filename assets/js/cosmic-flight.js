@@ -86,6 +86,7 @@
       float diffuse=max(dot(n,lightDir),0.0);
       float spec=pow(max(dot(reflect(-lightDir,n),viewDir),0.0),72.0);
       float rim=pow(1.0-facing,2.35);
+      float shell=pow(1.0-facing,1.18);
 
       if(uKind<0.5){
         vec4 surface=texture2D(uSurface,vUv);
@@ -95,20 +96,22 @@
         float chromeBand=pow(0.5+0.5*sin((n.y+n.x*.28)*18.0+micro*4.0),8.0);
         float horizonBand=pow(0.5+0.5*sin((n.y*.72-n.x*.18)*31.0),14.0);
 
-        vec3 voidColor=vec3(0.006,0.004,0.015);
-        voidColor+=vec3(0.035,0.012,0.085)*(diffuse*.55+rim*.42);
-        voidColor+=vec3(0.34,0.22,0.58)*(spec*.65+chromeBand*.055);
+        vec3 voidColor=vec3(0.012,0.006,0.032);
+        voidColor+=vec3(0.085,0.025,0.19)*(diffuse*.72+rim*.7);
+        voidColor+=vec3(0.48,0.31,0.82)*(spec*.78+chromeBand*.11);
+        voidColor+=vec3(0.26,0.12,0.58)*shell*.38;
 
-        vec3 landDark=vec3(0.055,0.012,0.15);
-        vec3 landLight=vec3(0.55,0.34,0.92);
-        vec3 landChrome=mix(landDark,landLight,diffuse*.62+micro*.24);
-        landChrome+=vec3(0.9,0.83,1.0)*(spec*1.12+chromeBand*.21+horizonBand*.08);
-        landChrome+=vec3(0.22,0.08,0.58)*rim*.62;
+        vec3 landDark=vec3(0.095,0.025,0.23);
+        vec3 landLight=vec3(0.76,0.56,1.0);
+        vec3 landChrome=mix(landDark,landLight,clamp(diffuse*.72+micro*.3,0.0,1.0));
+        landChrome+=vec3(1.0,0.92,1.0)*(spec*1.32+chromeBand*.3+horizonBand*.13);
+        landChrome+=vec3(0.36,0.14,0.72)*rim*.78;
 
         vec3 color=mix(voidColor,landChrome,land);
         color+=edge*vec3(0.31,0.12,0.78)*(.18+uEnergy*.26);
-        color+=rim*vec3(0.24,0.09,0.62)*(.32+uEnergy*.24);
-        color+=spec*vec3(0.72,0.63,1.0)*(.32+uEnergy*.34);
+        color+=rim*vec3(0.58,0.3,1.0)*(.58+uEnergy*.28);
+        color+=shell*vec3(0.2,0.08,0.48)*.28;
+        color+=spec*vec3(0.9,0.8,1.0)*(.46+uEnergy*.38);
         gl_FragColor=vec4(color,uAlpha);
       }else{
         float pulse=.72+.28*sin(vUv.x*50.0-uTime*1.1);
@@ -422,8 +425,8 @@
     const lab = sectionPoint("#visual-lab", .45);
     const contact = sectionPoint("#contact", .46);
     const desktopPath = [
-      { p: 0, x: .43, y: .03, scale: .88, opacity: .98, pitch: -.08 },
-      { p: heroEnd, x: .43, y: -.03, scale: .8, opacity: .9, pitch: -.03 },
+      { p: 0, x: .36, y: .02, scale: .72, opacity: 1, pitch: -.08 },
+      { p: heroEnd, x: .4, y: -.03, scale: .68, opacity: .94, pitch: -.03 },
       { p: studio, x: .5, y: -.08, scale: .62, opacity: .55, pitch: .1 },
       { p: workStart, x: -.05, y: .04, scale: 1.08, opacity: .26, pitch: -.12 },
       { p: workMiddle, x: .5, y: .21, scale: .5, opacity: .32, pitch: .12 },
@@ -436,8 +439,8 @@
       { p: 1, x: 0, y: 0, scale: 1.36, opacity: .22, pitch: 0 }
     ];
     const mobilePath = [
-      { p: 0, x: .5, y: .17, scale: .63, opacity: .92, pitch: -.06 },
-      { p: heroEnd, x: .45, y: .07, scale: .58, opacity: .72, pitch: -.02 },
+      { p: 0, x: .4, y: .15, scale: .55, opacity: 1, pitch: -.06 },
+      { p: heroEnd, x: .4, y: .06, scale: .52, opacity: .8, pitch: -.02 },
       { p: studio, x: .5, y: -.2, scale: .44, opacity: .4, pitch: .08 },
       { p: workStart, x: 0, y: -.05, scale: .82, opacity: .2, pitch: -.08 },
       { p: workMiddle, x: .5, y: .24, scale: .38, opacity: .25, pitch: .1 },

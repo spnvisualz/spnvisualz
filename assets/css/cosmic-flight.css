@@ -13,32 +13,24 @@ main,
 }
 
 .spn-planet {
-  position: fixed;
-  z-index: 1;
-  inset: 0;
-  overflow: hidden;
   pointer-events: none;
-  opacity: 0;
-  contain: strict;
-  transition: opacity .55s ease;
-}
-
-.planet-ready .spn-planet {
-  opacity: 1;
 }
 
 .spn-planet__canvas {
-  position: absolute;
+  position: fixed;
+  z-index: 1;
   inset: 0;
   width: 100%;
   height: 100%;
-  opacity: var(--planet-opacity);
+  opacity: 0;
   transition: opacity .28s linear;
 }
 
+.planet-ready .spn-planet__canvas { opacity: var(--planet-opacity); }
+
 .spn-planet__glow {
-  position: absolute;
-  z-index: -1;
+  position: fixed;
+  z-index: 0;
   left: var(--planet-glow-x,72%);
   top: var(--planet-glow-y,48%);
   width: min(62vw,820px);
@@ -51,8 +43,8 @@ main,
 }
 
 .spn-planet__hint {
-  position: absolute;
-  z-index: 2;
+  position: fixed;
+  z-index: 12;
   right: max(22px,3.2vw);
   bottom: max(26px,4vh);
   display: grid;
@@ -81,8 +73,8 @@ main,
 .spn-planet.is-hint-hidden .spn-planet__hint { opacity: 0; transform: translateY(8px); }
 
 .spn-planet__status {
-  position: absolute;
-  z-index: 2;
+  position: fixed;
+  z-index: 12;
   left: max(20px,2.5vw);
   bottom: max(24px,3.5vh);
   display: grid;
@@ -108,7 +100,7 @@ main,
 /* Let the actual planet show through without placing it over readable content. */
 .planet-ready .depth-field { z-index: 0; opacity: .3; }
 .planet-ready .hero {
-  background: radial-gradient(circle at 75% 43%,rgba(83,27,188,.12),transparent 34%),linear-gradient(145deg,rgba(2,1,4,.82),rgba(7,3,13,.62) 55%,rgba(2,1,4,.86));
+  background: radial-gradient(circle at 72% 43%,rgba(83,27,188,.08),transparent 35%),linear-gradient(90deg,rgba(2,1,4,.88),rgba(7,3,13,.5) 52%,rgba(2,1,4,.28));
 }
 .planet-ready .hero-cosmos { opacity: .38; }
 .planet-ready .manifesto { background: linear-gradient(180deg,rgba(3,2,7,.92),rgba(7,4,11,.82)); }
@@ -192,6 +184,9 @@ body.planet-chapter-contact .site-header {
   .menu-toggle { padding-left: 10px; }
 
   .planet-ready .hero-cosmos { opacity: .24; }
+  .planet-ready .hero {
+    background: linear-gradient(180deg,rgba(3,2,7,.88) 0 17%,rgba(3,2,7,.38) 43%,rgba(3,2,7,.7) 78%,rgba(3,2,7,.92));
+  }
   .planet-ready .depth-field { display: none; }
   .planet-ready .manifesto,
   .planet-ready .work-sticky,
