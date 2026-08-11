@@ -1,0 +1,343 @@
+/* SPNVISUALZ / COSMIC FLIGHT V2
+   A progressive, scroll-driven spatial layer. The page still works without it. */
+
+:root {
+  --flight-visibility: 0;
+  --flight-warp: 0;
+  --flight-bank: 0deg;
+  --flight-corridor-opacity: 0;
+}
+
+main,
+.site-footer {
+  position: relative;
+  z-index: 2;
+}
+
+.cosmic-flight {
+  position: fixed;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  contain: strict;
+  perspective: 1400px;
+  transform-style: preserve-3d;
+  transition: opacity .8s ease;
+}
+
+.flight-ready .cosmic-flight { opacity: 1; }
+
+.cosmic-flight__canvas,
+.cosmic-flight__vignette {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cosmic-flight__canvas {
+  opacity: .92;
+  transform: translateZ(-100px) scale(1.08);
+}
+
+.cosmic-flight__vignette {
+  z-index: 8;
+  background:
+    radial-gradient(ellipse at center, transparent 42%, rgba(3,2,7,.28) 76%, rgba(3,2,7,.82) 112%),
+    linear-gradient(90deg, rgba(3,2,7,.23), transparent 25% 75%, rgba(3,2,7,.2));
+}
+
+.cosmic-flight__corridor {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  width: min(76vw, 1120px);
+  aspect-ratio: 1;
+  opacity: var(--flight-corridor-opacity);
+  transform: translate3d(-50%,-50%,-180px) rotateZ(var(--flight-bank));
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+.cosmic-flight__corridor::before,
+.cosmic-flight__corridor::after,
+.cosmic-flight__corridor i {
+  content: "";
+  position: absolute;
+  inset: var(--flight-inset, 0);
+  border: 1px solid rgba(202,172,255,var(--flight-alpha,.08));
+  border-radius: 50%;
+  box-shadow: inset 0 0 90px rgba(109,44,220,.035), 0 0 90px rgba(109,44,220,.035);
+  transform: translateZ(var(--flight-z,0)) rotateX(68deg);
+}
+
+.cosmic-flight__corridor::before { --flight-inset: 2%; --flight-alpha: .12; --flight-z: -240px; }
+.cosmic-flight__corridor::after { --flight-inset: 18%; --flight-alpha: .16; --flight-z: -90px; }
+.cosmic-flight__corridor i:nth-child(1) { --flight-inset: 33%; --flight-alpha: .22; --flight-z: 70px; }
+.cosmic-flight__corridor i:nth-child(2) { --flight-inset: 43%; --flight-alpha: .28; --flight-z: 180px; }
+.cosmic-flight__corridor i:nth-child(3) {
+  inset: 49% -9%;
+  height: 1px;
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(90deg, transparent, rgba(222,205,255,.46), transparent);
+  box-shadow: 0 0 18px rgba(138,77,255,.24);
+  transform: translateZ(220px) rotate(-19deg);
+}
+.cosmic-flight__corridor i:nth-child(4) {
+  inset: -5% 49%;
+  width: 1px;
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(transparent, rgba(222,205,255,.32), transparent);
+  transform: translateZ(120px) rotate(13deg);
+}
+
+.cosmic-flight__guide {
+  position: absolute;
+  z-index: 4;
+  left: 0;
+  top: 0;
+  width: min(67vw, 980px);
+  aspect-ratio: 1.553;
+  opacity: 0;
+  transform-origin: center;
+  transform-style: preserve-3d;
+  will-change: transform, opacity, filter;
+}
+
+.cosmic-flight__world {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  transform: perspective(1100px) rotateX(var(--flight-guide-rx,0deg)) rotateY(var(--flight-guide-ry,0deg));
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.cosmic-flight__world img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 0 28px rgba(173,122,255,.48))
+    drop-shadow(0 50px 90px rgba(0,0,0,.72));
+}
+
+.cosmic-flight__aura {
+  position: absolute;
+  z-index: 0;
+  inset: 19% 24%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 42% 38%, rgba(229,211,255,.34), rgba(115,48,233,.34) 20%, rgba(59,15,145,.14) 48%, transparent 71%);
+  filter: blur(34px);
+  transform: translateZ(-110px) scale(calc(.95 + var(--flight-warp) * .14));
+}
+
+.cosmic-flight__orbit {
+  position: absolute;
+  z-index: 2;
+  border: 1px solid rgba(213,188,255,.31);
+  border-radius: 50%;
+  box-shadow: inset 0 0 28px rgba(137,69,255,.09), 0 0 24px rgba(137,69,255,.09);
+}
+
+.cosmic-flight__orbit::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 8px #fff, 0 0 24px #8a4dff, 0 0 44px #6e27e4;
+}
+
+.cosmic-flight__orbit--one {
+  inset: 18% -2%;
+  transform: translateZ(30px) rotate(-12deg);
+  animation: flight-orbit-one 13s linear infinite;
+}
+
+.cosmic-flight__orbit--two {
+  inset: 3% 28%;
+  opacity: .66;
+  transform: translateZ(-30px) rotate(62deg);
+  animation: flight-orbit-two 18s linear infinite reverse;
+}
+
+.cosmic-flight__axis {
+  position: absolute;
+  z-index: 5;
+  left: 9%;
+  right: 4%;
+  top: 50%;
+  height: 1px;
+  opacity: .28;
+  background: linear-gradient(90deg, transparent, #fff, #ae7dff, transparent);
+  box-shadow: 0 0 20px rgba(147,87,255,.75);
+  transform: translateZ(100px) rotate(-11deg);
+}
+
+@keyframes flight-orbit-one { to { transform: translateZ(30px) rotate(348deg); } }
+@keyframes flight-orbit-two { to { transform: translateZ(-30px) rotate(422deg); } }
+
+.cosmic-flight__satellite {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  top: 0;
+  width: clamp(120px, 17vw, 245px);
+  aspect-ratio: 16 / 9;
+  margin: 0;
+  overflow: hidden;
+  opacity: 0;
+  border: 1px solid rgba(225,209,255,.28);
+  background: #020104;
+  box-shadow: 0 30px 80px rgba(0,0,0,.74), 0 0 52px rgba(118,53,229,.13);
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+.cosmic-flight__satellite::before,
+.cosmic-flight__satellite::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  width: 19px;
+  height: 19px;
+}
+
+.cosmic-flight__satellite::before {
+  left: 7px;
+  top: 7px;
+  border-left: 1px solid #c6a7ff;
+  border-top: 1px solid #c6a7ff;
+}
+
+.cosmic-flight__satellite::after {
+  right: 7px;
+  bottom: 7px;
+  border-right: 1px solid #c6a7ff;
+  border-bottom: 1px solid #c6a7ff;
+}
+
+.cosmic-flight__satellite img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: saturate(.72) contrast(1.1) brightness(.76);
+}
+
+.cosmic-flight__satellite span {
+  position: absolute;
+  z-index: 3;
+  left: 9px;
+  bottom: 8px;
+  padding: 5px 7px;
+  background: rgba(2,1,4,.76);
+  color: rgba(248,244,255,.7);
+  font: 6px/1 "Courier New", monospace;
+  letter-spacing: .15em;
+}
+
+.cosmic-flight__hud {
+  position: absolute;
+  z-index: 7;
+  left: max(18px, 2.2vw);
+  bottom: max(20px, 3vh);
+  display: grid;
+  grid-template-columns: auto auto minmax(80px, 10vw) auto;
+  align-items: center;
+  gap: 11px;
+  color: rgba(255,255,255,.38);
+  font: 6px/1 "Courier New", monospace;
+  letter-spacing: .16em;
+  opacity: calc(.18 + var(--flight-visibility) * .82);
+  transition: opacity .3s ease;
+}
+
+.cosmic-flight__chapter-no { color: #c6a7ff; }
+.cosmic-flight__chapter { color: rgba(255,255,255,.68); min-width: 72px; }
+.cosmic-flight__hud > i {
+  display: block;
+  height: 1px;
+  overflow: hidden;
+  background: rgba(255,255,255,.16);
+}
+.cosmic-flight__hud > i b {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: linear-gradient(90deg,#7140d8,#e5d6ff);
+  box-shadow: 0 0 10px rgba(157,99,255,.7);
+}
+.cosmic-flight__status { white-space: nowrap; }
+.cosmic-flight__status em {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: #86ffbd;
+  box-shadow: 0 0 10px rgba(134,255,189,.8);
+}
+
+/* Let the flight world breathe through existing surfaces without flattening them. */
+.flight-ready .hero-object { opacity: .62; }
+.flight-ready .manifesto {
+  background: linear-gradient(180deg, rgba(3,2,7,.92), rgba(7,4,11,.79));
+}
+.flight-ready .work-rail { background: rgba(2,1,4,.84); }
+.flight-ready .work-sticky {
+  background: radial-gradient(circle at 50% 47%,rgba(92,35,184,.17),transparent 39%), linear-gradient(145deg,rgba(2,1,4,.92),rgba(5,2,9,.81) 54%,rgba(2,1,4,.9));
+}
+.flight-ready .services {
+  background: radial-gradient(circle at 85% 60%,rgba(101,40,208,.14),transparent 27%), linear-gradient(180deg,rgba(5,2,8,.9),rgba(9,5,15,.8) 50%,rgba(5,2,8,.9));
+}
+.flight-ready .pricing { background: rgba(3,2,7,.86); }
+.flight-ready .process { background: linear-gradient(180deg,rgba(9,5,15,.84),rgba(3,2,7,.9)); }
+.flight-ready .home-lab { background: linear-gradient(180deg,rgba(3,2,7,.9),rgba(8,5,13,.79) 48%,rgba(3,2,7,.9)); }
+.flight-ready .contact {
+  background: radial-gradient(circle at 77% 52%,rgba(100,39,204,.23),transparent 33%),rgba(5,2,10,.78);
+}
+
+@media (max-width: 1050px) {
+  .cosmic-flight__guide { width: min(82vw, 830px); }
+  .cosmic-flight__satellite { width: clamp(108px, 19vw, 180px); }
+  .cosmic-flight__hud { grid-template-columns: auto auto minmax(70px, 12vw); }
+  .cosmic-flight__status { display: none; }
+}
+
+@media (max-width: 720px) {
+  .cosmic-flight { opacity: 0; }
+  .flight-ready .cosmic-flight { opacity: .62; }
+  .cosmic-flight__canvas { opacity: .52; }
+  .cosmic-flight__guide,
+  .cosmic-flight__satellites,
+  .cosmic-flight__corridor,
+  .cosmic-flight__hud { display: none; }
+  .flight-ready .hero-object { opacity: .34; }
+  .flight-ready .manifesto,
+  .flight-ready .work-sticky,
+  .flight-ready .services,
+  .flight-ready .pricing,
+  .flight-ready .process,
+  .flight-ready .home-lab,
+  .flight-ready .contact { background-color: var(--bg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cosmic-flight__guide,
+  .cosmic-flight__satellites,
+  .cosmic-flight__corridor,
+  .cosmic-flight__hud { display: none; }
+  .cosmic-flight__canvas { opacity: .28; transform: none; }
+  .cosmic-flight__orbit { animation: none; }
+}

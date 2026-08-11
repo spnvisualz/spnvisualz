@@ -35,6 +35,7 @@
   <link rel="preload" href="assets/images/spn-3d-hero.webp" as="image" type="image/webp" fetchpriority="high">
   <link rel="preload" href="assets/spn-orbit-transparent.png" as="image" fetchpriority="high">
   <link rel="stylesheet" href="styles.css?v=20260810.1">
+  <link rel="stylesheet" href="/assets/css/cosmic-flight.css?v=20260811.1">
   <link rel="stylesheet" href="/assets/css/monetization.css?v=20260809.1">
 
   <script type="application/ld+json">
@@ -163,6 +164,35 @@
     <span class="depth-field__stars depth-field__stars--near"></span>
     <span class="depth-field__mesh"></span>
     <span class="depth-field__flare"></span>
+  </div>
+  <div class="cosmic-flight" id="cosmicFlight" aria-hidden="true">
+    <canvas class="cosmic-flight__canvas" id="cosmicFlightCanvas"></canvas>
+    <div class="cosmic-flight__corridor">
+      <i></i><i></i><i></i><i></i>
+    </div>
+    <div class="cosmic-flight__guide" id="cosmicFlightGuide">
+      <span class="cosmic-flight__aura"></span>
+      <span class="cosmic-flight__orbit cosmic-flight__orbit--one"></span>
+      <span class="cosmic-flight__orbit cosmic-flight__orbit--two"></span>
+      <span class="cosmic-flight__axis"></span>
+      <div class="cosmic-flight__world">
+        <img src="assets/spn-orbit-transparent.png" alt="" width="1097" height="706" decoding="async">
+      </div>
+    </div>
+    <div class="cosmic-flight__satellites">
+      <figure class="cosmic-flight__satellite"><img src="assets/work-1.jpg" alt="" width="1280" height="720" decoding="async"><span>01 / GEZANA</span></figure>
+      <figure class="cosmic-flight__satellite"><img src="assets/work-2.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async"><span>02 / 3 NATION</span></figure>
+      <figure class="cosmic-flight__satellite"><img src="assets/work-3.jpg" alt="" width="1280" height="640" loading="lazy" decoding="async"><span>03 / TAO</span></figure>
+      <figure class="cosmic-flight__satellite"><img src="assets/work-4.jpg" alt="" width="1280" height="640" loading="lazy" decoding="async"><span>04 / R STAR</span></figure>
+      <figure class="cosmic-flight__satellite"><img src="assets/work-7.jpg" alt="" width="1280" height="640" loading="lazy" decoding="async"><span>05 / TAO SPECIAL</span></figure>
+    </div>
+    <div class="cosmic-flight__hud">
+      <span class="cosmic-flight__chapter-no" id="cosmicFlightChapterNo">01</span>
+      <span class="cosmic-flight__chapter" id="cosmicFlightChapter">ORIGIN</span>
+      <i><b id="cosmicFlightProgress"></b></i>
+      <span class="cosmic-flight__status"><em></em> FLIGHT ACTIVE</span>
+    </div>
+    <div class="cosmic-flight__vignette"></div>
   </div>
   <div class="page-progress" aria-hidden="true"><span id="pageProgress"></span></div>
 
@@ -548,5 +578,6 @@
   </dialog>
 
   <script src="app.js?v=20260810.2" defer></script>
+  <script src="/assets/js/cosmic-flight.js?v=20260811.1" defer></script>
 </body>
 </html>

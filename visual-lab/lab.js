@@ -64,6 +64,74 @@
     }
   }
 
+  const labWorld = document.querySelector("[data-lab-world]");
+  const finePointer = window.matchMedia("(pointer: fine)").matches;
+  let spatialFrame = 0;
+  let pointerX = 0;
+  let pointerY = 0;
+
+  const renderSpatialLab = () => {
+    const heroProgress = Math.min(1, Math.max(0, window.scrollY / Math.max(1, window.innerHeight)));
+    root.style.setProperty("--lab-world-x", (pointerX * 22).toFixed(2) + "px");
+    root.style.setProperty("--lab-world-y", (heroProgress * 96 + pointerY * 14).toFixed(2) + "px");
+    root.style.setProperty("--lab-world-rx", (-pointerY * 7 + heroProgress * 3).toFixed(2) + "deg");
+    root.style.setProperty("--lab-world-ry", (pointerX * 10 - heroProgress * 5).toFixed(2) + "deg");
+    root.style.setProperty("--lab-hero-drift", (heroProgress * 72).toFixed(2) + "px");
+    spatialFrame = 0;
+  };
+
+  const scheduleSpatialLab = () => {
+    if (spatialFrame) return;
+    spatialFrame = requestAnimationFrame(renderSpatialLab);
+  };
+
+  if (labWorld && !reducedMotion) {
+    addEventListener("scroll", scheduleSpatialLab, { passive: true });
+    if (finePointer) {
+      addEventListener("pointermove", event => {
+        pointerX = event.clientX / Math.max(1, innerWidth) - .5;
+        pointerY = event.clientY / Math.max(1, innerHeight) - .5;
+        scheduleSpatialLab();
+      }, { passive: true });
+      addEventListener("pointerleave", () => {
+        pointerX = 0;
+        pointerY = 0;
+        scheduleSpatialLab();
+      }, { passive: true });
+    }
+    renderSpatialLab();
+  }
+
+  if (finePointer && !reducedMotion && innerWidth >= 981) {
+    document.querySelectorAll(".lab-card, .lab-feature").forEach(card => {
+      let bounds = null;
+      let tiltFrame = 0;
+      let tiltX = 0;
+      let tiltY = 0;
+      card.addEventListener("pointerenter", () => {
+        bounds = card.getBoundingClientRect();
+      }, { passive: true });
+      card.addEventListener("pointermove", event => {
+        const rect = bounds || card.getBoundingClientRect();
+        tiltX = (event.clientX - rect.left) / Math.max(1, rect.width) - .5;
+        tiltY = (event.clientY - rect.top) / Math.max(1, rect.height) - .5;
+        if (tiltFrame) return;
+        tiltFrame = requestAnimationFrame(() => {
+          card.style.setProperty("--lab-tilt-x", (-tiltY * 3.8).toFixed(2) + "deg");
+          card.style.setProperty("--lab-tilt-y", (tiltX * 4.6).toFixed(2) + "deg");
+          tiltFrame = 0;
+        });
+      }, { passive: true });
+      card.addEventListener("pointerleave", () => {
+        if (tiltFrame) cancelAnimationFrame(tiltFrame);
+        tiltFrame = 0;
+        bounds = null;
+        card.style.setProperty("--lab-tilt-x", "0deg");
+        card.style.setProperty("--lab-tilt-y", "0deg");
+      });
+    });
+  }
+
   const topicForm = document.querySelector("[data-topic-form]");
   if (topicForm) {
     topicForm.addEventListener("submit", event => {
