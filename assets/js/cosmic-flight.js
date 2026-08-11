@@ -2,101 +2,393 @@
   "use strict";
 
   const root = document.documentElement;
-  const canvas = document.getElementById("cosmicFlightCanvas");
-  const guide = document.getElementById("cosmicFlightGuide");
-  if (!canvas || !guide) return;
-
-  const context = canvas.getContext("2d", { alpha: true, desynchronized: true });
-  if (!context) return;
+  const stage = document.getElementById("spnPlanet");
+  const canvas = document.getElementById("spnPlanetCanvas");
+  if (!stage || !canvas) return;
 
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const finePointer = matchMedia("(pointer: fine)").matches;
   const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   const saveData = Boolean(connection && connection.saveData);
-  const satellites = [...document.querySelectorAll(".cosmic-flight__satellite")];
-  const chapterNumber = document.getElementById("cosmicFlightChapterNo");
-  const chapterName = document.getElementById("cosmicFlightChapter");
-  const progressRail = document.getElementById("cosmicFlightProgress");
-  const prologue = document.getElementById("flightExperience");
-  const prologueGlobe = document.getElementById("flightExperienceGlobe");
-  const prologueCopy = document.getElementById("flightExperienceCopy");
-  const prologueCards = [...document.querySelectorAll(".flight-prologue__card")];
-  const prologueNumber = document.getElementById("flightExperienceNumber");
-  const prologueName = document.getElementById("flightExperienceName");
-  const prologueGhost = document.getElementById("flightExperienceGhost");
-  const prologueProgress = document.getElementById("flightExperienceProgress");
-  const prologuePercent = document.getElementById("flightExperiencePercent");
-  const prologueExit = document.querySelector(".flight-prologue__exit");
+  let compact = innerWidth <= 720;
+
+  const gl = canvas.getContext("webgl", {
+    alpha: true,
+    antialias: !compact,
+    depth: true,
+    premultipliedAlpha: true,
+    powerPreference: compact ? "low-power" : "high-performance"
+  }) || canvas.getContext("experimental-webgl");
+
+  if (!gl) {
+    stage.classList.add("is-fallback");
+    return;
+  }
+
   const TAU = Math.PI * 2;
   const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
   const lerp = (from, to, amount) => from + (to - from) * amount;
   const smoothstep = (edge0, edge1, value) => {
-    const amount = clamp((value - edge0) / Math.max(.0001, edge1 - edge0));
+    const amount = clamp((value - edge0) / Math.max(.00001, edge1 - edge0));
     return amount * amount * (3 - 2 * amount);
   };
 
+  const vertexShaderSource = `
+    precision highp float;
+    attribute vec3 aPosition;
+    attribute vec3 aNormal;
+    attribute vec2 aUv;
+    uniform vec3 uRotation;
+    uniform vec3 uLocalRotation;
+    uniform float uScale;
+    uniform vec2 uOffset;
+    uniform float uAspect;
+    varying vec3 vNormal;
+    varying vec3 vObject;
+    varying vec3 vWorld;
+    varying vec2 vUv;
+
+    vec3 rotateX(vec3 p,float a){float c=cos(a),s=sin(a);return vec3(p.x,p.y*c-p.z*s,p.y*s+p.z*c);}
+    vec3 rotateY(vec3 p,float a){float c=cos(a),s=sin(a);return vec3(p.x*c+p.z*s,p.y,-p.x*s+p.z*c);}
+    vec3 rotateZ(vec3 p,float a){float c=cos(a),s=sin(a);return vec3(p.x*c-p.y*s,p.x*s+p.y*c,p.z);}
+    vec3 rotateAll(vec3 p,vec3 r){p=rotateX(p,r.x);p=rotateY(p,r.y);return rotateZ(p,r.z);}
+
+    void main(){
+      vec3 p=rotateAll(aPosition,uLocalRotation);
+      vec3 n=rotateAll(aNormal,uLocalRotation);
+      p=rotateAll(p,uRotation);
+      n=rotateAll(n,uRotation);
+      vNormal=normalize(n);
+      vObject=aPosition;
+      vWorld=p;
+      vUv=aUv;
+      gl_Position=vec4(p.x*uScale/uAspect+uOffset.x,p.y*uScale+uOffset.y,-p.z*.18,1.0);
+    }
+  `;
+
+  const fragmentShaderSource = `
+    precision highp float;
+    uniform sampler2D uSurface;
+    uniform float uKind;
+    uniform float uEnergy;
+    uniform float uTime;
+    uniform float uAlpha;
+    varying vec3 vNormal;
+    varying vec3 vObject;
+    varying vec3 vWorld;
+    varying vec2 vUv;
+
+    void main(){
+      vec3 n=normalize(vNormal);
+      vec3 viewDir=vec3(0.0,0.0,1.0);
+      vec3 lightDir=normalize(vec3(-0.58,0.72,0.94));
+      float facing=max(dot(n,viewDir),0.0);
+      float diffuse=max(dot(n,lightDir),0.0);
+      float spec=pow(max(dot(reflect(-lightDir,n),viewDir),0.0),72.0);
+      float rim=pow(1.0-facing,2.35);
+
+      if(uKind<0.5){
+        vec4 surface=texture2D(uSurface,vUv);
+        float land=smoothstep(0.42,0.61,surface.r);
+        float edge=1.0-smoothstep(0.025,0.13,abs(surface.r-0.515));
+        float micro=surface.g;
+        float chromeBand=pow(0.5+0.5*sin((n.y+n.x*.28)*18.0+micro*4.0),8.0);
+        float horizonBand=pow(0.5+0.5*sin((n.y*.72-n.x*.18)*31.0),14.0);
+
+        vec3 voidColor=vec3(0.006,0.004,0.015);
+        voidColor+=vec3(0.035,0.012,0.085)*(diffuse*.55+rim*.42);
+        voidColor+=vec3(0.34,0.22,0.58)*(spec*.65+chromeBand*.055);
+
+        vec3 landDark=vec3(0.055,0.012,0.15);
+        vec3 landLight=vec3(0.55,0.34,0.92);
+        vec3 landChrome=mix(landDark,landLight,diffuse*.62+micro*.24);
+        landChrome+=vec3(0.9,0.83,1.0)*(spec*1.12+chromeBand*.21+horizonBand*.08);
+        landChrome+=vec3(0.22,0.08,0.58)*rim*.62;
+
+        vec3 color=mix(voidColor,landChrome,land);
+        color+=edge*vec3(0.31,0.12,0.78)*(.18+uEnergy*.26);
+        color+=rim*vec3(0.24,0.09,0.62)*(.32+uEnergy*.24);
+        color+=spec*vec3(0.72,0.63,1.0)*(.32+uEnergy*.34);
+        gl_FragColor=vec4(color,uAlpha);
+      }else{
+        float pulse=.72+.28*sin(vUv.x*50.0-uTime*1.1);
+        vec3 ringDark=vec3(0.12,0.045,0.27);
+        vec3 ringLight=vec3(0.82,0.73,1.0);
+        vec3 color=mix(ringDark,ringLight,clamp(diffuse*.66+spec*.9,0.0,1.0));
+        color+=vec3(0.42,0.18,0.92)*(rim*.5+pulse*.09+uEnergy*.18);
+        color+=spec*vec3(1.0,0.96,1.0);
+        gl_FragColor=vec4(color,uAlpha*(.58+spec*.32+pulse*.1));
+      }
+    }
+  `;
+
+  const compileShader = (type, source) => {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      gl.deleteShader(shader);
+      return null;
+    }
+    return shader;
+  };
+
+  const vertexShader = compileShader(gl.VERTEX_SHADER, vertexShaderSource);
+  const fragmentShader = compileShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
+  if (!vertexShader || !fragmentShader) {
+    stage.classList.add("is-fallback");
+    return;
+  }
+
+  const program = gl.createProgram();
+  gl.attachShader(program, vertexShader);
+  gl.attachShader(program, fragmentShader);
+  gl.linkProgram(program);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    stage.classList.add("is-fallback");
+    return;
+  }
+  gl.useProgram(program);
+
+  const attributes = {
+    position: gl.getAttribLocation(program, "aPosition"),
+    normal: gl.getAttribLocation(program, "aNormal"),
+    uv: gl.getAttribLocation(program, "aUv")
+  };
+  const uniforms = {
+    rotation: gl.getUniformLocation(program, "uRotation"),
+    localRotation: gl.getUniformLocation(program, "uLocalRotation"),
+    scale: gl.getUniformLocation(program, "uScale"),
+    offset: gl.getUniformLocation(program, "uOffset"),
+    aspect: gl.getUniformLocation(program, "uAspect"),
+    kind: gl.getUniformLocation(program, "uKind"),
+    energy: gl.getUniformLocation(program, "uEnergy"),
+    time: gl.getUniformLocation(program, "uTime"),
+    alpha: gl.getUniformLocation(program, "uAlpha"),
+    surface: gl.getUniformLocation(program, "uSurface")
+  };
+
+  const makeGeometry = (positions, normals, uvs, indices) => {
+    const geometry = { count: indices.length };
+    geometry.position = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, geometry.position);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+    geometry.normal = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, geometry.normal);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+    geometry.uv = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, geometry.uv);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvs), gl.STATIC_DRAW);
+    geometry.index = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, geometry.index);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+    return geometry;
+  };
+
+  const createSphere = (latSegments, lonSegments) => {
+    const positions = [];
+    const normals = [];
+    const uvs = [];
+    const indices = [];
+    for (let lat = 0; lat <= latSegments; lat += 1) {
+      const v = lat / latSegments;
+      const theta = v * Math.PI;
+      const sinTheta = Math.sin(theta);
+      const cosTheta = Math.cos(theta);
+      for (let lon = 0; lon <= lonSegments; lon += 1) {
+        const u = lon / lonSegments;
+        const phi = u * TAU;
+        const x = sinTheta * Math.cos(phi);
+        const y = cosTheta;
+        const z = sinTheta * Math.sin(phi);
+        positions.push(x, y, z);
+        normals.push(x, y, z);
+        uvs.push(u, v);
+      }
+    }
+    for (let lat = 0; lat < latSegments; lat += 1) {
+      for (let lon = 0; lon < lonSegments; lon += 1) {
+        const first = lat * (lonSegments + 1) + lon;
+        const second = first + lonSegments + 1;
+        indices.push(first, first + 1, second, second, first + 1, second + 1);
+      }
+    }
+    return makeGeometry(positions, normals, uvs, indices);
+  };
+
+  const createTorus = (majorSegments, minorSegments, radius, tube) => {
+    const positions = [];
+    const normals = [];
+    const uvs = [];
+    const indices = [];
+    for (let major = 0; major <= majorSegments; major += 1) {
+      const u = major / majorSegments;
+      const a = u * TAU;
+      const ca = Math.cos(a);
+      const sa = Math.sin(a);
+      for (let minor = 0; minor <= minorSegments; minor += 1) {
+        const v = minor / minorSegments;
+        const b = v * TAU;
+        const cb = Math.cos(b);
+        const sb = Math.sin(b);
+        const ring = radius + tube * cb;
+        positions.push(ring * ca, ring * sa, tube * sb);
+        normals.push(cb * ca, cb * sa, sb);
+        uvs.push(u, v);
+      }
+    }
+    for (let major = 0; major < majorSegments; major += 1) {
+      for (let minor = 0; minor < minorSegments; minor += 1) {
+        const first = major * (minorSegments + 1) + minor;
+        const second = first + minorSegments + 1;
+        indices.push(first, second, first + 1, second, second + 1, first + 1);
+      }
+    }
+    return makeGeometry(positions, normals, uvs, indices);
+  };
+
+  const hash3 = (x, y, z) => {
+    let value = Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(z, 2147483647);
+    value = Math.imul(value ^ (value >>> 13), 1274126177);
+    return ((value ^ (value >>> 16)) >>> 0) / 4294967295;
+  };
+
+  const noise3 = (x, y, z) => {
+    const xi = Math.floor(x);
+    const yi = Math.floor(y);
+    const zi = Math.floor(z);
+    const xf = x - xi;
+    const yf = y - yi;
+    const zf = z - zi;
+    const sx = xf * xf * (3 - 2 * xf);
+    const sy = yf * yf * (3 - 2 * yf);
+    const sz = zf * zf * (3 - 2 * zf);
+    const x00 = lerp(hash3(xi, yi, zi), hash3(xi + 1, yi, zi), sx);
+    const x10 = lerp(hash3(xi, yi + 1, zi), hash3(xi + 1, yi + 1, zi), sx);
+    const x01 = lerp(hash3(xi, yi, zi + 1), hash3(xi + 1, yi, zi + 1), sx);
+    const x11 = lerp(hash3(xi, yi + 1, zi + 1), hash3(xi + 1, yi + 1, zi + 1), sx);
+    return lerp(lerp(x00, x10, sy), lerp(x01, x11, sy), sz);
+  };
+
+  const fbm3 = (x, y, z) => {
+    let value = 0;
+    let amplitude = .56;
+    let frequency = 1;
+    for (let octave = 0; octave < 4; octave += 1) {
+      value += noise3(x * frequency, y * frequency, z * frequency) * amplitude;
+      frequency *= 2.03;
+      amplitude *= .48;
+    }
+    return value;
+  };
+
+  const createSurfaceTexture = () => {
+    const textureWidth = compact ? 256 : 512;
+    const textureHeight = compact ? 128 : 256;
+    const data = new Uint8Array(textureWidth * textureHeight * 4);
+    for (let y = 0; y < textureHeight; y += 1) {
+      const v = y / (textureHeight - 1);
+      const latitude = (v - .5) * Math.PI;
+      const cosLatitude = Math.cos(latitude);
+      for (let x = 0; x < textureWidth; x += 1) {
+        const u = x / (textureWidth - 1);
+        const longitude = u * TAU;
+        const px = cosLatitude * Math.cos(longitude);
+        const py = Math.sin(latitude);
+        const pz = cosLatitude * Math.sin(longitude);
+        const broad = fbm3(px * 2.05 + 3.2, py * 2.05 - 1.7, pz * 2.05 + 5.4);
+        const detail = fbm3(px * 6.4 - 4.1, py * 6.4 + 2.8, pz * 6.4 + 1.3);
+        const frontness = smoothstep(.05, .55, pz);
+        const sCenter = -.4 * Math.sin(py * 3.45);
+        const sWidth = .115 + .035 * (1 - Math.abs(py));
+        const sStroke = (1 - smoothstep(sWidth, sWidth + .065, Math.abs(px - sCenter)))
+          * (1 - smoothstep(.69, .82, Math.abs(py))) * frontness;
+        const plates = clamp((broad - .43) * 2.4 + (detail - .5) * .3);
+        const farSideLand = plates * (1 - frontness * .9);
+        const field = clamp(Math.max(farSideLand, sStroke * (.82 + detail * .18)));
+        const index = (y * textureWidth + x) * 4;
+        data[index] = Math.round(field * 255);
+        data[index + 1] = Math.round(detail * 255);
+        data[index + 2] = Math.round(broad * 255);
+        data[index + 3] = 255;
+      }
+    }
+    const texture = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, textureWidth, textureHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return texture;
+  };
+
+  const sphere = createSphere(compact ? 38 : 58, compact ? 52 : 78);
+  const torus = createTorus(compact ? 72 : 112, compact ? 6 : 9, 1.42, compact ? .026 : .032);
+  const surfaceTexture = createSurfaceTexture();
+  gl.uniform1i(uniforms.surface, 0);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, surfaceTexture);
+
+  const bindGeometry = geometry => {
+    gl.bindBuffer(gl.ARRAY_BUFFER, geometry.position);
+    gl.enableVertexAttribArray(attributes.position);
+    gl.vertexAttribPointer(attributes.position, 3, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, geometry.normal);
+    gl.enableVertexAttribArray(attributes.normal);
+    gl.vertexAttribPointer(attributes.normal, 3, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, geometry.uv);
+    gl.enableVertexAttribArray(attributes.uv);
+    gl.vertexAttribPointer(attributes.uv, 2, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, geometry.index);
+  };
+
   const chapterDefinitions = [
-    ["#top", "ORIGIN"],
-    [".manifesto", "THE WORLD"],
-    ["#work", "SELECTED WORK"],
-    ["#services", "SERVICES"],
-    ["#pricing", "PRICING"],
-    [".process", "PROCESS"],
-    ["#visual-lab", "VISUAL LAB"],
-    ["#contact", "CONTACT"]
+    ["#top", "ORIGIN", "home"],
+    [".manifesto", "STUDIO", "studio"],
+    ["#work", "WORK", "work"],
+    ["#services", "SERVICES", "services"],
+    ["#pricing", "PRICING", "pricing"],
+    [".process", "PROCESS", "process"],
+    ["#visual-lab", "VISUAL LAB", "visual-lab"],
+    ["#contact", "CONTACT", "contact"]
   ];
 
+  const chapterLabel = document.getElementById("spnPlanetChapter");
+  const degreeLabel = document.getElementById("spnPlanetDegrees");
+  const progressLine = document.getElementById("spnPlanetProgress");
   let width = 1;
   let height = 1;
-  let dpr = 1;
+  let aspect = 1;
   let pageMax = 1;
-  let targetProgress = 0;
-  let currentProgress = 0;
-  let targetWarp = 0;
-  let currentWarp = 0;
-  let pointerX = 0;
-  let pointerY = 0;
-  let targetPointerX = 0;
-  let targetPointerY = 0;
-  let lastScroll = scrollY;
-  let lastScrollTime = performance.now();
-  let lastFrameTime = performance.now();
-  let resizeFrame = 0;
-  let animationFrame = 0;
-  let activeChapter = -1;
   let keyframes = [];
   let chapterMetrics = [];
-  let prologueTop = 0;
-  let prologueTravel = 1;
-  let prologueHeight = 1;
-  let activePrologueWorld = -2;
-  let prologueIsActive = false;
-  let stars = [];
+  let targetProgress = 0;
+  let currentProgress = 0;
+  let targetEnergy = 0;
+  let currentEnergy = 0;
+  let targetPointerX = 0;
+  let targetPointerY = 0;
+  let pointerX = 0;
+  let pointerY = 0;
+  let manualYaw = 0;
+  let manualPitch = 0;
+  let activeChapter = -1;
+  let activePath = { x: .42, y: .02, scale: .84, opacity: .95, pitch: -.08 };
+  let previousScroll = scrollY;
+  let previousScrollTime = performance.now();
+  let previousFrame = performance.now();
+  let previousDraw = 0;
+  let animationFrame = 0;
+  let resizeFrame = 0;
   let visible = !document.hidden;
-
-  const prologueWorlds = [
-    ["00", "SPN ORIGIN", "SPN"],
-    ["01", "GEZANA", "GEZANA"],
-    ["02", "3 NATION", "3N"],
-    ["03", "TAO", "TAO"],
-    ["04", "R STAR", "R★"],
-    ["05", "TAO SPECIAL", "TAO"]
-  ];
-
-  const randomBetween = (min, max) => min + Math.random() * (max - min);
-
-  const buildStars = () => {
-    const compact = width <= 720;
-    const count = reduceMotion || saveData ? (compact ? 38 : 76) : compact ? 68 : width <= 1050 ? 118 : 185;
-    stars = Array.from({ length: count }, (_, index) => ({
-      x: randomBetween(-1.3, 1.3),
-      y: randomBetween(-1.05, 1.05),
-      z: randomBetween(.025, 1),
-      size: randomBetween(.45, 1.7),
-      violet: index % 7 === 0,
-      pulse: randomBetween(0, TAU)
-    }));
-  };
+  let dragging = false;
+  let dragMode = "";
+  let dragId = -1;
+  let dragX = 0;
+  let dragY = 0;
 
   const sectionPoint = (selector, amount = 0) => {
     const element = document.querySelector(selector);
@@ -105,77 +397,62 @@
     return clamp((scrollY + rect.top + rect.height * amount) / pageMax);
   };
 
-  const cacheFlightPath = () => {
+  const cachePath = () => {
     pageMax = Math.max(1, document.documentElement.scrollHeight - innerHeight);
-    if (prologue) {
-      const prologueRect = prologue.getBoundingClientRect();
-      prologueTop = scrollY + prologueRect.top;
-      prologueHeight = prologueRect.height;
-      prologueTravel = Math.max(1, prologueHeight - innerHeight);
-    }
-    chapterMetrics = chapterDefinitions.map(([selector, name], index) => {
+    chapterMetrics = chapterDefinitions.map(([selector, name, slug], index) => {
       const element = document.querySelector(selector);
       const rect = element?.getBoundingClientRect();
       return {
         name,
-        number: String(index + 1).padStart(2, "0"),
+        slug,
+        index,
         top: rect ? scrollY + rect.top : index * innerHeight,
         height: rect ? rect.height : innerHeight
       };
     });
 
-    const heroExit = sectionPoint("#top", .82);
-    const manifestoStart = sectionPoint(".manifesto", .12);
-    const workStart = sectionPoint("#work", .02);
+    const heroEnd = sectionPoint("#top", .88);
+    const studio = sectionPoint(".manifesto", .42);
+    const workStart = sectionPoint("#work", .04);
     const workMiddle = sectionPoint("#work", .5);
-    const workExit = sectionPoint("#work", .96);
-    const servicesMiddle = sectionPoint("#services", .48);
-    const pricingMiddle = sectionPoint("#pricing", .42);
-    const processMiddle = sectionPoint(".process", .4);
-    const labMiddle = sectionPoint("#visual-lab", .38);
-    const contactMiddle = sectionPoint("#contact", .46);
-
-    keyframes = [
-      { p: 0, x: .79, y: .5, scale: .98, rotate: -3, pitch: -1, opacity: 0 },
-      { p: heroExit, x: .79, y: .48, scale: .88, rotate: 2, pitch: 2, opacity: 0 },
-      { p: manifestoStart, x: .8, y: .4, scale: .72, rotate: 8, pitch: -3, opacity: .54 },
-      { p: workStart, x: .17, y: .56, scale: .38, rotate: -13, pitch: 5, opacity: .44 },
-      { p: workMiddle, x: .82, y: .34, scale: .34, rotate: 15, pitch: -5, opacity: .36 },
-      { p: workExit, x: .48, y: .78, scale: .22, rotate: -7, pitch: 7, opacity: .2 },
-      { p: servicesMiddle, x: .82, y: .34, scale: .47, rotate: 12, pitch: -4, opacity: .49 },
-      { p: pricingMiddle, x: .16, y: .67, scale: .37, rotate: -16, pitch: 5, opacity: .38 },
-      { p: processMiddle, x: .84, y: .27, scale: .34, rotate: 16, pitch: -6, opacity: .36 },
-      { p: labMiddle, x: .17, y: .35, scale: .5, rotate: -11, pitch: 4, opacity: .48 },
-      { p: contactMiddle, x: .75, y: .5, scale: .88, rotate: 5, pitch: -2, opacity: .64 },
-      { p: 1, x: .54, y: .52, scale: 1.18, rotate: 0, pitch: 0, opacity: .1 }
-    ].sort((a, b) => a.p - b.p);
-  };
-
-  const resize = () => {
-    width = Math.max(1, innerWidth);
-    height = Math.max(1, innerHeight);
-    dpr = Math.min(devicePixelRatio || 1, saveData ? 1 : width <= 720 ? 1.15 : 1.5);
-    canvas.width = Math.round(width * dpr);
-    canvas.height = Math.round(height * dpr);
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    context.setTransform(dpr, 0, 0, dpr, 0, 0);
-    buildStars();
-    cacheFlightPath();
-    targetProgress = clamp(scrollY / pageMax);
-    if (reduceMotion) currentProgress = targetProgress;
-  };
-
-  const scheduleResize = () => {
-    if (resizeFrame) return;
-    resizeFrame = requestAnimationFrame(() => {
-      resizeFrame = 0;
-      resize();
-    });
+    const workEnd = sectionPoint("#work", .96);
+    const services = sectionPoint("#services", .42);
+    const pricing = sectionPoint("#pricing", .42);
+    const process = sectionPoint(".process", .45);
+    const lab = sectionPoint("#visual-lab", .45);
+    const contact = sectionPoint("#contact", .46);
+    const desktopPath = [
+      { p: 0, x: .43, y: .03, scale: .88, opacity: .98, pitch: -.08 },
+      { p: heroEnd, x: .43, y: -.03, scale: .8, opacity: .9, pitch: -.03 },
+      { p: studio, x: .5, y: -.08, scale: .62, opacity: .55, pitch: .1 },
+      { p: workStart, x: -.05, y: .04, scale: 1.08, opacity: .26, pitch: -.12 },
+      { p: workMiddle, x: .5, y: .21, scale: .5, opacity: .32, pitch: .12 },
+      { p: workEnd, x: -.46, y: -.18, scale: .46, opacity: .36, pitch: -.08 },
+      { p: services, x: -.5, y: .12, scale: .58, opacity: .5, pitch: .1 },
+      { p: pricing, x: .5, y: -.08, scale: .54, opacity: .47, pitch: -.1 },
+      { p: process, x: -.48, y: .18, scale: .48, opacity: .4, pitch: .14 },
+      { p: lab, x: .48, y: .12, scale: .57, opacity: .48, pitch: -.08 },
+      { p: contact, x: .34, y: .02, scale: 1.02, opacity: .72, pitch: .03 },
+      { p: 1, x: 0, y: 0, scale: 1.36, opacity: .22, pitch: 0 }
+    ];
+    const mobilePath = [
+      { p: 0, x: .5, y: .17, scale: .63, opacity: .92, pitch: -.06 },
+      { p: heroEnd, x: .45, y: .07, scale: .58, opacity: .72, pitch: -.02 },
+      { p: studio, x: .5, y: -.2, scale: .44, opacity: .4, pitch: .08 },
+      { p: workStart, x: 0, y: -.05, scale: .82, opacity: .2, pitch: -.08 },
+      { p: workMiddle, x: .5, y: .24, scale: .38, opacity: .25, pitch: .1 },
+      { p: workEnd, x: -.5, y: -.18, scale: .38, opacity: .3, pitch: -.06 },
+      { p: services, x: -.53, y: .14, scale: .45, opacity: .38, pitch: .08 },
+      { p: pricing, x: .52, y: -.06, scale: .42, opacity: .35, pitch: -.08 },
+      { p: process, x: -.52, y: .2, scale: .4, opacity: .32, pitch: .1 },
+      { p: lab, x: .52, y: .12, scale: .44, opacity: .36, pitch: -.06 },
+      { p: contact, x: .38, y: .08, scale: .7, opacity: .5, pitch: .03 },
+      { p: 1, x: 0, y: 0, scale: .9, opacity: .18, pitch: 0 }
+    ];
+    keyframes = (compact ? mobilePath : desktopPath).sort((a, b) => a.p - b.p);
   };
 
   const pathAt = progress => {
-    if (!keyframes.length) return { x: .78, y: .48, scale: .8, rotate: 0, pitch: 0, opacity: 0 };
     let nextIndex = keyframes.findIndex(point => point.p >= progress);
     if (nextIndex <= 0) return keyframes[0];
     if (nextIndex < 0) return keyframes[keyframes.length - 1];
@@ -186,299 +463,222 @@
       x: lerp(previous.x, next.x, amount),
       y: lerp(previous.y, next.y, amount),
       scale: lerp(previous.scale, next.scale, amount),
-      rotate: lerp(previous.rotate, next.rotate, amount),
-      pitch: lerp(previous.pitch, next.pitch, amount),
-      opacity: lerp(previous.opacity, next.opacity, amount)
+      opacity: lerp(previous.opacity, next.opacity, amount),
+      pitch: lerp(previous.pitch, next.pitch, amount)
     };
   };
 
-  const drawSpace = time => {
-    context.clearRect(0, 0, width, height);
+  const resize = () => {
+    width = Math.max(1, innerWidth);
+    height = Math.max(1, innerHeight);
+    compact = width <= 720;
+    aspect = width / height;
+    const dpr = Math.min(devicePixelRatio || 1, saveData ? 1 : compact ? 1 : 1.35);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    cachePath();
+    targetProgress = clamp(scrollY / pageMax);
+    currentProgress = targetProgress;
+    activePath = pathAt(currentProgress);
+  };
 
-    const centerX = width * (.5 + pointerX * .025);
-    const centerY = height * (.48 + pointerY * .02);
-    const violetGlow = context.createRadialGradient(
-      width * (.58 + pointerX * .04),
-      height * (.42 + pointerY * .03),
-      0,
-      width * .56,
-      height * .44,
-      Math.max(width, height) * .72
-    );
-    violetGlow.addColorStop(0, `rgba(116,54,228,${.052 + currentWarp * .05})`);
-    violetGlow.addColorStop(.45, `rgba(58,19,121,${.025 + currentWarp * .02})`);
-    violetGlow.addColorStop(1, "rgba(3,2,7,0)");
-    context.fillStyle = violetGlow;
-    context.fillRect(0, 0, width, height);
-
-    context.save();
-    context.globalCompositeOperation = "lighter";
-    const drift = reduceMotion ? currentProgress * 1.8 : currentProgress * 3.15 + time * .000012;
-    const focal = Math.min(width, height) * .55;
-    const streak = .008 + currentWarp * .12;
-
-    stars.forEach(star => {
-      let z = (star.z - drift) % 1;
-      if (z < .02) z += 1;
-      const previousZ = Math.min(1, z + streak);
-      const x = centerX + star.x * focal / z;
-      const y = centerY + star.y * focal / z;
-      const previousX = centerX + star.x * focal / previousZ;
-      const previousY = centerY + star.y * focal / previousZ;
-      if (x < -80 || x > width + 80 || y < -80 || y > height + 80) return;
-
-      const proximity = 1 - z;
-      const pulse = .76 + Math.sin(time * .0014 + star.pulse) * .24;
-      const alpha = clamp(proximity * .82 + .08) * pulse;
-      const lineWidth = Math.max(.38, star.size * (1 + proximity * 1.7));
-      context.beginPath();
-      context.moveTo(previousX, previousY);
-      context.lineTo(x, y);
-      context.lineWidth = lineWidth;
-      context.strokeStyle = star.violet
-        ? `rgba(183,143,255,${alpha * .74})`
-        : `rgba(239,232,255,${alpha * .6})`;
-      context.stroke();
-
-      if (currentWarp < .5 || proximity > .72) {
-        context.beginPath();
-        context.arc(x, y, Math.max(.45, lineWidth * .58), 0, TAU);
-        context.fillStyle = star.violet
-          ? `rgba(183,143,255,${alpha})`
-          : `rgba(255,255,255,${alpha * .86})`;
-        context.fill();
-      }
+  const scheduleResize = () => {
+    if (resizeFrame) return;
+    resizeFrame = requestAnimationFrame(() => {
+      resizeFrame = 0;
+      resize();
+      requestRender();
     });
-    context.restore();
-
-    const horizon = context.createLinearGradient(0, centerY - 1, width, centerY + 1);
-    horizon.addColorStop(0, "rgba(112,45,226,0)");
-    horizon.addColorStop(.46, `rgba(195,164,255,${.04 + currentWarp * .07})`);
-    horizon.addColorStop(.5, `rgba(255,255,255,${.055 + currentWarp * .07})`);
-    horizon.addColorStop(.54, `rgba(195,164,255,${.04 + currentWarp * .07})`);
-    horizon.addColorStop(1, "rgba(112,45,226,0)");
-    context.fillStyle = horizon;
-    context.fillRect(0, centerY, width, 1);
   };
 
   const updateChapter = () => {
-    const marker = scrollY + height * .42;
+    const marker = scrollY + height * .5;
     let index = 0;
     chapterMetrics.forEach((chapter, chapterIndex) => {
       if (marker >= chapter.top) index = chapterIndex;
     });
     if (index === activeChapter) return;
+    const previousChapter = chapterMetrics[activeChapter];
+    if (previousChapter) document.body.classList.remove(`planet-chapter-${previousChapter.slug}`);
     activeChapter = index;
     const chapter = chapterMetrics[index];
     if (!chapter) return;
-    if (chapterNumber) chapterNumber.textContent = chapter.number;
-    if (chapterName) chapterName.textContent = chapter.name;
-    document.body.dataset.flightChapter = chapter.name.toLowerCase().replace(/\s+/g, "-");
+    if (chapterLabel) chapterLabel.textContent = chapter.name;
+    document.body.classList.add(`planet-chapter-${chapter.slug}`);
   };
 
-  const updatePrologue = time => {
-    if (!prologue || !prologueGlobe) return;
-
-    const progress = clamp((scrollY - prologueTop) / prologueTravel);
-    const intersects = scrollY + height > prologueTop && scrollY < prologueTop + prologueHeight;
-    const exitAmount = smoothstep(.87, .97, progress);
-    const compact = width <= 720;
-    const dive = smoothstep(.82, 1, progress);
-    const intro = smoothstep(.015, .2, progress);
-    const orbitWave = reduceMotion ? 0 : Math.sin(progress * TAU * 1.45 + time * .00024);
-
-    prologue.style.setProperty("--prologue-progress", progress.toFixed(4));
-    prologue.style.setProperty("--prologue-exit", exitAmount.toFixed(3));
-    if (prologueProgress) prologueProgress.style.transform = `scaleX(${progress.toFixed(4)})`;
-    if (prologuePercent) prologuePercent.textContent = String(Math.round(progress * 100)).padStart(3, "0");
-
-    if (intersects !== prologueIsActive) {
-      prologueIsActive = intersects;
-      document.body.classList.toggle("is-world-flight", intersects);
-    }
-    const complete = reduceMotion || progress > .91;
-    prologue.classList.toggle("is-complete", complete);
-    if (prologueExit) prologueExit.tabIndex = complete ? 0 : -1;
-
-    if (reduceMotion) {
-      if (activePrologueWorld !== 0) {
-        activePrologueWorld = 0;
-        if (prologueNumber) prologueNumber.textContent = "00";
-        if (prologueName) prologueName.textContent = "SPN ORIGIN";
-      }
-      return;
-    }
-
-    let globeX = lerp(compact ? .68 : .76, compact ? .5 : .235, intro);
-    let globeY = lerp(compact ? .62 : .53, compact ? .48 : .5, intro) + orbitWave * (compact ? .012 : .018);
-    let globeScale = lerp(compact ? .62 : .84, compact ? .42 : .5, intro);
-    globeX = lerp(globeX, .5, dive);
-    globeY = lerp(globeY, .5, dive);
-    globeScale = lerp(globeScale, compact ? 2.75 : 3.45, dive);
-    const globeOpacity = lerp(1, .12, smoothstep(.9, 1, progress));
-    const globeRotate = lerp(-4, 22, progress) + orbitWave * 2.2;
-    const globePitch = orbitWave * (compact ? 2.5 : 4.5);
-    prologueGlobe.style.opacity = globeOpacity.toFixed(3);
-    prologueGlobe.style.filter = `blur(${(dive * 2.3).toFixed(2)}px) brightness(${(1 + dive * .28).toFixed(2)})`;
-    prologueGlobe.style.transform = `translate3d(${(globeX * width).toFixed(2)}px,${(globeY * height).toFixed(2)}px,0) translate(-50%,-50%) scale(${globeScale.toFixed(4)}) rotateX(${globePitch.toFixed(2)}deg) rotateY(${(-orbitWave * 5).toFixed(2)}deg) rotateZ(${globeRotate.toFixed(2)}deg)`;
-
-    const starts = compact ? [.145, .295, .445, .595, .745] : [.13, .282, .434, .586, .738];
-    const duration = compact ? .235 : .255;
-    const verticalOffsets = compact ? [-.02, .025, -.015, .02, -.01] : [-.17, .14, -.06, .16, -.13];
-
-    prologueCards.forEach((card, index) => {
-      const local = clamp((progress - starts[index]) / duration);
-      const enter = smoothstep(0, .23, local);
-      const leave = smoothstep(.7, 1, local);
-      const visibilityAmount = enter * (1 - leave);
-      const arc = Math.sin(local * Math.PI);
-      const direction = index % 2 === 0 ? 1 : -1;
-      const startX = compact ? (direction > 0 ? 1.24 : -.24) : (direction > 0 ? 1.13 : -.13);
-      const endX = compact ? (direction > 0 ? -.26 : 1.26) : (direction > 0 ? -.2 : 1.2);
-      const middleX = .5 + direction * (compact ? .01 : .08);
-      const firstHalf = smoothstep(0, .5, local);
-      const secondHalf = smoothstep(.5, 1, local);
-      const cardX = local <= .5 ? lerp(startX, middleX, firstHalf) : lerp(middleX, endX, secondHalf);
-      const cardY = .52 + verticalOffsets[index] + Math.sin(local * Math.PI * 2) * (compact ? .018 : .035);
-      const cardZ = lerp(-520, compact ? 30 : 100, arc);
-      const cardScale = (compact ? .42 : .38) + arc * (compact ? .58 : .68);
-      const rotateY = lerp(direction * -54, direction * 38, local);
-      const rotateZ = lerp(direction * -5.5, direction * 3.5, local);
-      const edgeBlur = (1 - arc) * (compact ? 2.4 : 4.5);
-      card.style.zIndex = String(16 + Math.round(arc * 12));
-      card.style.opacity = visibilityAmount.toFixed(3);
-      card.style.filter = `blur(${edgeBlur.toFixed(2)}px) brightness(${(.68 + arc * .38).toFixed(2)})`;
-      card.style.transform = `translate3d(${(cardX * width).toFixed(2)}px,${(cardY * height).toFixed(2)}px,${cardZ.toFixed(2)}px) translate(-50%,-50%) scale(${cardScale.toFixed(4)}) rotateY(${rotateY.toFixed(2)}deg) rotateZ(${rotateZ.toFixed(2)}deg)`;
-    });
-
-    let worldIndex = 0;
-    if (progress >= .115) worldIndex = clamp(Math.floor((progress - .115) / .152) + 1, 1, 5);
-    if (worldIndex !== activePrologueWorld) {
-      activePrologueWorld = worldIndex;
-      const world = prologueWorlds[worldIndex];
-      if (prologueNumber) prologueNumber.textContent = world[0];
-      if (prologueName) prologueName.textContent = world[1];
-      if (prologueGhost) prologueGhost.textContent = world[2];
-    }
-
-    if (prologueCopy) prologueCopy.setAttribute("aria-hidden", progress > .28 ? "true" : "false");
+  const setGeometryUniforms = (path, yaw, pitch, roll, localX, localY, localZ, kind, alpha, time) => {
+    gl.uniform3f(uniforms.rotation, pitch, yaw, roll);
+    gl.uniform3f(uniforms.localRotation, localX, localY, localZ);
+    gl.uniform1f(uniforms.scale, path.scale);
+    gl.uniform2f(uniforms.offset, path.x, path.y);
+    gl.uniform1f(uniforms.aspect, aspect);
+    gl.uniform1f(uniforms.kind, kind);
+    gl.uniform1f(uniforms.energy, currentEnergy);
+    gl.uniform1f(uniforms.time, time);
+    gl.uniform1f(uniforms.alpha, alpha);
   };
 
-  const updateGuide = (path, time) => {
-    if (width <= 720 || reduceMotion) return;
-    const parallaxX = pointerX * 22;
-    const parallaxY = pointerY * 14;
-    const floatY = Math.sin(time * .00072 + currentProgress * TAU) * 7;
-    const x = path.x * width + parallaxX;
-    const y = path.y * height + parallaxY + floatY;
-    const bank = path.rotate + currentWarp * (pointerX >= 0 ? 4 : -4);
-    guide.style.opacity = path.opacity.toFixed(3);
-    guide.style.transform = `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0) translate(-50%,-50%) scale(${path.scale.toFixed(4)}) rotateZ(${bank.toFixed(2)}deg)`;
-    guide.style.setProperty("--flight-guide-rx", `${(path.pitch - pointerY * 7).toFixed(2)}deg`);
-    guide.style.setProperty("--flight-guide-ry", `${(pointerX * 10 + Math.sin(time * .00033) * 2.4).toFixed(2)}deg`);
-  };
+  const draw = now => {
+    const time = now * .001;
+    const path = activePath;
+    const idle = reduceMotion || saveData ? 0 : time * (compact ? .055 : .08);
+    const yaw = currentProgress * TAU * 3.4 + manualYaw + pointerX * .3 + idle;
+    const pitch = path.pitch + manualPitch - pointerY * .2 + Math.sin(currentProgress * TAU * 1.7) * .075;
+    const roll = Math.sin(currentProgress * TAU * 1.15) * .07;
 
-  const updateSatellites = (path, time) => {
-    if (!satellites.length || width <= 900 || reduceMotion || saveData) return;
-    const work = chapterMetrics[2];
-    const services = chapterMetrics[3];
-    const lab = chapterMetrics[6];
-    const workStart = work ? clamp((work.top - height * .45) / pageMax) : .12;
-    const servicesEnd = services ? clamp((services.top + services.height * .78) / pageMax) : .64;
-    const labStart = lab ? clamp((lab.top - height * .7) / pageMax) : .82;
-    const labEnd = lab ? clamp((lab.top + lab.height * .72) / pageMax) : .94;
-    const workVisibility = smoothstep(workStart, workStart + .045, currentProgress) * (1 - smoothstep(servicesEnd - .06, servicesEnd, currentProgress));
-    const labVisibility = smoothstep(labStart, labStart + .035, currentProgress) * (1 - smoothstep(labEnd - .03, labEnd, currentProgress));
-    const visibilityAmount = Math.max(workVisibility, labVisibility * .68);
-    const guideX = path.x * width + pointerX * 22;
-    const guideY = path.y * height + pointerY * 14;
-    const radiusX = Math.min(width * .34, 500) * (.76 + path.scale * .28);
-    const radiusY = Math.min(height * .22, 205) * (.72 + path.scale * .24);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+    gl.enable(gl.CULL_FACE);
+    gl.cullFace(gl.BACK);
+    gl.disable(gl.BLEND);
+    gl.depthMask(true);
 
-    satellites.forEach((satellite, index) => {
-      const direction = index % 2 ? -1 : 1;
-      const angle = currentProgress * (10.5 + index * .18) + time * .00006 * direction + index * (TAU / satellites.length);
-      const depth = Math.sin(angle);
-      const orbitX = Math.cos(angle) * radiusX;
-      const orbitY = depth * radiusY;
-      const x = guideX + orbitX;
-      const y = guideY + orbitY;
-      const scale = .46 + (depth + 1) * .19;
-      const opacity = visibilityAmount * (.16 + (depth + 1) * .23) * clamp(path.opacity * 2.3, .35, 1);
-      satellite.style.zIndex = depth > 0 ? "5" : "2";
-      satellite.style.opacity = opacity.toFixed(3);
-      satellite.style.transform = `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0) translate(-50%,-50%) scale(${scale.toFixed(3)}) rotateY(${(-depth * 7).toFixed(2)}deg) rotateZ(${(Math.cos(angle) * 2.2).toFixed(2)}deg)`;
-    });
+    bindGeometry(sphere);
+    setGeometryUniforms(path, yaw, pitch, roll, 0, 0, 0, 0, 1, time);
+    gl.drawElements(gl.TRIANGLES, sphere.count, gl.UNSIGNED_SHORT, 0);
+
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.depthMask(false);
+    bindGeometry(torus);
+    setGeometryUniforms(path, yaw * .22, pitch * .45, roll, 1.02, time * .09 + currentProgress * .4, -.25, 1, .86, time);
+    gl.drawElements(gl.TRIANGLES, torus.count, gl.UNSIGNED_SHORT, 0);
+    setGeometryUniforms(path, yaw * .14, pitch * .35, roll, .34, time * -.065, .93, 1, .46, time);
+    gl.drawElements(gl.TRIANGLES, torus.count, gl.UNSIGNED_SHORT, 0);
+    gl.depthMask(true);
+
+    root.style.setProperty("--planet-opacity", path.opacity.toFixed(3));
+    root.style.setProperty("--planet-energy", currentEnergy.toFixed(3));
+    root.style.setProperty("--planet-glow-x", `${((path.x + 1) * 50).toFixed(2)}%`);
+    root.style.setProperty("--planet-glow-y", `${((1 - path.y) * 50).toFixed(2)}%`);
+    if (degreeLabel) degreeLabel.textContent = `${String(Math.round(((yaw % TAU + TAU) % TAU) / TAU * 360)).padStart(3, "0")}°`;
+    if (progressLine) progressLine.style.transform = `scaleX(${currentProgress.toFixed(4)})`;
   };
 
   const render = now => {
-    const delta = Math.min(48, Math.max(0, now - lastFrameTime));
-    lastFrameTime = now;
-    const progressEase = 1 - Math.pow(.0005, delta / 1000);
-    const pointerEase = 1 - Math.pow(.015, delta / 1000);
-    const warpEase = 1 - Math.pow(.004, delta / 1000);
-    currentProgress = lerp(currentProgress, targetProgress, reduceMotion ? 1 : progressEase);
+    animationFrame = 0;
+    if (!visible) return;
+    const frameLimit = saveData ? 66 : compact ? 33 : 16;
+    if (now - previousDraw < frameLimit && !reduceMotion) {
+      animationFrame = requestAnimationFrame(render);
+      return;
+    }
+    previousDraw = now;
+    const delta = Math.min(50, Math.max(1, now - previousFrame));
+    previousFrame = now;
+    const progressEase = reduceMotion || saveData ? 1 : 1 - Math.pow(.0015, delta / 1000);
+    const pointerEase = reduceMotion || saveData ? 1 : 1 - Math.pow(.009, delta / 1000);
+    const energyEase = 1 - Math.pow(.005, delta / 1000);
+    currentProgress = lerp(currentProgress, targetProgress, progressEase);
     pointerX = lerp(pointerX, targetPointerX, pointerEase);
     pointerY = lerp(pointerY, targetPointerY, pointerEase);
-    currentWarp = lerp(currentWarp, targetWarp, warpEase);
-    targetWarp *= Math.pow(.065, delta / 1000);
-
-    const path = pathAt(currentProgress);
-    drawSpace(now);
-    updatePrologue(now);
-    updateGuide(path, now);
-    updateSatellites(path, now);
+    currentEnergy = lerp(currentEnergy, targetEnergy, energyEase);
+    targetEnergy *= Math.pow(.12, delta / 1000);
+    activePath = pathAt(currentProgress);
+    draw(now);
     updateChapter();
-
-    root.style.setProperty("--flight-visibility", clamp(currentProgress * 13).toFixed(3));
-    root.style.setProperty("--flight-warp", currentWarp.toFixed(3));
-    root.style.setProperty("--flight-bank", `${(Math.sin(currentProgress * TAU * 1.35) * 11).toFixed(2)}deg`);
-    root.style.setProperty("--flight-corridor-opacity", (clamp(path.opacity * .34 + currentWarp * .2)).toFixed(3));
-    if (progressRail) progressRail.style.transform = `scaleX(${currentProgress.toFixed(5)})`;
-
-    if (visible && !reduceMotion && !saveData) animationFrame = requestAnimationFrame(render);
-    else animationFrame = 0;
+    if (!reduceMotion && !saveData) animationFrame = requestAnimationFrame(render);
   };
 
-  const requestStaticRender = () => {
+  const requestRender = () => {
     if (animationFrame) return;
-    animationFrame = requestAnimationFrame(now => {
-      animationFrame = 0;
-      currentProgress = targetProgress;
-      const path = pathAt(currentProgress);
-      drawSpace(now);
-      updatePrologue(now);
-      updateGuide(path, now);
-      updateChapter();
-      if (progressRail) progressRail.style.transform = `scaleX(${currentProgress.toFixed(5)})`;
-    });
+    previousFrame = performance.now();
+    animationFrame = requestAnimationFrame(render);
   };
 
   addEventListener("scroll", () => {
     const now = performance.now();
     const nextScroll = scrollY;
-    const distance = Math.abs(nextScroll - lastScroll);
-    const elapsed = Math.max(16, now - lastScrollTime);
-    targetWarp = Math.max(targetWarp, clamp((distance / elapsed) / 2.15));
+    const distance = Math.abs(nextScroll - previousScroll);
+    const elapsed = Math.max(16, now - previousScrollTime);
+    targetEnergy = Math.max(targetEnergy, clamp((distance / elapsed) / 2.4));
     targetProgress = clamp(nextScroll / pageMax);
-    lastScroll = nextScroll;
-    lastScrollTime = now;
-    if (reduceMotion || saveData) requestStaticRender();
+    previousScroll = nextScroll;
+    previousScrollTime = now;
+    stage.classList.toggle("is-hint-hidden", nextScroll > height * .16);
+    requestRender();
   }, { passive: true });
 
-  if (finePointer && !reduceMotion) {
-    addEventListener("pointermove", event => {
+  addEventListener("pointermove", event => {
+    if (finePointer && !dragging) {
       targetPointerX = clamp(event.clientX / width, 0, 1) - .5;
       targetPointerY = clamp(event.clientY / height, 0, 1) - .5;
-    }, { passive: true });
-    addEventListener("pointerleave", () => {
+    }
+    if (!dragging || event.pointerId !== dragId) return;
+    const dx = event.clientX - dragX;
+    const dy = event.clientY - dragY;
+    if (dragMode === "pending" && Math.hypot(dx, dy) > 7) {
+      if (event.pointerType === "mouse" || Math.abs(dx) > Math.abs(dy) * 1.15) dragMode = "orbit";
+      else {
+        dragging = false;
+        dragMode = "";
+        document.body.classList.remove("is-planet-dragging");
+        return;
+      }
+    }
+    if (dragMode === "orbit") {
+      manualYaw += dx * (compact ? .0065 : .008);
+      if (event.pointerType === "mouse") manualPitch = clamp(manualPitch - dy * .0045, -.5, .5);
+      dragX = event.clientX;
+      dragY = event.clientY;
+      targetEnergy = 1;
+      requestRender();
+    }
+  }, { passive: true });
+
+  addEventListener("pointerdown", event => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    if (event.target.closest("a,button,input,select,textarea,summary,[role='button']")) return;
+    const centerX = (activePath.x + 1) * width * .5;
+    const centerY = (1 - activePath.y) * height * .5;
+    const radius = activePath.scale * height * .56;
+    if (Math.hypot(event.clientX - centerX, event.clientY - centerY) > radius) return;
+    dragging = true;
+    dragMode = event.pointerType === "mouse" ? "orbit" : "pending";
+    dragId = event.pointerId;
+    dragX = event.clientX;
+    dragY = event.clientY;
+    document.body.classList.add("is-planet-dragging");
+  }, { passive: true });
+
+  const endDrag = event => {
+    if (!dragging || event.pointerId !== dragId) return;
+    dragging = false;
+    dragMode = "";
+    dragId = -1;
+    document.body.classList.remove("is-planet-dragging");
+  };
+  addEventListener("pointerup", endDrag, { passive: true });
+  addEventListener("pointercancel", endDrag, { passive: true });
+  addEventListener("pointerleave", event => {
+    if (!dragging) {
       targetPointerX = 0;
       targetPointerY = 0;
+    } else endDrag(event);
+  }, { passive: true });
+
+  const reactiveSelector = ".button,.project-button,.menu-toggle,.desktop-nav a,.mobile-menu nav a,.websites-menu-entry,.service-row,.price-card>button,.bundle-card button,.home-lab__index>a,.home-lab__enter";
+  document.querySelectorAll(reactiveSelector).forEach(element => {
+    element.setAttribute("data-planet-reactive", "");
+    element.addEventListener("pointerenter", () => {
+      targetEnergy = Math.max(targetEnergy, .55);
+      requestRender();
     }, { passive: true });
-  }
+    element.addEventListener("pointerdown", () => {
+      element.classList.add("is-reacting");
+      targetEnergy = 1;
+      requestRender();
+      setTimeout(() => element.classList.remove("is-reacting"), 320);
+    }, { passive: true });
+  });
 
   addEventListener("resize", scheduleResize, { passive: true });
-  addEventListener("load", scheduleResize, { once: true });
   if ("ResizeObserver" in window) {
     const observer = new ResizeObserver(scheduleResize);
     observer.observe(document.body);
@@ -489,15 +689,23 @@
     if (!visible && animationFrame) {
       cancelAnimationFrame(animationFrame);
       animationFrame = 0;
-    } else if (visible && !animationFrame) {
-      lastFrameTime = performance.now();
-      animationFrame = requestAnimationFrame(render);
-    }
+    } else if (visible) requestRender();
   });
 
+  canvas.addEventListener("webglcontextlost", event => {
+    event.preventDefault();
+    if (animationFrame) cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
+    root.classList.remove("planet-ready");
+    document.body.classList.remove("planet-ready");
+    stage.classList.add("is-fallback");
+  }, false);
+
   resize();
-  currentProgress = targetProgress = clamp(scrollY / pageMax);
-  root.classList.add("flight-ready");
-  document.body.classList.add("flight-ready");
-  animationFrame = requestAnimationFrame(render);
+  currentProgress = targetProgress;
+  activePath = pathAt(currentProgress);
+  root.classList.add("planet-ready");
+  document.body.classList.add("planet-ready");
+  updateChapter();
+  requestRender();
 })();

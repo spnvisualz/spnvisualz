@@ -35,7 +35,7 @@
   <link rel="preload" href="assets/images/spn-3d-hero.webp" as="image" type="image/webp" fetchpriority="high">
   <link rel="preload" href="assets/spn-orbit-transparent.png" as="image" fetchpriority="high">
   <link rel="stylesheet" href="styles.css?v=20260810.1">
-  <link rel="stylesheet" href="/assets/css/cosmic-flight.css?v=20260811.2">
+  <link rel="stylesheet" href="/assets/css/cosmic-flight.css?v=20260811.3">
   <link rel="stylesheet" href="/assets/css/monetization.css?v=20260809.1">
 
   <script type="application/ld+json">
@@ -165,34 +165,19 @@
     <span class="depth-field__mesh"></span>
     <span class="depth-field__flare"></span>
   </div>
-  <div class="cosmic-flight" id="cosmicFlight" aria-hidden="true">
-    <canvas class="cosmic-flight__canvas" id="cosmicFlightCanvas"></canvas>
-    <div class="cosmic-flight__corridor">
-      <i></i><i></i><i></i><i></i>
+  <div class="spn-planet" id="spnPlanet" aria-hidden="true">
+    <canvas class="spn-planet__canvas" id="spnPlanetCanvas"></canvas>
+    <span class="spn-planet__glow"></span>
+    <div class="spn-planet__hint">
+      <i></i>
+      <span>Drag planet</span>
+      <b>Scroll to orbit</b>
     </div>
-    <div class="cosmic-flight__guide" id="cosmicFlightGuide">
-      <span class="cosmic-flight__aura"></span>
-      <span class="cosmic-flight__orbit cosmic-flight__orbit--one"></span>
-      <span class="cosmic-flight__orbit cosmic-flight__orbit--two"></span>
-      <span class="cosmic-flight__axis"></span>
-      <div class="cosmic-flight__world">
-        <img src="assets/spn-orbit-transparent.png" alt="" width="1097" height="706" decoding="async">
-      </div>
+    <div class="spn-planet__status">
+      <span id="spnPlanetChapter">ORIGIN</span>
+      <i><b id="spnPlanetProgress"></b></i>
+      <em id="spnPlanetDegrees">000°</em>
     </div>
-    <div class="cosmic-flight__satellites">
-      <figure class="cosmic-flight__satellite"><img src="assets/work-1.jpg" alt="" width="1280" height="720" decoding="async"><span>01 / GEZANA</span></figure>
-      <figure class="cosmic-flight__satellite"><img src="assets/work-2.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async"><span>02 / 3 NATION</span></figure>
-      <figure class="cosmic-flight__satellite"><img src="assets/work-3.jpg" alt="" width="1280" height="640" loading="lazy" decoding="async"><span>03 / TAO</span></figure>
-      <figure class="cosmic-flight__satellite"><img src="assets/work-4.jpg" alt="" width="1280" height="640" loading="lazy" decoding="async"><span>04 / R STAR</span></figure>
-      <figure class="cosmic-flight__satellite"><img src="assets/work-7.jpg" alt="" width="1280" height="640" loading="lazy" decoding="async"><span>05 / TAO SPECIAL</span></figure>
-    </div>
-    <div class="cosmic-flight__hud">
-      <span class="cosmic-flight__chapter-no" id="cosmicFlightChapterNo">01</span>
-      <span class="cosmic-flight__chapter" id="cosmicFlightChapter">ORIGIN</span>
-      <i><b id="cosmicFlightProgress"></b></i>
-      <span class="cosmic-flight__status"><em></em> FLIGHT ACTIVE</span>
-    </div>
-    <div class="cosmic-flight__vignette"></div>
   </div>
   <div class="page-progress" aria-hidden="true"><span id="pageProgress"></span></div>
 
@@ -270,10 +255,6 @@
           <a class="button button-light" href="#work"><span>Explore the work</span><i>↓︎</i></a>
           <button class="button button-outline" type="button" data-order><span>Order artwork</span><i>↗︎</i></button>
         </div>
-        <a class="hero-flight-entry" href="#flightExperience">
-          <span><i aria-hidden="true"></i> Immersive flight / live</span>
-          <strong>Enter the SPN world <b aria-hidden="true">↓</b></strong>
-        </a>
       </div>
 
       <div class="hero-object" id="heroObject" aria-hidden="true">
@@ -290,72 +271,6 @@
         <div><span>Based in</span><strong>Oslo / Worldwide</strong></div>
         <div><span>Specialized in</span><strong>Identity / Motion / Visuals</strong></div>
         <a href="#work"><span>Scroll to discover</span><b aria-hidden="true"></b></a>
-      </div>
-    </section>
-
-    <section class="flight-prologue" id="flightExperience" aria-labelledby="flightExperienceTitle">
-      <div class="flight-prologue__sticky">
-        <div class="flight-prologue__backdrop" aria-hidden="true">
-          <span></span><span></span><span></span><span></span>
-        </div>
-
-        <header class="flight-prologue__header">
-          <p><i aria-hidden="true"></i> SPNVISUALZ / WORLD FLIGHT</p>
-          <p>SCROLL-CONTROLLED / 00—05</p>
-        </header>
-
-        <div class="flight-prologue__copy" id="flightExperienceCopy">
-          <p class="section-label">The SPN universe</p>
-          <h2 id="flightExperienceTitle">Enter the world<br><em>around your idea.</em></h2>
-          <p>Move through five visual worlds orbiting the SPN globe. Every frame is part of the studio you are about to explore.</p>
-        </div>
-
-        <div class="flight-prologue__globe" id="flightExperienceGlobe" aria-hidden="true">
-          <span class="flight-prologue__aura"></span>
-          <span class="flight-prologue__orbit flight-prologue__orbit--one"></span>
-          <span class="flight-prologue__orbit flight-prologue__orbit--two"></span>
-          <span class="flight-prologue__equator"></span>
-          <img src="assets/spn-orbit-transparent.png" alt="" width="1097" height="706" decoding="async">
-        </div>
-
-        <div class="flight-prologue__cards" aria-hidden="true">
-          <figure class="flight-prologue__card">
-            <div><img src="assets/work-1.jpg" alt="" width="1280" height="720" decoding="async"></div>
-            <figcaption><span>WORLD 01</span><strong>GEZANA</strong><em>IDENTITY / VISUAL WORLD</em></figcaption>
-          </figure>
-          <figure class="flight-prologue__card">
-            <div><img src="assets/work-2.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async"></div>
-            <figcaption><span>WORLD 02</span><strong>3 NATION</strong><em>MOTION / CAMPAIGN</em></figcaption>
-          </figure>
-          <figure class="flight-prologue__card">
-            <div><img src="assets/work-3.jpg" alt="" width="1280" height="640" loading="lazy" decoding="async"></div>
-            <figcaption><span>WORLD 03</span><strong>TAO</strong><em>IDENTITY / MOTION</em></figcaption>
-          </figure>
-          <figure class="flight-prologue__card">
-            <div><img src="assets/work-4.jpg" alt="" width="1280" height="640" loading="lazy" decoding="async"></div>
-            <figcaption><span>WORLD 04</span><strong>R STAR</strong><em>LOGO / VISUAL SYSTEM</em></figcaption>
-          </figure>
-          <figure class="flight-prologue__card">
-            <div><img src="assets/work-7.jpg" alt="" width="1280" height="640" loading="lazy" decoding="async"></div>
-            <figcaption><span>WORLD 05</span><strong>TAO SPECIAL</strong><em>ARTWORK / CAMPAIGN</em></figcaption>
-          </figure>
-        </div>
-
-        <p class="flight-prologue__ghost" id="flightExperienceGhost" aria-hidden="true">SPN</p>
-
-        <div class="flight-prologue__chapter" aria-live="polite">
-          <span id="flightExperienceNumber">00</span>
-          <p><small>NOW APPROACHING</small><strong id="flightExperienceName">SPN ORIGIN</strong></p>
-        </div>
-
-        <a class="flight-prologue__exit" href="#work">
-          <span>Continue into</span><strong>Selected work</strong><i aria-hidden="true">↓</i>
-        </a>
-
-        <div class="flight-prologue__progress" aria-hidden="true">
-          <span><i id="flightExperienceProgress"></i></span>
-          <b id="flightExperiencePercent">000</b>
-        </div>
       </div>
     </section>
 
@@ -648,6 +563,6 @@
   </dialog>
 
   <script src="app.js?v=20260810.2" defer></script>
-  <script src="/assets/js/cosmic-flight.js?v=20260811.2" defer></script>
+  <script src="/assets/js/cosmic-flight.js?v=20260811.3" defer></script>
 </body>
 </html>
