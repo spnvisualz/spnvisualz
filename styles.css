@@ -532,3 +532,115 @@ body{overflow-x:hidden;overflow-x:clip}
   .work-copy{left:8px;right:8px;bottom:54px;width:auto;padding:14px 15px}
   .work-copy h3{font-size:25px}
 }
+
+/* 2026-08-12 — cross-platform layout and navigation hardening */
+html{
+  scroll-padding-top:calc(var(--header) + 12px);
+  scrollbar-gutter:stable;
+}
+
+body{
+  overflow-x:hidden;
+  overflow-x:clip;
+  -webkit-overflow-scrolling:touch;
+}
+
+.site-header>*{min-width:0}
+.desktop-nav{gap:clamp(16px,2vw,34px)}
+.header-actions{min-width:max-content}
+.project-button{gap:18px}
+.menu-toggle{display:flex}
+.mobile-menu{display:flex;flex-direction:column}
+
+.pricing,.process,.home-lab,.services,.contact{overflow:hidden;overflow:clip}
+.section-head>*{min-width:0}
+.pricing-head{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(270px,360px);
+  align-items:end;
+}
+.pricing-head .offer-note{width:100%;min-width:0}
+.price-panel,.price-card,.bundle-card,.price-tier>*{min-width:0}
+.price-panel{align-items:stretch}
+.price-card,.bundle-card{contain:layout}
+.price-card>*,.bundle-card>*,.process-grid li>*,.brand-card-image,.brand-card figcaption,.contact-inner{
+  transform:none!important;
+}
+.price-card h3,.bundle-card h3,.process-grid strong,.home-lab__index strong{overflow-wrap:anywhere}
+.price-tier{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start}
+.price-tier>div:last-child{min-width:72px}
+.delivery-bar>*{min-width:0}
+.process-grid li{min-width:0;contain:layout}
+.home-lab__index>a>*{min-width:0}
+.contact-details a>*{min-width:0}
+
+@media(min-width:1051px){
+  .mobile-menu{
+    padding:calc(var(--header) + 28px) var(--pad) 34px;
+  }
+  .mobile-menu nav{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    column-gap:clamp(36px,7vw,120px);
+  }
+  .mobile-menu nav a{
+    font-size:clamp(42px,5vw,70px);
+    padding:clamp(9px,1.4vh,15px) 0;
+  }
+  .mobile-menu__conversion{
+    display:grid;
+    grid-template-columns:minmax(420px,760px) minmax(250px,1fr);
+    align-items:end;
+    gap:24px 42px;
+  }
+  .websites-menu-entry{margin:0}
+  .mobile-contact{justify-content:flex-end;margin:0 0 10px}
+}
+
+@media(max-width:1180px) and (min-width:1051px){
+  .site-header{grid-template-columns:1fr auto}
+  .desktop-nav,.project-button{display:none}
+}
+
+@media(max-width:900px){
+  .pricing-head{
+    grid-template-columns:1fr;
+    align-items:start;
+    gap:34px;
+  }
+  .pricing-head .offer-note{
+    border-left:0;
+    border-top:1px solid var(--line);
+    padding:22px 0 0;
+  }
+  .price-panel.is-active,.bundle-panel.is-active{grid-template-columns:1fr}
+  .delivery-bar{grid-template-columns:1fr}
+  .delivery-bar>span{border-right:0;border-bottom:1px solid var(--line)}
+  .delivery-bar>span:last-child{border-bottom:0}
+  .service-layout{grid-template-columns:1fr}
+  .service-preview{position:relative;top:auto;max-width:620px;margin-inline:auto;transform:none}
+  .brand-systems-grid{grid-template-columns:1fr}
+  .process-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media(max-width:720px){
+  html{scroll-padding-top:76px;scrollbar-gutter:auto}
+  .mobile-menu{padding-bottom:max(18px,env(safe-area-inset-bottom))}
+  .mobile-menu nav a{padding:8px 0}
+  .price-tabs{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    width:100%;
+    overflow:visible;
+  }
+  .price-tabs button{min-width:0;padding:12px 9px;white-space:normal;line-height:1.25}
+  .price-card,.bundle-card{min-height:0;padding:22px}
+  .price-card h3{font-size:clamp(36px,11vw,46px)}
+  .bundle-card h3{font-size:clamp(58px,17vw,76px)}
+  .price-tier{gap:14px}
+  .process-grid{grid-template-columns:1fr}
+  .service-row>*{min-width:0}
+  .service-row strong{overflow-wrap:anywhere}
+  .work-copy{max-height:31vh;overflow:auto;overscroll-behavior:contain}
+  .contact-details strong{overflow-wrap:anywhere}
+}

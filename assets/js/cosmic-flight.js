@@ -14,7 +14,7 @@
 
   const gl = canvas.getContext("webgl", {
     alpha: true,
-    antialias: !compact,
+    antialias: !compact && !saveData,
     depth: true,
     premultipliedAlpha: true,
     powerPreference: compact ? "low-power" : "high-performance"
@@ -287,8 +287,8 @@
   };
 
   const createSurfaceTexture = () => {
-    const textureWidth = compact ? 256 : 512;
-    const textureHeight = compact ? 128 : 256;
+    const textureWidth = compact ? 512 : 1024;
+    const textureHeight = compact ? 256 : 512;
     const data = new Uint8Array(textureWidth * textureHeight * 4);
     for (let y = 0; y < textureHeight; y += 1) {
       const v = y / (textureHeight - 1);
@@ -322,15 +322,22 @@
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, textureWidth, textureHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    const anisotropy = gl.getExtension("EXT_texture_filter_anisotropic")
+      || gl.getExtension("WEBKIT_EXT_texture_filter_anisotropic");
+    if (anisotropy) {
+      const maximum = gl.getParameter(anisotropy.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+      gl.texParameterf(gl.TEXTURE_2D, anisotropy.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(4, maximum));
+    }
     return texture;
   };
 
-  const sphere = createSphere(compact ? 38 : 58, compact ? 52 : 78);
-  const torus = createTorus(compact ? 72 : 112, compact ? 6 : 9, 1.42, compact ? .026 : .032);
+  const sphere = createSphere(compact ? 56 : 88, compact ? 80 : 128);
+  const torus = createTorus(compact ? 96 : 144, compact ? 8 : 11, 1.42, compact ? .026 : .032);
   const surfaceTexture = createSurfaceTexture();
   gl.uniform1i(uniforms.surface, 0);
   gl.activeTexture(gl.TEXTURE0);
@@ -486,7 +493,7 @@
     height = Math.max(1, innerHeight);
     compact = width <= 720;
     aspect = width / height;
-    const dpr = Math.min(devicePixelRatio || 1, saveData ? 1 : compact ? 1 : 1.35);
+    const dpr = Math.min(devicePixelRatio || 1, saveData ? 1 : compact ? 1.5 : 2);
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
     canvas.style.width = `${width}px`;

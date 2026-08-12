@@ -50,15 +50,13 @@
     bootFinished = true;
     if (bootFrame) cancelAnimationFrame(bootFrame);
     clearTimeout(bootFailsafe);
-    try { sessionStorage.setItem('spn_boot_seen_v1', '1'); } catch (_) {}
     bootIntro?.classList.add('is-complete');
     setTimeout(() => bootIntro?.remove(), 420);
   };
 
   if (bootIntro) {
-    let bootSeen = false;
-    try { bootSeen = sessionStorage.getItem('spn_boot_seen_v1') === '1'; } catch (_) {}
-    if (reduceMotion || bootSeen) {
+    const compactBoot = innerWidth <= 720;
+    if (reduceMotion || compactBoot) {
       bootFinished = true;
       bootIntro.remove();
     } else {
@@ -217,9 +215,7 @@
     const target = id && id !== '#' ? $(id) : null;
     if (!target) return;
     event.preventDefault();
-    const distance = Math.abs(target.getBoundingClientRect().top);
-    const longJump = distance > innerHeight * 2.25;
-    if (reduceMotion || longJump) {
+    if (reduceMotion) {
       const root = document.documentElement;
       const previousBehavior = root.style.scrollBehavior;
       root.style.scrollBehavior = 'auto';
