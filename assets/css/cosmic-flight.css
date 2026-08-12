@@ -91,6 +91,10 @@ main,
 .spn-planet__status > i b { display: block; width: 100%; height: 100%; background: linear-gradient(90deg,#7945df,#d8c4ff,#86ffbd); transform: scaleX(0); transform-origin: left; }
 .spn-planet__status em { color: rgba(255,255,255,.48); font-style: normal; }
 
+/* Keep the fixed chrome quiet; the planet itself is the navigation cue. */
+.spn-planet__status { display: none; }
+.spn-planet.is-fallback .spn-planet__hint { display: none; }
+
 /* The PNG remains only as a fallback when WebGL is unavailable. */
 .planet-ready .hero-object {
   opacity: 0!important;

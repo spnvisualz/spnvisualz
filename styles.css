@@ -511,15 +511,15 @@ body{overflow-x:hidden;overflow-x:clip}
 .work-panel{visibility:hidden;opacity:0;transition:opacity .2s ease-out;pointer-events:none}
 .work-panel.is-active{visibility:visible;opacity:1;z-index:5;pointer-events:auto}
 .work-panel.is-leaving{visibility:hidden!important;opacity:0!important}
-.work-media,.work-media-wide{left:52%;top:49%;width:min(62vw,980px);max-height:56vh;aspect-ratio:16/9;transform:translate(-50%,-50%)!important}
-.work-media-wide{width:min(65vw,1020px)}
+.work-media,.work-media-wide{left:58%;top:49%;width:min(58vw,930px);max-height:56vh;aspect-ratio:16/9;transform:translate(-50%,-50%)!important}
+.work-media-wide{width:min(60vw,960px)}
 .work-copy{left:0;bottom:54px;width:min(310px,24vw);padding:19px 20px;transform:none!important;background:rgba(3,2,7,.86)}
 .work-copy h3{font-size:clamp(24px,2.3vw,38px);line-height:.98;margin:12px 0}
 .work-copy p{line-height:1.55}
 
 @media(max-width:1050px){
-  .work-media,.work-media-wide{left:53%;width:min(72vw,900px)}
-  .work-copy{width:270px}
+  .work-media,.work-media-wide{left:50%;top:39%;width:82vw;max-height:48vh}
+  .work-copy{width:290px}
 }
 
 @media(max-width:720px){
