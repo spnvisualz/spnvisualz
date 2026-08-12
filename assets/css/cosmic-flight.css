@@ -33,11 +33,11 @@ main,
   z-index: 0;
   left: var(--planet-glow-x,72%);
   top: var(--planet-glow-y,48%);
-  width: min(62vw,820px);
+  width: min(82vw,1120px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle,rgba(131,67,244,calc(.18 + var(--planet-energy) * .13)),rgba(71,24,154,.08) 38%,transparent 70%);
-  filter: blur(64px);
+  background: radial-gradient(circle,rgba(131,67,244,calc(.28 + var(--planet-energy) * .16)),rgba(71,24,154,.12) 40%,transparent 72%);
+  filter: blur(72px);
   transform: translate(-50%,-50%) scale(calc(.82 + var(--planet-energy) * .22));
   will-change: transform,left,top;
 }
@@ -98,32 +98,32 @@ main,
 }
 
 /* Let the actual planet show through without placing it over readable content. */
-.planet-ready .depth-field { z-index: 0; opacity: .3; }
+.planet-ready .depth-field { z-index: 0; opacity: .2; }
 .planet-ready .hero {
-  background: radial-gradient(circle at 72% 43%,rgba(83,27,188,.08),transparent 35%),linear-gradient(90deg,rgba(2,1,4,.88),rgba(7,3,13,.5) 52%,rgba(2,1,4,.28));
+  background: radial-gradient(circle at 72% 43%,rgba(83,27,188,.1),transparent 35%),linear-gradient(90deg,rgba(2,1,4,.84),rgba(7,3,13,.32) 52%,rgba(2,1,4,.1));
 }
-.planet-ready .hero-cosmos { opacity: .38; }
-.planet-ready .manifesto { background: linear-gradient(180deg,rgba(3,2,7,.92),rgba(7,4,11,.82)); }
-.planet-ready .work-rail { background: rgba(2,1,4,.9); }
-.planet-ready .work-sticky { background: radial-gradient(circle at 50% 47%,rgba(92,35,184,.12),transparent 40%),rgba(2,1,4,.87); }
-.planet-ready .services { background: radial-gradient(circle at 85% 60%,rgba(101,40,208,.1),transparent 28%),rgba(7,3,11,.87); }
-.planet-ready .pricing { background: rgba(3,2,7,.9); }
-.planet-ready .process { background: linear-gradient(180deg,rgba(9,5,15,.86),rgba(3,2,7,.92)); }
-.planet-ready .home-lab { background: linear-gradient(180deg,rgba(3,2,7,.92),rgba(8,5,13,.86) 48%,rgba(3,2,7,.92)); }
-.planet-ready .contact { background: radial-gradient(circle at 77% 52%,rgba(100,39,204,.17),transparent 34%),rgba(5,2,10,.86); }
+.planet-ready .hero-cosmos { opacity: .18; }
+.planet-ready .manifesto { background: linear-gradient(180deg,rgba(3,2,7,.55),rgba(7,4,11,.42)); }
+.planet-ready .work-rail { background: rgba(2,1,4,.42); }
+.planet-ready .work-sticky { background: radial-gradient(circle at 50% 47%,rgba(92,35,184,.08),transparent 40%),rgba(2,1,4,.34); }
+.planet-ready .services { background: radial-gradient(circle at 85% 60%,rgba(101,40,208,.08),transparent 28%),rgba(7,3,11,.46); }
+.planet-ready .pricing { background: rgba(3,2,7,.48); }
+.planet-ready .process { background: linear-gradient(180deg,rgba(9,5,15,.46),rgba(3,2,7,.5)); }
+.planet-ready .home-lab { background: linear-gradient(180deg,rgba(3,2,7,.5),rgba(8,5,13,.42) 48%,rgba(3,2,7,.5)); }
+.planet-ready .contact { background: radial-gradient(circle at 70% 52%,rgba(100,39,204,.12),transparent 36%),rgba(5,2,10,.34); }
+.planet-ready .manifesto-portal,.planet-ready .services-depth{opacity:.16}
 
 /* Pointer/touch energy is shared by the planet and the existing conversion controls. */
 [data-planet-reactive] {
-  transition: filter .2s ease,outline-color .2s ease,background-color .2s ease;
-  outline: 1px solid transparent;
-  outline-offset: 3px;
+  transition: filter .2s ease,background-color .2s ease,border-color .2s ease;
 }
 
 [data-planet-reactive].is-reacting,
 [data-planet-reactive]:focus-visible {
   filter: brightness(1.15) saturate(1.08);
-  outline-color: rgba(134,255,189,.48);
 }
+
+body.is-planet-dragging{cursor:grabbing;-webkit-user-select:none;user-select:none}
 
 .site-header {
   isolation: isolate;
@@ -145,7 +145,7 @@ body.planet-chapter-contact .site-header {
 
 @media (max-width: 720px) {
   .spn-planet__glow {
-    width: 112vw;
+    width: 128vw;
     filter: blur(34px);
     opacity: .78;
   }
@@ -183,9 +183,9 @@ body.planet-chapter-contact .site-header {
   .site-header .wordmark small { margin-top: 6px; }
   .menu-toggle { padding-left: 10px; }
 
-  .planet-ready .hero-cosmos { opacity: .24; }
+  .planet-ready .hero-cosmos { opacity: .12; }
   .planet-ready .hero {
-    background: linear-gradient(180deg,rgba(3,2,7,.88) 0 17%,rgba(3,2,7,.38) 43%,rgba(3,2,7,.7) 78%,rgba(3,2,7,.92));
+    background: linear-gradient(180deg,rgba(3,2,7,.8) 0 17%,rgba(3,2,7,.18) 43%,rgba(3,2,7,.42) 78%,rgba(3,2,7,.56));
   }
   .planet-ready .depth-field { display: none; }
   .planet-ready .manifesto,
@@ -194,7 +194,7 @@ body.planet-chapter-contact .site-header {
   .planet-ready .pricing,
   .planet-ready .process,
   .planet-ready .home-lab,
-  .planet-ready .contact { background-color: rgba(3,2,7,.91); }
+  .planet-ready .contact { background: rgba(3,2,7,.48); }
 
   .hero { min-height: 760px; padding-top: 104px; }
   .hero h1 {

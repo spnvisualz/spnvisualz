@@ -173,7 +173,6 @@
         tiltFrame = requestAnimationFrame(() => {
           card.style.setProperty('--tilt-light-x', `${(tiltX + .5) * 100}%`);
           card.style.setProperty('--tilt-light-y', `${(tiltY + .5) * 100}%`);
-          card.style.transform = `perspective(1200px) rotateX(${-tiltY * 5}deg) rotateY(${tiltX * 6}deg) translate3d(0,-3px,24px)`;
           tiltFrame = 0;
         });
       }, { passive: true });
@@ -181,7 +180,8 @@
         if (tiltFrame) cancelAnimationFrame(tiltFrame);
         tiltFrame = 0;
         tiltBounds = null;
-        card.style.transform = '';
+        card.style.removeProperty('--tilt-light-x');
+        card.style.removeProperty('--tilt-light-y');
       });
     });
   }
@@ -261,7 +261,6 @@
   const workSignal = $('#workSignal');
   const worldIndexItems = $$('.world-index span');
   let activeWork = 0;
-  let previousWork = 0;
   let workRailTop = 0;
   let workRailDistance = 1;
   let workInView = false;
@@ -308,7 +307,6 @@
 
   const activateWork = (index) => {
     if (index === activeWork || index < 0 || index >= workPanels.length) return;
-    previousWork = activeWork;
     activeWork = index;
     clearTimeout(videoTimer);
     videoTimer = 0;
@@ -318,7 +316,6 @@
       if (panelIndex === index) {
         panel.classList.add('is-active');
       } else {
-        if (panelIndex === previousWork) panel.classList.add('is-leaving');
         if (video) video.pause();
       }
     });
@@ -351,16 +348,10 @@
       workStage.style.setProperty('--world-phase', phase.toFixed(4));
       workStage.style.setProperty('--world-rail-x', `${(phase * 1.5 * motionScale).toFixed(2)}deg`);
       workStage.style.setProperty('--world-rail-y', `${(centered * -4 * motionScale).toFixed(2)}deg`);
-      workStage.style.setProperty('--world-drift-y', `${(centered * -22 * motionScale).toFixed(2)}px`);
-      workStage.style.setProperty('--world-z', `${((42 + curve * 68) * motionScale).toFixed(2)}px`);
-      workStage.style.setProperty('--world-rotate-x', `${(centered * -2.2 * motionScale).toFixed(2)}deg`);
-      workStage.style.setProperty('--world-rotate-y', `${(centered * 4.4 * motionScale).toFixed(2)}deg`);
-      workStage.style.setProperty('--world-scale', `${(1 - Math.abs(centered) * .045 * motionScale).toFixed(4)}`);
-      workStage.style.setProperty('--world-copy-x', `${(centered * -24 * motionScale).toFixed(2)}px`);
-      workStage.style.setProperty('--world-copy-y', `${(centered * 18 * motionScale).toFixed(2)}px`);
-      workStage.style.setProperty('--world-copy-rotate', `${(centered * -3 * motionScale).toFixed(2)}deg`);
-      workStage.style.setProperty('--world-ghost-y', `${(centered * 34 * motionScale).toFixed(2)}px`);
-      workStage.style.setProperty('--world-ghost-scale', `${(.96 + curve * .04 * motionScale).toFixed(4)}`);
+      workStage.style.setProperty('--world-drift-y', `${(centered * -10 * motionScale).toFixed(2)}px`);
+      workStage.style.setProperty('--world-scale', `${(1 - Math.abs(centered) * .018 * motionScale).toFixed(4)}`);
+      workStage.style.setProperty('--world-ghost-y', `${(centered * 16 * motionScale).toFixed(2)}px`);
+      workStage.style.setProperty('--world-ghost-scale', `${(.98 + curve * .02 * motionScale).toFixed(4)}`);
     }
     activateWork(index);
   }
@@ -662,6 +653,19 @@
       revealRequestedOrder();
     }
   }
+
+  addEventListener('pageshow', event => {
+    if (event.persisted) finishBoot();
+    document.body.classList.remove('is-loading');
+    latestScroll = scrollY;
+    scheduleMetricRefresh();
+    requestAnimationFrame(() => {
+      $$('.reveal').forEach(element => {
+        const rect = element.getBoundingClientRect();
+        if (rect.bottom > 0 && rect.top < innerHeight) element.classList.add('is-visible');
+      });
+    });
+  });
 
   cachePageMetrics();
   latestScroll = scrollY;

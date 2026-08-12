@@ -96,13 +96,13 @@
         float chromeBand=pow(0.5+0.5*sin((n.y+n.x*.28)*18.0+micro*4.0),8.0);
         float horizonBand=pow(0.5+0.5*sin((n.y*.72-n.x*.18)*31.0),14.0);
 
-        vec3 voidColor=vec3(0.012,0.006,0.032);
-        voidColor+=vec3(0.085,0.025,0.19)*(diffuse*.72+rim*.7);
+        vec3 voidColor=vec3(0.025,0.01,0.06);
+        voidColor+=vec3(0.12,0.04,0.25)*(diffuse*.78+rim*.76);
         voidColor+=vec3(0.48,0.31,0.82)*(spec*.78+chromeBand*.11);
         voidColor+=vec3(0.26,0.12,0.58)*shell*.38;
 
-        vec3 landDark=vec3(0.095,0.025,0.23);
-        vec3 landLight=vec3(0.76,0.56,1.0);
+        vec3 landDark=vec3(0.14,0.04,0.32);
+        vec3 landLight=vec3(0.9,0.72,1.0);
         vec3 landChrome=mix(landDark,landLight,clamp(diffuse*.72+micro*.3,0.0,1.0));
         landChrome+=vec3(1.0,0.92,1.0)*(spec*1.32+chromeBand*.3+horizonBand*.13);
         landChrome+=vec3(0.36,0.14,0.72)*rim*.78;
@@ -112,6 +112,7 @@
         color+=rim*vec3(0.58,0.3,1.0)*(.58+uEnergy*.28);
         color+=shell*vec3(0.2,0.08,0.48)*.28;
         color+=spec*vec3(0.9,0.8,1.0)*(.46+uEnergy*.38);
+        color=pow(max(color,vec3(0.0)),vec3(.86));
         gl_FragColor=vec4(color,uAlpha);
       }else{
         float pulse=.72+.28*sin(vUv.x*50.0-uTime*1.1);
@@ -417,7 +418,10 @@
     const heroEnd = sectionPoint("#top", .88);
     const studio = sectionPoint(".manifesto", .42);
     const workStart = sectionPoint("#work", .04);
-    const workMiddle = sectionPoint("#work", .5);
+    const workTwo = sectionPoint("#work", .23);
+    const workThree = sectionPoint("#work", .42);
+    const workFour = sectionPoint("#work", .61);
+    const workFive = sectionPoint("#work", .8);
     const workEnd = sectionPoint("#work", .96);
     const services = sectionPoint("#services", .42);
     const pricing = sectionPoint("#pricing", .42);
@@ -425,32 +429,38 @@
     const lab = sectionPoint("#visual-lab", .45);
     const contact = sectionPoint("#contact", .46);
     const desktopPath = [
-      { p: 0, x: .36, y: .02, scale: .72, opacity: 1, pitch: -.08 },
-      { p: heroEnd, x: .4, y: -.03, scale: .68, opacity: .94, pitch: -.03 },
-      { p: studio, x: .5, y: -.08, scale: .62, opacity: .55, pitch: .1 },
-      { p: workStart, x: -.05, y: .04, scale: 1.08, opacity: .26, pitch: -.12 },
-      { p: workMiddle, x: .5, y: .21, scale: .5, opacity: .32, pitch: .12 },
-      { p: workEnd, x: -.46, y: -.18, scale: .46, opacity: .36, pitch: -.08 },
-      { p: services, x: -.5, y: .12, scale: .58, opacity: .5, pitch: .1 },
-      { p: pricing, x: .5, y: -.08, scale: .54, opacity: .47, pitch: -.1 },
-      { p: process, x: -.48, y: .18, scale: .48, opacity: .4, pitch: .14 },
-      { p: lab, x: .48, y: .12, scale: .57, opacity: .48, pitch: -.08 },
-      { p: contact, x: .34, y: .02, scale: 1.02, opacity: .72, pitch: .03 },
-      { p: 1, x: 0, y: 0, scale: 1.36, opacity: .22, pitch: 0 }
+      { p: 0, x: .42, y: .02, scale: 1.1, opacity: 1, pitch: -.08 },
+      { p: heroEnd, x: .38, y: -.03, scale: 1.04, opacity: .98, pitch: -.03 },
+      { p: studio, x: -.42, y: .02, scale: 1.12, opacity: .94, pitch: .1 },
+      { p: workStart, x: .5, y: .02, scale: 1.08, opacity: .9, pitch: -.12 },
+      { p: workTwo, x: -.5, y: -.08, scale: .92, opacity: .9, pitch: .08 },
+      { p: workThree, x: .52, y: .12, scale: 1, opacity: .92, pitch: -.08 },
+      { p: workFour, x: -.48, y: .06, scale: .92, opacity: .9, pitch: .1 },
+      { p: workFive, x: .5, y: -.1, scale: 1.06, opacity: .92, pitch: -.1 },
+      { p: workEnd, x: -.4, y: .1, scale: .95, opacity: .88, pitch: -.08 },
+      { p: services, x: .5, y: .08, scale: 1.05, opacity: .93, pitch: .1 },
+      { p: pricing, x: -.48, y: -.02, scale: 1, opacity: .92, pitch: -.1 },
+      { p: process, x: .48, y: .12, scale: .98, opacity: .9, pitch: .14 },
+      { p: lab, x: -.44, y: .05, scale: 1.08, opacity: .94, pitch: -.08 },
+      { p: contact, x: .28, y: .02, scale: 1.35, opacity: 1, pitch: .03 },
+      { p: 1, x: 0, y: 0, scale: 1.55, opacity: 1, pitch: 0 }
     ];
     const mobilePath = [
-      { p: 0, x: .4, y: .15, scale: .55, opacity: 1, pitch: -.06 },
-      { p: heroEnd, x: .4, y: .06, scale: .52, opacity: .8, pitch: -.02 },
-      { p: studio, x: .5, y: -.2, scale: .44, opacity: .4, pitch: .08 },
-      { p: workStart, x: 0, y: -.05, scale: .82, opacity: .2, pitch: -.08 },
-      { p: workMiddle, x: .5, y: .24, scale: .38, opacity: .25, pitch: .1 },
-      { p: workEnd, x: -.5, y: -.18, scale: .38, opacity: .3, pitch: -.06 },
-      { p: services, x: -.53, y: .14, scale: .45, opacity: .38, pitch: .08 },
-      { p: pricing, x: .52, y: -.06, scale: .42, opacity: .35, pitch: -.08 },
-      { p: process, x: -.52, y: .2, scale: .4, opacity: .32, pitch: .1 },
-      { p: lab, x: .52, y: .12, scale: .44, opacity: .36, pitch: -.06 },
-      { p: contact, x: .38, y: .08, scale: .7, opacity: .5, pitch: .03 },
-      { p: 1, x: 0, y: 0, scale: .9, opacity: .18, pitch: 0 }
+      { p: 0, x: .38, y: .12, scale: .84, opacity: 1, pitch: -.06 },
+      { p: heroEnd, x: .36, y: .04, scale: .8, opacity: .96, pitch: -.02 },
+      { p: studio, x: -.42, y: -.06, scale: .86, opacity: .86, pitch: .08 },
+      { p: workStart, x: .38, y: -.03, scale: .9, opacity: .82, pitch: -.08 },
+      { p: workTwo, x: -.4, y: -.08, scale: .78, opacity: .8, pitch: .08 },
+      { p: workThree, x: .42, y: .12, scale: .84, opacity: .84, pitch: -.08 },
+      { p: workFour, x: -.4, y: .06, scale: .78, opacity: .8, pitch: .08 },
+      { p: workFive, x: .4, y: -.08, scale: .88, opacity: .84, pitch: -.08 },
+      { p: workEnd, x: -.38, y: .08, scale: .8, opacity: .8, pitch: -.06 },
+      { p: services, x: .42, y: .1, scale: .84, opacity: .86, pitch: .08 },
+      { p: pricing, x: -.42, y: -.05, scale: .82, opacity: .84, pitch: -.08 },
+      { p: process, x: .4, y: .14, scale: .8, opacity: .82, pitch: .1 },
+      { p: lab, x: -.4, y: .08, scale: .86, opacity: .86, pitch: -.06 },
+      { p: contact, x: .25, y: .06, scale: 1.05, opacity: 1, pitch: .03 },
+      { p: 1, x: 0, y: 0, scale: 1.15, opacity: 1, pitch: 0 }
     ];
     keyframes = (compact ? mobilePath : desktopPath).sort((a, b) => a.p - b.p);
   };
@@ -626,6 +636,7 @@
       }
     }
     if (dragMode === "orbit") {
+      if (event.cancelable) event.preventDefault();
       manualYaw += dx * (compact ? .0065 : .008);
       if (event.pointerType === "mouse") manualPitch = clamp(manualPitch - dy * .0045, -.5, .5);
       dragX = event.clientX;
@@ -633,7 +644,7 @@
       targetEnergy = 1;
       requestRender();
     }
-  }, { passive: true });
+  }, { passive: false });
 
   addEventListener("pointerdown", event => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -642,13 +653,15 @@
     const centerY = (1 - activePath.y) * height * .5;
     const radius = activePath.scale * height * .56;
     if (Math.hypot(event.clientX - centerX, event.clientY - centerY) > radius) return;
+    if (event.pointerType === "mouse" && event.cancelable) event.preventDefault();
+    document.getSelection()?.removeAllRanges();
     dragging = true;
     dragMode = event.pointerType === "mouse" ? "orbit" : "pending";
     dragId = event.pointerId;
     dragX = event.clientX;
     dragY = event.clientY;
     document.body.classList.add("is-planet-dragging");
-  }, { passive: true });
+  }, { passive: false });
 
   const endDrag = event => {
     if (!dragging || event.pointerId !== dragId) return;
@@ -670,7 +683,7 @@
   document.querySelectorAll(reactiveSelector).forEach(element => {
     element.setAttribute("data-planet-reactive", "");
     element.addEventListener("pointerenter", () => {
-      targetEnergy = Math.max(targetEnergy, .55);
+      targetEnergy = Math.max(targetEnergy, .85);
       requestRender();
     }, { passive: true });
     element.addEventListener("pointerdown", () => {

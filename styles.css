@@ -482,3 +482,53 @@ em{font-family:Georgia,"Times New Roman",serif;font-weight:400;color:var(--purpl
   .work-panel.is-active .work-media{transform:translate3d(-50%,-50%,0)!important;transition:none}
   .work-panel.is-active .work-copy,.work-panel.is-active .work-ghost{transform:none!important;transition:none}
 }
+
+/* 2026-08-12 — stable UI and restrained editorial type */
+body{overflow-x:hidden;overflow-x:clip}
+.project-button,.button,.service-row,.brand-card,.price-card,.bundle-card,.process-grid li,.home-lab__index>a,.home-lab__index>a strong{transform:none!important}
+.project-button,.button{transition:background .25s,color .25s,border-color .25s,box-shadow .25s}
+.project-button:hover,.button:hover{transform:none!important;box-shadow:0 0 30px rgba(154,99,255,.15)}
+.service-row:hover,.service-row:focus-visible,.service-row.is-active{padding-left:0!important;transform:none!important}
+.service-row:hover i,.service-row:focus-visible i{transform:none!important;background:rgba(138,77,255,.1)}
+.home-lab__index>a:hover,.home-lab__index>a:focus-visible{padding-left:0!important}
+.home-lab__index>a:hover strong,.home-lab__index>a:focus-visible strong{transform:none!important}
+
+.manifesto-copy>p{font-size:clamp(16px,1.5vw,22px);margin-bottom:24px}
+.manifesto h2{max-width:980px;font-size:clamp(46px,6vw,92px);line-height:.92;letter-spacing:-.055em;text-transform:none}
+.manifesto-note{max-width:620px;margin-top:64px}
+.section-head{margin-bottom:72px}
+.section-head h2{font-size:clamp(44px,5.6vw,82px);line-height:.94;letter-spacing:-.055em;text-transform:none}
+.brand-systems-head h3{font-size:clamp(40px,5vw,74px);line-height:.94;letter-spacing:-.05em;text-transform:none}
+.contact{min-height:720px}
+.contact h2{max-width:900px;font-size:clamp(48px,6vw,92px);line-height:.94;letter-spacing:-.055em;text-transform:none;margin:24px 0 28px}
+.contact-actions{margin-top:32px}
+.contact-details{margin-top:58px}
+.contact-art,.contact-rings{display:none!important}
+
+.work-sticky{padding-top:96px}
+.work-stage{height:calc(100% - 108px);perspective:none;transform-style:flat}
+.work-panel,.work-panel.is-active,.work-panel.is-leaving{transform:none!important;transform-style:flat;backface-visibility:visible}
+.work-panel{visibility:hidden;opacity:0;transition:opacity .2s ease-out;pointer-events:none}
+.work-panel.is-active{visibility:visible;opacity:1;z-index:5;pointer-events:auto}
+.work-panel.is-leaving{visibility:hidden!important;opacity:0!important}
+.work-media,.work-media-wide{left:52%;top:49%;width:min(62vw,980px);max-height:56vh;aspect-ratio:16/9;transform:translate(-50%,-50%)!important}
+.work-media-wide{width:min(65vw,1020px)}
+.work-copy{left:0;bottom:54px;width:min(310px,24vw);padding:19px 20px;transform:none!important;background:rgba(3,2,7,.86)}
+.work-copy h3{font-size:clamp(24px,2.3vw,38px);line-height:.98;margin:12px 0}
+.work-copy p{line-height:1.55}
+
+@media(max-width:1050px){
+  .work-media,.work-media-wide{left:53%;width:min(72vw,900px)}
+  .work-copy{width:270px}
+}
+
+@media(max-width:720px){
+  .manifesto h2,.section-head h2,.brand-systems-head h3{font-size:clamp(38px,10.5vw,50px);line-height:.94}
+  .contact{min-height:720px}
+  .contact h2{font-size:clamp(44px,11vw,56px);line-height:.94}
+  .work-sticky{padding:82px 14px 20px}
+  .work-stage{height:calc(100% - 94px)}
+  .work-media,.work-media-wide{left:50%;top:38%;width:calc(100vw - 28px);max-height:44vh;aspect-ratio:4/3;transform:translate(-50%,-50%)!important}
+  .work-copy{left:8px;right:8px;bottom:54px;width:auto;padding:14px 15px}
+  .work-copy h3{font-size:25px}
+}
