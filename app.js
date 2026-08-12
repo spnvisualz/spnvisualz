@@ -250,7 +250,7 @@
       const target = entry.target.id;
       navLinks.forEach(link => link.classList.toggle('is-active', Boolean(target) && link.getAttribute('href') === `#${target}`));
     });
-  }, { threshold: .22, rootMargin: '-20% 0px -52% 0px' });
+  }, { threshold: .01, rootMargin: '-20% 0px -52% 0px' });
   $$('[data-section]').forEach(section => sectionObserver.observe(section));
 
   const workRail = $('#work');
