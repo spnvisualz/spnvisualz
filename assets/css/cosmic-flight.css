@@ -1,4 +1,4 @@
-/* SPNVISUALZ / TRUE PLANET SYSTEM V3
+/* SPNVISUALZ / TRUE PLANET SYSTEM V4
    One lightweight WebGL world follows the page. Content remains normal HTML. */
 
 :root {
@@ -107,17 +107,17 @@ main,
   background: radial-gradient(circle at 72% 43%,rgba(83,27,188,.1),transparent 35%),linear-gradient(90deg,rgba(2,1,4,.84),rgba(7,3,13,.32) 52%,rgba(2,1,4,.1));
 }
 .planet-ready .hero-cosmos { opacity: .18; }
-.planet-ready .manifesto { background: linear-gradient(180deg,rgba(3,2,7,.55),rgba(7,4,11,.42)); }
-.planet-ready .work-rail { background: rgba(2,1,4,.42); }
-.planet-ready .work-sticky { background: radial-gradient(circle at 50% 47%,rgba(92,35,184,.08),transparent 40%),rgba(2,1,4,.34); }
-.planet-ready .services { background: radial-gradient(circle at 85% 60%,rgba(101,40,208,.08),transparent 28%),rgba(7,3,11,.46); }
-.planet-ready .pricing { background: rgba(3,2,7,.48); }
-.planet-ready .process { background: linear-gradient(180deg,rgba(9,5,15,.46),rgba(3,2,7,.5)); }
-.planet-ready .home-lab { background: linear-gradient(180deg,rgba(3,2,7,.5),rgba(8,5,13,.42) 48%,rgba(3,2,7,.5)); }
-.planet-ready .contact { background: radial-gradient(circle at 70% 52%,rgba(100,39,204,.12),transparent 36%),rgba(5,2,10,.34); }
+.planet-ready .manifesto { background: linear-gradient(180deg,rgba(3,2,7,.25),rgba(7,4,11,.18)); }
+.planet-ready .work-rail { background: rgba(2,1,4,.2); }
+.planet-ready .work-sticky { background: radial-gradient(circle at 50% 47%,rgba(92,35,184,.06),transparent 40%),rgba(2,1,4,.16); }
+.planet-ready .services { background: radial-gradient(circle at 85% 60%,rgba(101,40,208,.06),transparent 28%),rgba(7,3,11,.22); }
+.planet-ready .pricing { background: rgba(3,2,7,.2); }
+.planet-ready .process { background: linear-gradient(180deg,rgba(9,5,15,.22),rgba(3,2,7,.24)); }
+.planet-ready .home-lab { background: linear-gradient(180deg,rgba(3,2,7,.22),rgba(8,5,13,.18) 48%,rgba(3,2,7,.22)); }
+.planet-ready .contact { background: radial-gradient(circle at 70% 52%,rgba(100,39,204,.09),transparent 36%),rgba(5,2,10,.16); }
 .planet-ready .manifesto-portal,.planet-ready .services-depth{opacity:.16}
 
-/* Pointer/touch energy is shared by the planet and the existing conversion controls. */
+/* Controls can energize the lighting, but they never steer the planet. */
 [data-planet-reactive] {
   transition: filter .2s ease,background-color .2s ease,border-color .2s ease;
 }
@@ -126,8 +126,6 @@ main,
 [data-planet-reactive]:focus-visible {
   filter: brightness(1.15) saturate(1.08);
 }
-
-body.is-planet-dragging{cursor:grabbing;-webkit-user-select:none;user-select:none}
 
 .site-header {
   isolation: isolate;
@@ -198,7 +196,7 @@ body.planet-chapter-contact .site-header {
   .planet-ready .pricing,
   .planet-ready .process,
   .planet-ready .home-lab,
-  .planet-ready .contact { background: rgba(3,2,7,.48); }
+  .planet-ready .contact { background: rgba(3,2,7,.25); }
 
   .hero { min-height: 760px; padding-top: 104px; }
   .hero h1 {

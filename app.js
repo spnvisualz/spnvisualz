@@ -215,6 +215,9 @@
     const target = id && id !== '#' ? $(id) : null;
     if (!target) return;
     event.preventDefault();
+    const scrollMargin = Number.parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+    const targetY = Math.max(0, window.scrollY + target.getBoundingClientRect().top - scrollMargin);
+    window.dispatchEvent(new CustomEvent('spn:navigation-start', { detail: { targetY } }));
     if (reduceMotion) {
       const root = document.documentElement;
       const previousBehavior = root.style.scrollBehavior;

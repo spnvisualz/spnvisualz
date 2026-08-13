@@ -203,8 +203,10 @@ main {
 .package-controls { display: grid; justify-items: end; gap: 10px; }
 .package-currency { margin: 0; color: #6f7873; font: 500 9px ui-monospace, "SFMono-Regular", Consolas, monospace; letter-spacing: .11em; text-transform: uppercase; }
 .billing-toggle { display: flex; gap: 4px; padding: 5px; border: 1px solid var(--line); border-radius: 14px; background: #090b0a; }
-.billing-toggle button { min-width: 105px; height: 43px; border: 0; border-radius: 9px; color: #77817b; background: transparent; cursor: pointer; }
+.billing-toggle button { min-width: 112px; height: 43px; padding: 0 14px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 9px; color: #8c9690; background: transparent; cursor: pointer; font-weight: 650; }
 .billing-toggle button.active { color: #101612; background: var(--green); }
+.billing-save { padding: 4px 6px; border: 1px solid rgba(139,255,178,.32); border-radius: 999px; color: var(--green); font: 650 7px/1 ui-monospace, "SFMono-Regular", Consolas, monospace; letter-spacing: .03em; white-space: nowrap; }
+.billing-toggle button.active .billing-save { border-color: rgba(9,16,11,.24); color: #101612; }
 
 .plan-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: stretch; }
 .plan-card {
@@ -225,9 +227,11 @@ main {
 .plan-topline em { padding: 6px 10px; border-radius: 999px; color: #0b130e; background: var(--green); font-style: normal; letter-spacing: .04em; text-transform: uppercase; }
 .plan-card h3 { margin: 45px 0 16px; font-size: clamp(35px, 3vw, 48px); letter-spacing: -.05em; }
 .plan-summary { min-height: 78px; margin: 0; color: #949d98; line-height: 1.55; }
-.price-wrap { display: flex; align-items: baseline; gap: 10px; margin: 38px 0 23px; }
-.price-wrap strong { font-size: clamp(42px, 4vw, 62px); line-height: 1; letter-spacing: -.06em; }
-.price-wrap span { color: #727b76; font: 500 10px ui-monospace, "SFMono-Regular", Consolas, monospace; text-transform: uppercase; }
+.price-wrap { min-height: 92px; display: grid; align-content: end; gap: 8px; margin: 30px 0 23px; }
+.price-wrap > div { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.price-wrap strong { font-size: clamp(42px, 4vw, 58px); line-height: 1; letter-spacing: -.06em; white-space: nowrap; }
+.price-wrap span { color: #87918b; font: 600 10px ui-monospace, "SFMono-Regular", Consolas, monospace; text-transform: uppercase; white-space: nowrap; }
+.price-wrap small { color: #69726d; font: 500 9px ui-monospace, "SFMono-Regular", Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; }
 .plan-button { width: 100%; height: 54px; padding: 0 17px; justify-content: space-between; border-radius: 13px; color: #09100b; background: var(--green); font-size: 13px; }
 .plan-card:not(.featured) .plan-button { color: #e7ebe8; border: 1px solid var(--line); background: rgba(255,255,255,.055); }
 .plan-card:not(.featured) .plan-button:hover { background: rgba(255,255,255,.11); }

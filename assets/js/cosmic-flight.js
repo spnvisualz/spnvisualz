@@ -7,7 +7,6 @@
   if (!stage || !canvas) return;
 
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const finePointer = matchMedia("(pointer: fine)").matches;
   const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   const saveData = Boolean(connection && connection.saveData);
   let compact = innerWidth <= 720;
@@ -68,7 +67,6 @@
 
   const fragmentShaderSource = `
     precision highp float;
-    uniform sampler2D uSurface;
     uniform float uKind;
     uniform float uEnergy;
     uniform float uTime;
@@ -77,6 +75,13 @@
     varying vec3 vObject;
     varying vec3 vWorld;
     varying vec2 vUv;
+
+    const float PI=3.14159265359;
+    const float TAU=6.28318530718;
+
+    float wrapAngle(float angle){
+      return mod(angle+PI,TAU)-PI;
+    }
 
     void main(){
       vec3 n=normalize(vNormal);
@@ -89,31 +94,44 @@
       float shell=pow(1.0-facing,1.18);
 
       if(uKind<0.5){
-        vec4 surface=texture2D(uSurface,vUv);
-        float land=smoothstep(0.42,0.61,surface.r);
-        float edge=1.0-smoothstep(0.025,0.13,abs(surface.r-0.515));
-        float micro=surface.g;
-        float chromeBand=pow(0.5+0.5*sin((n.y+n.x*.28)*18.0+micro*4.0),8.0);
-        float horizonBand=pow(0.5+0.5*sin((n.y*.72-n.x*.18)*31.0),14.0);
+        /* The front and mirrored rear S meet at both poles as one closed loop. */
+        float latitude=(0.5-vUv.y)*PI;
+        float longitude=vUv.x*TAU;
+        float latitudeUnit=clamp(latitude/(PI*.5),-1.0,1.0);
+        float poleToPole=acos(latitudeUnit);
+        float curve=sin(poleToPole*2.0);
+        float frontCenter=PI*.5+curve*.62;
+        float backCenter=PI*1.5-curve*.62;
+        float latitudeScale=max(.085,cos(latitude));
+        float frontDistance=abs(wrapAngle(longitude-frontCenter))*latitudeScale;
+        float backDistance=abs(wrapAngle(longitude-backCenter))*latitudeScale;
+        float ribbonDistance=min(frontDistance,backDistance);
+        float ribbon=1.0-smoothstep(.108,.166,ribbonDistance);
+        float ribbonEdge=1.0-smoothstep(.016,.046,abs(ribbonDistance-.129));
+        float ribbonCore=1.0-smoothstep(.0,.032,ribbonDistance);
 
-        vec3 voidColor=vec3(0.025,0.01,0.06);
-        voidColor+=vec3(0.12,0.04,0.25)*(diffuse*.78+rim*.76);
-        voidColor+=vec3(0.48,0.31,0.82)*(spec*.78+chromeBand*.11);
-        voidColor+=vec3(0.26,0.12,0.58)*shell*.38;
+        float micro=.5+.5*sin(vObject.x*53.0+vObject.y*37.0-vObject.z*41.0);
+        float chromeBand=pow(.5+.5*sin((n.y+n.x*.26)*19.0+uTime*.055),10.0);
+        float horizonBand=pow(.5+.5*sin((n.y*.74-n.x*.2)*33.0),16.0);
 
-        vec3 landDark=vec3(0.14,0.04,0.32);
-        vec3 landLight=vec3(0.9,0.72,1.0);
-        vec3 landChrome=mix(landDark,landLight,clamp(diffuse*.72+micro*.3,0.0,1.0));
-        landChrome+=vec3(1.0,0.92,1.0)*(spec*1.32+chromeBand*.3+horizonBand*.13);
-        landChrome+=vec3(0.36,0.14,0.72)*rim*.78;
+        vec3 globeColor=vec3(.038,.022,.066);
+        globeColor+=vec3(.19,.075,.38)*(diffuse*.64+rim*.64);
+        globeColor+=vec3(.5,.34,.78)*(chromeBand*.12+horizonBand*.055);
+        globeColor+=vec3(.98,.9,1.0)*spec*.9;
+        globeColor+=vec3(.34,.14,.68)*shell*.28;
 
-        vec3 color=mix(voidColor,landChrome,land);
-        color+=edge*vec3(0.31,0.12,0.78)*(.18+uEnergy*.26);
-        color+=rim*vec3(0.58,0.3,1.0)*(.58+uEnergy*.28);
-        color+=shell*vec3(0.2,0.08,0.48)*.28;
-        color+=spec*vec3(0.9,0.8,1.0)*(.46+uEnergy*.38);
-        color=pow(max(color,vec3(0.0)),vec3(.86));
-        gl_FragColor=vec4(color,uAlpha);
+        float ribbonLight=clamp(diffuse*.78+spec*1.18+chromeBand*.22+micro*.07,0.0,1.0);
+        vec3 ribbonColor=mix(vec3(.17,.095,.29),vec3(.94,.91,1.0),ribbonLight);
+        ribbonColor+=vec3(.42,.17,.82)*rim*.58;
+        ribbonColor+=vec3(1.0,.96,1.0)*(spec*.7+horizonBand*.12);
+
+        vec3 color=mix(globeColor,ribbonColor,ribbon);
+        color+=ribbonEdge*vec3(.78,.55,1.0)*(.35+uEnergy*.26);
+        color+=ribbonCore*vec3(.34,.12,.62)*.1;
+        color+=rim*vec3(.54,.27,.96)*(.42+uEnergy*.18);
+        color+=spec*vec3(1.0,.96,1.0)*(.24+uEnergy*.28);
+        color=pow(max(color,vec3(0.0)),vec3(.84));
+        gl_FragColor=vec4(color,1.0);
       }else{
         float pulse=.72+.28*sin(vUv.x*50.0-uTime*1.1);
         vec3 ringDark=vec3(0.12,0.045,0.27);
@@ -168,8 +186,7 @@
     kind: gl.getUniformLocation(program, "uKind"),
     energy: gl.getUniformLocation(program, "uEnergy"),
     time: gl.getUniformLocation(program, "uTime"),
-    alpha: gl.getUniformLocation(program, "uAlpha"),
-    surface: gl.getUniformLocation(program, "uSurface")
+    alpha: gl.getUniformLocation(program, "uAlpha")
   };
 
   const makeGeometry = (positions, normals, uvs, indices) => {
@@ -251,97 +268,8 @@
     return makeGeometry(positions, normals, uvs, indices);
   };
 
-  const hash3 = (x, y, z) => {
-    let value = Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(z, 2147483647);
-    value = Math.imul(value ^ (value >>> 13), 1274126177);
-    return ((value ^ (value >>> 16)) >>> 0) / 4294967295;
-  };
-
-  const noise3 = (x, y, z) => {
-    const xi = Math.floor(x);
-    const yi = Math.floor(y);
-    const zi = Math.floor(z);
-    const xf = x - xi;
-    const yf = y - yi;
-    const zf = z - zi;
-    const sx = xf * xf * (3 - 2 * xf);
-    const sy = yf * yf * (3 - 2 * yf);
-    const sz = zf * zf * (3 - 2 * zf);
-    const x00 = lerp(hash3(xi, yi, zi), hash3(xi + 1, yi, zi), sx);
-    const x10 = lerp(hash3(xi, yi + 1, zi), hash3(xi + 1, yi + 1, zi), sx);
-    const x01 = lerp(hash3(xi, yi, zi + 1), hash3(xi + 1, yi, zi + 1), sx);
-    const x11 = lerp(hash3(xi, yi + 1, zi + 1), hash3(xi + 1, yi + 1, zi + 1), sx);
-    return lerp(lerp(x00, x10, sy), lerp(x01, x11, sy), sz);
-  };
-
-  const fbm3 = (x, y, z) => {
-    let value = 0;
-    let amplitude = .56;
-    let frequency = 1;
-    for (let octave = 0; octave < 4; octave += 1) {
-      value += noise3(x * frequency, y * frequency, z * frequency) * amplitude;
-      frequency *= 2.03;
-      amplitude *= .48;
-    }
-    return value;
-  };
-
-  const createSurfaceTexture = () => {
-    const textureWidth = compact ? 512 : 1024;
-    const textureHeight = compact ? 256 : 512;
-    const data = new Uint8Array(textureWidth * textureHeight * 4);
-    for (let y = 0; y < textureHeight; y += 1) {
-      const v = y / (textureHeight - 1);
-      const latitude = (v - .5) * Math.PI;
-      const cosLatitude = Math.cos(latitude);
-      for (let x = 0; x < textureWidth; x += 1) {
-        const u = x / (textureWidth - 1);
-        const longitude = u * TAU;
-        const px = cosLatitude * Math.cos(longitude);
-        const py = Math.sin(latitude);
-        const pz = cosLatitude * Math.sin(longitude);
-        const broad = fbm3(px * 2.05 + 3.2, py * 2.05 - 1.7, pz * 2.05 + 5.4);
-        const detail = fbm3(px * 6.4 - 4.1, py * 6.4 + 2.8, pz * 6.4 + 1.3);
-        const frontness = smoothstep(.05, .55, pz);
-        const sCenter = -.4 * Math.sin(py * 3.45);
-        const sWidth = .115 + .035 * (1 - Math.abs(py));
-        const sStroke = (1 - smoothstep(sWidth, sWidth + .065, Math.abs(px - sCenter)))
-          * (1 - smoothstep(.69, .82, Math.abs(py))) * frontness;
-        const plates = clamp((broad - .43) * 2.4 + (detail - .5) * .3);
-        const farSideLand = plates * (1 - frontness * .9);
-        const field = clamp(Math.max(farSideLand, sStroke * (.82 + detail * .18)));
-        const index = (y * textureWidth + x) * 4;
-        data[index] = Math.round(field * 255);
-        data[index + 1] = Math.round(detail * 255);
-        data[index + 2] = Math.round(broad * 255);
-        data[index + 3] = 255;
-      }
-    }
-    const texture = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, textureWidth, textureHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
-    gl.generateMipmap(gl.TEXTURE_2D);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    const anisotropy = gl.getExtension("EXT_texture_filter_anisotropic")
-      || gl.getExtension("WEBKIT_EXT_texture_filter_anisotropic");
-    if (anisotropy) {
-      const maximum = gl.getParameter(anisotropy.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
-      gl.texParameterf(gl.TEXTURE_2D, anisotropy.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(4, maximum));
-    }
-    return texture;
-  };
-
-  const sphere = createSphere(compact ? 56 : 88, compact ? 80 : 128);
-  const torus = createTorus(compact ? 96 : 144, compact ? 8 : 11, 1.42, compact ? .026 : .032);
-  const surfaceTexture = createSurfaceTexture();
-  gl.uniform1i(uniforms.surface, 0);
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, surfaceTexture);
+  const sphere = createSphere(compact ? 80 : 128, compact ? 112 : 192);
+  const torus = createTorus(compact ? 112 : 180, compact ? 10 : 14, 1.42, compact ? .026 : .032);
 
   const bindGeometry = geometry => {
     gl.bindBuffer(gl.ARRAY_BUFFER, geometry.position);
@@ -378,16 +306,14 @@
   let chapterMetrics = [];
   let targetProgress = 0;
   let currentProgress = 0;
+  let scrollYaw = 0;
   let targetEnergy = 0;
   let currentEnergy = 0;
-  let targetPointerX = 0;
-  let targetPointerY = 0;
-  let pointerX = 0;
-  let pointerY = 0;
-  let manualYaw = 0;
-  let manualPitch = 0;
+  let navigationProgress = null;
+  let navigationPath = null;
+  let navigationLockUntil = 0;
   let activeChapter = -1;
-  let activePath = { x: .42, y: .02, scale: .84, opacity: .95, pitch: -.08 };
+  let activePath = { x: .42, y: .02, scale: .84, opacity: 1, pitch: -.08 };
   let previousScroll = scrollY;
   let previousScrollTime = performance.now();
   let previousFrame = performance.now();
@@ -395,11 +321,6 @@
   let animationFrame = 0;
   let resizeFrame = 0;
   let visible = !document.hidden;
-  let dragging = false;
-  let dragMode = "";
-  let dragId = -1;
-  let dragX = 0;
-  let dragY = 0;
 
   const sectionPoint = (selector, amount = 0) => {
     const element = document.querySelector(selector);
@@ -437,35 +358,35 @@
     const contact = sectionPoint("#contact", .46);
     const desktopPath = [
       { p: 0, x: .42, y: .02, scale: 1.1, opacity: 1, pitch: -.08 },
-      { p: heroEnd, x: .38, y: -.03, scale: 1.04, opacity: .98, pitch: -.03 },
-      { p: studio, x: -.42, y: .02, scale: 1.12, opacity: .94, pitch: .1 },
-      { p: workStart, x: .5, y: .02, scale: 1.08, opacity: .9, pitch: -.12 },
-      { p: workTwo, x: -.5, y: -.08, scale: .92, opacity: .9, pitch: .08 },
-      { p: workThree, x: .52, y: .12, scale: 1, opacity: .92, pitch: -.08 },
-      { p: workFour, x: -.48, y: .06, scale: .92, opacity: .9, pitch: .1 },
-      { p: workFive, x: .5, y: -.1, scale: 1.06, opacity: .92, pitch: -.1 },
-      { p: workEnd, x: -.4, y: .1, scale: .95, opacity: .88, pitch: -.08 },
-      { p: services, x: .5, y: .08, scale: 1.05, opacity: .93, pitch: .1 },
-      { p: pricing, x: -.48, y: -.02, scale: 1, opacity: .92, pitch: -.1 },
-      { p: process, x: .48, y: .12, scale: .98, opacity: .9, pitch: .14 },
-      { p: lab, x: -.44, y: .05, scale: 1.08, opacity: .94, pitch: -.08 },
+      { p: heroEnd, x: .38, y: -.03, scale: 1.04, opacity: 1, pitch: -.03 },
+      { p: studio, x: -.42, y: .02, scale: 1.12, opacity: 1, pitch: .1 },
+      { p: workStart, x: .5, y: .02, scale: 1.08, opacity: 1, pitch: -.12 },
+      { p: workTwo, x: -.5, y: -.08, scale: .92, opacity: 1, pitch: .08 },
+      { p: workThree, x: .52, y: .12, scale: 1, opacity: 1, pitch: -.08 },
+      { p: workFour, x: -.48, y: .06, scale: .92, opacity: 1, pitch: .1 },
+      { p: workFive, x: .5, y: -.1, scale: 1.06, opacity: 1, pitch: -.1 },
+      { p: workEnd, x: -.4, y: .1, scale: .95, opacity: 1, pitch: -.08 },
+      { p: services, x: .5, y: .08, scale: 1.05, opacity: 1, pitch: .1 },
+      { p: pricing, x: -.48, y: -.02, scale: 1, opacity: 1, pitch: -.1 },
+      { p: process, x: .48, y: .12, scale: .98, opacity: 1, pitch: .14 },
+      { p: lab, x: -.44, y: .05, scale: 1.08, opacity: 1, pitch: -.08 },
       { p: contact, x: .28, y: .02, scale: 1.35, opacity: 1, pitch: .03 },
       { p: 1, x: 0, y: 0, scale: 1.55, opacity: 1, pitch: 0 }
     ];
     const mobilePath = [
       { p: 0, x: .38, y: .12, scale: .84, opacity: 1, pitch: -.06 },
-      { p: heroEnd, x: .36, y: .04, scale: .8, opacity: .96, pitch: -.02 },
-      { p: studio, x: -.42, y: -.06, scale: .86, opacity: .86, pitch: .08 },
-      { p: workStart, x: .38, y: -.03, scale: .9, opacity: .82, pitch: -.08 },
-      { p: workTwo, x: -.4, y: -.08, scale: .78, opacity: .8, pitch: .08 },
-      { p: workThree, x: .42, y: .12, scale: .84, opacity: .84, pitch: -.08 },
-      { p: workFour, x: -.4, y: .06, scale: .78, opacity: .8, pitch: .08 },
-      { p: workFive, x: .4, y: -.08, scale: .88, opacity: .84, pitch: -.08 },
-      { p: workEnd, x: -.38, y: .08, scale: .8, opacity: .8, pitch: -.06 },
-      { p: services, x: .42, y: .1, scale: .84, opacity: .86, pitch: .08 },
-      { p: pricing, x: -.42, y: -.05, scale: .82, opacity: .84, pitch: -.08 },
-      { p: process, x: .4, y: .14, scale: .8, opacity: .82, pitch: .1 },
-      { p: lab, x: -.4, y: .08, scale: .86, opacity: .86, pitch: -.06 },
+      { p: heroEnd, x: .36, y: .04, scale: .8, opacity: 1, pitch: -.02 },
+      { p: studio, x: -.42, y: -.06, scale: .86, opacity: 1, pitch: .08 },
+      { p: workStart, x: .38, y: -.03, scale: .9, opacity: 1, pitch: -.08 },
+      { p: workTwo, x: -.4, y: -.08, scale: .78, opacity: 1, pitch: .08 },
+      { p: workThree, x: .42, y: .12, scale: .84, opacity: 1, pitch: -.08 },
+      { p: workFour, x: -.4, y: .06, scale: .78, opacity: 1, pitch: .08 },
+      { p: workFive, x: .4, y: -.08, scale: .88, opacity: 1, pitch: -.08 },
+      { p: workEnd, x: -.38, y: .08, scale: .8, opacity: 1, pitch: -.06 },
+      { p: services, x: .42, y: .1, scale: .84, opacity: 1, pitch: .08 },
+      { p: pricing, x: -.42, y: -.05, scale: .82, opacity: 1, pitch: -.08 },
+      { p: process, x: .4, y: .14, scale: .8, opacity: 1, pitch: .1 },
+      { p: lab, x: -.4, y: .08, scale: .86, opacity: 1, pitch: -.06 },
       { p: contact, x: .25, y: .06, scale: 1.05, opacity: 1, pitch: .03 },
       { p: 1, x: 0, y: 0, scale: 1.15, opacity: 1, pitch: 0 }
     ];
@@ -488,12 +409,28 @@
     };
   };
 
+  const copyPath = path => ({
+    x: path.x,
+    y: path.y,
+    scale: path.scale,
+    opacity: path.opacity,
+    pitch: path.pitch
+  });
+
+  const interpolatePath = (from, to, amount) => ({
+    x: lerp(from.x, to.x, amount),
+    y: lerp(from.y, to.y, amount),
+    scale: lerp(from.scale, to.scale, amount),
+    opacity: 1,
+    pitch: lerp(from.pitch, to.pitch, amount)
+  });
+
   const resize = () => {
     width = Math.max(1, innerWidth);
     height = Math.max(1, innerHeight);
     compact = width <= 720;
     aspect = width / height;
-    const dpr = Math.min(devicePixelRatio || 1, saveData ? 1 : compact ? 1.5 : 2);
+    const dpr = Math.min(devicePixelRatio || 1, saveData ? 1 : compact ? 2 : 2.5);
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
     canvas.style.width = `${width}px`;
@@ -502,6 +439,7 @@
     cachePath();
     targetProgress = clamp(scrollY / pageMax);
     currentProgress = targetProgress;
+    scrollYaw = currentProgress * TAU * 1.35;
     activePath = pathAt(currentProgress);
   };
 
@@ -546,8 +484,8 @@
     const time = now * .001;
     const path = activePath;
     const idle = reduceMotion || saveData ? 0 : time * (compact ? .055 : .08);
-    const yaw = currentProgress * TAU * 3.4 + manualYaw + pointerX * .3 + idle;
-    const pitch = path.pitch + manualPitch - pointerY * .2 + Math.sin(currentProgress * TAU * 1.7) * .075;
+    const yaw = scrollYaw + idle;
+    const pitch = path.pitch + Math.sin(currentProgress * TAU * 1.7) * .075;
     const roll = Math.sin(currentProgress * TAU * 1.15) * .07;
 
     gl.clearColor(0, 0, 0, 0);
@@ -593,14 +531,23 @@
     const delta = Math.min(50, Math.max(1, now - previousFrame));
     previousFrame = now;
     const progressEase = reduceMotion || saveData ? 1 : 1 - Math.pow(.0015, delta / 1000);
-    const pointerEase = reduceMotion || saveData ? 1 : 1 - Math.pow(.009, delta / 1000);
     const energyEase = 1 - Math.pow(.005, delta / 1000);
     currentProgress = lerp(currentProgress, targetProgress, progressEase);
-    pointerX = lerp(pointerX, targetPointerX, pointerEase);
-    pointerY = lerp(pointerY, targetPointerY, pointerEase);
     currentEnergy = lerp(currentEnergy, targetEnergy, energyEase);
     targetEnergy *= Math.pow(.12, delta / 1000);
-    activePath = pathAt(currentProgress);
+    const navigating = navigationProgress !== null && now < navigationLockUntil;
+    const desiredYaw = currentProgress * TAU * 1.35;
+    const maximumYawStep = (navigating ? 1.35 : 2.8) * delta / 1000;
+    scrollYaw += clamp(desiredYaw - scrollYaw, -maximumYawStep, maximumYawStep);
+
+    if (navigationPath) {
+      const amount = clamp((now - navigationPath.started) / navigationPath.duration);
+      activePath = interpolatePath(navigationPath.from, navigationPath.to, smoothstep(0, 1, amount));
+      if (amount >= 1) navigationPath = null;
+    } else {
+      activePath = pathAt(currentProgress);
+    }
+    if (navigationProgress !== null && now >= navigationLockUntil) navigationProgress = null;
     draw(now);
     updateChapter();
     if (!reduceMotion && !saveData) animationFrame = requestAnimationFrame(render);
@@ -617,74 +564,31 @@
     const nextScroll = scrollY;
     const distance = Math.abs(nextScroll - previousScroll);
     const elapsed = Math.max(16, now - previousScrollTime);
-    targetEnergy = Math.max(targetEnergy, clamp((distance / elapsed) / 2.4));
-    targetProgress = clamp(nextScroll / pageMax);
+    const navigating = navigationProgress !== null && now < navigationLockUntil;
+    targetEnergy = Math.max(targetEnergy, navigating ? .18 : clamp((distance / elapsed) / 2.4));
+    targetProgress = navigating ? navigationProgress : clamp(nextScroll / pageMax);
     previousScroll = nextScroll;
     previousScrollTime = now;
     stage.classList.toggle("is-hint-hidden", nextScroll > height * .16);
     requestRender();
   }, { passive: true });
 
-  addEventListener("pointermove", event => {
-    if (finePointer && !dragging) {
-      targetPointerX = clamp(event.clientX / width, 0, 1) - .5;
-      targetPointerY = clamp(event.clientY / height, 0, 1) - .5;
-    }
-    if (!dragging || event.pointerId !== dragId) return;
-    const dx = event.clientX - dragX;
-    const dy = event.clientY - dragY;
-    if (dragMode === "pending" && Math.hypot(dx, dy) > 7) {
-      if (event.pointerType === "mouse" || Math.abs(dx) > Math.abs(dy) * 1.15) dragMode = "orbit";
-      else {
-        dragging = false;
-        dragMode = "";
-        document.body.classList.remove("is-planet-dragging");
-        return;
-      }
-    }
-    if (dragMode === "orbit") {
-      if (event.cancelable) event.preventDefault();
-      manualYaw += dx * (compact ? .0065 : .008);
-      if (event.pointerType === "mouse") manualPitch = clamp(manualPitch - dy * .0045, -.5, .5);
-      dragX = event.clientX;
-      dragY = event.clientY;
-      targetEnergy = 1;
-      requestRender();
-    }
-  }, { passive: false });
-
-  addEventListener("pointerdown", event => {
-    if (event.pointerType === "mouse" && event.button !== 0) return;
-    if (event.target.closest("a,button,input,select,textarea,summary,[role='button']")) return;
-    const centerX = (activePath.x + 1) * width * .5;
-    const centerY = (1 - activePath.y) * height * .5;
-    const radius = activePath.scale * height * .56;
-    if (Math.hypot(event.clientX - centerX, event.clientY - centerY) > radius) return;
-    if (event.pointerType === "mouse" && event.cancelable) event.preventDefault();
-    document.getSelection()?.removeAllRanges();
-    dragging = true;
-    dragMode = event.pointerType === "mouse" ? "orbit" : "pending";
-    dragId = event.pointerId;
-    dragX = event.clientX;
-    dragY = event.clientY;
-    document.body.classList.add("is-planet-dragging");
-  }, { passive: false });
-
-  const endDrag = event => {
-    if (!dragging || event.pointerId !== dragId) return;
-    dragging = false;
-    dragMode = "";
-    dragId = -1;
-    document.body.classList.remove("is-planet-dragging");
-  };
-  addEventListener("pointerup", endDrag, { passive: true });
-  addEventListener("pointercancel", endDrag, { passive: true });
-  addEventListener("pointerleave", event => {
-    if (!dragging) {
-      targetPointerX = 0;
-      targetPointerY = 0;
-    } else endDrag(event);
-  }, { passive: true });
+  addEventListener("spn:navigation-start", event => {
+    const targetY = Number(event.detail?.targetY);
+    if (!Number.isFinite(targetY)) return;
+    const now = performance.now();
+    navigationProgress = clamp(targetY / pageMax);
+    navigationLockUntil = now + 1300;
+    navigationPath = {
+      from: copyPath(activePath),
+      to: copyPath(pathAt(navigationProgress)),
+      started: now,
+      duration: 1300
+    };
+    targetProgress = navigationProgress;
+    targetEnergy = Math.max(targetEnergy, .22);
+    requestRender();
+  });
 
   const reactiveSelector = ".button,.project-button,.menu-toggle,.desktop-nav a,.mobile-menu nav a,.websites-menu-entry,.service-row,.price-card>button,.bundle-card button,.home-lab__index>a,.home-lab__enter";
   document.querySelectorAll(reactiveSelector).forEach(element => {

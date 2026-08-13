@@ -3,6 +3,8 @@
   const plans = [...document.querySelectorAll('[data-plan]')];
 
   const setBilling = (mode) => {
+    const yearly = mode === 'yearly';
+    document.body.dataset.billing = mode;
     buttons.forEach((button) => {
       const active = button.dataset.billing === mode;
       button.classList.toggle('active', active);
@@ -11,8 +13,10 @@
     plans.forEach((plan) => {
       const price = plan.querySelector('.price-wrap strong');
       const label = plan.querySelector('.price-wrap span');
-      if (price) price.textContent = mode === 'monthly' ? plan.dataset.monthly : plan.dataset.once;
-      if (label) label.textContent = mode === 'monthly' ? '/ month × 12' : 'one-time';
+      const note = plan.querySelector('.price-wrap small');
+      if (price) price.textContent = yearly ? plan.dataset.yearly : plan.dataset.monthly;
+      if (label) label.textContent = yearly ? '/ year' : '/ month';
+      if (note) note.textContent = yearly ? 'One yearly payment' : '12 monthly payments';
     });
   };
 
@@ -38,4 +42,6 @@
       target.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     });
   });
+
+  setBilling('monthly');
 })();
