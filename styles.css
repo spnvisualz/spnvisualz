@@ -22,7 +22,7 @@ html.lenis,html.lenis body{height:auto}
 .lenis:not(.lenis-autoToggle).lenis-stopped{overflow:clip}
 .lenis [data-lenis-prevent],.lenis [data-lenis-prevent-wheel],.lenis [data-lenis-prevent-touch],.lenis [data-lenis-prevent-vertical],.lenis [data-lenis-prevent-horizontal]{overscroll-behavior:contain}
 .lenis.lenis-smooth iframe{pointer-events:none}
-body.is-loading main,body.is-loading .site-header{opacity:0}
+body.is-loading main,body.is-loading .site-header{opacity:0;animation:bootContentSafety 0s 3.4s forwards}
 body main,body .site-header{opacity:1;transition:opacity .8s ease}
 button,input,select,textarea{font:inherit}
 button{color:inherit}
@@ -214,7 +214,7 @@ em{font-family:Georgia,"Times New Roman",serif;font-weight:400;color:var(--purpl
 
 
 /* Fast visual-engine boot sequence */
-.boot-intro{position:fixed;z-index:4000;inset:0;overflow:hidden;background:#010104;color:#f7f4fb;opacity:1;visibility:visible;transition:opacity .42s ease,visibility .42s;animation:bootSafetyHide 0s 1.9s forwards;contain:strict}
+.boot-intro{position:fixed;z-index:4000;inset:0;overflow:hidden;background:#010104;color:#f7f4fb;opacity:1;visibility:visible;transition:opacity .48s ease,visibility .48s;animation:bootSafetyHide 0s 3.4s forwards;contain:strict}
 .boot-intro:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(198,167,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(198,167,255,.045) 1px,transparent 1px);background-size:58px 58px;mask-image:radial-gradient(circle at center,#000,transparent 78%)}
 .boot-intro:after{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--purple-light),transparent);box-shadow:0 0 20px var(--purple);animation:bootScan 1.35s cubic-bezier(.2,.75,.2,1) both}
 .boot-intro.is-complete{opacity:0;visibility:hidden;pointer-events:none}
@@ -232,6 +232,7 @@ em{font-family:Georgia,"Times New Roman",serif;font-weight:400;color:var(--purpl
 @keyframes bootOrb{from{transform:scale(.2);opacity:0}65%{transform:scale(1.08);opacity:1}to{transform:scale(1)}}
 @keyframes bootSpin{to{transform:rotate(360deg)}}
 @keyframes bootSafetyHide{to{visibility:hidden;pointer-events:none}}
+@keyframes bootContentSafety{to{opacity:1}}
 
 /* Signature visual-world sequence */
 .work-signature{position:absolute;z-index:11;left:0;right:0;top:15px;display:flex;justify-content:space-between;align-items:center;padding:0 1.5vw;font:7px/1 "Courier New",monospace;letter-spacing:.16em;color:rgba(255,255,255,.46);pointer-events:none}.work-signature span{display:flex;align-items:center;gap:8px}.work-signature span i{width:5px;height:5px;border-radius:50%;background:var(--purple-light);box-shadow:0 0 12px var(--purple);animation:signalPulse 1.6s ease-in-out infinite}.work-signature b{font-weight:400}.work-signature b em{font:inherit;color:#fff}
@@ -252,7 +253,7 @@ em{font-family:Georgia,"Times New Roman",serif;font-weight:400;color:var(--purpl
   .service-dialog-shell{grid-template-columns:1fr;width:calc(100% - 16px);min-height:0;margin:8px auto}.service-dialog-close{right:12px;top:12px;background:rgba(3,2,7,.9)}.service-dialog-visual{min-height:0;height:min(34vh,270px);border-right:0;border-bottom:1px solid var(--line)}.service-dialog-copy{padding:28px 20px 24px}.service-dialog-copy h2{font-size:42px;margin:15px 0 17px}.service-dialog-copy>p:not(.section-label){font-size:12px;line-height:1.6}.service-dialog-copy ul{margin:19px 0 22px}.service-dialog-copy li{padding:10px 0 10px 18px;font-size:8px}.service-dialog-copy li:before{top:13px}.service-dialog-action{align-items:stretch;flex-direction:column;gap:14px}.service-dialog-action>button{width:100%;min-width:0}.service-dialog-visual>span{left:12px;bottom:10px}
 }
 @media(max-width:430px){.service-row{grid-template-columns:28px 1fr 34px}.service-row i.service-arrow{width:32px;height:32px}}
-@media(prefers-reduced-motion:reduce){.boot-intro{display:none!important}.boot-intro *,.world-orbit,.work-signature span i,.work-stage.is-switching .world-scan,.work-stage.is-switching .work-panel.is-active .work-media:before,.work-panel.is-active .work-ghost{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.boot-intro *,.world-orbit,.work-signature span i,.work-stage.is-switching .world-scan,.work-stage.is-switching .work-panel.is-active .work-media:before,.work-panel.is-active .work-ghost{animation:none!important}}
 
 /* Motion-backed service preview */
 .service-preview video{width:100%;height:100%;object-fit:contain;transition:opacity .28s,transform .6s;background:#010103}.service-preview.is-changing video{opacity:.1;transform:scale(1.04)}.service-preview img[hidden],.service-preview video[hidden],.service-dialog-visual img[hidden],.service-dialog-visual video[hidden]{display:none}.service-dialog-visual video{width:100%;height:100%;object-fit:contain;background:#010103}

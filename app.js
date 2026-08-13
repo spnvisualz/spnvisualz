@@ -125,37 +125,35 @@
     bootFinished = true;
     if (bootFrame) cancelAnimationFrame(bootFrame);
     clearTimeout(bootFailsafe);
-    bootIntro?.classList.add('is-complete');
-    setTimeout(() => bootIntro?.remove(), 420);
+    if (bootPercent) bootPercent.textContent = '100';
+    if (bootStatus) bootStatus.textContent = 'READY';
+    document.body.classList.remove('is-loading');
+    requestAnimationFrame(() => bootIntro?.classList.add('is-complete'));
+    setTimeout(() => bootIntro?.remove(), 520);
   };
 
   if (bootIntro) {
     const compactBoot = innerWidth <= 720;
-    if (reduceMotion || compactBoot) {
-      bootFinished = true;
-      bootIntro.remove();
-    } else {
-      const bootStarted = performance.now();
-      const updateBoot = (now) => {
-        const elapsed = now - bootStarted;
-        const linear = Math.min(1, elapsed / 980);
-        const eased = 1 - Math.pow(1 - linear, 3);
-        const value = Math.min(100, Math.floor(eased * 100));
-        if (bootPercent) bootPercent.textContent = String(value).padStart(2, '0');
-        if (bootStatus) {
-          bootStatus.textContent = linear < .28 ? 'INITIALIZING' : linear < .62 ? 'CALIBRATING MOTION' : linear < .9 ? 'BUILDING THE WORLD' : 'READY';
-        }
-        if (linear < 1) bootFrame = requestAnimationFrame(updateBoot);
-        else finishBoot();
-      };
-      bootFrame = requestAnimationFrame(updateBoot);
-      bootFailsafe = setTimeout(finishBoot, 1600);
-    }
+    const bootDuration = reduceMotion ? 420 : compactBoot ? 1180 : 1480;
+    const bootStarted = performance.now();
+    const updateBoot = (now) => {
+      const elapsed = now - bootStarted;
+      const linear = Math.min(1, elapsed / bootDuration);
+      const eased = reduceMotion ? linear : 1 - Math.pow(1 - linear, 3);
+      const value = Math.min(100, Math.floor(eased * 100));
+      if (bootPercent) bootPercent.textContent = String(value).padStart(2, '0');
+      if (bootStatus) {
+        bootStatus.textContent = linear < .28 ? 'INITIALIZING' : linear < .62 ? 'CALIBRATING MOTION' : linear < .9 ? 'BUILDING THE WORLD' : 'READY';
+      }
+      if (linear < 1) bootFrame = requestAnimationFrame(updateBoot);
+      else finishBoot();
+    };
+    bootFrame = requestAnimationFrame(updateBoot);
+    bootFailsafe = setTimeout(finishBoot, bootDuration + 900);
   }
 
   addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(() => {
-      document.body.classList.remove('is-loading');
       cachePageMetrics();
       renderScroll();
     });
@@ -733,8 +731,10 @@
   }
 
   addEventListener('pageshow', event => {
-    if (event.persisted) finishBoot();
-    document.body.classList.remove('is-loading');
+    if (event.persisted) {
+      finishBoot();
+      document.body.classList.remove('is-loading');
+    }
     latestScroll = currentScroll();
     scheduleMetricRefresh();
     requestAnimationFrame(() => {
