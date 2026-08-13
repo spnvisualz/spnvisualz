@@ -3,6 +3,83 @@
   const $$ = (selector, context = document) => [...context.querySelectorAll(selector)];
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = matchMedia('(pointer:fine)').matches;
+  const scrollEase = value => value < .5
+    ? 4 * value * value * value
+    : 1 - Math.pow(-2 * value + 2, 3) / 2;
+  let programmaticScroll = false;
+  let programmaticScrollTimer = 0;
+  const smoothScroll = !reduceMotion && window.Lenis ? new window.Lenis({
+    autoRaf: true,
+    autoResize: true,
+    smoothWheel: true,
+    syncTouch: false,
+    lerp: finePointer ? .085 : .12,
+    wheelMultiplier: .82,
+    touchMultiplier: 1,
+    overscroll: true,
+    anchors: false,
+    stopInertiaOnNavigate: true,
+    respectReducedMotion: true
+  }) : null;
+
+  const currentScroll = () => smoothScroll ? smoothScroll.scroll : scrollY;
+  const scrollDuration = targetY => {
+    const distance = Math.abs(targetY - currentScroll());
+    return Math.min(2.15, Math.max(.9, .88 + distance / 6500));
+  };
+  const finishProgrammaticScroll = () => {
+    if (!programmaticScroll) return;
+    programmaticScroll = false;
+    clearTimeout(programmaticScrollTimer);
+    programmaticScrollTimer = 0;
+    latestScroll = currentScroll();
+    updateWork();
+    window.dispatchEvent(new CustomEvent('spn:navigation-complete'));
+  };
+  const scrollToPosition = (targetY, options = {}) => {
+    const boundedTarget = Math.max(0, Math.min(targetY, document.documentElement.scrollHeight - innerHeight));
+    const duration = reduceMotion ? 0 : Number(options.duration || scrollDuration(boundedTarget));
+    window.dispatchEvent(new CustomEvent('spn:navigation-start', {
+      detail: { targetY: boundedTarget, durationMs: duration * 1000 }
+    }));
+    programmaticScroll = true;
+    clearTimeout(programmaticScrollTimer);
+    if (smoothScroll) {
+      smoothScroll.scrollTo(boundedTarget, {
+        duration,
+        easing: scrollEase,
+        immediate: reduceMotion,
+        force: true,
+        lock: false,
+        userData: { spnNavigation: true },
+        onComplete: finishProgrammaticScroll
+      });
+    } else {
+      window.scrollTo({ top: boundedTarget, behavior: reduceMotion ? 'auto' : 'smooth' });
+      programmaticScrollTimer = setTimeout(finishProgrammaticScroll, Math.max(100, duration * 1000 + 120));
+    }
+    if (reduceMotion) finishProgrammaticScroll();
+  };
+
+  window.SPNScroll = {
+    active: Boolean(smoothScroll),
+    get current() { return currentScroll(); },
+    get navigating() { return programmaticScroll; },
+    scrollTo: scrollToPosition,
+    start: () => smoothScroll?.start(),
+    stop: () => smoothScroll?.stop(),
+    resize: () => smoothScroll?.resize()
+  };
+
+  smoothScroll?.on('virtual-scroll', ({ event }) => {
+    if (event?.ctrlKey) return;
+    finishProgrammaticScroll();
+    window.dispatchEvent(new CustomEvent('spn:navigation-cancel'));
+  });
+
+  $$('.mobile-menu,.dialog-shell,.service-dialog-shell,.work-copy').forEach(element => {
+    element.setAttribute('data-lenis-prevent', '');
+  });
   const depthField = $('#depthField');
   const hero = $('.hero');
   const heroCosmos = $('.hero-cosmos');
@@ -19,7 +96,7 @@
   const cacheDepthMetrics = () => {
     depthLayers.forEach(item => {
       const rect = item.scene.getBoundingClientRect();
-      item.top = scrollY + rect.top;
+      item.top = currentScroll() + rect.top;
       item.height = Math.max(1, rect.height);
     });
   };
@@ -90,7 +167,7 @@
 
   const header = $('#siteHeader');
   const progress = $('#pageProgress');
-  let latestScroll = scrollY;
+  let latestScroll = currentScroll();
   let pageMax = Math.max(1, document.documentElement.scrollHeight - innerHeight);
   let ticking = false;
 
@@ -121,7 +198,7 @@
   };
 
   addEventListener('scroll', () => {
-    latestScroll = scrollY;
+    latestScroll = currentScroll();
     if (videoTimer) scheduleActiveVideo(160);
     if (!ticking) {
       ticking = true;
@@ -135,7 +212,7 @@
     let heroPointerX = 0;
     let heroPointerY = 0;
     addEventListener('pointermove', (event) => {
-      if (!object || scrollY > innerHeight) return;
+      if (!object || currentScroll() > innerHeight) return;
       heroPointerX = event.clientX / innerWidth - .5;
       heroPointerY = event.clientY / innerHeight - .5;
       if (heroPointerFrame) return;
@@ -195,6 +272,8 @@
     mobileMenu.classList.toggle('is-open', open);
     mobileMenu.setAttribute('aria-hidden', String(!open));
     document.body.classList.toggle('menu-open', open);
+    if (open) smoothScroll?.stop();
+    else smoothScroll?.start();
     if (open) {
       requestAnimationFrame(() => $('[data-menu-link]', mobileMenu)?.focus());
     } else if (restoreFocus && menuReturnFocus instanceof HTMLElement) {
@@ -218,9 +297,8 @@
     const collapsedHeaderHeight = innerWidth <= 720 ? 68 : 72;
     const headerHeight = Math.min(header?.getBoundingClientRect().height || collapsedHeaderHeight, collapsedHeaderHeight);
     const anchorGap = innerWidth <= 720 ? 10 : 12;
-    const targetY = Math.max(0, window.scrollY + target.getBoundingClientRect().top - headerHeight - anchorGap);
-    window.dispatchEvent(new CustomEvent('spn:navigation-start', { detail: { targetY } }));
-    window.scrollTo({ top: targetY, behavior: reduceMotion ? 'auto' : 'smooth' });
+    const targetY = Math.max(0, currentScroll() + target.getBoundingClientRect().top - headerHeight - anchorGap);
+    scrollToPosition(targetY);
   });
 
   const revealObserver = new IntersectionObserver((entries) => {
@@ -268,7 +346,7 @@
   const scheduleActiveVideo = (delay = 140) => {
     clearTimeout(videoTimer);
     videoTimer = 0;
-    if (!workInView || document.hidden) return;
+    if (programmaticScroll || !workInView || document.hidden) return;
     videoTimer = setTimeout(() => {
       videoTimer = 0;
       workPanels[activeWork]?.querySelector('video')?.play().catch(() => {});
@@ -280,7 +358,7 @@
     cacheDepthMetrics();
     if (!workRail) return;
     const rect = workRail.getBoundingClientRect();
-    workRailTop = scrollY + rect.top;
+    workRailTop = currentScroll() + rect.top;
     workRailDistance = Math.max(1, workRail.offsetHeight - innerHeight);
   }
 
@@ -288,7 +366,8 @@
     if (metricFrame) return;
     metricFrame = requestAnimationFrame(() => {
       cachePageMetrics();
-      latestScroll = scrollY;
+      smoothScroll?.resize();
+      latestScroll = currentScroll();
       renderScroll();
       metricFrame = 0;
     });
@@ -346,7 +425,7 @@
       workStage.style.setProperty('--world-ghost-y', `${(centered * 16 * motionScale).toFixed(2)}px`);
       workStage.style.setProperty('--world-ghost-scale', `${(.98 + curve * .02 * motionScale).toFixed(4)}`);
     }
-    activateWork(index);
+    if (!programmaticScroll) activateWork(index);
   }
 
   const firstVideo = workPanels[0]?.querySelector('video');
@@ -468,6 +547,7 @@
       }));
     }
     serviceDialog.showModal();
+    smoothScroll?.stop();
     setTimeout(() => closeServiceDialog?.focus(), 50);
   };
 
@@ -495,6 +575,7 @@
   serviceDialog?.addEventListener('close', () => {
     stopServiceVideo(serviceDialogVideo, serviceDialogVideoSource);
     if (serviceLastFocus instanceof HTMLElement && !dialog?.open) serviceLastFocus.focus();
+    if (!dialog?.open) smoothScroll?.start();
     setTimeout(() => { serviceMediaLocked = false; }, 0);
   });
   serviceOrderButton?.addEventListener('click', () => {
@@ -553,6 +634,7 @@
     lastFocus = document.activeElement;
     if (serviceSelect && product) serviceSelect.value = [...serviceSelect.options].some(option => option.value === product) ? product : 'Custom Project';
     dialog.showModal();
+    smoothScroll?.stop();
     setTimeout(() => dialog.querySelector('input')?.focus(), 60);
   }
 
@@ -563,6 +645,7 @@
       history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
     }
     if (lastFocus instanceof HTMLElement) lastFocus.focus();
+    if (!serviceDialog?.open) smoothScroll?.start();
   };
 
   const closeOrder = () => {
@@ -615,7 +698,11 @@
         return product === wanted || title === wanted;
       });
       if (!row) return;
-      $('#services')?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      const servicesSection = $('#services');
+      if (servicesSection) {
+        const headerOffset = (innerWidth <= 720 ? 68 : 72) + (innerWidth <= 720 ? 10 : 12);
+        scrollToPosition(currentScroll() + servicesSection.getBoundingClientRect().top - headerOffset);
+      }
       setTimeout(() => {
         activateService(row);
         openServiceDetails(row);
@@ -650,7 +737,7 @@
   addEventListener('pageshow', event => {
     if (event.persisted) finishBoot();
     document.body.classList.remove('is-loading');
-    latestScroll = scrollY;
+    latestScroll = currentScroll();
     scheduleMetricRefresh();
     requestAnimationFrame(() => {
       $$('.reveal').forEach(element => {
@@ -661,6 +748,6 @@
   });
 
   cachePageMetrics();
-  latestScroll = scrollY;
+  latestScroll = currentScroll();
   renderScroll();
 })();

@@ -35,7 +35,7 @@
   <link rel="preload" href="assets/images/spn-3d-hero.webp" as="image" type="image/webp" fetchpriority="high">
   <link rel="preload" href="assets/spn-orbit-transparent.png" as="image" fetchpriority="high">
   <link rel="preload" href="/assets/images/spn-reference-planet.jpg?v=20260813.1" as="image" type="image/jpeg" fetchpriority="high">
-  <link rel="stylesheet" href="styles.css?v=20260813.3">
+  <link rel="stylesheet" href="styles.css?v=20260813.4">
   <link rel="stylesheet" href="/assets/css/cosmic-flight.css?v=20260813.1">
   <link rel="stylesheet" href="/assets/css/monetization.css?v=20260809.1">
 
@@ -207,7 +207,7 @@
     </div>
   </header>
 
-  <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true" data-lenis-prevent>
     <p class="mobile-menu__kicker"><span>SPNVISUALZ / MENU</span><span>VISUALS THAT CONNECT</span></p>
     <nav aria-label="Mobile navigation">
       <a href="#work" data-menu-link><span>01</span>Work</a>
@@ -570,7 +570,7 @@
   </footer>
 
   <dialog class="service-dialog" id="serviceDialog" aria-labelledby="serviceDialogTitle">
-    <div class="service-dialog-shell">
+    <div class="service-dialog-shell" data-lenis-prevent>
       <button class="service-dialog-close" id="closeServiceDialog" type="button" aria-label="Close service details"><span>Close</span><i aria-hidden="true"></i></button>
       <div class="service-dialog-visual">
         <img id="serviceDialogImage" src="assets/brand-gezana.jpg" alt="">
@@ -594,7 +594,7 @@
   </dialog>
 
   <dialog class="order-dialog" id="orderDialog" aria-labelledby="orderTitle">
-    <div class="dialog-shell">
+    <div class="dialog-shell" data-lenis-prevent>
       <header><div><p class="section-label">Project enquiry</p><h2 id="orderTitle">Tell us your idea.</h2></div><button id="closeDialog" type="button" aria-label="Close project form">Close ×</button></header>
       <form id="orderForm">
         <label><span>Your name</span><input name="name" autocomplete="name" placeholder="Name" required></label>
@@ -606,7 +606,8 @@
     </div>
   </dialog>
 
-  <script src="app.js?v=20260813.5" defer></script>
-  <script src="/assets/js/cosmic-flight.js?v=20260813.1" defer></script>
+  <script src="/assets/vendor/lenis.min.js?v=1.3.26" defer></script>
+  <script src="app.js?v=20260813.6" defer></script>
+  <script src="/assets/js/cosmic-flight.js?v=20260813.2" defer></script>
 </body>
 </html>

@@ -448,6 +448,10 @@
   const chapterLabel = document.getElementById("spnPlanetChapter");
   const degreeLabel = document.getElementById("spnPlanetDegrees");
   const progressLine = document.getElementById("spnPlanetProgress");
+  const readScroll = () => {
+    const motionScroll = Number(window.SPNScroll?.current);
+    return Number.isFinite(motionScroll) ? motionScroll : scrollY;
+  };
   let width = 1;
   let height = 1;
   let aspect = 1;
@@ -457,26 +461,29 @@
   let targetProgress = 0;
   let currentProgress = 0;
   let scrollYaw = 0;
+  let idleYaw = 0;
+  let previousProgress = 0;
   let targetEnergy = 0;
   let currentEnergy = 0;
-  let navigationProgress = null;
   let navigationPath = null;
-  let navigationLockUntil = 0;
   let activeChapter = -1;
   let activePath = { x: .42, y: .02, scale: .84, opacity: 1, pitch: -.08 };
-  let previousScroll = scrollY;
+  let previousScroll = readScroll();
   let previousScrollTime = performance.now();
   let previousFrame = performance.now();
   let previousDraw = 0;
   let animationFrame = 0;
   let resizeFrame = 0;
+  let pathFrame = 0;
+  let viewportResizeTimer = 0;
+  let initialized = false;
   let visible = !document.hidden;
 
   const sectionPoint = (selector, amount = 0) => {
     const element = document.querySelector(selector);
     if (!element) return 0;
     const rect = element.getBoundingClientRect();
-    return clamp((scrollY + rect.top + rect.height * amount) / pageMax);
+    return clamp((readScroll() + rect.top + rect.height * amount) / pageMax);
   };
 
   const cachePath = () => {
@@ -488,7 +495,7 @@
         name,
         slug,
         index,
-        top: rect ? scrollY + rect.top : index * innerHeight,
+        top: rect ? readScroll() + rect.top : index * innerHeight,
         height: rect ? rect.height : innerHeight
       };
     });
@@ -576,23 +583,38 @@
   });
 
   const resize = () => {
-    width = Math.max(1, innerWidth);
-    height = Math.max(1, innerHeight);
+    const nextWidth = Math.max(1, innerWidth);
+    const nextHeight = Math.max(1, innerHeight);
+    width = nextWidth;
+    height = nextHeight;
     compact = width <= 720 || (coarsePointer && width <= 1180);
     aspect = width / height;
     const pixelBudget = compact ? 2600000 : 5000000;
     const budgetDpr = Math.sqrt(pixelBudget / Math.max(1, width * height));
     const dpr = Math.max(.75, Math.min(devicePixelRatio || 1, saveData ? 1 : compact ? 2 : 2.25, budgetDpr));
-    canvas.width = Math.round(width * dpr);
-    canvas.height = Math.round(height * dpr);
+    const pixelWidth = Math.round(width * dpr);
+    const pixelHeight = Math.round(height * dpr);
+    if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+      canvas.width = pixelWidth;
+      canvas.height = pixelHeight;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
-    gl.viewport(0, 0, canvas.width, canvas.height);
     cachePath();
-    targetProgress = clamp(scrollY / pageMax);
-    currentProgress = targetProgress;
-    scrollYaw = currentProgress * TAU * 1.35;
-    activePath = pathAt(currentProgress);
+    const nextScroll = readScroll();
+    targetProgress = clamp(nextScroll / pageMax);
+    if (!initialized) {
+      currentProgress = targetProgress;
+      previousProgress = currentProgress;
+      scrollYaw = currentProgress * TAU * .72;
+      activePath = pathAt(currentProgress);
+      previousScroll = nextScroll;
+      initialized = true;
+    } else {
+      previousProgress = currentProgress;
+      if (!navigationPath) activePath = pathAt(currentProgress);
+    }
   };
 
   const scheduleResize = () => {
@@ -604,8 +626,23 @@
     });
   };
 
+  const scheduleViewportResize = () => {
+    clearTimeout(viewportResizeTimer);
+    viewportResizeTimer = setTimeout(scheduleResize, compact ? 150 : 80);
+  };
+
+  const schedulePathRefresh = () => {
+    if (pathFrame) return;
+    pathFrame = requestAnimationFrame(() => {
+      pathFrame = 0;
+      cachePath();
+      targetProgress = clamp(readScroll() / pageMax);
+      requestRender();
+    });
+  };
+
   const updateChapter = () => {
-    const marker = scrollY + height * .5;
+    const marker = readScroll() + height * .5;
     let index = 0;
     chapterMetrics.forEach((chapter, chapterIndex) => {
       if (marker >= chapter.top) index = chapterIndex;
@@ -636,8 +673,7 @@
   const draw = now => {
     const time = now * .001;
     const path = activePath;
-    const idle = reduceMotion || saveData ? 0 : time * (compact ? .14 : .18);
-    const yaw = scrollYaw + idle;
+    const yaw = scrollYaw + idleYaw;
     const pitch = path.pitch + Math.sin(currentProgress * TAU * 1.7) * .075;
     const roll = Math.sin(currentProgress * TAU * 1.15) * .07;
 
@@ -665,7 +701,7 @@
     gl.enable(gl.CULL_FACE);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     bindGeometry(torus);
-    setGeometryUniforms(path, yaw * .18, pitch * .42, roll, 1.02, time * .075 + currentProgress * .34, -.25, 1, .94, time);
+    setGeometryUniforms(path, yaw * .18, pitch * .42, roll, 1.02, idleYaw * .52 + currentProgress * .34, -.25, 1, .94, time);
     gl.drawElements(gl.TRIANGLES, torus.count, gl.UNSIGNED_SHORT, 0);
     gl.depthMask(true);
 
@@ -688,15 +724,17 @@
     previousDraw = now;
     const delta = Math.min(50, Math.max(1, now - previousFrame));
     previousFrame = now;
-    const progressEase = reduceMotion || saveData ? 1 : 1 - Math.pow(.0015, delta / 1000);
+    const progressEase = reduceMotion || saveData ? 1 : 1 - Math.exp(-delta * (compact ? .012 : .014));
     const energyEase = 1 - Math.pow(.005, delta / 1000);
     currentProgress = lerp(currentProgress, targetProgress, progressEase);
+    const progressDelta = currentProgress - previousProgress;
+    previousProgress = currentProgress;
     currentEnergy = lerp(currentEnergy, targetEnergy, energyEase);
     targetEnergy *= Math.pow(.12, delta / 1000);
-    const navigating = navigationProgress !== null && now < navigationLockUntil;
-    const desiredYaw = currentProgress * TAU * 1.35;
-    const maximumYawStep = (navigating ? 1.35 : 2.8) * delta / 1000;
-    scrollYaw += clamp(desiredYaw - scrollYaw, -maximumYawStep, maximumYawStep);
+    const maximumYawStep = (navigationPath ? 2.05 : 2.6) * delta / 1000;
+    const requestedYaw = progressDelta * TAU * .72;
+    scrollYaw += clamp(requestedYaw, -maximumYawStep, maximumYawStep);
+    if (!reduceMotion && !saveData) idleYaw += delta / 1000 * (compact ? .11 : .14);
 
     if (navigationPath) {
       const amount = clamp((now - navigationPath.started) / navigationPath.duration);
@@ -705,7 +743,6 @@
     } else {
       activePath = pathAt(currentProgress);
     }
-    if (navigationProgress !== null && now >= navigationLockUntil) navigationProgress = null;
     draw(now);
     updateChapter();
     if (!reduceMotion && !saveData) animationFrame = requestAnimationFrame(render);
@@ -719,12 +756,11 @@
 
   addEventListener("scroll", () => {
     const now = performance.now();
-    const nextScroll = scrollY;
+    const nextScroll = readScroll();
     const distance = Math.abs(nextScroll - previousScroll);
     const elapsed = Math.max(16, now - previousScrollTime);
-    const navigating = navigationProgress !== null && now < navigationLockUntil;
-    targetEnergy = Math.max(targetEnergy, navigating ? .18 : clamp((distance / elapsed) / 2.4));
-    targetProgress = navigating ? navigationProgress : clamp(nextScroll / pageMax);
+    targetEnergy = Math.max(targetEnergy, clamp((distance / elapsed) / 3.1));
+    targetProgress = clamp(nextScroll / pageMax);
     previousScroll = nextScroll;
     previousScrollTime = now;
     stage.classList.toggle("is-hint-hidden", nextScroll > height * .16);
@@ -735,16 +771,39 @@
     const targetY = Number(event.detail?.targetY);
     if (!Number.isFinite(targetY)) return;
     const now = performance.now();
-    navigationProgress = clamp(targetY / pageMax);
-    navigationLockUntil = now + 1300;
+    const navigationProgress = clamp(targetY / pageMax);
+    const suppliedDuration = Number(event.detail?.durationMs);
+    const duration = reduceMotion
+      ? 0
+      : clamp(Number.isFinite(suppliedDuration) ? suppliedDuration : 1400, 650, 2400);
     navigationPath = {
       from: copyPath(activePath),
       to: copyPath(pathAt(navigationProgress)),
       started: now,
-      duration: 1300
+      duration
     };
-    targetProgress = navigationProgress;
-    targetEnergy = Math.max(targetEnergy, .22);
+    targetEnergy = Math.max(targetEnergy, .2);
+    requestRender();
+  });
+
+  addEventListener("spn:navigation-cancel", () => {
+    if (!navigationPath) return;
+    navigationPath = {
+      from: copyPath(activePath),
+      to: copyPath(pathAt(currentProgress)),
+      started: performance.now(),
+      duration: 360
+    };
+    requestRender();
+  });
+
+  addEventListener("spn:navigation-complete", () => {
+    navigationPath = {
+      from: copyPath(activePath),
+      to: copyPath(pathAt(currentProgress)),
+      started: performance.now(),
+      duration: reduceMotion ? 0 : 220
+    };
     requestRender();
   });
 
@@ -763,11 +822,19 @@
     }, { passive: true });
   });
 
-  addEventListener("resize", scheduleResize, { passive: true });
+  addEventListener("resize", scheduleViewportResize, { passive: true });
+  addEventListener("load", schedulePathRefresh, { once: true });
   if ("ResizeObserver" in window) {
-    const observer = new ResizeObserver(scheduleResize);
+    const observer = new ResizeObserver(schedulePathRefresh);
     observer.observe(document.body);
   }
+
+  addEventListener("pageshow", () => {
+    targetProgress = clamp(readScroll() / pageMax);
+    previousProgress = currentProgress;
+    previousScroll = readScroll();
+    schedulePathRefresh();
+  });
 
   document.addEventListener("visibilitychange", () => {
     visible = !document.hidden;
@@ -787,8 +854,6 @@
   }, false);
 
   resize();
-  currentProgress = targetProgress;
-  activePath = pathAt(currentProgress);
   root.classList.add("planet-ready");
   document.body.classList.add("planet-ready");
   updateChapter();
