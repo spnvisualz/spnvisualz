@@ -316,7 +316,7 @@ footer a:hover { color: #fff; }
 }
 
 @media (max-width: 760px) {
-  .shell { width: min(100% - 32px, 620px); }
+  .shell { width: min(620px, calc(100% - 32px)); }
   .section { padding: 92px 0; }
   .site-header { width: calc(100% - 24px); height: 64px; top: 10px; margin-top: 10px; padding-left: 12px; }
   .site-header nav { display: none; }
@@ -380,7 +380,7 @@ footer a:hover { color: #fff; }
   footer { padding: 50px 0; grid-template-columns: 1fr; gap: 25px; text-align: center; }
   footer .brand { justify-content: center; }
   footer p { margin: 0; }
-  footer > div { justify-content: center; }
+  footer > div { justify-content: center; flex-wrap: wrap; gap: 14px 22px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
