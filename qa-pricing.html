@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>SPNVISUALZ responsive pricing check</title>
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:#202124;color:#fff;font:12px/1.4 system-ui,sans-serif}
+    body{padding:16px}
+    p{margin:0 0 10px;color:#b6babd}
+    iframe{display:block;height:1200px;border:1px solid #61666a;background:#000}
+  </style>
+</head>
+<body>
+  <p id="label">Responsive pricing check</p>
+  <iframe id="preview" title="Responsive pricing preview"></iframe>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const target = params.get('target') === 'websites' ? 'websites' : 'main';
+    const requestedWidth = Number.parseInt(params.get('width') || '390', 10);
+    const width = Math.min(1280, Math.max(280, Number.isFinite(requestedWidth) ? requestedWidth : 390));
+    const frame = document.querySelector('#preview');
+    frame.style.width = `${width}px`;
+    frame.src = target === 'websites' ? '/websites/?qa-frame=1#packages' : '/?qa-frame=1#pricing';
+    document.querySelector('#label').textContent = `${target} / ${width}px`;
+  </script>
+</body>
+</html>
