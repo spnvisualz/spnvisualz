@@ -7,16 +7,17 @@
   if (!stage || !canvas) return;
 
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const coarsePointer = matchMedia("(pointer: coarse)").matches;
   const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   const saveData = Boolean(connection && connection.saveData);
-  let compact = innerWidth <= 720;
+  let compact = innerWidth <= 720 || (coarsePointer && innerWidth <= 1180);
 
   const gl = canvas.getContext("webgl", {
     alpha: true,
-    antialias: !compact && !saveData,
+    antialias: !saveData,
     depth: true,
     premultipliedAlpha: true,
-    powerPreference: compact ? "low-power" : "high-performance"
+    powerPreference: saveData ? "low-power" : "high-performance"
   }) || canvas.getContext("experimental-webgl");
 
   if (!gl) {
@@ -71,6 +72,8 @@
     uniform float uEnergy;
     uniform float uTime;
     uniform float uAlpha;
+    uniform sampler2D uPlanetTexture;
+    uniform float uTextureReady;
     varying vec3 vNormal;
     varying vec3 vObject;
     varying vec3 vWorld;
@@ -83,63 +86,121 @@
       return mod(angle+PI,TAU)-PI;
     }
 
+    float terrainField(vec3 p){
+      float a=sin(dot(p,vec3(2.73,3.91,4.37)));
+      float b=sin(dot(p.yzx,vec3(5.21,6.83,4.79))+a*1.35);
+      float c=sin(dot(p.zxy,vec3(11.37,8.17,13.11))+b*1.72-a*.42);
+      float d=sin(dot(p,vec3(23.71,19.37,27.13))+c*1.31+b*.56);
+      return clamp(.5+.5*(a*.46+b*.29+c*.17+d*.08),0.0,1.0);
+    }
+
+    float detailField(vec3 p){
+      float a=sin(dot(p,vec3(41.17,53.29,47.83)));
+      float b=sin(dot(p.yzx,vec3(79.31,61.73,71.11))+a*1.8);
+      return .5+.5*(a*.68+b*.32);
+    }
+
+    float sDistance(){
+      float latitude=(0.5-vUv.y)*PI;
+      float longitude=vUv.x*TAU;
+      float latitudeUnit=clamp(latitude/(PI*.5),-1.0,1.0);
+      float poleToPole=acos(latitudeUnit);
+      float curve=sin(poleToPole*2.0)*.72;
+      float frontCenter=PI*.5+curve;
+      /* After a 180 degree turn, the rear mark reads as the same S. */
+      float rearCenter=PI*1.5+curve;
+      float latitudeScale=max(.055,cos(latitude));
+      float frontDistance=abs(wrapAngle(longitude-frontCenter))*latitudeScale;
+      float rearDistance=abs(wrapAngle(longitude-rearCenter))*latitudeScale;
+      return min(frontDistance,rearDistance);
+    }
+
     void main(){
       vec3 n=normalize(vNormal);
       vec3 viewDir=vec3(0.0,0.0,1.0);
-      vec3 lightDir=normalize(vec3(-0.58,0.72,0.94));
+      vec3 lightDir=normalize(vec3(-0.62,0.76,0.88));
+      vec3 fillDir=normalize(vec3(0.66,-0.32,0.72));
+      vec3 halfDir=normalize(lightDir+viewDir);
       float facing=max(dot(n,viewDir),0.0);
       float diffuse=max(dot(n,lightDir),0.0);
-      float spec=pow(max(dot(reflect(-lightDir,n),viewDir),0.0),72.0);
-      float rim=pow(1.0-facing,2.35);
-      float shell=pow(1.0-facing,1.18);
+      float fill=max(dot(n,fillDir),0.0);
+      float spec=pow(max(dot(n,halfDir),0.0),92.0);
+      float broadSpec=pow(max(dot(n,halfDir),0.0),16.0);
+      float rim=pow(1.0-facing,2.7);
+      float shell=pow(1.0-facing,1.22);
 
       if(uKind<0.5){
-        /* The front and mirrored rear S meet at both poles as one closed loop. */
-        float latitude=(0.5-vUv.y)*PI;
-        float longitude=vUv.x*TAU;
-        float latitudeUnit=clamp(latitude/(PI*.5),-1.0,1.0);
-        float poleToPole=acos(latitudeUnit);
-        float curve=sin(poleToPole*2.0);
-        float frontCenter=PI*.5+curve*.62;
-        float backCenter=PI*1.5-curve*.62;
-        float latitudeScale=max(.085,cos(latitude));
-        float frontDistance=abs(wrapAngle(longitude-frontCenter))*latitudeScale;
-        float backDistance=abs(wrapAngle(longitude-backCenter))*latitudeScale;
-        float ribbonDistance=min(frontDistance,backDistance);
-        float ribbon=1.0-smoothstep(.108,.166,ribbonDistance);
-        float ribbonEdge=1.0-smoothstep(.016,.046,abs(ribbonDistance-.129));
-        float ribbonCore=1.0-smoothstep(.0,.032,ribbonDistance);
+        vec3 objectPoint=normalize(vObject);
+        float continents=terrainField(objectPoint*1.28+vec3(.23,-.17,.31));
+        float shelves=terrainField(objectPoint.zxy*2.18+vec3(1.7,.4,-.8));
+        float mineral=detailField(objectPoint*1.12);
+        float land=smoothstep(.49,.66,continents*.77+shelves*.23);
+        float highland=smoothstep(.63,.83,continents*.72+mineral*.28);
+        float fracture=pow(1.0-abs(sin(dot(objectPoint,vec3(31.7,23.9,37.1))+continents*8.2)),18.0);
+        float cloudField=terrainField(objectPoint.yzx*3.2+vec3(-1.1,.6,1.9));
+        float cloud=smoothstep(.69,.85,cloudField+highland*.12)*(0.35+0.65*diffuse);
 
-        float micro=.5+.5*sin(vObject.x*53.0+vObject.y*37.0-vObject.z*41.0);
-        float chromeBand=pow(.5+.5*sin((n.y+n.x*.26)*19.0+uTime*.055),10.0);
-        float horizonBand=pow(.5+.5*sin((n.y*.74-n.x*.2)*33.0),16.0);
+        /* Project the supplied planet artwork onto both hemispheres. */
+        vec2 frontUv=vec2(.514+objectPoint.x*.376,.516+objectPoint.y*.212);
+        vec2 rearUv=vec2(.514-objectPoint.x*.376,.516+objectPoint.y*.212);
+        float hemisphereBlend=smoothstep(-.16,.16,objectPoint.z);
+        vec3 referenceColor=mix(texture2D(uPlanetTexture,rearUv).rgb,texture2D(uPlanetTexture,frontUv).rgb,hemisphereBlend);
+        referenceColor=pow(max(referenceColor,vec3(0.0)),vec3(.82));
 
-        vec3 globeColor=vec3(.038,.022,.066);
-        globeColor+=vec3(.19,.075,.38)*(diffuse*.64+rim*.64);
-        globeColor+=vec3(.5,.34,.78)*(chromeBand*.12+horizonBand*.055);
-        globeColor+=vec3(.98,.9,1.0)*spec*.9;
-        globeColor+=vec3(.34,.14,.68)*shell*.28;
+        vec3 abyss=vec3(.004,.003,.012);
+        vec3 deepViolet=vec3(.025,.011,.062);
+        vec3 stone=vec3(.31,.28,.43);
+        vec3 ice=vec3(.72,.68,.82);
+        vec3 globeColor=mix(abyss,deepViolet,.36+continents*.44+fill*.12);
+        globeColor=mix(globeColor,stone,land*(.35+diffuse*.48));
+        globeColor=mix(globeColor,ice,highland*(.22+diffuse*.55));
+        globeColor+=vec3(.26,.09,.58)*(fill*.18+shell*.23);
+        globeColor+=vec3(.51,.37,.78)*fracture*land*(.055+diffuse*.12);
+        globeColor+=vec3(.67,.62,.83)*cloud*.22;
+        globeColor*=.42+diffuse*.76+fill*.2;
+        vec3 referenceLit=referenceColor*(.62+diffuse*.52+fill*.12)+referenceColor*rim*.18;
+        globeColor=mix(globeColor,referenceLit,uTextureReady*.68);
+        globeColor+=vec3(.72,.63,.95)*broadSpec*(.055+.11*highland);
+        globeColor+=vec3(1.0,.97,1.0)*spec*(.65+.25*mineral);
 
-        float ribbonLight=clamp(diffuse*.78+spec*1.18+chromeBand*.22+micro*.07,0.0,1.0);
-        vec3 ribbonColor=mix(vec3(.17,.095,.29),vec3(.94,.91,1.0),ribbonLight);
-        ribbonColor+=vec3(.42,.17,.82)*rim*.58;
-        ribbonColor+=vec3(1.0,.96,1.0)*(spec*.7+horizonBand*.12);
+        float ribbonDistance=sDistance();
+        float aura=1.0-smoothstep(.09,.29,ribbonDistance);
+        float bed=1.0-smoothstep(.105,.18,ribbonDistance);
+        float edge=1.0-smoothstep(.008,.025,abs(ribbonDistance-.125));
+        float currentLine=1.0-smoothstep(.006,.018,abs(ribbonDistance-(.042+.012*sin(vUv.y*47.0+uTime*.7))));
+        float currentPulse=.58+.42*sin(vUv.y*91.0-uTime*2.2+mineral*5.0);
+        vec3 ribbonBed=mix(vec3(.14,.035,.37),vec3(.56,.27,1.0),diffuse*.7+broadSpec*.28);
 
-        vec3 color=mix(globeColor,ribbonColor,ribbon);
-        color+=ribbonEdge*vec3(.78,.55,1.0)*(.35+uEnergy*.26);
-        color+=ribbonCore*vec3(.34,.12,.62)*.1;
-        color+=rim*vec3(.54,.27,.96)*(.42+uEnergy*.18);
-        color+=spec*vec3(1.0,.96,1.0)*(.24+uEnergy*.28);
-        color=pow(max(color,vec3(0.0)),vec3(.84));
+        vec3 color=mix(globeColor,ribbonBed,bed*.72);
+        color+=aura*vec3(.25,.055,.78)*(.22+uEnergy*.18);
+        color+=edge*vec3(.79,.55,1.0)*(.66+uEnergy*.28);
+        color+=currentLine*vec3(.94,.84,1.0)*(.35+currentPulse*.35+uEnergy*.16);
+        color+=rim*vec3(.48,.19,1.0)*(.72+uEnergy*.2);
+        color+=shell*vec3(.18,.04,.48)*.18;
+        color=pow(max(color,vec3(0.0)),vec3(.82));
         gl_FragColor=vec4(color,1.0);
+      }else if(uKind<1.5){
+        float ringEdge=pow(abs(sin(vUv.y*PI)),.36);
+        float chromeLine=pow(.5+.5*sin(vUv.y*TAU*3.0+vUv.x*TAU*2.0),18.0);
+        float pulse=.76+.24*sin(vUv.x*58.0-uTime*.8);
+        vec3 ringDark=vec3(.025,.012,.075);
+        vec3 ringLight=vec3(.84,.79,1.0);
+        vec3 color=mix(ringDark,ringLight,clamp(diffuse*.52+broadSpec*.36+spec*1.15,0.0,1.0));
+        color+=vec3(.45,.2,1.0)*(rim*.62+chromeLine*.22+uEnergy*.12);
+        color+=vec3(1.0,.97,1.0)*spec*1.2;
+        gl_FragColor=vec4(color,uAlpha*(.55+ringEdge*.25+spec*.2+pulse*.06));
       }else{
-        float pulse=.72+.28*sin(vUv.x*50.0-uTime*1.1);
-        vec3 ringDark=vec3(0.12,0.045,0.27);
-        vec3 ringLight=vec3(0.82,0.73,1.0);
-        vec3 color=mix(ringDark,ringLight,clamp(diffuse*.66+spec*.9,0.0,1.0));
-        color+=vec3(0.42,0.18,0.92)*(rim*.5+pulse*.09+uEnergy*.18);
-        color+=spec*vec3(1.0,0.96,1.0);
-        gl_FragColor=vec4(color,uAlpha*(.58+spec*.32+pulse*.1));
+        float across=abs(vUv.y*2.0-1.0);
+        float softBody=1.0-smoothstep(.58,1.0,across);
+        float hotEdges=1.0-smoothstep(.035,.12,abs(across-.74));
+        float filament=1.0-smoothstep(.025,.085,abs(across-(.24+.07*sin(vUv.x*TAU*11.0-uTime*1.2))));
+        float spark=pow(.5+.5*sin(vUv.x*TAU*97.0-uTime*3.0),22.0);
+        vec3 color=mix(vec3(.16,.025,.46),vec3(.62,.31,1.0),softBody);
+        color+=hotEdges*vec3(.9,.7,1.0)*(.74+uEnergy*.28);
+        color+=filament*vec3(.96,.88,1.0)*(.5+spark*.55);
+        color+=vec3(.29,.06,.88)*uEnergy*.24;
+        float alpha=(softBody*.42+hotEdges*.58+filament*.46+spark*.08)*uAlpha;
+        gl_FragColor=vec4(color,alpha);
       }
     }
   `;
@@ -188,6 +249,36 @@
     time: gl.getUniformLocation(program, "uTime"),
     alpha: gl.getUniformLocation(program, "uAlpha")
   };
+
+  uniforms.planetTexture = gl.getUniformLocation(program, "uPlanetTexture");
+  uniforms.textureReady = gl.getUniformLocation(program, "uTextureReady");
+
+  const planetTexture = gl.createTexture();
+  let textureReady = 0;
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, planetTexture);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([8, 3, 20, 255]));
+  gl.uniform1i(uniforms.planetTexture, 0);
+
+  const referenceImage = new Image();
+  referenceImage.decoding = "async";
+  referenceImage.addEventListener("load", () => {
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, planetTexture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, referenceImage);
+    textureReady = 1;
+    stage.dataset.planetTexture = "ready";
+    requestRender();
+  }, { once: true });
+  referenceImage.addEventListener("error", () => {
+    stage.dataset.planetTexture = "procedural";
+  }, { once: true });
+  referenceImage.src = "/assets/images/spn-reference-planet.jpg?v=20260813.1";
 
   const makeGeometry = (positions, normals, uvs, indices) => {
     const geometry = { count: indices.length };
@@ -268,8 +359,67 @@
     return makeGeometry(positions, normals, uvs, indices);
   };
 
+  const ribbonPoint = progress => {
+    const t = ((progress % 1) + 1) % 1;
+    const front = t < .5;
+    const theta = front ? t * TAU : (1 - t) * TAU;
+    const curve = Math.sin(theta * 2) * .72;
+    const phi = (front ? Math.PI * .5 : Math.PI * 1.5) + curve;
+    const sinTheta = Math.sin(theta);
+    return [
+      sinTheta * Math.cos(phi),
+      Math.cos(theta),
+      sinTheta * Math.sin(phi)
+    ];
+  };
+
+  const normalizeVector = vector => {
+    const length = Math.hypot(vector[0], vector[1], vector[2]) || 1;
+    return [vector[0] / length, vector[1] / length, vector[2] / length];
+  };
+
+  const createRibbon = (segments, halfWidth) => {
+    const positions = [];
+    const normals = [];
+    const uvs = [];
+    const indices = [];
+    const epsilon = .42 / segments;
+    for (let segment = 0; segment <= segments; segment += 1) {
+      const t = segment / segments;
+      const normal = normalizeVector(ribbonPoint(t));
+      const previous = ribbonPoint(t - epsilon);
+      const next = ribbonPoint(t + epsilon);
+      const tangent = normalizeVector([
+        next[0] - previous[0],
+        next[1] - previous[1],
+        next[2] - previous[2]
+      ]);
+      const side = normalizeVector([
+        normal[1] * tangent[2] - normal[2] * tangent[1],
+        normal[2] * tangent[0] - normal[0] * tangent[2],
+        normal[0] * tangent[1] - normal[1] * tangent[0]
+      ]);
+      [-1, 1].forEach((direction, sideIndex) => {
+        const point = normalizeVector([
+          normal[0] + side[0] * halfWidth * direction,
+          normal[1] + side[1] * halfWidth * direction,
+          normal[2] + side[2] * halfWidth * direction
+        ]);
+        positions.push(point[0] * 1.018, point[1] * 1.018, point[2] * 1.018);
+        normals.push(point[0], point[1], point[2]);
+        uvs.push(t, sideIndex);
+      });
+    }
+    for (let segment = 0; segment < segments; segment += 1) {
+      const first = segment * 2;
+      indices.push(first, first + 2, first + 1, first + 1, first + 2, first + 3);
+    }
+    return makeGeometry(positions, normals, uvs, indices);
+  };
+
   const sphere = createSphere(compact ? 80 : 128, compact ? 112 : 192);
-  const torus = createTorus(compact ? 112 : 180, compact ? 10 : 14, 1.42, compact ? .026 : .032);
+  const ribbon = createRibbon(compact ? 224 : 352, compact ? .105 : .095);
+  const torus = createTorus(compact ? 128 : 196, compact ? 12 : 16, 1.42, compact ? .034 : .038);
 
   const bindGeometry = geometry => {
     gl.bindBuffer(gl.ARRAY_BUFFER, geometry.position);
@@ -428,9 +578,11 @@
   const resize = () => {
     width = Math.max(1, innerWidth);
     height = Math.max(1, innerHeight);
-    compact = width <= 720;
+    compact = width <= 720 || (coarsePointer && width <= 1180);
     aspect = width / height;
-    const dpr = Math.min(devicePixelRatio || 1, saveData ? 1 : compact ? 2 : 2.5);
+    const pixelBudget = compact ? 2600000 : 5000000;
+    const budgetDpr = Math.sqrt(pixelBudget / Math.max(1, width * height));
+    const dpr = Math.max(.75, Math.min(devicePixelRatio || 1, saveData ? 1 : compact ? 2 : 2.25, budgetDpr));
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
     canvas.style.width = `${width}px`;
@@ -478,12 +630,13 @@
     gl.uniform1f(uniforms.energy, currentEnergy);
     gl.uniform1f(uniforms.time, time);
     gl.uniform1f(uniforms.alpha, alpha);
+    gl.uniform1f(uniforms.textureReady, textureReady);
   };
 
   const draw = now => {
     const time = now * .001;
     const path = activePath;
-    const idle = reduceMotion || saveData ? 0 : time * (compact ? .055 : .08);
+    const idle = reduceMotion || saveData ? 0 : time * (compact ? .14 : .18);
     const yaw = scrollYaw + idle;
     const pitch = path.pitch + Math.sin(currentProgress * TAU * 1.7) * .075;
     const roll = Math.sin(currentProgress * TAU * 1.15) * .07;
@@ -502,12 +655,17 @@
     gl.drawElements(gl.TRIANGLES, sphere.count, gl.UNSIGNED_SHORT, 0);
 
     gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.depthMask(false);
+    gl.disable(gl.CULL_FACE);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+    bindGeometry(ribbon);
+    setGeometryUniforms(path, yaw, pitch, roll, 0, 0, 0, 2, .96, time);
+    gl.drawElements(gl.TRIANGLES, ribbon.count, gl.UNSIGNED_SHORT, 0);
+
+    gl.enable(gl.CULL_FACE);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     bindGeometry(torus);
-    setGeometryUniforms(path, yaw * .22, pitch * .45, roll, 1.02, time * .09 + currentProgress * .4, -.25, 1, .86, time);
-    gl.drawElements(gl.TRIANGLES, torus.count, gl.UNSIGNED_SHORT, 0);
-    setGeometryUniforms(path, yaw * .14, pitch * .35, roll, .34, time * -.065, .93, 1, .46, time);
+    setGeometryUniforms(path, yaw * .18, pitch * .42, roll, 1.02, time * .075 + currentProgress * .34, -.25, 1, .94, time);
     gl.drawElements(gl.TRIANGLES, torus.count, gl.UNSIGNED_SHORT, 0);
     gl.depthMask(true);
 

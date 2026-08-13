@@ -1,4 +1,4 @@
-/* SPNVISUALZ / TRUE PLANET SYSTEM V4
+/* SPNVISUALZ / REFERENCE PLANET SYSTEM V5
    One lightweight WebGL world follows the page. Content remains normal HTML. */
 
 :root {
@@ -36,9 +36,9 @@ main,
   width: min(82vw,1120px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle,rgba(131,67,244,calc(.28 + var(--planet-energy) * .16)),rgba(71,24,154,.12) 40%,transparent 72%);
-  filter: blur(72px);
-  transform: translate(-50%,-50%) scale(calc(.82 + var(--planet-energy) * .22));
+  background: radial-gradient(circle,rgba(159,104,255,calc(.3 + var(--planet-energy) * .18)),rgba(94,40,208,.16) 38%,rgba(46,12,111,.07) 58%,transparent 74%);
+  filter: blur(68px);
+  transform: translate(-50%,-50%) scale(calc(.88 + var(--planet-energy) * .18));
   will-change: transform,left,top;
 }
 
