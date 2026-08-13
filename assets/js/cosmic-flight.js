@@ -259,6 +259,7 @@
 
   const planetTexture = gl.createTexture();
   let textureReady = 0;
+  let textureTarget = 0;
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, planetTexture);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -275,7 +276,7 @@
     gl.bindTexture(gl.TEXTURE_2D, planetTexture);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, referenceImage);
-    textureReady = 1;
+    textureTarget = 1;
     stage.dataset.planetTexture = "ready";
     requestRender();
   }, { once: true });
@@ -472,6 +473,8 @@
   let navigationPath = null;
   let activeChapter = -1;
   let activePath = { x: .42, y: .02, scale: .84, opacity: 1, pitch: -.08 };
+  let renderedScale = activePath.scale;
+  let stableCompactHeight = 0;
   let previousScroll = readScroll();
   let previousScrollTime = performance.now();
   let previousFrame = performance.now();
@@ -479,6 +482,7 @@
   let animationFrame = 0;
   let resizeFrame = 0;
   let pathFrame = 0;
+  let pathRefreshTimer = 0;
   let viewportResizeTimer = 0;
   let initialized = false;
   let visible = !document.hidden;
@@ -490,8 +494,19 @@
     return clamp((readScroll() + rect.top + rect.height * amount) / pageMax);
   };
 
+  const measureStableViewportHeight = () => {
+    if (!window.CSS?.supports?.("height", "100lvh")) return Math.max(1, innerHeight);
+    const probe = document.createElement("span");
+    probe.setAttribute("aria-hidden", "true");
+    probe.style.cssText = "position:fixed;left:0;top:0;width:1px;height:100lvh;visibility:hidden;pointer-events:none;";
+    stage.appendChild(probe);
+    const measuredHeight = probe.getBoundingClientRect().height;
+    probe.remove();
+    return Math.max(1, measuredHeight || innerHeight);
+  };
+
   const cachePath = () => {
-    pageMax = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+    pageMax = Math.max(1, document.documentElement.scrollHeight - Math.max(1, height));
     chapterMetrics = chapterDefinitions.map(([selector, name, slug], index) => {
       const element = document.querySelector(selector);
       const rect = element?.getBoundingClientRect();
@@ -578,6 +593,13 @@
     pitch: path.pitch
   });
 
+  const pathDifference = (from, to) => Math.max(
+    Math.abs(from.x - to.x),
+    Math.abs(from.y - to.y),
+    Math.abs(from.scale - to.scale),
+    Math.abs(from.pitch - to.pitch)
+  );
+
   const interpolatePath = (from, to, amount) => ({
     x: lerp(from.x, to.x, amount),
     y: lerp(from.y, to.y, amount),
@@ -588,10 +610,18 @@
 
   const resize = () => {
     const nextWidth = Math.max(1, innerWidth);
-    const nextHeight = Math.max(1, innerHeight);
+    const rawHeight = Math.max(1, innerHeight);
+    const nextCompact = nextWidth <= 720 || (coarsePointer && nextWidth <= 1180);
+    const widthChanged = !initialized || Math.abs(nextWidth - width) > 1;
+    const compactChanged = nextCompact !== compact;
+    if (!initialized || widthChanged || compactChanged || !stableCompactHeight) {
+      stableCompactHeight = nextCompact ? measureStableViewportHeight() : rawHeight;
+    }
+    const nextHeight = nextCompact ? stableCompactHeight : rawHeight;
+    const layoutChanged = !initialized || widthChanged || compactChanged || Math.abs(nextHeight - height) > 1;
     width = nextWidth;
     height = nextHeight;
-    compact = width <= 720 || (coarsePointer && width <= 1180);
+    compact = nextCompact;
     aspect = width / height;
     const pixelBudget = compact ? 2600000 : 5000000;
     const budgetDpr = Math.sqrt(pixelBudget / Math.max(1, width * height));
@@ -605,6 +635,8 @@
     }
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
+    if (!layoutChanged) return;
+    const previousPath = copyPath(activePath);
     cachePath();
     const nextScroll = readScroll();
     targetProgress = clamp(nextScroll / pageMax);
@@ -613,11 +645,23 @@
       previousProgress = currentProgress;
       scrollYaw = currentProgress * TAU * .72;
       activePath = pathAt(currentProgress);
+      renderedScale = activePath.scale;
       previousScroll = nextScroll;
       initialized = true;
     } else {
+      currentProgress = targetProgress;
       previousProgress = currentProgress;
-      if (!navigationPath) activePath = pathAt(currentProgress);
+      if (!navigationPath) {
+        const resizedPath = copyPath(pathAt(currentProgress));
+        if (pathDifference(previousPath, resizedPath) > .002) {
+          navigationPath = {
+            from: previousPath,
+            to: resizedPath,
+            started: performance.now(),
+            duration: reduceMotion ? 0 : 420
+          };
+        } else activePath = resizedPath;
+      }
     }
   };
 
@@ -636,13 +680,31 @@
   };
 
   const schedulePathRefresh = () => {
-    if (pathFrame) return;
-    pathFrame = requestAnimationFrame(() => {
-      pathFrame = 0;
-      cachePath();
-      targetProgress = clamp(readScroll() / pageMax);
-      requestRender();
-    });
+    clearTimeout(pathRefreshTimer);
+    pathRefreshTimer = setTimeout(() => {
+      if (pathFrame) return;
+      pathFrame = requestAnimationFrame(() => {
+        pathFrame = 0;
+        const previousPath = copyPath(activePath);
+        cachePath();
+        const refreshedProgress = clamp(readScroll() / pageMax);
+        targetProgress = refreshedProgress;
+        if (!navigationPath) {
+          currentProgress = refreshedProgress;
+          previousProgress = refreshedProgress;
+          const refreshedPath = copyPath(pathAt(refreshedProgress));
+          if (pathDifference(previousPath, refreshedPath) > .002) {
+            navigationPath = {
+              from: previousPath,
+              to: refreshedPath,
+              started: performance.now(),
+              duration: reduceMotion ? 0 : 420
+            };
+          } else activePath = refreshedPath;
+        }
+        requestRender();
+      });
+    }, compact ? 220 : 140);
   };
 
   const updateChapter = () => {
@@ -664,7 +726,7 @@
   const setGeometryUniforms = (path, yaw, pitch, roll, localX, localY, localZ, kind, alpha, time) => {
     gl.uniform3f(uniforms.rotation, pitch, yaw, roll);
     gl.uniform3f(uniforms.localRotation, localX, localY, localZ);
-    gl.uniform1f(uniforms.scale, path.scale);
+    gl.uniform1f(uniforms.scale, renderedScale);
     gl.uniform2f(uniforms.offset, path.x, path.y);
     gl.uniform1f(uniforms.aspect, aspect);
     gl.uniform1f(uniforms.kind, kind);
@@ -709,10 +771,8 @@
     gl.drawElements(gl.TRIANGLES, torus.count, gl.UNSIGNED_SHORT, 0);
     gl.depthMask(true);
 
-    root.style.setProperty("--planet-opacity", path.opacity.toFixed(3));
-    root.style.setProperty("--planet-energy", currentEnergy.toFixed(3));
-    root.style.setProperty("--planet-glow-x", `${((path.x + 1) * 50).toFixed(2)}%`);
-    root.style.setProperty("--planet-glow-y", `${((1 - path.y) * 50).toFixed(2)}%`);
+    root.style.setProperty("--planet-glow-x", `${(((path.x + 1) * width) / 2).toFixed(1)}px`);
+    root.style.setProperty("--planet-glow-y", `${(((1 - path.y) * height) / 2).toFixed(1)}px`);
     if (degreeLabel) degreeLabel.textContent = `${String(Math.round(((yaw % TAU + TAU) % TAU) / TAU * 360)).padStart(3, "0")}°`;
     if (progressLine) progressLine.style.transform = `scaleX(${currentProgress.toFixed(4)})`;
   };
@@ -730,10 +790,12 @@
     previousFrame = now;
     const progressEase = reduceMotion || saveData ? 1 : 1 - Math.exp(-delta * (compact ? .012 : .014));
     const energyEase = 1 - Math.pow(.005, delta / 1000);
+    const textureEase = reduceMotion || saveData ? 1 : 1 - Math.exp(-delta * .0045);
     currentProgress = lerp(currentProgress, targetProgress, progressEase);
     const progressDelta = currentProgress - previousProgress;
     previousProgress = currentProgress;
     currentEnergy = lerp(currentEnergy, targetEnergy, energyEase);
+    textureReady = lerp(textureReady, textureTarget, textureEase);
     targetEnergy *= Math.pow(.12, delta / 1000);
     const maximumYawStep = (navigationPath ? 2.05 : 2.6) * delta / 1000;
     const requestedYaw = progressDelta * TAU * .72;
@@ -747,6 +809,10 @@
     } else {
       activePath = pathAt(currentProgress);
     }
+    const scaleEase = reduceMotion ? 1 : 1 - Math.exp(-delta * (compact ? .007 : .008));
+    const maximumScaleStep = (compact ? .3 : .38) * delta / 1000;
+    const requestedScaleStep = (activePath.scale - renderedScale) * scaleEase;
+    renderedScale += clamp(requestedScaleStep, -maximumScaleStep, maximumScaleStep);
     draw(now);
     updateChapter();
     if (!reduceMotion && !saveData) animationFrame = requestAnimationFrame(render);

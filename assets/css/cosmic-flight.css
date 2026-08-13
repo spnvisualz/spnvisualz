@@ -1,11 +1,6 @@
 /* SPNVISUALZ / REFERENCE PLANET SYSTEM V5
    One lightweight WebGL world follows the page. Content remains normal HTML. */
 
-:root {
-  --planet-opacity: 0;
-  --planet-energy: 0;
-}
-
 main,
 .site-footer {
   position: relative;
@@ -26,20 +21,21 @@ main,
   transition: opacity .28s linear;
 }
 
-.planet-ready .spn-planet__canvas { opacity: var(--planet-opacity); }
+.planet-ready .spn-planet__canvas { opacity: 1; }
 
 .spn-planet__glow {
   position: fixed;
   z-index: 0;
-  left: var(--planet-glow-x,72%);
-  top: var(--planet-glow-y,48%);
+  left: 0;
+  top: 0;
   width: min(82vw,1120px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle,rgba(159,104,255,calc(.3 + var(--planet-energy) * .18)),rgba(94,40,208,.16) 38%,rgba(46,12,111,.07) 58%,transparent 74%);
+  background: radial-gradient(circle,rgba(159,104,255,.36),rgba(94,40,208,.16) 38%,rgba(46,12,111,.07) 58%,transparent 74%);
   filter: blur(68px);
-  transform: translate(-50%,-50%) scale(calc(.88 + var(--planet-energy) * .18));
-  will-change: transform,left,top;
+  transform: translate3d(calc(var(--planet-glow-x,72vw) - 50%),calc(var(--planet-glow-y,48vh) - 50%),0) scale(.98);
+  will-change: transform;
+  contain: paint;
 }
 
 .spn-planet__hint {
