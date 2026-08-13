@@ -215,7 +215,8 @@
     const target = id && id !== '#' ? $(id) : null;
     if (!target) return;
     event.preventDefault();
-    const headerHeight = header?.getBoundingClientRect().height || 0;
+    const collapsedHeaderHeight = innerWidth <= 720 ? 64 : 72;
+    const headerHeight = Math.min(header?.getBoundingClientRect().height || collapsedHeaderHeight, collapsedHeaderHeight);
     const anchorGap = innerWidth <= 720 ? 10 : 12;
     const targetY = Math.max(0, window.scrollY + target.getBoundingClientRect().top - headerHeight - anchorGap);
     window.dispatchEvent(new CustomEvent('spn:navigation-start', { detail: { targetY } }));
