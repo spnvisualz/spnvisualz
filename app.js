@@ -215,7 +215,7 @@
     const target = id && id !== '#' ? $(id) : null;
     if (!target) return;
     event.preventDefault();
-    const collapsedHeaderHeight = innerWidth <= 720 ? 64 : 72;
+    const collapsedHeaderHeight = innerWidth <= 720 ? 68 : 72;
     const headerHeight = Math.min(header?.getBoundingClientRect().height || collapsedHeaderHeight, collapsedHeaderHeight);
     const anchorGap = innerWidth <= 720 ? 10 : 12;
     const targetY = Math.max(0, window.scrollY + target.getBoundingClientRect().top - headerHeight - anchorGap);
