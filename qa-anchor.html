@@ -12,6 +12,10 @@
   </style>
 </head>
 <body>
-  <iframe id="preview" src="/?mobile-anchor-check=1" title="SPNVISUALZ mobile check"></iframe>
+  <iframe id="preview" title="SPNVISUALZ mobile check"></iframe>
+  <script>
+    const version = new URLSearchParams(location.search).get('v') || Date.now();
+    document.querySelector('#preview').src = `/?mobile-anchor-check=${encodeURIComponent(version)}`;
+  </script>
 </body>
 </html>
