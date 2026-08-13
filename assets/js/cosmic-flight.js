@@ -32,6 +32,10 @@
     const amount = clamp((value - edge0) / Math.max(.00001, edge1 - edge0));
     return amount * amount * (3 - 2 * amount);
   };
+  const journeyEase = value => {
+    const amount = clamp(value);
+    return amount * amount * amount * (amount * (amount * 6 - 15) + 10);
+  };
 
   const vertexShaderSource = `
     precision highp float;
@@ -738,7 +742,7 @@
 
     if (navigationPath) {
       const amount = clamp((now - navigationPath.started) / navigationPath.duration);
-      activePath = interpolatePath(navigationPath.from, navigationPath.to, smoothstep(0, 1, amount));
+      activePath = interpolatePath(navigationPath.from, navigationPath.to, journeyEase(amount));
       if (amount >= 1) navigationPath = null;
     } else {
       activePath = pathAt(currentProgress);
@@ -775,7 +779,7 @@
     const suppliedDuration = Number(event.detail?.durationMs);
     const duration = reduceMotion
       ? 0
-      : clamp(Number.isFinite(suppliedDuration) ? suppliedDuration : 1400, 650, 2400);
+      : clamp(Number.isFinite(suppliedDuration) ? suppliedDuration : 1400, 650, 3200);
     navigationPath = {
       from: copyPath(activePath),
       to: copyPath(pathAt(navigationProgress)),

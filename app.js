@@ -3,9 +3,7 @@
   const $$ = (selector, context = document) => [...context.querySelectorAll(selector)];
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = matchMedia('(pointer:fine)').matches;
-  const scrollEase = value => value < .5
-    ? 4 * value * value * value
-    : 1 - Math.pow(-2 * value + 2, 3) / 2;
+  const scrollEase = value => value * value * value * (value * (value * 6 - 15) + 10);
   let programmaticScroll = false;
   let programmaticScrollTimer = 0;
   const smoothScroll = !reduceMotion && window.Lenis ? new window.Lenis({
@@ -25,7 +23,7 @@
   const currentScroll = () => smoothScroll ? smoothScroll.scroll : scrollY;
   const scrollDuration = targetY => {
     const distance = Math.abs(targetY - currentScroll());
-    return Math.min(2.15, Math.max(.9, .88 + distance / 6500));
+    return Math.min(2.85, Math.max(1.05, .96 + distance / 5600));
   };
   const finishProgrammaticScroll = () => {
     if (!programmaticScroll) return;
