@@ -35,7 +35,7 @@ main,
   filter: blur(68px);
   transform: translate3d(calc(var(--planet-glow-x,72vw) - 50%),calc(var(--planet-glow-y,48vh) - 50%),0) scale(.98);
   will-change: transform;
-  contain: paint;
+  backface-visibility: hidden;
 }
 
 .spn-planet__hint {
