@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -36,8 +36,9 @@
   <link rel="preload" href="assets/spn-orbit-transparent.png" as="image" fetchpriority="high">
   <link rel="preload" href="/assets/images/spn-reference-planet.jpg?v=20260813.1" as="image" type="image/jpeg" fetchpriority="high">
   <link rel="stylesheet" href="styles.css?v=20260813.5">
-  <link rel="stylesheet" href="/assets/css/cosmic-flight.css?v=20260813.3">
+  <link rel="stylesheet" href="/assets/css/cosmic-flight.css?v=20260813.5">
   <link rel="stylesheet" href="/assets/css/monetization.css?v=20260809.1">
+  <link rel="stylesheet" href="/assets/css/cinematic-journey.css?v=20260813.1">
 
   <script type="application/ld+json">
   {
@@ -181,8 +182,20 @@
     </div>
   </div>
   <div class="page-progress" aria-hidden="true"><span id="pageProgress"></span></div>
+  <div class="journey-hud" id="journeyHud" aria-hidden="true">
+    <span class="journey-hud__corner journey-hud__corner--a"></span>
+    <span class="journey-hud__corner journey-hud__corner--b"></span>
+    <span class="journey-hud__corner journey-hud__corner--c"></span>
+    <span class="journey-hud__corner journey-hud__corner--d"></span>
+    <div class="journey-hud__chapter">
+      <b id="journeyChapterIndex">01</b>
+      <p><span>SPN world</span><strong id="journeyChapterName">Origin</strong></p>
+    </div>
+    <div class="journey-hud__track"><i id="journeyProgress"></i></div>
+    <div class="journey-hud__state"><span id="journeyChapterCount">01 / 08</span><b>LIVE</b></div>
+  </div>
 
-  <header class="site-header" id="siteHeader">
+  <header class="site-header" id="siteHeader" aria-label="Site header">
     <a class="wordmark" href="#top" aria-label="SPNVISUALZ home">
       <span>SPN</span>VISUALZ
       <small>VISUALS THAT CONNECT</small>
@@ -207,7 +220,7 @@
     </div>
   </header>
 
-  <div class="mobile-menu" id="mobileMenu" aria-hidden="true" data-lenis-prevent>
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true" data-lenis-prevent inert>
     <p class="mobile-menu__kicker"><span>SPNVISUALZ / MENU</span><span>VISUALS THAT CONNECT</span></p>
     <nav aria-label="Mobile navigation">
       <a href="#work" data-menu-link><span>01</span>Work</a>
@@ -450,7 +463,7 @@
             <div class="price-tier"><div><strong>Basic</strong><p>Quick identity / social-ready</p></div><div class="price-value"><del>€70</del><b>€14</b></div></div>
             <div class="price-tier"><div><strong>Premium</strong><p>More polish + variants</p></div><div class="price-value"><del>€140</del><b>€28</b></div></div>
           </div>
-          <button data-order data-product="Logo Design"><span>Order logo</span><i aria-hidden="true">↗︎</i></button>
+          <button type="button" data-order data-product="Logo Design"><span>Order logo</span><i aria-hidden="true">↗︎</i></button>
         </article>
         <article class="price-card reveal">
           <header class="price-card__head"><div><span>02 / INTRO</span><small>Motion-ready</small></div><h3>Intro visual</h3></header>
@@ -458,7 +471,7 @@
             <div class="price-tier"><div><strong>Standard</strong><p>Short motion intro</p></div><div class="price-value"><del>€90</del><b>€18</b></div></div>
             <div class="price-tier"><div><strong>Premium</strong><p>High-impact motion polish</p></div><div class="price-value"><del>€170</del><b>€34</b></div></div>
           </div>
-          <button data-order data-product="Intro"><span>Order intro</span><i aria-hidden="true">↗︎</i></button>
+          <button type="button" data-order data-product="Intro"><span>Order intro</span><i aria-hidden="true">↗︎</i></button>
         </article>
         <article class="price-card reveal">
           <header class="price-card__head"><div><span>03 / LOOP</span><small>Screen-ready</small></div><h3>Motion loop</h3></header>
@@ -466,7 +479,7 @@
             <div class="price-tier"><div><strong>Basic</strong><p>Seamless motion loop</p></div><div class="price-value"><del>€110</del><b>€22</b></div></div>
             <div class="price-tier"><div><strong>Premium</strong><p>More depth + texture</p></div><div class="price-value"><del>€190</del><b>€38</b></div></div>
           </div>
-          <button data-order data-product="Motion Loop"><span>Order loop</span><i aria-hidden="true">↗︎</i></button>
+          <button type="button" data-order data-product="Motion Loop"><span>Order loop</span><i aria-hidden="true">↗︎</i></button>
         </article>
         <article class="price-card reveal">
           <header class="price-card__head"><div><span>04 / VISUAL</span><small>Campaign-ready</small></div><h3>Visuals</h3></header>
@@ -474,7 +487,7 @@
             <div class="price-tier"><div><strong>Social</strong><p>Posts / reels visual pack</p></div><div class="price-value"><del>€85</del><b>€17</b></div></div>
             <div class="price-tier"><div><strong>Brand</strong><p>Campaign-grade visual system</p></div><div class="price-value"><del>€150</del><b>€30</b></div></div>
           </div>
-          <button data-order data-product="Social Visuals"><span>Order visual</span><i aria-hidden="true">↗︎</i></button>
+          <button type="button" data-order data-product="Social Visuals"><span>Order visual</span><i aria-hidden="true">↗︎</i></button>
         </article>
       </div>
 
@@ -483,19 +496,19 @@
           <header class="bundle-card__head"><div><span>Starter</span><small>20% off</small></div><div class="bundle-price"><del>€210</del><strong>€168</strong></div></header>
           <p>Logo + intro + social visual pack</p>
           <ul><li>Complete starting identity</li><li>Ready for social launch</li><li>One clear visual direction</li></ul>
-          <button data-order data-product="Starter Bundle"><span>Choose starter</span><i aria-hidden="true">↗︎</i></button>
+          <button type="button" data-order data-product="Starter Bundle"><span>Choose starter</span><i aria-hidden="true">↗︎</i></button>
         </article>
         <article class="bundle-card featured reveal">
           <header class="bundle-card__head"><div><span>Creator</span><small class="bundle-badge">Most popular</small></div><div class="bundle-price"><del>€300</del><strong>€240</strong></div></header>
           <p>Creator pack + motion loops</p>
           <ul><li>Identity and intro motion</li><li>Looping visual assets</li><li>Built for regular content</li></ul>
-          <button data-order data-product="Creator Bundle"><span>Choose creator</span><i aria-hidden="true">↗︎</i></button>
+          <button type="button" data-order data-product="Creator Bundle"><span>Choose creator</span><i aria-hidden="true">↗︎</i></button>
         </article>
         <article class="bundle-card reveal">
           <header class="bundle-card__head"><div><span>Business</span><small>20% off</small></div><div class="bundle-price"><del>€420</del><strong>€336</strong></div></header>
           <p>Full visual brand foundation</p>
           <ul><li>Campaign-ready identity</li><li>Complete visual system</li><li>Premium creative direction</li></ul>
-          <button data-order data-product="Business Bundle"><span>Choose business</span><i aria-hidden="true">↗︎</i></button>
+          <button type="button" data-order data-product="Business Bundle"><span>Choose business</span><i aria-hidden="true">↗︎</i></button>
         </article>
       </div>
 
@@ -595,10 +608,10 @@
 
   <dialog class="order-dialog" id="orderDialog" aria-labelledby="orderTitle">
     <div class="dialog-shell" data-lenis-prevent>
-      <header><div><p class="section-label">Project enquiry</p><h2 id="orderTitle">Tell us your idea.</h2></div><button id="closeDialog" type="button" aria-label="Close project form">Close ×</button></header>
+      <header aria-label="Project enquiry header"><div><p class="section-label">Project enquiry</p><h2 id="orderTitle">Tell us your idea.</h2></div><button id="closeDialog" type="button" aria-label="Close project form">Close ×</button></header>
       <form id="orderForm">
-        <label><span>Your name</span><input name="name" autocomplete="name" placeholder="Name" required></label>
-        <label><span>Email or Instagram</span><input name="contact" placeholder="How should we reach you?" required></label>
+        <label><span>Your name</span><input type="text" name="name" autocomplete="name" placeholder="Name" required></label>
+        <label><span>Email or Instagram</span><input type="text" name="contact" placeholder="How should we reach you?" required></label>
         <label><span>What do you need?</span><select name="service" id="serviceSelect" required><option value="">Select a service</option><option>Logo Design</option><option>Animated Logo</option><option>Intro</option><option>Motion Loop</option><option>Social Visuals</option><option>Brand Visuals</option><option>Starter Bundle</option><option>Creator Bundle</option><option>Business Bundle</option><option>Website Basic</option><option>Website Premium</option><option>Website Exclusive</option><option>Custom Website</option><option>Custom Project</option></select></label>
         <label class="wide"><span>Describe the vision</span><textarea name="brief" rows="4" placeholder="Name, style, colours, deadline and any references…" required></textarea></label>
         <div class="form-foot wide"><p>This opens your email app with the brief already filled in.</p><button class="button button-light" type="submit"><span>Send project brief</span><i>↗︎</i></button></div>
@@ -607,7 +620,8 @@
   </dialog>
 
   <script src="/assets/vendor/lenis.min.js?v=1.3.26" defer></script>
-  <script src="app.js?v=20260813.8" defer></script>
-  <script src="/assets/js/cosmic-flight.js?v=20260813.4" defer></script>
+  <script src="app.js?v=20260813.9" defer></script>
+  <script src="/assets/js/cosmic-flight.js?v=20260813.5" defer></script>
+  <script src="/assets/js/cinematic-journey.js?v=20260813.1" defer></script>
 </body>
 </html>

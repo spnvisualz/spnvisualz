@@ -267,6 +267,8 @@
     menuToggle.querySelector('span').textContent = open ? 'Close' : 'Menu';
     mobileMenu.classList.toggle('is-open', open);
     mobileMenu.setAttribute('aria-hidden', String(!open));
+    if (open) mobileMenu.removeAttribute('inert');
+    else mobileMenu.setAttribute('inert', '');
     document.body.classList.toggle('menu-open', open);
     if (open) smoothScroll?.stop();
     else smoothScroll?.start();
@@ -409,17 +411,22 @@
     const segment = value * workPanels.length;
     const index = Math.min(workPanels.length - 1, Math.floor(segment));
     const phase = index === workPanels.length - 1 && value === 1 ? 1 : segment - Math.floor(segment);
-    const centered = phase - .5;
     const curve = Math.sin(phase * Math.PI);
+    const wave = Math.sin(phase * Math.PI * 2);
     const motionScale = reduceMotion ? 0 : innerWidth <= 720 ? .38 : innerWidth <= 1050 ? .7 : 1;
     if (workStage) {
       workStage.style.setProperty('--world-phase', phase.toFixed(4));
-      workStage.style.setProperty('--world-rail-x', `${(phase * 1.5 * motionScale).toFixed(2)}deg`);
-      workStage.style.setProperty('--world-rail-y', `${(centered * -4 * motionScale).toFixed(2)}deg`);
-      workStage.style.setProperty('--world-drift-y', `${(centered * -10 * motionScale).toFixed(2)}px`);
-      workStage.style.setProperty('--world-scale', `${(1 - Math.abs(centered) * .018 * motionScale).toFixed(4)}`);
-      workStage.style.setProperty('--world-ghost-y', `${(centered * 16 * motionScale).toFixed(2)}px`);
-      workStage.style.setProperty('--world-ghost-scale', `${(.98 + curve * .02 * motionScale).toFixed(4)}`);
+      workStage.style.setProperty('--world-rail-x', `${(wave * .8 * motionScale).toFixed(2)}deg`);
+      workStage.style.setProperty('--world-rail-y', `${(wave * -2.6 * motionScale).toFixed(2)}deg`);
+      workStage.style.setProperty('--world-drift-y', `${(wave * -8 * motionScale).toFixed(2)}px`);
+      workStage.style.setProperty('--world-z', `${(18 + curve * 45 * motionScale).toFixed(2)}px`);
+      workStage.style.setProperty('--world-rotate-x', `${(wave * -.8 * motionScale).toFixed(2)}deg`);
+      workStage.style.setProperty('--world-rotate-y', `${(wave * 2.8 * motionScale).toFixed(2)}deg`);
+      workStage.style.setProperty('--world-scale', `${(.985 + curve * .015 * motionScale).toFixed(4)}`);
+      workStage.style.setProperty('--world-copy-x', `${(wave * -8 * motionScale).toFixed(2)}px`);
+      workStage.style.setProperty('--world-copy-y', `${(wave * 6 * motionScale).toFixed(2)}px`);
+      workStage.style.setProperty('--world-ghost-y', `${(wave * 12 * motionScale).toFixed(2)}px`);
+      workStage.style.setProperty('--world-ghost-scale', `${(.985 + curve * .015 * motionScale).toFixed(4)}`);
     }
     if (!programmaticScroll) activateWork(index);
   }

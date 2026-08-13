@@ -422,9 +422,9 @@
     return makeGeometry(positions, normals, uvs, indices);
   };
 
-  const sphere = createSphere(compact ? 80 : 128, compact ? 112 : 192);
-  const ribbon = createRibbon(compact ? 224 : 352, compact ? .105 : .095);
-  const torus = createTorus(compact ? 128 : 196, compact ? 12 : 16, 1.42, compact ? .034 : .038);
+  const sphere = createSphere(compact ? 88 : 152, compact ? 128 : 224);
+  const ribbon = createRibbon(compact ? 248 : 392, compact ? .105 : .095);
+  const torus = createTorus(compact ? 144 : 220, compact ? 14 : 18, 1.42, compact ? .034 : .038);
 
   const bindGeometry = geometry => {
     gl.bindBuffer(gl.ARRAY_BUFFER, geometry.position);
@@ -533,38 +533,38 @@
     const lab = sectionPoint("#visual-lab", .45);
     const contact = sectionPoint("#contact", .46);
     const desktopPath = [
-      { p: 0, x: .42, y: .02, scale: 1.1, opacity: 1, pitch: -.08 },
-      { p: heroEnd, x: .38, y: -.03, scale: 1.04, opacity: 1, pitch: -.03 },
-      { p: studio, x: -.42, y: .02, scale: 1.12, opacity: 1, pitch: .1 },
-      { p: workStart, x: .5, y: .02, scale: 1.08, opacity: 1, pitch: -.12 },
-      { p: workTwo, x: -.5, y: -.08, scale: .92, opacity: 1, pitch: .08 },
-      { p: workThree, x: .52, y: .12, scale: 1, opacity: 1, pitch: -.08 },
-      { p: workFour, x: -.48, y: .06, scale: .92, opacity: 1, pitch: .1 },
-      { p: workFive, x: .5, y: -.1, scale: 1.06, opacity: 1, pitch: -.1 },
-      { p: workEnd, x: -.4, y: .1, scale: .95, opacity: 1, pitch: -.08 },
-      { p: services, x: .5, y: .08, scale: 1.05, opacity: 1, pitch: .1 },
-      { p: pricing, x: -.48, y: -.02, scale: 1, opacity: 1, pitch: -.1 },
-      { p: process, x: .48, y: .12, scale: .98, opacity: 1, pitch: .14 },
-      { p: lab, x: -.44, y: .05, scale: 1.08, opacity: 1, pitch: -.08 },
-      { p: contact, x: .28, y: .02, scale: 1.35, opacity: 1, pitch: .03 },
-      { p: 1, x: 0, y: 0, scale: 1.55, opacity: 1, pitch: 0 }
+      { p: 0, x: .26, y: .01, scale: 1.12, opacity: 1, pitch: -.07 },
+      { p: heroEnd, x: .2, y: -.02, scale: 1.09, opacity: 1, pitch: -.03 },
+      { p: studio, x: -.28, y: .02, scale: 1.1, opacity: 1, pitch: .08 },
+      { p: workStart, x: .26, y: .01, scale: 1.12, opacity: 1, pitch: -.09 },
+      { p: workTwo, x: -.24, y: -.04, scale: 1.08, opacity: 1, pitch: .07 },
+      { p: workThree, x: .26, y: .05, scale: 1.11, opacity: 1, pitch: -.07 },
+      { p: workFour, x: -.24, y: .03, scale: 1.08, opacity: 1, pitch: .08 },
+      { p: workFive, x: .25, y: -.04, scale: 1.11, opacity: 1, pitch: -.08 },
+      { p: workEnd, x: -.22, y: .04, scale: 1.09, opacity: 1, pitch: -.05 },
+      { p: services, x: .28, y: .03, scale: 1.12, opacity: 1, pitch: .08 },
+      { p: pricing, x: -.27, y: -.01, scale: 1.1, opacity: 1, pitch: -.08 },
+      { p: process, x: .25, y: .05, scale: 1.08, opacity: 1, pitch: .1 },
+      { p: lab, x: -.25, y: .03, scale: 1.13, opacity: 1, pitch: -.06 },
+      { p: contact, x: .14, y: .01, scale: 1.22, opacity: 1, pitch: .03 },
+      { p: 1, x: 0, y: 0, scale: 1.3, opacity: 1, pitch: 0 }
     ];
     const mobilePath = [
-      { p: 0, x: .38, y: .12, scale: .84, opacity: 1, pitch: -.06 },
-      { p: heroEnd, x: .36, y: .04, scale: .8, opacity: 1, pitch: -.02 },
-      { p: studio, x: -.42, y: -.06, scale: .86, opacity: 1, pitch: .08 },
-      { p: workStart, x: .38, y: -.03, scale: .9, opacity: 1, pitch: -.08 },
-      { p: workTwo, x: -.4, y: -.08, scale: .78, opacity: 1, pitch: .08 },
-      { p: workThree, x: .42, y: .12, scale: .84, opacity: 1, pitch: -.08 },
-      { p: workFour, x: -.4, y: .06, scale: .78, opacity: 1, pitch: .08 },
-      { p: workFive, x: .4, y: -.08, scale: .88, opacity: 1, pitch: -.08 },
-      { p: workEnd, x: -.38, y: .08, scale: .8, opacity: 1, pitch: -.06 },
-      { p: services, x: .42, y: .1, scale: .84, opacity: 1, pitch: .08 },
-      { p: pricing, x: -.42, y: -.05, scale: .82, opacity: 1, pitch: -.08 },
-      { p: process, x: .4, y: .14, scale: .8, opacity: 1, pitch: .1 },
-      { p: lab, x: -.4, y: .08, scale: .86, opacity: 1, pitch: -.06 },
-      { p: contact, x: .25, y: .06, scale: 1.05, opacity: 1, pitch: .03 },
-      { p: 1, x: 0, y: 0, scale: 1.15, opacity: 1, pitch: 0 }
+      { p: 0, x: .18, y: .1, scale: .96, opacity: 1, pitch: -.05 },
+      { p: heroEnd, x: .16, y: .04, scale: .94, opacity: 1, pitch: -.02 },
+      { p: studio, x: -.22, y: -.04, scale: .95, opacity: 1, pitch: .07 },
+      { p: workStart, x: .2, y: -.02, scale: .98, opacity: 1, pitch: -.07 },
+      { p: workTwo, x: -.21, y: -.04, scale: .94, opacity: 1, pitch: .07 },
+      { p: workThree, x: .21, y: .06, scale: .96, opacity: 1, pitch: -.07 },
+      { p: workFour, x: -.2, y: .03, scale: .94, opacity: 1, pitch: .07 },
+      { p: workFive, x: .2, y: -.04, scale: .97, opacity: 1, pitch: -.07 },
+      { p: workEnd, x: -.18, y: .04, scale: .95, opacity: 1, pitch: -.05 },
+      { p: services, x: .22, y: .05, scale: .96, opacity: 1, pitch: .07 },
+      { p: pricing, x: -.22, y: -.03, scale: .95, opacity: 1, pitch: -.07 },
+      { p: process, x: .2, y: .07, scale: .94, opacity: 1, pitch: .08 },
+      { p: lab, x: -.2, y: .04, scale: .97, opacity: 1, pitch: -.05 },
+      { p: contact, x: .12, y: .04, scale: 1.05, opacity: 1, pitch: .03 },
+      { p: 1, x: 0, y: 0, scale: 1.12, opacity: 1, pitch: 0 }
     ];
     keyframes = (compact ? mobilePath : desktopPath).sort((a, b) => a.p - b.p);
   };
@@ -623,9 +623,9 @@
     height = nextHeight;
     compact = nextCompact;
     aspect = width / height;
-    const pixelBudget = compact ? 2600000 : 5000000;
+    const pixelBudget = compact ? 2800000 : 6200000;
     const budgetDpr = Math.sqrt(pixelBudget / Math.max(1, width * height));
-    const dpr = Math.max(.75, Math.min(devicePixelRatio || 1, saveData ? 1 : compact ? 2 : 2.25, budgetDpr));
+    const dpr = Math.max(.75, Math.min(devicePixelRatio || 1, saveData ? 1 : compact ? 2.25 : 2.5, budgetDpr));
     const pixelWidth = Math.round(width * dpr);
     const pixelHeight = Math.round(height * dpr);
     if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
@@ -788,7 +788,7 @@
     previousDraw = now;
     const delta = Math.min(50, Math.max(1, now - previousFrame));
     previousFrame = now;
-    const progressEase = reduceMotion || saveData ? 1 : 1 - Math.exp(-delta * (compact ? .012 : .014));
+    const progressEase = reduceMotion || saveData ? 1 : 1 - Math.exp(-delta * (compact ? .01 : .012));
     const energyEase = 1 - Math.pow(.005, delta / 1000);
     const textureEase = reduceMotion || saveData ? 1 : 1 - Math.exp(-delta * .0045);
     currentProgress = lerp(currentProgress, targetProgress, progressEase);
@@ -797,10 +797,10 @@
     currentEnergy = lerp(currentEnergy, targetEnergy, energyEase);
     textureReady = lerp(textureReady, textureTarget, textureEase);
     targetEnergy *= Math.pow(.12, delta / 1000);
-    const maximumYawStep = (navigationPath ? 2.05 : 2.6) * delta / 1000;
-    const requestedYaw = progressDelta * TAU * .72;
+    const maximumYawStep = (navigationPath ? .72 : 1.65) * delta / 1000;
+    const requestedYaw = progressDelta * TAU * .58;
     scrollYaw += clamp(requestedYaw, -maximumYawStep, maximumYawStep);
-    if (!reduceMotion && !saveData) idleYaw += delta / 1000 * (compact ? .11 : .14);
+    if (!reduceMotion && !saveData) idleYaw += delta / 1000 * (compact ? .07 : .09);
 
     if (navigationPath) {
       const amount = clamp((now - navigationPath.started) / navigationPath.duration);
@@ -809,8 +809,8 @@
     } else {
       activePath = pathAt(currentProgress);
     }
-    const scaleEase = reduceMotion ? 1 : 1 - Math.exp(-delta * (compact ? .007 : .008));
-    const maximumScaleStep = (compact ? .3 : .38) * delta / 1000;
+    const scaleEase = reduceMotion ? 1 : 1 - Math.exp(-delta * (compact ? .006 : .007));
+    const maximumScaleStep = (compact ? .18 : .22) * delta / 1000;
     const requestedScaleStep = (activePath.scale - renderedScale) * scaleEase;
     renderedScale += clamp(requestedScaleStep, -maximumScaleStep, maximumScaleStep);
     draw(now);
