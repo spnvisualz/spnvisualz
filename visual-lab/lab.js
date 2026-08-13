@@ -102,36 +102,6 @@
     renderSpatialLab();
   }
 
-  if (finePointer && !reducedMotion && innerWidth >= 981) {
-    document.querySelectorAll(".lab-card, .lab-feature").forEach(card => {
-      let bounds = null;
-      let tiltFrame = 0;
-      let tiltX = 0;
-      let tiltY = 0;
-      card.addEventListener("pointerenter", () => {
-        bounds = card.getBoundingClientRect();
-      }, { passive: true });
-      card.addEventListener("pointermove", event => {
-        const rect = bounds || card.getBoundingClientRect();
-        tiltX = (event.clientX - rect.left) / Math.max(1, rect.width) - .5;
-        tiltY = (event.clientY - rect.top) / Math.max(1, rect.height) - .5;
-        if (tiltFrame) return;
-        tiltFrame = requestAnimationFrame(() => {
-          card.style.setProperty("--lab-tilt-x", (-tiltY * 3.8).toFixed(2) + "deg");
-          card.style.setProperty("--lab-tilt-y", (tiltX * 4.6).toFixed(2) + "deg");
-          tiltFrame = 0;
-        });
-      }, { passive: true });
-      card.addEventListener("pointerleave", () => {
-        if (tiltFrame) cancelAnimationFrame(tiltFrame);
-        tiltFrame = 0;
-        bounds = null;
-        card.style.setProperty("--lab-tilt-x", "0deg");
-        card.style.setProperty("--lab-tilt-y", "0deg");
-      });
-    });
-  }
-
   const topicForm = document.querySelector("[data-topic-form]");
   if (topicForm) {
     topicForm.addEventListener("submit", event => {

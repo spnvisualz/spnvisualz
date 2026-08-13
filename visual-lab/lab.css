@@ -1333,11 +1333,16 @@ button, input { font: inherit; }
   .lab-hero h1 {
     position: relative;
     z-index: 4;
+    max-width: 760px;
+    font-size: clamp(72px, 8.2vw, 118px);
+    line-height: .84;
+    letter-spacing: -.07em;
     transform: translateZ(110px);
     text-shadow: 0 28px 80px rgba(0,0,0,.6);
   }
 
   .lab-hero h1 span {
+    margin-left: clamp(28px, 6vw, 86px);
     color: transparent;
     background: linear-gradient(112deg, #7140d3 0%, #f4efff 24%, #a774ff 43%, #fff 55%, #7440d0 76%, #d4bcff 100%);
     background-size: 220% 100%;
@@ -1365,7 +1370,8 @@ button, input { font: inherit; }
 
   .lab-feature {
     grid-template-columns: repeat(12, minmax(0, 1fr));
-    min-height: min(720px, 72vw);
+    min-height: 0;
+    align-items: stretch;
     overflow: hidden;
     background: linear-gradient(140deg,rgba(185,152,255,.05),transparent 34%),rgba(7,6,10,.86);
     perspective: 1500px;
@@ -1376,6 +1382,8 @@ button, input { font: inherit; }
   .lab-feature__visual {
     grid-column: 1 / 9;
     min-height: 0;
+    aspect-ratio: 16 / 10;
+    align-self: start;
     background:
       radial-gradient(circle at 50% 45%,rgba(116,54,214,.17),transparent 52%),
       #050408;
@@ -1394,7 +1402,28 @@ button, input { font: inherit; }
 
   .lab-feature__body {
     grid-column: 9 / 13;
+    min-height: 100%;
     transform: translateZ(35px);
+  }
+
+  .lab-section__title {
+    font-size: clamp(44px, 5.2vw, 72px);
+    line-height: .94;
+    letter-spacing: -.05em;
+  }
+
+  .lab-newsletter h2 {
+    max-width: 720px;
+    font-size: clamp(48px, 5.5vw, 76px);
+    line-height: .94;
+    letter-spacing: -.055em;
+  }
+
+  .lab-article-hero h1 {
+    max-width: 1120px;
+    font-size: clamp(52px, 6.8vw, 96px);
+    line-height: .92;
+    letter-spacing: -.058em;
   }
 
   .lab-grid {
@@ -1475,14 +1504,12 @@ button, input { font: inherit; }
 
   .lab-js .lab-card[data-reveal].is-visible,
   .lab-js .lab-feature[data-reveal].is-visible {
-    transform: perspective(1400px) rotateX(var(--lab-tilt-x,0deg)) rotateY(var(--lab-tilt-y,0deg)) translate3d(0,var(--lab-lift,0px),var(--lab-depth,0px));
-    transition: opacity .75s ease, transform .32s cubic-bezier(.2,.75,.25,1), border-color .3s ease, box-shadow .3s ease;
+    transform: none;
+    transition: opacity .75s ease,border-color .3s ease,box-shadow .3s ease;
   }
 
   .lab-js .lab-card[data-reveal].is-visible:hover,
   .lab-js .lab-feature[data-reveal].is-visible:hover {
-    --lab-lift: -5px;
-    --lab-depth: 18px;
     border-color: rgba(185,152,255,.42);
     box-shadow: 0 52px 125px rgba(0,0,0,.48), 0 0 80px rgba(113,49,221,.08);
   }
