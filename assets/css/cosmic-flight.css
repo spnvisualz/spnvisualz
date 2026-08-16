@@ -40,7 +40,7 @@ main,
 }
 
 .planet-fallback .spn-planet__fallback { opacity: var(--fallback-planet-alpha,.48); }
-body.journey-chapter-0 .spn-planet__fallback { opacity: 0; }
+body.journey-chapter-0.planet-fallback .spn-planet__fallback { opacity: .68; }
 
 .spn-planet__glow {
   position: fixed;
@@ -182,7 +182,7 @@ body.planet-chapter-contact .site-header {
     will-change: transform;
   }
   .touch-landscape-safe .hero-object { display: none!important; }
-  body.touch-landscape-safe.journey-chapter-0 .spn-planet__fallback { opacity: .64; }
+  body.touch-landscape-safe.planet-fallback .spn-planet__fallback { opacity: .82; }
 }
 
 @media (max-width: 720px) {
