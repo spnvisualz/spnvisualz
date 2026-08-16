@@ -173,8 +173,16 @@ body.planet-chapter-contact .site-header {
 }
 
 @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
-  .spn-planet__glow { filter: blur(38px); opacity: .7; }
-  .spn-planet__fallback { filter: drop-shadow(0 0 28px rgba(128,73,255,.3)); }
+  .spn-planet__canvas,
+  .spn-planet__glow { display: none!important; }
+  .spn-planet__fallback {
+    width: min(76vw,900px);
+    filter: none;
+    transition: none;
+    will-change: transform;
+  }
+  .touch-landscape-safe .hero-object { display: none!important; }
+  body.touch-landscape-safe.journey-chapter-0 .spn-planet__fallback { opacity: .64; }
 }
 
 @media (max-width: 720px) {

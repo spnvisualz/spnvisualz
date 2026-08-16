@@ -9,18 +9,30 @@
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const coarsePointer = matchMedia("(pointer: coarse)").matches;
   const touchDevice = coarsePointer || navigator.maxTouchPoints > 1;
+  const landscapeQuery = matchMedia("(orientation: landscape)");
+  const touchLandscape = () => touchDevice && (landscapeQuery.matches || innerWidth > innerHeight);
   const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   const saveData = Boolean(connection && connection.saveData);
   const useCompactProfile = () => innerWidth <= 720 || (touchDevice && innerWidth <= 1440);
   let compact = useCompactProfile();
 
-  const activateFallback = () => {
+  const activateFallback = (profile = "fallback") => {
     root.classList.remove("planet-ready");
     document.body.classList.remove("planet-ready");
     root.classList.add("planet-fallback");
     document.body.classList.add("planet-fallback");
     stage.classList.add("is-fallback");
+    stage.dataset.renderProfile = profile;
   };
+
+  // Never ask mobile Safari to hold a WebGL framebuffer and a decoded motion
+  // reel at the same time in landscape. The fallback remains scroll-reactive.
+  if (touchLandscape()) {
+    root.classList.add("touch-landscape-safe");
+    document.body.classList.add("touch-landscape-safe");
+    activateFallback("touch-landscape-safe");
+    return;
+  }
 
   const gl = canvas.getContext("webgl", {
     alpha: true,
@@ -497,6 +509,8 @@
   let initialized = false;
   let visible = !document.hidden;
   let orientationPending = false;
+  let safetyMode = false;
+  let orientationSafetyTimer = 0;
 
   const viewportProbe = document.createElement("span");
   viewportProbe.setAttribute("aria-hidden", "true");
@@ -836,7 +850,7 @@
   };
 
   const requestRender = () => {
-    if (animationFrame || orientationPending) return;
+    if (animationFrame || orientationPending || safetyMode) return;
     previousFrame = performance.now();
     animationFrame = requestAnimationFrame(render);
   };
@@ -909,18 +923,55 @@
     }, { passive: true });
   });
 
+  const enterTouchLandscapeSafety = () => {
+    if (!touchDevice) return;
+    safetyMode = true;
+    orientationPending = false;
+    if (animationFrame) cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
+    root.classList.add("touch-landscape-safe");
+    document.body.classList.add("touch-landscape-safe");
+    canvas.style.display = "none";
+    activateFallback("touch-landscape-safe");
+    gl.getExtension("WEBGL_lose_context")?.loseContext();
+  };
+
+  const settleTouchOrientation = () => {
+    if (!touchDevice) return;
+    if (touchLandscape()) {
+      enterTouchLandscapeSafety();
+    } else if (safetyMode) {
+      orientationPending = false;
+      schedulePathRefresh();
+    } else {
+      scheduleViewportResize();
+    }
+  };
+
   addEventListener("orientationchange", () => {
     if (!touchDevice) return;
     orientationPending = true;
     if (animationFrame) cancelAnimationFrame(animationFrame);
     animationFrame = 0;
-    scheduleViewportResize();
+    if (touchLandscape()) {
+      enterTouchLandscapeSafety();
+      return;
+    }
+    clearTimeout(orientationSafetyTimer);
+    orientationSafetyTimer = setTimeout(settleTouchOrientation, 100);
   }, { passive: true });
+  if (touchDevice) {
+    if (landscapeQuery.addEventListener) landscapeQuery.addEventListener("change", settleTouchOrientation);
+    else landscapeQuery.addListener(settleTouchOrientation);
+  }
   addEventListener("resize", scheduleViewportResize, { passive: true });
   addEventListener("load", schedulePathRefresh, { once: true });
   if ("ResizeObserver" in window) {
     const observer = new ResizeObserver(schedulePathRefresh);
-    observer.observe(document.body);
+    chapterDefinitions.forEach(([selector]) => {
+      const element = document.querySelector(selector);
+      if (element) observer.observe(element);
+    });
   }
 
   addEventListener("pageshow", () => {
@@ -940,9 +991,10 @@
 
   canvas.addEventListener("webglcontextlost", event => {
     event.preventDefault();
+    safetyMode = true;
     if (animationFrame) cancelAnimationFrame(animationFrame);
     animationFrame = 0;
-    activateFallback();
+    activateFallback(touchLandscape() ? "touch-landscape-safe" : "webgl-fallback");
   }, false);
 
   resize();

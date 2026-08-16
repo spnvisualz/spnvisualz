@@ -4,10 +4,18 @@
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = matchMedia('(pointer:fine)').matches;
   const touchDevice = matchMedia('(pointer:coarse)').matches || navigator.maxTouchPoints > 1;
+  const touchLandscape = () => touchDevice && (matchMedia('(orientation:landscape)').matches || innerWidth > innerHeight);
+  const syncTouchLandscape = () => {
+    document.documentElement.classList.toggle('touch-landscape-safe', touchLandscape());
+    document.body.classList.toggle('touch-landscape-safe', touchLandscape());
+  };
+  syncTouchLandscape();
   const scrollEase = value => value * value * value * (value * (value * 6 - 15) + 10);
   let programmaticScroll = false;
   let programmaticScrollTimer = 0;
-  const smoothScroll = !reduceMotion && window.Lenis ? new window.Lenis({
+  // Native iOS/iPadOS scrolling is both smoother and considerably more stable
+  // through orientation changes than running a second animation loop over it.
+  const smoothScroll = !reduceMotion && !touchDevice && window.Lenis ? new window.Lenis({
     autoRaf: true,
     autoResize: true,
     smoothWheel: true,
@@ -342,7 +350,7 @@
   let orientationRestoreTimer = 0;
 
   const hydrateWorkVideo = video => {
-    if (!video || video.dataset.hydrated === 'true') return;
+    if (!video || touchLandscape() || video.dataset.hydrated === 'true') return;
     let changed = false;
     $$('source', video).forEach(source => {
       const sourceUrl = source.dataset.src;
@@ -374,11 +382,14 @@
   workPanels.forEach((panel, index) => {
     const video = $('video', panel);
     if (!video) return;
+    let hydrated = false;
     $$('source', video).forEach(source => {
-      if (!source.dataset.src) source.dataset.src = source.getAttribute('src') || '';
+      const sourceUrl = source.getAttribute('src') || source.dataset.src || '';
+      if (!source.dataset.src) source.dataset.src = sourceUrl;
+      if (source.getAttribute('src')) hydrated = true;
     });
-    video.dataset.hydrated = 'true';
-    if (touchDevice && index !== 0) releaseWorkVideo(video);
+    video.dataset.hydrated = hydrated ? 'true' : 'false';
+    if (touchDevice && (index !== 0 || touchLandscape())) releaseWorkVideo(video);
   });
 
   const pauseWorkVideos = (release = false) => {
@@ -392,7 +403,7 @@
   const scheduleActiveVideo = (delay = 140) => {
     clearTimeout(videoTimer);
     videoTimer = 0;
-    if (programmaticScroll || !workInView || document.hidden) return;
+    if (programmaticScroll || !workInView || document.hidden || touchLandscape()) return;
     videoTimer = setTimeout(() => {
       videoTimer = 0;
       const video = workPanels[activeWork]?.querySelector('video');
@@ -422,7 +433,7 @@
 
   addEventListener('resize', scheduleMetricRefresh, { passive: true });
   addEventListener('load', scheduleMetricRefresh, { once: true });
-  if ('ResizeObserver' in window && workRail) new ResizeObserver(scheduleMetricRefresh).observe(workRail);
+  if ('ResizeObserver' in window && workRail && !touchDevice) new ResizeObserver(scheduleMetricRefresh).observe(workRail);
 
   const activateWork = (index) => {
     if (index === activeWork || index < 0 || index >= workPanels.length) return;
@@ -502,8 +513,11 @@
     const savedProgress = Math.min(1, Math.max(0, currentScroll() / Math.max(1, pageMax)));
     document.body.classList.add('is-orienting');
     pauseWorkVideos(true);
+    stopServiceVideo(serviceVideo, serviceVideoSource);
+    stopServiceVideo(serviceDialogVideo, serviceDialogVideoSource);
     clearTimeout(orientationRestoreTimer);
     orientationRestoreTimer = setTimeout(() => {
+      syncTouchLandscape();
       smoothScroll?.resize();
       cachePageMetrics();
       const restoredScroll = Math.min(pageMax, Math.max(0, savedProgress * pageMax));
@@ -512,16 +526,18 @@
       latestScroll = restoredScroll;
       renderScroll();
       document.body.classList.remove('is-orienting');
-      if (workInView) scheduleActiveVideo(120);
+      if (workInView && !touchLandscape()) scheduleActiveVideo(120);
     }, 460);
   }, { passive: true });
+
+  addEventListener('resize', syncTouchLandscape, { passive: true });
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       clearTimeout(videoTimer);
       videoTimer = 0;
       pauseWorkVideos(touchDevice);
-    } else if (workInView) scheduleActiveVideo(40);
+    } else if (workInView && !touchLandscape()) scheduleActiveVideo(40);
   });
 
   const serviceImage = $('#serviceImage');

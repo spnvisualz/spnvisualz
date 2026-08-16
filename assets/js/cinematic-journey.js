@@ -2,6 +2,8 @@
   "use strict";
 
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const touchDevice = matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoints > 1;
+  const touchLandscape = () => touchDevice && (matchMedia("(orientation: landscape)").matches || innerWidth > innerHeight);
   const root = document.documentElement;
   const chapterName = document.getElementById("journeyChapterName");
   const chapterIndex = document.getElementById("journeyChapterIndex");
@@ -81,7 +83,8 @@
     const targetScroll = readScroll();
     const delta = Math.min(50, Math.max(1, now - lastTime));
     lastTime = now;
-    const smoothing = reduceMotion ? 1 : 1 - Math.exp(-delta * .018);
+    const safetyMode = touchLandscape();
+    const smoothing = reduceMotion || safetyMode ? 1 : 1 - Math.exp(-delta * .018);
     currentScroll += (targetScroll - currentScroll) * smoothing;
     const velocity = clamp(Math.abs(targetScroll - previousScroll) / Math.max(1, delta) / 2.2);
     previousScroll = targetScroll;
@@ -97,9 +100,11 @@
       const local = clamp((currentScroll + viewportHeight - scene.top) / (scene.height + viewportHeight));
       const centered = local * 2 - 1;
       const visible = Math.sin(local * Math.PI);
-      scene.element.style.setProperty("--scene-local", local.toFixed(5));
-      scene.element.style.setProperty("--scene-center", centered.toFixed(5));
-      scene.element.style.setProperty("--scene-visible", Math.max(0, visible).toFixed(5));
+      if (!safetyMode) {
+        scene.element.style.setProperty("--scene-local", local.toFixed(5));
+        scene.element.style.setProperty("--scene-center", centered.toFixed(5));
+        scene.element.style.setProperty("--scene-visible", Math.max(0, visible).toFixed(5));
+      }
     });
     setActiveScene(nextActive);
 
@@ -151,7 +156,7 @@
     if (!document.hidden) requestRender();
   });
 
-  if ("ResizeObserver" in window) {
+  if ("ResizeObserver" in window && !touchDevice) {
     const sceneObserver = new ResizeObserver(refreshMetrics);
     scenes.forEach(scene => sceneObserver.observe(scene.element));
   }

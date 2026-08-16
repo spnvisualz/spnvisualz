@@ -137,6 +137,8 @@ em{font-family:Georgia,"Times New Roman",serif;font-weight:400;color:var(--purpl
   .hero:before,.hero-cosmos,.hero-object img,.logo-aura,.orbit-trace,.orbit-signal,.work-sticky:before,.world-orbit,.services:before,.marquee>div,.home-lab__signal,.pricing:before,.contact-rings i{animation:none!important}
   .hero-object img{filter:drop-shadow(0 0 18px rgba(135,71,255,.38))}
   .work-copy{background:rgba(3,2,7,.92)}
+  .scene-gate,.journey-hud{display:none!important}
+  .work-panel,.work-panel.is-active,.work-panel.is-leaving{transform:none!important;transition:opacity .18s linear!important}
 }
 
 @media (hover:none) and (pointer:coarse) and (min-width:1051px) and (max-width:1400px){
