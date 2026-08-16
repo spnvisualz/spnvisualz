@@ -48,6 +48,7 @@
   let raf = 0;
   let lastTime = performance.now();
   let metricsFrame = 0;
+  let activeChapterClass = "";
 
   const cacheMetrics = () => {
     const scroll = readScroll();
@@ -63,6 +64,9 @@
   const setActiveScene = index => {
     if (index === activeIndex) return;
     activeIndex = index;
+    if (activeChapterClass) document.body.classList.remove(activeChapterClass);
+    activeChapterClass = `journey-chapter-${index}`;
+    document.body.classList.add(activeChapterClass);
     scenes.forEach((scene, sceneIndex) => scene.element.classList.toggle("is-journey-current", sceneIndex === index));
     const scene = scenes[index];
     if (!scene) return;
@@ -99,6 +103,20 @@
     });
     setActiveScene(nextActive);
 
+    const compact = innerWidth <= 720;
+    const orbit = pageProgress * Math.PI * 2;
+    const fallbackAlpha = (compact
+      ? [0, .4, .3, .36, .42, .35, .32, .42]
+      : [0, .52, .4, .46, .54, .44, .4, .54])[nextActive] ?? .42;
+    const fallbackX = (compact ? 5 : 20) + Math.sin(orbit * 1.08) * (compact ? 8 : 11);
+    const fallbackY = Math.cos(orbit * .86) * (compact ? 5 : 8);
+    const fallbackScale = (compact ? .9 : 1) + Math.sin(orbit * .62) * .035;
+    root.style.setProperty("--fallback-planet-alpha", fallbackAlpha.toFixed(3));
+    root.style.setProperty("--fallback-planet-x", `${fallbackX.toFixed(2)}vw`);
+    root.style.setProperty("--fallback-planet-y", `${fallbackY.toFixed(2)}vh`);
+    root.style.setProperty("--fallback-planet-scale", fallbackScale.toFixed(4));
+    root.style.setProperty("--fallback-planet-rotate", `${(-7 + pageProgress * 18).toFixed(2)}deg`);
+
     if (Math.abs(targetScroll - currentScroll) > .08 || document.body.classList.contains("is-flight-navigating")) {
       raf = requestAnimationFrame(render);
     }
@@ -133,7 +151,10 @@
     if (!document.hidden) requestRender();
   });
 
-  if ("ResizeObserver" in window) new ResizeObserver(refreshMetrics).observe(document.body);
+  if ("ResizeObserver" in window) {
+    const sceneObserver = new ResizeObserver(refreshMetrics);
+    scenes.forEach(scene => sceneObserver.observe(scene.element));
+  }
   cacheMetrics();
   setActiveScene(0);
   requestRender();

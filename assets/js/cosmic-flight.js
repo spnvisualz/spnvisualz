@@ -8,20 +8,30 @@
 
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const coarsePointer = matchMedia("(pointer: coarse)").matches;
+  const touchDevice = coarsePointer || navigator.maxTouchPoints > 1;
   const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   const saveData = Boolean(connection && connection.saveData);
-  let compact = innerWidth <= 720 || (coarsePointer && innerWidth <= 1180);
+  const useCompactProfile = () => innerWidth <= 720 || (touchDevice && innerWidth <= 1440);
+  let compact = useCompactProfile();
+
+  const activateFallback = () => {
+    root.classList.remove("planet-ready");
+    document.body.classList.remove("planet-ready");
+    root.classList.add("planet-fallback");
+    document.body.classList.add("planet-fallback");
+    stage.classList.add("is-fallback");
+  };
 
   const gl = canvas.getContext("webgl", {
     alpha: true,
-    antialias: !saveData,
+    antialias: !saveData && !touchDevice,
     depth: true,
     premultipliedAlpha: true,
-    powerPreference: saveData ? "low-power" : "high-performance"
+    powerPreference: saveData || touchDevice ? "low-power" : "high-performance"
   }) || canvas.getContext("experimental-webgl");
 
   if (!gl) {
-    stage.classList.add("is-fallback");
+    activateFallback();
     return;
   }
 
@@ -223,7 +233,7 @@
   const vertexShader = compileShader(gl.VERTEX_SHADER, vertexShaderSource);
   const fragmentShader = compileShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
   if (!vertexShader || !fragmentShader) {
-    stage.classList.add("is-fallback");
+    activateFallback();
     return;
   }
 
@@ -232,7 +242,7 @@
   gl.attachShader(program, fragmentShader);
   gl.linkProgram(program);
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    stage.classList.add("is-fallback");
+    activateFallback();
     return;
   }
   gl.useProgram(program);
@@ -486,6 +496,12 @@
   let viewportResizeTimer = 0;
   let initialized = false;
   let visible = !document.hidden;
+  let orientationPending = false;
+
+  const viewportProbe = document.createElement("span");
+  viewportProbe.setAttribute("aria-hidden", "true");
+  viewportProbe.style.cssText = "position:fixed;left:0;top:0;width:1px;height:100lvh;visibility:hidden;pointer-events:none;contain:strict;";
+  stage.appendChild(viewportProbe);
 
   const sectionPoint = (selector, amount = 0) => {
     const element = document.querySelector(selector);
@@ -496,12 +512,7 @@
 
   const measureStableViewportHeight = () => {
     if (!window.CSS?.supports?.("height", "100lvh")) return Math.max(1, innerHeight);
-    const probe = document.createElement("span");
-    probe.setAttribute("aria-hidden", "true");
-    probe.style.cssText = "position:fixed;left:0;top:0;width:1px;height:100lvh;visibility:hidden;pointer-events:none;";
-    stage.appendChild(probe);
-    const measuredHeight = probe.getBoundingClientRect().height;
-    probe.remove();
+    const measuredHeight = viewportProbe.getBoundingClientRect().height;
     return Math.max(1, measuredHeight || innerHeight);
   };
 
@@ -611,7 +622,7 @@
   const resize = () => {
     const nextWidth = Math.max(1, innerWidth);
     const rawHeight = Math.max(1, innerHeight);
-    const nextCompact = nextWidth <= 720 || (coarsePointer && nextWidth <= 1180);
+    const nextCompact = useCompactProfile();
     const widthChanged = !initialized || Math.abs(nextWidth - width) > 1;
     const compactChanged = nextCompact !== compact;
     if (!initialized || widthChanged || compactChanged || !stableCompactHeight) {
@@ -623,9 +634,10 @@
     height = nextHeight;
     compact = nextCompact;
     aspect = width / height;
-    const pixelBudget = compact ? 2800000 : 6200000;
+    const pixelBudget = touchDevice ? 2200000 : compact ? 2800000 : 6200000;
     const budgetDpr = Math.sqrt(pixelBudget / Math.max(1, width * height));
-    const dpr = Math.max(.75, Math.min(devicePixelRatio || 1, saveData ? 1 : compact ? 2.25 : 2.5, budgetDpr));
+    const maximumDpr = saveData ? 1 : touchDevice ? 1.6 : compact ? 2.25 : 2.5;
+    const dpr = Math.max(.75, Math.min(devicePixelRatio || 1, maximumDpr, budgetDpr));
     const pixelWidth = Math.round(width * dpr);
     const pixelHeight = Math.round(height * dpr);
     if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
@@ -635,6 +647,8 @@
     }
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
+    stage.dataset.renderProfile = touchDevice ? "touch" : compact ? "compact" : "desktop";
+    stage.dataset.pixelCount = String(pixelWidth * pixelHeight);
     if (!layoutChanged) return;
     const previousPath = copyPath(activePath);
     cachePath();
@@ -676,7 +690,10 @@
 
   const scheduleViewportResize = () => {
     clearTimeout(viewportResizeTimer);
-    viewportResizeTimer = setTimeout(scheduleResize, compact ? 150 : 80);
+    viewportResizeTimer = setTimeout(() => {
+      orientationPending = false;
+      scheduleResize();
+    }, touchDevice ? 320 : compact ? 150 : 80);
   };
 
   const schedulePathRefresh = () => {
@@ -780,7 +797,7 @@
   const render = now => {
     animationFrame = 0;
     if (!visible) return;
-    const frameLimit = saveData ? 66 : compact ? 33 : 16;
+    const frameLimit = saveData ? 66 : touchDevice || compact ? 33 : 16;
     if (now - previousDraw < frameLimit && !reduceMotion) {
       animationFrame = requestAnimationFrame(render);
       return;
@@ -819,7 +836,7 @@
   };
 
   const requestRender = () => {
-    if (animationFrame) return;
+    if (animationFrame || orientationPending) return;
     previousFrame = performance.now();
     animationFrame = requestAnimationFrame(render);
   };
@@ -892,6 +909,13 @@
     }, { passive: true });
   });
 
+  addEventListener("orientationchange", () => {
+    if (!touchDevice) return;
+    orientationPending = true;
+    if (animationFrame) cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
+    scheduleViewportResize();
+  }, { passive: true });
   addEventListener("resize", scheduleViewportResize, { passive: true });
   addEventListener("load", schedulePathRefresh, { once: true });
   if ("ResizeObserver" in window) {
@@ -918,12 +942,13 @@
     event.preventDefault();
     if (animationFrame) cancelAnimationFrame(animationFrame);
     animationFrame = 0;
-    root.classList.remove("planet-ready");
-    document.body.classList.remove("planet-ready");
-    stage.classList.add("is-fallback");
+    activateFallback();
   }, false);
 
   resize();
+  root.classList.remove("planet-fallback");
+  document.body.classList.remove("planet-fallback");
+  stage.classList.remove("is-fallback");
   root.classList.add("planet-ready");
   document.body.classList.add("planet-ready");
   updateChapter();

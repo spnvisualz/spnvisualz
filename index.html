@@ -32,11 +32,10 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="preload" href="assets/images/spn-3d-hero.webp" as="image" type="image/webp" fetchpriority="high">
   <link rel="preload" href="assets/spn-orbit-transparent.png" as="image" fetchpriority="high">
   <link rel="preload" href="/assets/images/spn-reference-planet.jpg?v=20260813.1" as="image" type="image/jpeg" fetchpriority="high">
-  <link rel="stylesheet" href="styles.css?v=20260813.5">
-  <link rel="stylesheet" href="/assets/css/cosmic-flight.css?v=20260813.5">
+  <link rel="stylesheet" href="styles.css?v=20260816.2">
+  <link rel="stylesheet" href="/assets/css/cosmic-flight.css?v=20260816.2">
   <link rel="stylesheet" href="/assets/css/monetization.css?v=20260809.1">
   <link rel="stylesheet" href="/assets/css/cinematic-journey.css?v=20260813.1">
 
@@ -123,11 +122,13 @@
     "@id":"https://spnvisualz.com/#selected-work",
     "name":"SPNVISUALZ Selected Work",
     "itemListElement":[
-      {"@type":"ListItem","position":1,"item":{"@type":"CreativeWork","name":"TAO Special Motion Piece","creator":{"@id":"https://spnvisualz.com/#organization"},"url":"https://spnvisualz.com/#work"}},
-      {"@type":"ListItem","position":2,"item":{"@type":"CreativeWork","name":"3 Nation Studios Motion Identity","creator":{"@id":"https://spnvisualz.com/#organization"},"url":"https://spnvisualz.com/#work"}},
-      {"@type":"ListItem","position":3,"item":{"@type":"CreativeWork","name":"Gezana Events Visual Identity","creator":{"@id":"https://spnvisualz.com/#organization"},"url":"https://spnvisualz.com/#work"}},
-      {"@type":"ListItem","position":4,"item":{"@type":"CreativeWork","name":"TAO Chrome Visual World","creator":{"@id":"https://spnvisualz.com/#organization"},"url":"https://spnvisualz.com/#work"}},
-      {"@type":"ListItem","position":5,"item":{"@type":"CreativeWork","name":"Prince O Visual Identity","creator":{"@id":"https://spnvisualz.com/#organization"},"url":"https://spnvisualz.com/#work"}}
+      {"@type":"ListItem","position":1,"item":{"@type":"CreativeWork","name":"Icekiid Frozen Motion Identity","creator":{"@id":"https://spnvisualz.com/#organization"},"url":"https://spnvisualz.com/#work"}},
+      {"@type":"ListItem","position":2,"item":{"@type":"CreativeWork","name":"TAO Special Motion Piece","creator":{"@id":"https://spnvisualz.com/#organization"},"url":"https://spnvisualz.com/#work"}},
+      {"@type":"ListItem","position":3,"item":{"@type":"CreativeWork","name":"Gezana × LaLux Event Collaboration","creator":{"@id":"https://spnvisualz.com/#organization"},"url":"https://spnvisualz.com/#work"}},
+      {"@type":"ListItem","position":4,"item":{"@type":"CreativeWork","name":"3 Nation Studios Motion Identity","creator":{"@id":"https://spnvisualz.com/#organization"},"url":"https://spnvisualz.com/#work"}},
+      {"@type":"ListItem","position":5,"item":{"@type":"CreativeWork","name":"Gezana Events Visual Identity","creator":{"@id":"https://spnvisualz.com/#organization"},"url":"https://spnvisualz.com/#work"}},
+      {"@type":"ListItem","position":6,"item":{"@type":"CreativeWork","name":"TAO Chrome Visual World","creator":{"@id":"https://spnvisualz.com/#organization"},"url":"https://spnvisualz.com/#work"}},
+      {"@type":"ListItem","position":7,"item":{"@type":"CreativeWork","name":"Prince O Visual Identity","creator":{"@id":"https://spnvisualz.com/#organization"},"url":"https://spnvisualz.com/#work"}}
     ]
   }
   </script>
@@ -169,6 +170,7 @@
   </div>
   <div class="spn-planet" id="spnPlanet" aria-hidden="true">
     <canvas class="spn-planet__canvas" id="spnPlanetCanvas"></canvas>
+    <img class="spn-planet__fallback" src="assets/spn-orbit-transparent.png" alt="" width="1097" height="706" decoding="async">
     <span class="spn-planet__glow"></span>
     <div class="spn-planet__hint">
       <i></i>
@@ -309,17 +311,17 @@
     </section>
 
     <div class="depth-threshold" aria-hidden="true">
-      <span>SPN / SELECTED WORK</span><i></i><b>01—05</b>
+      <span>SPN / SELECTED WORK</span><i></i><b>01—07</b>
     </div>
 
     <section class="work-rail" id="work" data-section="Selected Work">
       <div class="work-sticky">
         <header class="work-header">
           <div>
-            <p class="section-label">Portfolio / 01—05</p>
+            <p class="section-label">Portfolio / 01—07</p>
             <h2>Selected work</h2>
           </div>
-          <div class="work-count"><strong id="workCurrent">01</strong><span>/</span><em>05</em></div>
+          <div class="work-count"><strong id="workCurrent">01</strong><span>/</span><em>07</em></div>
         </header>
 
         <div class="work-stage" id="workStage">
@@ -330,52 +332,70 @@
           </div>
           <div class="world-orbit" aria-hidden="true"><span></span><i></i><b></b></div>
           <div class="world-index" aria-hidden="true">
-            <span class="is-active">01</span><span>02</span><span>03</span><span>04</span><span>05</span>
+            <span class="is-active">01</span><span>02</span><span>03</span><span>04</span><span>05</span><span>06</span><span>07</span>
           </div>
           <div class="world-scan" aria-hidden="true"></div>
-          <article class="work-panel is-active" data-title="TAO Special" data-index="0">
-            <p class="work-ghost" aria-hidden="true">CUSTOM</p>
+          <article class="work-panel is-active" data-title="Icekiid" data-index="0">
+            <p class="work-ghost" aria-hidden="true">FROZEN</p>
             <div class="work-media">
-              <video muted loop playsinline preload="metadata" poster="assets/work-7.jpg"><source src="assets/videos/spn-visual-05.mp4" type="video/mp4"></video>
+              <video muted loop playsinline preload="metadata" poster="assets/work-icekiid.webp"><source src="assets/videos/icekiid.mp4" type="video/mp4"></video>
               <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
             </div>
-            <div class="work-copy"><span>01 / CUSTOM WORLD</span><h3>TAO Special</h3><p>When the package list is not enough, we build the visual world from zero.</p></div>
+            <div class="work-copy"><span>01 / FROZEN IDENTITY</span><h3>Icekiid</h3><p>Ice-built lettering and sharp stage motion designed to land with impact.</p></div>
           </article>
 
-          <article class="work-panel" data-title="3 Nation Studios" data-index="1">
+          <article class="work-panel" data-title="TAO Special" data-index="1">
+            <p class="work-ghost" aria-hidden="true">CUSTOM</p>
+            <div class="work-media">
+              <video muted loop playsinline preload="none" poster="assets/work-7.jpg"><source src="assets/videos/spn-visual-05.mp4" type="video/mp4"></video>
+              <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
+            </div>
+            <div class="work-copy"><span>02 / CUSTOM WORLD</span><h3>TAO Special</h3><p>When the package list is not enough, we build the visual world from zero.</p></div>
+          </article>
+
+          <article class="work-panel" data-title="Gezana × LaLux" data-index="2">
+            <p class="work-ghost" aria-hidden="true">NIGHTS</p>
+            <div class="work-media">
+              <video muted loop playsinline preload="none" poster="assets/work-gezana-lalux.webp"><source src="assets/videos/gezana-x-lalux.mp4" type="video/mp4"></video>
+              <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
+            </div>
+            <div class="work-copy"><span>03 / EVENT COLLABORATION</span><h3>Gezana × LaLux</h3><p>Two nightlife identities united in one electric motion piece.</p></div>
+          </article>
+
+          <article class="work-panel" data-title="3 Nation Studios" data-index="3">
             <p class="work-ghost" aria-hidden="true">CHROME</p>
             <div class="work-media">
               <video muted loop playsinline preload="none" poster="assets/work-2.jpg"><source src="assets/videos/spn-visual-02.mp4" type="video/mp4"></video>
               <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
             </div>
-            <div class="work-copy"><span>02 / LOGO MOTION</span><h3>3 Nation Studios</h3><p>Diamond-set type, high-gloss lighting and a reveal made to feel expensive.</p></div>
+            <div class="work-copy"><span>04 / LOGO MOTION</span><h3>3 Nation Studios</h3><p>Diamond-set type, high-gloss lighting and a reveal made to feel expensive.</p></div>
           </article>
 
-          <article class="work-panel" data-title="Gezana Events" data-index="2">
+          <article class="work-panel" data-title="Gezana Events" data-index="4">
             <p class="work-ghost" aria-hidden="true">IDENTITY</p>
             <div class="work-media">
               <video muted loop playsinline preload="none" poster="assets/work-1.jpg"><source src="assets/videos/spn-visual-01.mp4" type="video/mp4"></video>
               <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
             </div>
-            <div class="work-copy"><span>03 / EVENT IDENTITY</span><h3>Gezana Events</h3><p>Luxury emblem animation built for nightlife, events and social campaigns.</p></div>
+            <div class="work-copy"><span>05 / EVENT IDENTITY</span><h3>Gezana Events</h3><p>Luxury emblem animation built for nightlife, events and social campaigns.</p></div>
           </article>
 
-          <article class="work-panel" data-title="TAO" data-index="3">
+          <article class="work-panel" data-title="TAO" data-index="5">
             <p class="work-ghost" aria-hidden="true">INTRO</p>
             <div class="work-media work-media-wide">
               <video muted loop playsinline preload="none" poster="assets/work-3.jpg"><source src="assets/videos/spn-visual-03.mp4" type="video/mp4"></video>
               <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
             </div>
-            <div class="work-copy"><span>04 / ARTIST INTRO</span><h3>TAO</h3><p>A cinematic artist mark shaped through metal, movement and atmosphere.</p></div>
+            <div class="work-copy"><span>06 / ARTIST INTRO</span><h3>TAO</h3><p>A cinematic artist mark shaped through metal, movement and atmosphere.</p></div>
           </article>
 
-          <article class="work-panel" data-title="Prince O" data-index="4">
+          <article class="work-panel" data-title="Prince O" data-index="6">
             <p class="work-ghost" aria-hidden="true">SYMBOL</p>
             <div class="work-media">
               <video muted loop playsinline preload="none" poster="assets/work-4.jpg"><source src="assets/videos/spn-visual-04.mp4" type="video/mp4"></video>
               <span class="media-corner corner-a"></span><span class="media-corner corner-b"></span>
             </div>
-            <div class="work-copy"><span>05 / EMBLEM MOTION</span><h3>Prince O</h3><p>A dark chrome signature engineered to land with impact in every reveal.</p></div>
+            <div class="work-copy"><span>07 / EMBLEM MOTION</span><h3>Prince O</h3><p>A dark chrome signature engineered to land with impact in every reveal.</p></div>
           </article>
         </div>
 
@@ -620,8 +640,8 @@
   </dialog>
 
   <script src="/assets/vendor/lenis.min.js?v=1.3.26" defer></script>
-  <script src="app.js?v=20260813.9" defer></script>
-  <script src="/assets/js/cosmic-flight.js?v=20260813.5" defer></script>
-  <script src="/assets/js/cinematic-journey.js?v=20260813.1" defer></script>
+  <script src="app.js?v=20260816.2" defer></script>
+  <script src="/assets/js/cosmic-flight.js?v=20260816.2" defer></script>
+  <script src="/assets/js/cinematic-journey.js?v=20260816.2" defer></script>
 </body>
 </html>

@@ -23,6 +23,25 @@ main,
 
 .planet-ready .spn-planet__canvas { opacity: 1; }
 
+.spn-planet__fallback {
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  width: min(88vw,1180px);
+  height: auto;
+  opacity: 0;
+  transform: translate3d(calc(-50% + var(--fallback-planet-x,20vw)),calc(-50% + var(--fallback-planet-y,0vh)),0) rotate(var(--fallback-planet-rotate,-7deg)) scale(var(--fallback-planet-scale,1));
+  transform-origin: 50% 50%;
+  filter: drop-shadow(0 0 34px rgba(128,73,255,.36)) drop-shadow(0 0 90px rgba(90,38,196,.2));
+  transition: opacity .55s ease;
+  will-change: transform,opacity;
+  backface-visibility: hidden;
+}
+
+.planet-fallback .spn-planet__fallback { opacity: var(--fallback-planet-alpha,.48); }
+body.journey-chapter-0 .spn-planet__fallback { opacity: 0; }
+
 .spn-planet__glow {
   position: fixed;
   z-index: 0;
@@ -113,6 +132,18 @@ main,
 .planet-ready .contact { background: radial-gradient(circle at 70% 52%,rgba(100,39,204,.09),transparent 36%),rgba(5,2,10,.16); }
 .planet-ready .manifesto-portal,.planet-ready .services-depth{opacity:.16}
 
+/* Keep the world present when a browser cannot provide WebGL. */
+.planet-fallback .depth-field { z-index: 0; opacity: .2; }
+.planet-fallback .manifesto { background: linear-gradient(180deg,rgba(3,2,7,.42),rgba(7,4,11,.34)); }
+.planet-fallback .work-rail { background: rgba(2,1,4,.38); }
+.planet-fallback .work-sticky { background: radial-gradient(circle at 50% 47%,rgba(92,35,184,.08),transparent 40%),rgba(2,1,4,.34); }
+.planet-fallback .services { background: radial-gradient(circle at 85% 60%,rgba(101,40,208,.08),transparent 28%),rgba(7,3,11,.4); }
+.planet-fallback .pricing { background: rgba(3,2,7,.36); }
+.planet-fallback .process { background: linear-gradient(180deg,rgba(9,5,15,.38),rgba(3,2,7,.4)); }
+.planet-fallback .home-lab { background: linear-gradient(180deg,rgba(3,2,7,.38),rgba(8,5,13,.32) 48%,rgba(3,2,7,.38)); }
+.planet-fallback .contact { background: radial-gradient(circle at 70% 52%,rgba(100,39,204,.1),transparent 36%),rgba(5,2,10,.34); }
+.planet-fallback .manifesto-portal,.planet-fallback .services-depth { opacity: .14; }
+
 /* Controls can energize the lighting, but they never steer the planet. */
 [data-planet-reactive] {
   transition: filter .2s ease,background-color .2s ease,border-color .2s ease;
@@ -141,7 +172,14 @@ body.planet-chapter-contact .site-header {
   .spn-planet__status { grid-template-columns: 72px 90px 32px; }
 }
 
+@media (hover: none) and (pointer: coarse) and (orientation: landscape) {
+  .spn-planet__glow { filter: blur(38px); opacity: .7; }
+  .spn-planet__fallback { filter: drop-shadow(0 0 28px rgba(128,73,255,.3)); }
+}
+
 @media (max-width: 720px) {
+  .spn-planet__fallback { width: 145vw; }
+
   .spn-planet__glow {
     width: 128vw;
     filter: blur(34px);
@@ -193,6 +231,13 @@ body.planet-chapter-contact .site-header {
   .planet-ready .process,
   .planet-ready .home-lab,
   .planet-ready .contact { background: rgba(3,2,7,.25); }
+  .planet-fallback .manifesto,
+  .planet-fallback .work-sticky,
+  .planet-fallback .services,
+  .planet-fallback .pricing,
+  .planet-fallback .process,
+  .planet-fallback .home-lab,
+  .planet-fallback .contact { background: rgba(3,2,7,.42); }
 
   .hero { min-height: 760px; padding-top: 104px; }
   .hero h1 {
@@ -253,6 +298,7 @@ body.planet-chapter-contact .site-header {
 @media (prefers-reduced-motion: reduce) {
   .spn-planet,
   .spn-planet__canvas,
+  .spn-planet__fallback,
   .spn-planet__hint,
   [data-planet-reactive] { transition: none!important; }
   .spn-planet__hint { display: none; }

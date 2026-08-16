@@ -3,6 +3,7 @@
   const $$ = (selector, context = document) => [...context.querySelectorAll(selector)];
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = matchMedia('(pointer:fine)').matches;
+  const touchDevice = matchMedia('(pointer:coarse)').matches || navigator.maxTouchPoints > 1;
   const scrollEase = value => value * value * value * (value * (value * 6 - 15) + 10);
   let programmaticScroll = false;
   let programmaticScrollTimer = 0;
@@ -23,7 +24,7 @@
   const currentScroll = () => smoothScroll ? smoothScroll.scroll : scrollY;
   const scrollDuration = targetY => {
     const distance = Math.abs(targetY - currentScroll());
-    return Math.min(2.85, Math.max(1.05, .96 + distance / 5600));
+    return Math.min(2.25, Math.max(.82, .78 + distance / 7600));
   };
   const finishProgrammaticScroll = () => {
     if (!programmaticScroll) return;
@@ -36,7 +37,8 @@
   };
   const scrollToPosition = (targetY, options = {}) => {
     const boundedTarget = Math.max(0, Math.min(targetY, document.documentElement.scrollHeight - innerHeight));
-    const duration = reduceMotion ? 0 : Number(options.duration || scrollDuration(boundedTarget));
+    const suppliedDuration = Number(options.duration);
+    const duration = reduceMotion ? 0 : Number.isFinite(suppliedDuration) ? Math.max(0, suppliedDuration) : scrollDuration(boundedTarget);
     window.dispatchEvent(new CustomEvent('spn:navigation-start', {
       detail: { targetY: boundedTarget, durationMs: duration * 1000 }
     }));
@@ -329,6 +331,7 @@
   const workProgress = $('#workProgress');
   const workSignal = $('#workSignal');
   const worldIndexItems = $$('.world-index span');
+  if (workRail) workRail.style.setProperty('--work-count', String(Math.max(1, workPanels.length)));
   let activeWork = 0;
   let workRailTop = 0;
   let workRailDistance = 1;
@@ -336,9 +339,54 @@
   let videoTimer = 0;
   let metricFrame = 0;
   let workFxTimer = 0;
+  let orientationRestoreTimer = 0;
 
-  const pauseWorkVideos = () => {
-    workPanels.forEach(panel => panel.querySelector('video')?.pause());
+  const hydrateWorkVideo = video => {
+    if (!video || video.dataset.hydrated === 'true') return;
+    let changed = false;
+    $$('source', video).forEach(source => {
+      const sourceUrl = source.dataset.src;
+      if (!source.getAttribute('src') && sourceUrl) {
+        source.setAttribute('src', sourceUrl);
+        changed = true;
+      }
+    });
+    if (changed) video.load();
+    video.dataset.hydrated = 'true';
+  };
+
+  const releaseWorkVideo = video => {
+    if (!video || !touchDevice) return;
+    video.pause();
+    let changed = false;
+    $$('source', video).forEach(source => {
+      const sourceUrl = source.getAttribute('src');
+      if (sourceUrl) {
+        source.dataset.src = sourceUrl;
+        source.removeAttribute('src');
+        changed = true;
+      }
+    });
+    if (changed) video.load();
+    video.dataset.hydrated = 'false';
+  };
+
+  workPanels.forEach((panel, index) => {
+    const video = $('video', panel);
+    if (!video) return;
+    $$('source', video).forEach(source => {
+      if (!source.dataset.src) source.dataset.src = source.getAttribute('src') || '';
+    });
+    video.dataset.hydrated = 'true';
+    if (touchDevice && index !== 0) releaseWorkVideo(video);
+  });
+
+  const pauseWorkVideos = (release = false) => {
+    workPanels.forEach(panel => {
+      const video = panel.querySelector('video');
+      video?.pause();
+      if (release) releaseWorkVideo(video);
+    });
   };
 
   const scheduleActiveVideo = (delay = 140) => {
@@ -347,7 +395,9 @@
     if (programmaticScroll || !workInView || document.hidden) return;
     videoTimer = setTimeout(() => {
       videoTimer = 0;
-      workPanels[activeWork]?.querySelector('video')?.play().catch(() => {});
+      const video = workPanels[activeWork]?.querySelector('video');
+      hydrateWorkVideo(video);
+      video?.play().catch(() => {});
     }, reduceMotion ? 0 : delay);
   };
 
@@ -364,7 +414,6 @@
     if (metricFrame) return;
     metricFrame = requestAnimationFrame(() => {
       cachePageMetrics();
-      smoothScroll?.resize();
       latestScroll = currentScroll();
       renderScroll();
       metricFrame = 0;
@@ -373,7 +422,7 @@
 
   addEventListener('resize', scheduleMetricRefresh, { passive: true });
   addEventListener('load', scheduleMetricRefresh, { once: true });
-  if ('ResizeObserver' in window) new ResizeObserver(scheduleMetricRefresh).observe(document.body);
+  if ('ResizeObserver' in window && workRail) new ResizeObserver(scheduleMetricRefresh).observe(workRail);
 
   const activateWork = (index) => {
     if (index === activeWork || index < 0 || index >= workPanels.length) return;
@@ -385,8 +434,10 @@
       const video = $('video', panel);
       if (panelIndex === index) {
         panel.classList.add('is-active');
+        hydrateWorkVideo(video);
       } else {
-        if (video) video.pause();
+        video?.pause();
+        releaseWorkVideo(video);
       }
     });
     const worldNumber = String(index + 1).padStart(2, '0');
@@ -439,18 +490,37 @@
       else {
         clearTimeout(videoTimer);
         videoTimer = 0;
-        pauseWorkVideos();
+        pauseWorkVideos(touchDevice);
       }
     });
   }, { threshold: .08 });
   if (workRail) workVisibility.observe(workRail);
   firstVideo?.pause();
 
+  addEventListener('orientationchange', () => {
+    if (!touchDevice) return;
+    const savedProgress = Math.min(1, Math.max(0, currentScroll() / Math.max(1, pageMax)));
+    document.body.classList.add('is-orienting');
+    pauseWorkVideos(true);
+    clearTimeout(orientationRestoreTimer);
+    orientationRestoreTimer = setTimeout(() => {
+      smoothScroll?.resize();
+      cachePageMetrics();
+      const restoredScroll = Math.min(pageMax, Math.max(0, savedProgress * pageMax));
+      if (smoothScroll) smoothScroll.scrollTo(restoredScroll, { immediate: true, force: true });
+      else window.scrollTo(0, restoredScroll);
+      latestScroll = restoredScroll;
+      renderScroll();
+      document.body.classList.remove('is-orienting');
+      if (workInView) scheduleActiveVideo(120);
+    }, 460);
+  }, { passive: true });
+
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       clearTimeout(videoTimer);
       videoTimer = 0;
-      pauseWorkVideos();
+      pauseWorkVideos(touchDevice);
     } else if (workInView) scheduleActiveVideo(40);
   });
 
