@@ -307,6 +307,7 @@ em{font-family:Georgia,"Times New Roman",serif;font-weight:400;color:var(--purpl
 .site-footer-links a{color:var(--quiet);font-size:7px;letter-spacing:.12em;text-transform:uppercase;transition:color .2s}
 .site-footer-links a:hover,.site-footer-links a:focus-visible{color:var(--text)}
 .site-footer>p{grid-area:copy;margin:0}
+.site-footer-aliases{display:block;margin-top:7px;color:rgba(218,211,229,.5);font-size:6px;letter-spacing:.13em;text-transform:uppercase}
 .site-footer>.chubae{grid-area:chubae}
 @media(max-width:720px){
   .home-lab__signal{right:-48vw;top:18%;width:115vw;opacity:.6}
