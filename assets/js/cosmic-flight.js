@@ -9,6 +9,10 @@
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const coarsePointer = matchMedia("(pointer: coarse)").matches;
   const touchDevice = coarsePointer || navigator.maxTouchPoints > 1;
+  const appleTouch = touchDevice && (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  );
   const landscapeQuery = matchMedia("(orientation: landscape)");
   const touchLandscape = () => touchDevice && (landscapeQuery.matches || innerWidth > innerHeight);
   const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
@@ -25,8 +29,17 @@
     stage.dataset.renderProfile = profile;
   };
 
-  // Never ask mobile Safari to hold a WebGL framebuffer and a decoded motion
-  // reel at the same time in landscape. The fallback remains scroll-reactive.
+  // iOS/iPadOS can terminate the page when a fixed WebGL framebuffer, video
+  // decoder and long composited page are resident together. Keep the same
+  // planet artwork scroll-reactive there without creating a WebGL context.
+  if (appleTouch) {
+    root.classList.add("apple-touch-safe");
+    document.body.classList.add("apple-touch-safe");
+    activateFallback("apple-touch-safe");
+    return;
+  }
+
+  // Other touch browsers use the same conservative renderer in landscape.
   if (touchLandscape()) {
     root.classList.add("touch-landscape-safe");
     document.body.classList.add("touch-landscape-safe");

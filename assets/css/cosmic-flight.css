@@ -168,6 +168,96 @@ body.planet-chapter-contact .site-header {
   backdrop-filter: blur(16px);
 }
 
+/* Apple touch stability profile
+   Keep the SPN world prominent and scroll-reactive, but never retain WebGL,
+   video decoders, blurred fixed layers and long 3D compositor stacks together. */
+.apple-touch-safe .spn-planet__canvas,
+.apple-touch-safe .spn-planet__glow { display: none!important; }
+
+.apple-touch-safe .spn-planet__fallback {
+  filter: none;
+  transition: opacity .18s linear;
+  will-change: auto;
+  backface-visibility: visible;
+}
+
+body.apple-touch-safe.planet-fallback .spn-planet__fallback {
+  opacity: var(--fallback-planet-alpha,.78);
+}
+
+.apple-touch-safe .hero-object,
+.apple-touch-safe .grain,
+.apple-touch-safe .site-atmosphere,
+.apple-touch-safe .depth-field,
+.apple-touch-safe .hero-architecture,
+.apple-touch-safe .manifesto-portal,
+.apple-touch-safe .services-depth,
+.apple-touch-safe .contact-rings,
+.apple-touch-safe .contact-art,
+.apple-touch-safe .scene-gate,
+.apple-touch-safe .journey-hud { display: none!important; }
+
+.apple-touch-safe .site-header,
+.apple-touch-safe .site-header.is-scrolled,
+.apple-touch-safe .button-outline,
+.apple-touch-safe .work-copy,
+.apple-touch-safe .order-dialog,
+.apple-touch-safe .service-dialog,
+.apple-touch-safe .service-dialog::backdrop,
+.apple-touch-safe .spn-consent,
+.apple-touch-safe .spn-ad-shell {
+  -webkit-backdrop-filter: none!important;
+  backdrop-filter: none!important;
+}
+
+.apple-touch-safe .hero:before,
+.apple-touch-safe .hero-cosmos,
+.apple-touch-safe .work-sticky:before,
+.apple-touch-safe .world-orbit,
+.apple-touch-safe .work-signature span i,
+.apple-touch-safe .services:before,
+.apple-touch-safe .service-preview:before,
+.apple-touch-safe .marquee>div,
+.apple-touch-safe .home-lab__signal,
+.apple-touch-safe .pricing:before,
+.apple-touch-safe .pricing:after,
+.apple-touch-safe .contact-rings i {
+  animation: none!important;
+}
+
+.apple-touch-safe .pricing:before,
+.apple-touch-safe .pricing:after { display: none!important; }
+
+.apple-touch-safe .work-stage,
+.apple-touch-safe .work-panel,
+.apple-touch-safe .work-panel.is-active,
+.apple-touch-safe .work-media,
+.apple-touch-safe .work-copy {
+  transform-style: flat!important;
+  perspective: none!important;
+  will-change: auto!important;
+}
+
+.apple-touch-safe .work-panel.is-active .work-media {
+  transform: translate(-50%,-50%)!important;
+  transition: opacity .18s ease!important;
+}
+
+.apple-touch-safe .work-panel.is-active .work-copy,
+.apple-touch-safe .work-panel.is-active .work-ghost {
+  transform: none!important;
+  transition: none!important;
+}
+
+.apple-touch-safe .reveal {
+  opacity: 1!important;
+  transform: none!important;
+  transition: none!important;
+}
+
+.apple-touch-safe [data-planet-reactive].is-reacting,
+.apple-touch-safe [data-planet-reactive]:focus-visible { filter: none; }
+
 @media (max-width: 1050px) {
   .spn-planet__status { grid-template-columns: 72px 90px 32px; }
 }

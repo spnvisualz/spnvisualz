@@ -4,10 +4,16 @@
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = matchMedia('(pointer:fine)').matches;
   const touchDevice = matchMedia('(pointer:coarse)').matches || navigator.maxTouchPoints > 1;
+  const appleTouch = touchDevice && (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
   const touchLandscape = () => touchDevice && (matchMedia('(orientation:landscape)').matches || innerWidth > innerHeight);
   const syncTouchLandscape = () => {
     document.documentElement.classList.toggle('touch-landscape-safe', touchLandscape());
     document.body.classList.toggle('touch-landscape-safe', touchLandscape());
+    document.documentElement.classList.toggle('apple-touch-safe', appleTouch);
+    document.body.classList.toggle('apple-touch-safe', appleTouch);
   };
   syncTouchLandscape();
   const scrollEase = value => value * value * value * (value * (value * 6 - 15) + 10);
@@ -110,7 +116,7 @@
   };
 
   function updateDepthLayers() {
-    if (reduceMotion || !depthLayers.length) return;
+    if (reduceMotion || appleTouch || !depthLayers.length) return;
     const motionScale = innerWidth <= 720 ? .28 : innerWidth <= 1050 ? .62 : 1;
     depthLayers.forEach(item => {
       const raw = (latestScroll + innerHeight - item.top) / (item.height + innerHeight);
@@ -176,13 +182,16 @@
   let latestScroll = currentScroll();
   let pageMax = Math.max(1, document.documentElement.scrollHeight - innerHeight);
   let ticking = false;
+  let appleScrollY = latestScroll;
+  let appleScrollTime = performance.now();
+  let appleScrollSettleTimer = 0;
 
   const renderScroll = () => {
     const pageP = Math.min(1, Math.max(0, latestScroll / pageMax));
     if (progress) progress.style.transform = `scaleX(${pageP})`;
     header?.classList.toggle('is-scrolled', latestScroll > 24);
 
-    if (!reduceMotion) {
+    if (!reduceMotion && !appleTouch) {
       const object = $('#heroObject');
       if (object && latestScroll < innerHeight * 1.25) {
         const p = Math.min(1, latestScroll / innerHeight);
@@ -199,12 +208,27 @@
       depthField?.style.setProperty('--depth-page-y-near', `${pageP * -260}px`);
     }
     updateDepthLayers();
-    updateWork();
+    if (!document.body.classList.contains('apple-scroll-fast')) updateWork();
     ticking = false;
   };
 
   addEventListener('scroll', () => {
     latestScroll = currentScroll();
+    if (appleTouch) {
+      const now = performance.now();
+      const elapsed = Math.max(16, now - appleScrollTime);
+      const speed = Math.abs(latestScroll - appleScrollY) / elapsed;
+      appleScrollY = latestScroll;
+      appleScrollTime = now;
+      if (speed > 1.15) document.body.classList.add('apple-scroll-fast');
+      clearTimeout(appleScrollSettleTimer);
+      appleScrollSettleTimer = setTimeout(() => {
+        document.body.classList.remove('apple-scroll-fast');
+        latestScroll = currentScroll();
+        renderScroll();
+        window.dispatchEvent(new CustomEvent('spn:apple-scroll-settled'));
+      }, 180);
+    }
     if (videoTimer) scheduleActiveVideo(160);
     if (!ticking) {
       ticking = true;
@@ -309,18 +333,24 @@
     scrollToPosition(targetY);
   });
 
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        revealObserver.unobserve(entry.target);
-      }
+  if (appleTouch) {
+    // Revealing dozens of layers at once during a fast fling can make WebKit
+    // allocate a large compositor burst. Content is immediately visible here.
+    $$('.reveal').forEach(element => element.classList.add('is-visible'));
+  } else {
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: .12, rootMargin: '0px 0px -6% 0px' });
+    $$('.reveal').forEach((element, index) => {
+      element.style.transitionDelay = `${Math.min((index % 4) * 55, 165)}ms`;
+      revealObserver.observe(element);
     });
-  }, { threshold: .12, rootMargin: '0px 0px -6% 0px' });
-  $$('.reveal').forEach((element, index) => {
-    element.style.transitionDelay = `${Math.min((index % 4) * 55, 165)}ms`;
-    revealObserver.observe(element);
-  });
+  }
 
   const navLinks = $$('.desktop-nav a');
   const sectionObserver = new IntersectionObserver((entries) => {
@@ -350,7 +380,7 @@
   let orientationRestoreTimer = 0;
 
   const hydrateWorkVideo = video => {
-    if (!video || touchLandscape() || video.dataset.hydrated === 'true') return;
+    if (!video || appleTouch || touchLandscape() || video.dataset.hydrated === 'true') return;
     let changed = false;
     $$('source', video).forEach(source => {
       const sourceUrl = source.dataset.src;
@@ -389,7 +419,7 @@
       if (source.getAttribute('src')) hydrated = true;
     });
     video.dataset.hydrated = hydrated ? 'true' : 'false';
-    if (touchDevice && (index !== 0 || touchLandscape())) releaseWorkVideo(video);
+    if (appleTouch || (touchDevice && (index !== 0 || touchLandscape()))) releaseWorkVideo(video);
   });
 
   const pauseWorkVideos = (release = false) => {
@@ -403,7 +433,7 @@
   const scheduleActiveVideo = (delay = 140) => {
     clearTimeout(videoTimer);
     videoTimer = 0;
-    if (programmaticScroll || !workInView || document.hidden || touchLandscape()) return;
+    if (programmaticScroll || !workInView || document.hidden || appleTouch || touchLandscape()) return;
     videoTimer = setTimeout(() => {
       videoTimer = 0;
       const video = workPanels[activeWork]?.querySelector('video');
@@ -455,7 +485,7 @@
     if (workCurrent) workCurrent.textContent = worldNumber;
     if (workSignal) workSignal.textContent = worldNumber;
     worldIndexItems.forEach((item, itemIndex) => item.classList.toggle('is-active', itemIndex === index));
-    if (workStage && !reduceMotion) {
+    if (workStage && !reduceMotion && !appleTouch) {
       workStage.classList.remove('is-switching');
       void workStage.offsetWidth;
       workStage.classList.add('is-switching');
@@ -475,7 +505,7 @@
     const phase = index === workPanels.length - 1 && value === 1 ? 1 : segment - Math.floor(segment);
     const curve = Math.sin(phase * Math.PI);
     const wave = Math.sin(phase * Math.PI * 2);
-    const motionScale = reduceMotion ? 0 : innerWidth <= 720 ? .38 : innerWidth <= 1050 ? .7 : 1;
+    const motionScale = reduceMotion || appleTouch ? 0 : innerWidth <= 720 ? .38 : innerWidth <= 1050 ? .7 : 1;
     if (workStage) {
       workStage.style.setProperty('--world-phase', phase.toFixed(4));
       workStage.style.setProperty('--world-rail-x', `${(wave * .8 * motionScale).toFixed(2)}deg`);
@@ -505,12 +535,12 @@
       }
     });
   }, { threshold: .08 });
-  if (workRail) workVisibility.observe(workRail);
+  if (workRail && !appleTouch) workVisibility.observe(workRail);
   firstVideo?.pause();
 
   addEventListener('orientationchange', () => {
     if (!touchDevice) return;
-    const savedProgress = Math.min(1, Math.max(0, currentScroll() / Math.max(1, pageMax)));
+    const savedProgress = appleTouch ? null : Math.min(1, Math.max(0, currentScroll() / Math.max(1, pageMax)));
     document.body.classList.add('is-orienting');
     pauseWorkVideos(true);
     stopServiceVideo(serviceVideo, serviceVideoSource);
@@ -520,14 +550,20 @@
       syncTouchLandscape();
       smoothScroll?.resize();
       cachePageMetrics();
-      const restoredScroll = Math.min(pageMax, Math.max(0, savedProgress * pageMax));
-      if (smoothScroll) smoothScroll.scrollTo(restoredScroll, { immediate: true, force: true });
-      else window.scrollTo(0, restoredScroll);
-      latestScroll = restoredScroll;
+      if (savedProgress !== null) {
+        const restoredScroll = Math.min(pageMax, Math.max(0, savedProgress * pageMax));
+        if (smoothScroll) smoothScroll.scrollTo(restoredScroll, { immediate: true, force: true });
+        else window.scrollTo(0, restoredScroll);
+        latestScroll = restoredScroll;
+      } else {
+        // Let WebKit preserve its native anchor during rotation. Forcing a
+        // proportional scroll here can snap an iPhone/iPad back up the page.
+        latestScroll = currentScroll();
+      }
       renderScroll();
       document.body.classList.remove('is-orienting');
-      if (workInView && !touchLandscape()) scheduleActiveVideo(120);
-    }, 460);
+      if (workInView && !appleTouch && !touchLandscape()) scheduleActiveVideo(120);
+    }, appleTouch ? 280 : 460);
   }, { passive: true });
 
   addEventListener('resize', syncTouchLandscape, { passive: true });
@@ -537,7 +573,7 @@
       clearTimeout(videoTimer);
       videoTimer = 0;
       pauseWorkVideos(touchDevice);
-    } else if (workInView && !touchLandscape()) scheduleActiveVideo(40);
+    } else if (workInView && !appleTouch && !touchLandscape()) scheduleActiveVideo(40);
   });
 
   const serviceImage = $('#serviceImage');
@@ -574,7 +610,7 @@
 
   const setServiceMedia = (image, video, source, row, autoplay = false) => {
     const videoPath = row.dataset.video || '';
-    const useVideo = Boolean(videoPath) && !reduceMotion && video && source;
+    const useVideo = Boolean(videoPath) && !reduceMotion && !appleTouch && video && source;
     if (useVideo) {
       if (image) image.hidden = true;
       video.hidden = false;
@@ -585,8 +621,11 @@
       if (autoplay) video.play().catch(() => {});
       return;
     }
-    video?.pause();
-    if (video) video.hidden = true;
+    if (appleTouch) stopServiceVideo(video, source);
+    else {
+      video?.pause();
+      if (video) video.hidden = true;
+    }
     if (image) {
       image.hidden = false;
       if (image.getAttribute('src') !== row.dataset.image) image.src = row.dataset.image || '';
@@ -597,7 +636,7 @@
     if (serviceMediaLocked) return;
     $$('.service-row').forEach(item => item.classList.toggle('is-active', item === row));
     if (servicePreviewLabel) servicePreviewLabel.textContent = row.dataset.label || '';
-    const wantsVideo = Boolean(row.dataset.video) && !reduceMotion;
+    const wantsVideo = Boolean(row.dataset.video) && !reduceMotion && !appleTouch;
     const videoIsCurrent = wantsVideo && serviceVideo && !serviceVideo.hidden && serviceVideoSource?.getAttribute('src') === row.dataset.video;
     const imageIsCurrent = !wantsVideo && serviceImage && !serviceImage.hidden && serviceImage.getAttribute('src') === row.dataset.image;
     if (videoIsCurrent || imageIsCurrent) return;

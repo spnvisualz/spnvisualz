@@ -3,8 +3,14 @@
 
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const touchDevice = matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoints > 1;
+  const appleTouch = touchDevice && (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  );
   const touchLandscape = () => touchDevice && (matchMedia("(orientation: landscape)").matches || innerWidth > innerHeight);
   const root = document.documentElement;
+  root.classList.toggle("apple-touch-safe", appleTouch);
+  document.body.classList.toggle("apple-touch-safe", appleTouch);
   const chapterName = document.getElementById("journeyChapterName");
   const chapterIndex = document.getElementById("journeyChapterIndex");
   const chapterCount = document.getElementById("journeyChapterCount");
@@ -26,11 +32,13 @@
     if (!element) return null;
     element.classList.add("journey-scene");
     const host = selector === "#work" ? element.querySelector(".work-sticky") || element : element;
-    const gate = document.createElement("div");
-    gate.className = "scene-gate";
-    gate.setAttribute("aria-hidden", "true");
-    gate.innerHTML = '<span class="scene-gate__orbit"></span><i class="scene-gate__arc"></i><b class="scene-gate__signal"></b>';
-    host.prepend(gate);
+    if (!appleTouch) {
+      const gate = document.createElement("div");
+      gate.className = "scene-gate";
+      gate.setAttribute("aria-hidden", "true");
+      gate.innerHTML = '<span class="scene-gate__orbit"></span><i class="scene-gate__arc"></i><b class="scene-gate__signal"></b>';
+      host.prepend(gate);
+    }
     return { element, name, index, top: 0, height: 1 };
   }).filter(Boolean);
 
@@ -83,7 +91,7 @@
     const targetScroll = readScroll();
     const delta = Math.min(50, Math.max(1, now - lastTime));
     lastTime = now;
-    const safetyMode = touchLandscape();
+    const safetyMode = appleTouch || touchLandscape();
     const smoothing = reduceMotion || safetyMode ? 1 : 1 - Math.exp(-delta * .018);
     currentScroll += (targetScroll - currentScroll) * smoothing;
     const velocity = clamp(Math.abs(targetScroll - previousScroll) / Math.max(1, delta) / 2.2);
@@ -110,17 +118,23 @@
 
     const compact = innerWidth <= 720;
     const orbit = pageProgress * Math.PI * 2;
-    const fallbackAlpha = (compact
-      ? [0, .4, .3, .36, .42, .35, .32, .42]
-      : [0, .52, .4, .46, .54, .44, .4, .54])[nextActive] ?? .42;
+    const fallbackAlpha = appleTouch
+      ? (compact ? .78 : .74)
+      : (compact
+        ? [0, .4, .3, .36, .42, .35, .32, .42]
+        : [0, .52, .4, .46, .54, .44, .4, .54])[nextActive] ?? .42;
     const fallbackX = (compact ? 5 : 20) + Math.sin(orbit * 1.08) * (compact ? 8 : 11);
     const fallbackY = Math.cos(orbit * .86) * (compact ? 5 : 8);
-    const fallbackScale = (compact ? .9 : 1) + Math.sin(orbit * .62) * .035;
-    root.style.setProperty("--fallback-planet-alpha", fallbackAlpha.toFixed(3));
-    root.style.setProperty("--fallback-planet-x", `${fallbackX.toFixed(2)}vw`);
-    root.style.setProperty("--fallback-planet-y", `${fallbackY.toFixed(2)}vh`);
-    root.style.setProperty("--fallback-planet-scale", fallbackScale.toFixed(4));
-    root.style.setProperty("--fallback-planet-rotate", `${(-7 + pageProgress * 18).toFixed(2)}deg`);
+    // A constant silhouette on Apple touch prevents the fixed image from
+    // reallocating at the end of a high-velocity scroll.
+    const fallbackScale = appleTouch ? (compact ? .94 : 1) : (compact ? .9 : 1) + Math.sin(orbit * .62) * .035;
+    if (!(appleTouch && document.body.classList.contains("apple-scroll-fast"))) {
+      root.style.setProperty("--fallback-planet-alpha", fallbackAlpha.toFixed(3));
+      root.style.setProperty("--fallback-planet-x", `${fallbackX.toFixed(2)}vw`);
+      root.style.setProperty("--fallback-planet-y", `${fallbackY.toFixed(2)}vh`);
+      root.style.setProperty("--fallback-planet-scale", fallbackScale.toFixed(4));
+      root.style.setProperty("--fallback-planet-rotate", `${(-7 + pageProgress * 18).toFixed(2)}deg`);
+    }
 
     if (Math.abs(targetScroll - currentScroll) > .08 || document.body.classList.contains("is-flight-navigating")) {
       raf = requestAnimationFrame(render);
@@ -152,6 +166,7 @@
     document.body.classList.remove("is-flight-navigating");
     refreshMetrics();
   });
+  addEventListener("spn:apple-scroll-settled", requestRender);
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden) requestRender();
   });
