@@ -29,18 +29,16 @@
     stage.dataset.renderProfile = profile;
   };
 
-  // iOS/iPadOS can terminate the page when a fixed WebGL framebuffer, video
-  // decoder and long composited page are resident together. Keep the same
-  // planet artwork scroll-reactive there without creating a WebGL context.
+  // Apple touch devices keep the real WebGL globe. The rest of the site uses
+  // its reduced-compositor profile so the globe can stay resident safely.
   if (appleTouch) {
     root.classList.add("apple-touch-safe");
     document.body.classList.add("apple-touch-safe");
-    activateFallback("apple-touch-safe");
-    return;
+    stage.dataset.renderProfile = "apple-webgl";
   }
 
   // Other touch browsers use the same conservative renderer in landscape.
-  if (touchLandscape()) {
+  if (!appleTouch && touchLandscape()) {
     root.classList.add("touch-landscape-safe");
     document.body.classList.add("touch-landscape-safe");
     activateFallback("touch-landscape-safe");
@@ -52,6 +50,7 @@
     antialias: !saveData && !touchDevice,
     depth: true,
     premultipliedAlpha: true,
+    preserveDrawingBuffer: false,
     powerPreference: saveData || touchDevice ? "low-power" : "high-performance"
   }) || canvas.getContext("experimental-webgl");
 
@@ -522,7 +521,7 @@
   let initialized = false;
   let visible = !document.hidden;
   let orientationPending = false;
-  let safetyMode = false;
+  let contextLost = false;
   let orientationSafetyTimer = 0;
 
   const viewportProbe = document.createElement("span");
@@ -647,6 +646,7 @@
   });
 
   const resize = () => {
+    if (contextLost) return;
     const nextWidth = Math.max(1, innerWidth);
     const rawHeight = Math.max(1, innerHeight);
     const nextCompact = useCompactProfile();
@@ -674,7 +674,7 @@
     }
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
-    stage.dataset.renderProfile = touchDevice ? "touch" : compact ? "compact" : "desktop";
+    stage.dataset.renderProfile = appleTouch ? "apple-webgl" : touchDevice ? "touch" : compact ? "compact" : "desktop";
     stage.dataset.pixelCount = String(pixelWidth * pixelHeight);
     if (!layoutChanged) return;
     const previousPath = copyPath(activePath);
@@ -824,7 +824,8 @@
   const render = now => {
     animationFrame = 0;
     if (!visible) return;
-    const frameLimit = saveData ? 66 : touchDevice || compact ? 33 : 16;
+    const appleFastScroll = appleTouch && document.body.classList.contains("apple-scroll-fast");
+    const frameLimit = saveData ? 66 : appleFastScroll ? 50 : touchDevice || compact ? 33 : 16;
     if (now - previousDraw < frameLimit && !reduceMotion) {
       animationFrame = requestAnimationFrame(render);
       return;
@@ -863,7 +864,7 @@
   };
 
   const requestRender = () => {
-    if (animationFrame || orientationPending || safetyMode) return;
+    if (animationFrame || orientationPending || contextLost) return;
     previousFrame = performance.now();
     animationFrame = requestAnimationFrame(render);
   };
@@ -937,8 +938,8 @@
   });
 
   const enterTouchLandscapeSafety = () => {
-    if (!touchDevice) return;
-    safetyMode = true;
+    if (!touchDevice || appleTouch) return;
+    contextLost = true;
     orientationPending = false;
     if (animationFrame) cancelAnimationFrame(animationFrame);
     animationFrame = 0;
@@ -951,13 +952,12 @@
 
   const settleTouchOrientation = () => {
     if (!touchDevice) return;
-    if (touchLandscape()) {
+    if (!appleTouch && touchLandscape()) {
       enterTouchLandscapeSafety();
-    } else if (safetyMode) {
-      orientationPending = false;
-      schedulePathRefresh();
     } else {
+      orientationPending = false;
       scheduleViewportResize();
+      schedulePathRefresh();
     }
   };
 
@@ -966,18 +966,17 @@
     orientationPending = true;
     if (animationFrame) cancelAnimationFrame(animationFrame);
     animationFrame = 0;
-    if (touchLandscape()) {
-      enterTouchLandscapeSafety();
-      return;
-    }
     clearTimeout(orientationSafetyTimer);
-    orientationSafetyTimer = setTimeout(settleTouchOrientation, 100);
+    orientationSafetyTimer = setTimeout(settleTouchOrientation, appleTouch ? 280 : 100);
   }, { passive: true });
-  if (touchDevice) {
+  if (touchDevice && !appleTouch) {
     if (landscapeQuery.addEventListener) landscapeQuery.addEventListener("change", settleTouchOrientation);
     else landscapeQuery.addListener(settleTouchOrientation);
   }
-  addEventListener("resize", scheduleViewportResize, { passive: true });
+  addEventListener("resize", () => {
+    if (touchDevice && orientationPending) return;
+    scheduleViewportResize();
+  }, { passive: true });
   addEventListener("load", schedulePathRefresh, { once: true });
   if ("ResizeObserver" in window) {
     const observer = new ResizeObserver(schedulePathRefresh);
@@ -1004,7 +1003,7 @@
 
   canvas.addEventListener("webglcontextlost", event => {
     event.preventDefault();
-    safetyMode = true;
+    contextLost = true;
     if (animationFrame) cancelAnimationFrame(animationFrame);
     animationFrame = 0;
     activateFallback(touchLandscape() ? "touch-landscape-safe" : "webgl-fallback");

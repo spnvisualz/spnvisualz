@@ -169,10 +169,11 @@ body.planet-chapter-contact .site-header {
 }
 
 /* Apple touch stability profile
-   Keep the SPN world prominent and scroll-reactive, but never retain WebGL,
-   video decoders, blurred fixed layers and long 3D compositor stacks together. */
-.apple-touch-safe .spn-planet__canvas,
+   Keep the real WebGL world, while removing the extra fixed blur/compositor
+   layers and video decoders that previously competed with it for memory. */
 .apple-touch-safe .spn-planet__glow { display: none!important; }
+html.apple-touch-safe.planet-ready .spn-planet__canvas { display: block!important; }
+html.apple-touch-safe.planet-fallback .spn-planet__canvas { display: none!important; }
 
 .apple-touch-safe .spn-planet__fallback {
   filter: none;
@@ -270,16 +271,17 @@ body.apple-touch-safe.planet-fallback .hero {
 }
 
 @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
-  .spn-planet__canvas,
   .spn-planet__glow { display: none!important; }
-  .spn-planet__fallback {
+  html.touch-landscape-safe:not(.apple-touch-safe) .spn-planet__canvas { display: none!important; }
+  html.touch-landscape-safe:not(.apple-touch-safe) .spn-planet__fallback {
     width: min(76vw,900px);
     filter: none;
     transition: none;
     will-change: transform;
   }
   .touch-landscape-safe .hero-object { display: none!important; }
-  body.touch-landscape-safe.planet-fallback .spn-planet__fallback { opacity: .82; }
+  body.touch-landscape-safe:not(.apple-touch-safe).planet-fallback .spn-planet__fallback { opacity: .82; }
+  html.apple-touch-safe.planet-ready .spn-planet__canvas { display: block!important; }
 }
 
 @media (max-width: 720px) {

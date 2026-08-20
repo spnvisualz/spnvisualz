@@ -369,7 +369,9 @@
   const workProgress = $('#workProgress');
   const workSignal = $('#workSignal');
   const worldIndexItems = $$('.world-index span');
-  if (workRail) workRail.style.setProperty('--work-count', String(Math.max(1, workPanels.length)));
+  // Give every project a full viewport of scroll travel, including the last
+  // one. The sticky rail itself needs one extra viewport for that final hold.
+  if (workRail) workRail.style.setProperty('--work-count', String(Math.max(1, workPanels.length + 1)));
   let activeWork = 0;
   let workRailTop = 0;
   let workRailDistance = 1;
@@ -380,15 +382,19 @@
   let orientationRestoreTimer = 0;
 
   const hydrateWorkVideo = video => {
-    if (!video || appleTouch || touchLandscape() || video.dataset.hydrated === 'true') return;
+    if (!video || video.dataset.hydrated === 'true') return;
     let changed = false;
     $$('source', video).forEach(source => {
-      const sourceUrl = source.dataset.src;
+      const sourceUrl = touchDevice && source.dataset.touchSrc ? source.dataset.touchSrc : source.dataset.src;
       if (!source.getAttribute('src') && sourceUrl) {
         source.setAttribute('src', sourceUrl);
         changed = true;
       }
     });
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    video.preload = 'auto';
     if (changed) video.load();
     video.dataset.hydrated = 'true';
   };
@@ -396,11 +402,12 @@
   const releaseWorkVideo = video => {
     if (!video || !touchDevice) return;
     video.pause();
+    video.preload = 'none';
     let changed = false;
     $$('source', video).forEach(source => {
       const sourceUrl = source.getAttribute('src');
       if (sourceUrl) {
-        source.dataset.src = sourceUrl;
+        if (!source.dataset.src) source.dataset.src = sourceUrl;
         source.removeAttribute('src');
         changed = true;
       }
@@ -433,7 +440,7 @@
   const scheduleActiveVideo = (delay = 140) => {
     clearTimeout(videoTimer);
     videoTimer = 0;
-    if (programmaticScroll || !workInView || document.hidden || appleTouch || touchLandscape()) return;
+    if (programmaticScroll || !workInView || document.hidden || document.body.classList.contains('apple-scroll-fast')) return;
     videoTimer = setTimeout(() => {
       videoTimer = 0;
       const video = workPanels[activeWork]?.querySelector('video');
@@ -499,6 +506,9 @@
     if (!workRail || !workPanels.length) return;
     const raw = (latestScroll - workRailTop) / workRailDistance;
     const value = Math.min(1, Math.max(0, raw));
+    const nextWorkInView = raw > -0.08 && raw < 1.08;
+    const enteredWork = nextWorkInView && !workInView;
+    workInView = nextWorkInView;
     if (workProgress) workProgress.style.transform = `scaleX(${value})`;
     const segment = value * workPanels.length;
     const index = Math.min(workPanels.length - 1, Math.floor(segment));
@@ -521,6 +531,7 @@
       workStage.style.setProperty('--world-ghost-scale', `${(.985 + curve * .015 * motionScale).toFixed(4)}`);
     }
     if (!programmaticScroll) activateWork(index);
+    if (enteredWork) scheduleActiveVideo(60);
   }
 
   const firstVideo = workPanels[0]?.querySelector('video');
@@ -562,7 +573,7 @@
       }
       renderScroll();
       document.body.classList.remove('is-orienting');
-      if (workInView && !appleTouch && !touchLandscape()) scheduleActiveVideo(120);
+      if (workInView) scheduleActiveVideo(120);
     }, appleTouch ? 280 : 460);
   }, { passive: true });
 
@@ -573,7 +584,7 @@
       clearTimeout(videoTimer);
       videoTimer = 0;
       pauseWorkVideos(touchDevice);
-    } else if (workInView && !appleTouch && !touchLandscape()) scheduleActiveVideo(40);
+    } else if (workInView) scheduleActiveVideo(40);
   });
 
   const serviceImage = $('#serviceImage');
