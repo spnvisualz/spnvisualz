@@ -174,15 +174,35 @@ body.planet-chapter-contact .site-header {
 .apple-touch-safe .spn-planet__canvas,
 .apple-touch-safe .spn-planet__glow { display: none!important; }
 
+/* The safe planet must sit above section backgrounds. Previously main's
+   stacking context covered it completely on iPhone/iPad. Individual content
+   blocks stay one layer higher so the world is bold without blocking copy. */
+.apple-touch-safe main,
+.apple-touch-safe .site-footer { z-index: auto; }
+
 .apple-touch-safe .spn-planet__fallback {
+  z-index: 3;
+  width: min(128vw,1080px);
   filter: none;
-  transition: opacity .18s linear;
+  image-rendering: auto;
+  transition: opacity .18s linear,transform .14s linear;
   will-change: auto;
   backface-visibility: visible;
 }
 
 body.apple-touch-safe.planet-fallback .spn-planet__fallback {
-  opacity: var(--fallback-planet-alpha,.78);
+  opacity: var(--fallback-planet-alpha,.9);
+}
+
+.apple-touch-safe main section > *,
+.apple-touch-safe main > .depth-threshold,
+.apple-touch-safe .site-footer > * {
+  position: relative;
+  z-index: 4;
+}
+
+.apple-touch-safe .work-sticky {
+  background: radial-gradient(circle at 50% 47%,rgba(92,35,184,.06),transparent 42%),rgba(3,2,7,.16)!important;
 }
 
 .apple-touch-safe .hero-object,
@@ -277,6 +297,11 @@ body.apple-touch-safe.planet-fallback .spn-planet__fallback {
 
 @media (max-width: 720px) {
   .spn-planet__fallback { width: 145vw; }
+
+  .apple-touch-safe .spn-planet__fallback {
+    width: 168vw;
+    max-width: 1080px;
+  }
 
   .spn-planet__glow {
     width: 128vw;
