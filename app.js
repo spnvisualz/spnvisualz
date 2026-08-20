@@ -47,6 +47,7 @@
     programmaticScrollTimer = 0;
     latestScroll = currentScroll();
     updateWork();
+    if (workInView) scheduleActiveVideo(40);
     window.dispatchEvent(new CustomEvent('spn:navigation-complete'));
   };
   const scrollToPosition = (targetY, options = {}) => {
