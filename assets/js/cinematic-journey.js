@@ -119,17 +119,15 @@
     const compact = innerWidth <= 720;
     const orbit = pageProgress * Math.PI * 2;
     const fallbackAlpha = appleTouch
-      ? (compact ? .92 : .88)
+      ? (compact ? .78 : .74)
       : (compact
         ? [0, .4, .3, .36, .42, .35, .32, .42]
         : [0, .52, .4, .46, .54, .44, .4, .54])[nextActive] ?? .42;
-    const fallbackX = appleTouch
-      ? (compact ? 3 : 18) + Math.sin(orbit * 1.08) * (compact ? 12 : 14)
-      : (compact ? 5 : 20) + Math.sin(orbit * 1.08) * (compact ? 8 : 11);
-    const fallbackY = Math.cos(orbit * .86) * (appleTouch ? (compact ? 7 : 9) : (compact ? 5 : 8));
+    const fallbackX = (compact ? 5 : 20) + Math.sin(orbit * 1.08) * (compact ? 8 : 11);
+    const fallbackY = Math.cos(orbit * .86) * (compact ? 5 : 8);
     // A constant silhouette on Apple touch prevents the fixed image from
     // reallocating at the end of a high-velocity scroll.
-    const fallbackScale = appleTouch ? (compact ? 1 : 1.02) : (compact ? .9 : 1) + Math.sin(orbit * .62) * .035;
+    const fallbackScale = appleTouch ? (compact ? .94 : 1) : (compact ? .9 : 1) + Math.sin(orbit * .62) * .035;
     if (!(appleTouch && document.body.classList.contains("apple-scroll-fast"))) {
       root.style.setProperty("--fallback-planet-alpha", fallbackAlpha.toFixed(3));
       root.style.setProperty("--fallback-planet-x", `${fallbackX.toFixed(2)}vw`);

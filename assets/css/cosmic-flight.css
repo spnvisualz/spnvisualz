@@ -174,35 +174,22 @@ body.planet-chapter-contact .site-header {
 .apple-touch-safe .spn-planet__canvas,
 .apple-touch-safe .spn-planet__glow { display: none!important; }
 
-/* The safe planet must sit above section backgrounds. Previously main's
-   stacking context covered it completely on iPhone/iPad. Individual content
-   blocks stay one layer higher so the world is bold without blocking copy. */
-.apple-touch-safe main,
-.apple-touch-safe .site-footer { z-index: auto; }
-
 .apple-touch-safe .spn-planet__fallback {
-  z-index: 3;
-  width: min(128vw,1080px);
   filter: none;
-  image-rendering: auto;
-  transition: opacity .18s linear,transform .14s linear;
+  transition: opacity .18s linear;
   will-change: auto;
   backface-visibility: visible;
 }
 
 body.apple-touch-safe.planet-fallback .spn-planet__fallback {
-  opacity: var(--fallback-planet-alpha,.9);
+  opacity: var(--fallback-planet-alpha,.78);
 }
 
-.apple-touch-safe main section > *,
-.apple-touch-safe main > .depth-threshold,
-.apple-touch-safe .site-footer > * {
-  position: relative;
-  z-index: 4;
-}
-
-.apple-touch-safe .work-sticky {
-  background: radial-gradient(circle at 50% 47%,rgba(92,35,184,.06),transparent 42%),rgba(3,2,7,.16)!important;
+/* Keep the same planet composition shown in the approved mobile recording:
+   the planet is behind every control, while a translucent hero surface lets
+   it remain visible from the first screen instead of disappearing into black. */
+body.apple-touch-safe.planet-fallback .hero {
+  background: linear-gradient(180deg,rgba(3,2,7,.86) 0 14%,rgba(3,2,7,.2) 37%,rgba(3,2,7,.2) 70%,rgba(3,2,7,.68) 100%);
 }
 
 .apple-touch-safe .hero-object,
@@ -297,11 +284,6 @@ body.apple-touch-safe.planet-fallback .spn-planet__fallback {
 
 @media (max-width: 720px) {
   .spn-planet__fallback { width: 145vw; }
-
-  .apple-touch-safe .spn-planet__fallback {
-    width: 168vw;
-    max-width: 1080px;
-  }
 
   .spn-planet__glow {
     width: 128vw;
