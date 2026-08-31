@@ -7,12 +7,12 @@ import { gsap, ScrollTrigger } from "../motion/scrollTimeline.js";
 // units (radius 1 sphere); x/y are roughly NDC-ish given the fixed camera.
 const CHAPTER_STATES = {
   origin:   { x: 1.35, y: 0.05, z: 0,     scale: 1.05, spin: 1,    energy: 0.5  },
-  studio:   { x: -2.2, y: 0.5,  z: -2.4,  scale: 0.5,  spin: 0.6,  energy: 0.22 },
+  studio:   { x: 2.6,  y: 0.3,  z: -2.2,  scale: 0.55, spin: 0.6,  energy: 0.22 },
   work:     { x: -2.7, y: -0.2, z: -1.2,  scale: 0.7,  spin: 1.4,  energy: 0.85 },
   services: { x: -1.7, y: 0.55, z: -1.1,  scale: 0.4,  spin: 0.5,  energy: 0.32 },
-  pricing:  { x: 3.3,  y: -0.85,z: -1.4,  scale: 0.32, spin: 0.5,  energy: 0.28 },
+  pricing:  { x: 3.85, y: -0.85,z: -1.2,  scale: 0.3,  spin: 0.5,  energy: 0.28 },
   process:  { x: 0,    y: 1.6,  z: -2.8,  scale: 0.26, spin: 0.4,  energy: 0.25 },
-  lab:      { x: -3.1, y: -0.4, z: -1.8,  scale: 0.4,  spin: 0.9,  energy: 0.6  },
+  lab:      { x: -3.4, y: 1.3,  z: -1.8,  scale: 0.38, spin: 0.9,  energy: 0.6  },
   contact:  { x: 0,    y: 0,    z: 0.6,   scale: 1.25, spin: 1.1,  energy: 1    }
 };
 
