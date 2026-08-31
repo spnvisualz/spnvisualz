@@ -1,0 +1,72 @@
+.chapter--pricing{ padding: var(--space-3xl) var(--pad-inline); background: radial-gradient(1200px 600px at 50% 0%, rgba(138,77,255,.06), transparent 70%); }
+.pricing-head{ align-items: center; }
+.offer-note{ text-align: right; }
+.offer-note strong{ display: block; font-size: 14px; color: var(--purple-light); }
+.offer-note p{ margin: 4px 0 0; font-size: 12px; color: var(--quiet); }
+
+.price-tabs{ display: flex; gap: var(--space-sm); margin-bottom: var(--space-lg); border-bottom: 1px solid var(--line); }
+.price-tabs button{
+  background: transparent; border: 0; padding: 12px 4px; margin-right: var(--space-md);
+  font-size: 13px; color: var(--quiet); border-bottom: 2px solid transparent; transform: translateY(1px);
+}
+.price-tabs button.is-active{ color: var(--text); border-color: var(--purple-light); }
+
+.price-panel{ display: none; }
+.price-panel.is-active{ display: block; }
+
+.price-ledger-row{
+  display: grid; grid-template-columns: 1.1fr 2fr auto; align-items: center; gap: var(--space-lg);
+  padding: var(--space-md) 4px; border-bottom: 1px solid var(--line);
+}
+.price-ledger-row__head h3{ font-size: clamp(22px, 2.4vw, 32px); letter-spacing: -.02em; margin: 6px 0 0; }
+.price-ledger-row__tiers{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+.price-tier{ display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-sm); }
+.price-tier strong{ font-size: 12px; text-transform: uppercase; letter-spacing: .06em; display: block; }
+.price-tier p{ font-size: 11px; color: var(--quiet); margin: 3px 0 0; }
+.price-tier div{ text-align: right; white-space: nowrap; }
+.price-tier del{ display: block; font-size: 10px; color: var(--quiet); }
+.price-tier b{ font-size: 24px; letter-spacing: -.02em; }
+.price-ledger-row > button{
+  justify-self: end; background: transparent; border: 1px solid var(--line); padding: 10px 16px;
+  font-size: 11px; letter-spacing: .04em; color: var(--purple-light); white-space: nowrap;
+  transition: border-color .25s, background .25s;
+}
+.price-ledger-row > button:hover{ border-color: var(--purple-light); background: rgba(198,167,255,.06); }
+
+.bundle-panel.is-active{ display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); }
+.bundle-card{
+  border: 1px solid var(--line); padding: var(--space-md);
+  display: flex; flex-direction: column; gap: var(--space-sm);
+  background: linear-gradient(160deg, rgba(255,255,255,.03), transparent);
+}
+.bundle-card.is-featured{ border-color: rgba(198,167,255,.5); }
+.bundle-card header{ display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px; }
+.bundle-card header span{ font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.bundle-badge{ color: var(--purple-light); }
+.bundle-card header div{ width: 100%; display: flex; align-items: baseline; gap: 10px; margin-top: 6px; }
+.bundle-card header del{ font-size: 12px; color: var(--quiet); }
+.bundle-card header strong{ font-size: 32px; letter-spacing: -.03em; }
+.bundle-card > p{ color: var(--muted); font-size: 13px; margin: 0; }
+.bundle-card ul{ list-style: none; margin: 0; padding: 0; flex: 1; }
+.bundle-card ul li{ font-size: 12px; color: var(--muted); padding: 8px 0; border-top: 1px solid var(--line); }
+.bundle-card > button{
+  margin-top: auto; background: transparent; border: 0; border-top: 1px solid var(--line);
+  padding-top: 14px; text-align: left; font-size: 12px; letter-spacing: .04em; color: var(--purple-light);
+}
+
+.delivery-bar{
+  display: flex; flex-wrap: wrap; gap: var(--space-lg); margin-top: var(--space-lg);
+  padding-top: var(--space-md); border-top: 1px solid var(--line);
+  font-size: 13px; color: var(--muted);
+}
+.delivery-bar small{ display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--quiet); margin-bottom: 4px; }
+.delivery-bar button{ background: transparent; border: 0; color: var(--purple-light); font-size: 13px; }
+
+@media (max-width: 900px){
+  .price-ledger-row{ grid-template-columns: 1fr; gap: var(--space-sm); }
+  .price-ledger-row__tiers{ grid-template-columns: 1fr; gap: var(--space-xs); }
+  .price-tier{ padding: 10px 0; border-top: 1px solid var(--line); }
+  .price-tier div{ text-align: left; }
+  .price-ledger-row > button{ justify-self: start; }
+  .bundle-panel.is-active{ grid-template-columns: 1fr; }
+}

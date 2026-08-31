@@ -6,6 +6,7 @@ html{
   background: var(--bg);
   scroll-behavior: auto;
   color-scheme: dark;
+  overflow-anchor: none; /* JS resizes .chapter--work's height after load; without this, scroll anchoring fights Lenis and the page loads scrolled far down */
 }
 
 html, body{ height: 100%; }
@@ -23,6 +24,11 @@ body{
 }
 
 body.menu-open{ overflow: hidden; }
+
+body.is-loading main, body.is-loading .site-header{ opacity: 0; }
+body main, body .site-header{ opacity: 1; transition: opacity .8s ease; }
+
+#originBoot{ transition: opacity .5s ease; }
 
 ::selection{ background: var(--purple); color: #fff; }
 

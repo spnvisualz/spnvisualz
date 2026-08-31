@@ -1,0 +1,153 @@
+.planet-stage{
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.planet-stage canvas{ display: block; width: 100%; height: 100%; }
+.planet-stage__fallback{
+  display: none;
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: min(70vw, 900px);
+  height: auto;
+  opacity: .8;
+}
+html.no-webgl .planet-stage canvas{ display: none; }
+html.no-webgl .planet-stage__fallback{ display: block; }
+
+.grain{
+  position: fixed; z-index: 3; inset: 0; pointer-events: none; opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.88' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");
+}
+.atmosphere{
+  position: fixed; z-index: 1; inset: 0; pointer-events: none; opacity: .5;
+}
+.atmosphere__stars{
+  position: absolute; inset: 0; opacity: .22;
+  background-image: radial-gradient(circle, rgba(218,199,255,.7) 0 1px, transparent 1.4px);
+  background-size: 110px 110px;
+  mask-image: radial-gradient(ellipse at 50% 30%, black, transparent 75%);
+}
+
+.page-progress{
+  position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 2px;
+  background: transparent; pointer-events: none;
+}
+.page-progress span{
+  display: block; height: 100%; width: 100%;
+  transform: scaleX(0); transform-origin: left center;
+  background: linear-gradient(90deg, transparent, var(--purple-light), #fff);
+}
+
+/* — supporting telemetry, deliberately small and low-key (brief #8) — */
+.signal-hud{
+  position: fixed;
+  z-index: 40;
+  right: var(--space-md);
+  top: calc(var(--header-h) + var(--space-sm));
+  width: 156px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: rgba(3,2,7,.35);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity .6s var(--ease-signal);
+}
+.signal-hud.is-visible{ opacity: 1; }
+.signal-hud__corner{ position: absolute; width: 6px; height: 6px; border-color: var(--purple-light); border-style: solid; }
+.signal-hud__corner--tl{ left: -1px; top: -1px; border-width: 1px 0 0 1px; }
+.signal-hud__corner--br{ right: -1px; bottom: -1px; border-width: 0 1px 1px 0; }
+.signal-hud__chapter{
+  margin: 0 0 8px; display: flex; align-items: baseline; gap: 8px;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; color: var(--muted);
+}
+.signal-hud__chapter b{ color: var(--purple-light); font-weight: 500; font-size: 13px; }
+.signal-hud__track{ height: 1px; background: var(--line); position: relative; }
+.signal-hud__track i{
+  position: absolute; inset: 0; width: 0%; background: var(--purple-light);
+  transform-origin: left; display: block;
+}
+@media (max-width: 720px){ .signal-hud{ display: none; } }
+
+/* — nav — */
+.site-header{
+  position: fixed; z-index: 60; top: 0; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  height: var(--header-h);
+  padding: 0 var(--pad-inline);
+  transition: background .4s var(--ease-signal), border-color .4s var(--ease-signal);
+  border-bottom: 1px solid transparent;
+}
+.site-header.is-scrolled{
+  background: rgba(3,2,7,.72);
+  backdrop-filter: blur(14px);
+  border-bottom-color: var(--line);
+}
+.wordmark{
+  font-size: 15px; font-weight: 600; letter-spacing: .02em;
+}
+.wordmark span{ color: var(--purple-light); }
+.desktop-nav{ display: flex; align-items: center; gap: var(--space-lg); }
+.desktop-nav a{
+  font-size: 13px; color: var(--muted); position: relative; padding: 4px 0;
+  transition: color .25s;
+}
+.desktop-nav a:hover, .desktop-nav a:focus-visible{ color: var(--text); }
+.desktop-nav a::after{
+  content: ""; position: absolute; left: 0; right: 100%; bottom: 0; height: 1px;
+  background: var(--purple-light); transition: right .3s var(--ease-signal);
+}
+.desktop-nav a:hover::after{ right: 0; }
+@media (max-width: 900px){ .desktop-nav{ display: none; } }
+
+.header-actions{ display: flex; align-items: center; gap: var(--space-sm); }
+.project-button{
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 18px; border: 1px solid var(--line); background: transparent;
+  font-size: 12px; letter-spacing: .04em; transition: border-color .25s, background .25s;
+}
+.project-button:hover{ border-color: var(--purple-light); background: rgba(198,167,255,.06); }
+@media (max-width: 560px){ .project-button span{ display: none; } .project-button{ padding: 10px; } }
+
+.menu-toggle{
+  display: flex; align-items: center; gap: 8px; background: transparent; border: 0;
+  font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+}
+.menu-toggle i{
+  width: 20px; height: 1px; background: var(--text); position: relative;
+}
+.menu-toggle i::before, .menu-toggle i::after{
+  content: ""; position: absolute; left: 0; width: 100%; height: 1px; background: var(--text);
+  transition: transform .25s var(--ease-signal);
+}
+.menu-toggle i::before{ top: -6px; }
+.menu-toggle i::after{ top: 6px; }
+body.menu-open .menu-toggle i{ background: transparent; }
+body.menu-open .menu-toggle i::before{ transform: translateY(6px) rotate(45deg); }
+body.menu-open .menu-toggle i::after{ transform: translateY(-6px) rotate(-45deg); }
+
+.mobile-menu{
+  position: fixed; inset: 0; z-index: 55;
+  background: rgba(3,2,7,.97); backdrop-filter: blur(20px);
+  display: flex; flex-direction: column; justify-content: center;
+  padding: var(--pad-inline);
+  opacity: 0; visibility: hidden; transform: translateY(-8px);
+  transition: opacity .4s var(--ease-signal), transform .4s var(--ease-signal), visibility .4s;
+}
+body.menu-open .mobile-menu{ opacity: 1; visibility: visible; transform: translateY(0); }
+.mobile-menu nav{ display: flex; flex-direction: column; gap: var(--space-sm); }
+.mobile-menu nav a{
+  display: flex; align-items: baseline; gap: 16px;
+  font-family: var(--font-display); font-size: clamp(28px, 8vw, 46px);
+  letter-spacing: -.02em; padding: 6px 0; border-bottom: 1px solid var(--line);
+}
+.mobile-menu nav a span{ font-family: var(--font-mono); font-size: 11px; color: var(--purple-light); }
+.mobile-menu__conversion{
+  margin-top: var(--space-xl); display: flex; flex-direction: column; gap: 10px;
+  padding-top: var(--space-md); border-top: 1px solid var(--line);
+}
+.mobile-menu__conversion button, .mobile-menu__conversion a{
+  font-size: 14px; color: var(--muted); text-align: left; background: transparent; border: 0;
+}
