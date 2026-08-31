@@ -8,7 +8,9 @@ import {
 import { planetVertexShader } from "./shaders/planetVertex.js";
 import { planetFragmentShader } from "./shaders/planetFragment.js";
 
-const REFERENCE_TEXTURE_URL = "/assets/images/spn-reference-planet.jpg";
+// Must match the <link rel="preload"> version in index.html — a mismatched
+// query string defeats the preload (different cache key = wasted fetch).
+const REFERENCE_TEXTURE_URL = "/assets/images/spn-reference-planet.jpg?v=20260813.1";
 
 // The SPN-1 planet. A direct port of the production shader's visual
 // character (see shaders/planetFragment.js) onto a real Three.js mesh, so
@@ -42,7 +44,7 @@ export class Planet {
 
   _loadTexture() {
     new TextureLoader().load(
-      `${REFERENCE_TEXTURE_URL}?v=signal-1`,
+      REFERENCE_TEXTURE_URL,
       (texture) => {
         texture.colorSpace = SRGBColorSpace;
         this.material.uniforms.uPlanetTexture.value = texture;
