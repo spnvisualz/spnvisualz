@@ -4,6 +4,7 @@
 export const PROJECTS = [
   {
     slug: "icekiid",
+    aspect: 16 / 9,
     number: "01",
     tag: "FROZEN IDENTITY",
     title: "Icekiid",
@@ -14,6 +15,7 @@ export const PROJECTS = [
   },
   {
     slug: "gezana-x-lalux",
+    aspect: 16 / 9,
     number: "02",
     tag: "EVENT COLLABORATION",
     title: "Gezana × LaLux",
@@ -24,6 +26,7 @@ export const PROJECTS = [
   },
   {
     slug: "3-nation-studios",
+    aspect: 16 / 9,
     number: "03",
     tag: "LOGO MOTION",
     title: "3 Nation Studios",
@@ -34,6 +37,7 @@ export const PROJECTS = [
   },
   {
     slug: "gezana-events",
+    aspect: 16 / 9,
     number: "04",
     tag: "EVENT IDENTITY",
     title: "Gezana Events",
@@ -44,6 +48,7 @@ export const PROJECTS = [
   },
   {
     slug: "prince-o",
+    aspect: 2 / 1,
     number: "05",
     tag: "EMBLEM MOTION",
     title: "Prince O",
@@ -54,6 +59,7 @@ export const PROJECTS = [
   },
   {
     slug: "byron-messia",
+    aspect: 16 / 9,
     number: "06",
     tag: "ARTIST MOTION",
     title: "Byron Messia",
@@ -64,6 +70,7 @@ export const PROJECTS = [
   },
   {
     slug: "motion-view",
+    aspect: 16 / 9,
     number: "07",
     tag: "VISUAL LOOP",
     title: "Motion View",
@@ -74,6 +81,7 @@ export const PROJECTS = [
   },
   {
     slug: "tao-1",
+    aspect: 2 / 1,
     number: "08",
     tag: "ARTIST INTRO",
     title: "TAO 1.0",
@@ -84,6 +92,7 @@ export const PROJECTS = [
   },
   {
     slug: "tao-2",
+    aspect: 2 / 1,
     number: "09",
     tag: "ARTIST WORLD",
     title: "TAO 2.0",

@@ -3,6 +3,9 @@ import {
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
+  EdgesGeometry,
+  LineBasicMaterial,
+  LineSegments,
   VideoTexture,
   TextureLoader,
   LinearFilter,
@@ -10,15 +13,20 @@ import {
   Color
 } from "three";
 
-// Selected Work as real geometry: each project is a video-textured plane
-// placed at its own depth/offset/rotation in the world the camera dollies
-// through, instead of a DOM crossfade pretending to be spatial. Every plane
-// shows its real poster frame (a cheap static image) always — only the
-// plane nearest the camera's focus point ever gets its *video* actually
-// playing, so decode cost never exceeds one clip regardless of how many
-// planes are visible at once.
-const PLANE_ASPECT = 16 / 9;
-const PLANE_WIDTH = 4.6;
+// Selected Work as real geometry: each project is a video-textured panel,
+// held in a thin frame, placed at its own depth/offset in the world the
+// camera dollies through — instead of a DOM crossfade pretending to be
+// spatial. Every panel always shows its real poster image; only the panel
+// nearest the camera's focus point ever gets its *video* actually playing,
+// so decode cost never exceeds one clip regardless of scroll speed.
+//
+// Deliberately framed SMALLER than the viewport and viewed from further
+// back than the first pass: filling the frame edge-to-edge exaggerated
+// this footage's real web-video compression into something that read as
+// "bad quality." A well-composed, correctly-aspected panel with visible
+// space around it reads as curated regardless of source resolution.
+const PANEL_WIDTH = 2.5;
+const FRAME_MARGIN = 0.045;
 const textureLoader = new TextureLoader();
 
 export class WorkField {
@@ -32,6 +40,10 @@ export class WorkField {
   }
 
   _buildItem(project, index) {
+    const aspect = project.aspect || 16 / 9;
+    const width = PANEL_WIDTH;
+    const height = PANEL_WIDTH / aspect;
+
     const video = document.createElement("video");
     video.muted = true;
     video.loop = true;
@@ -45,9 +57,21 @@ export class WorkField {
     videoTexture.magFilter = LinearFilter;
     videoTexture.colorSpace = SRGBColorSpace;
 
-    const geometry = new PlaneGeometry(PLANE_WIDTH, PLANE_WIDTH / PLANE_ASPECT, 1, 1);
+    const mesh = new Group();
+
+    const panelGeometry = new PlaneGeometry(width, height, 1, 1);
     const material = new MeshBasicMaterial({ map: null, color: new Color(0x050308), toneMapped: false });
-    const mesh = new Mesh(geometry, material);
+    const panel = new Mesh(panelGeometry, material);
+    mesh.add(panel);
+
+    // A thin glowing outline held slightly in front — reads as a held
+    // frame/slide rather than a flat crop of raw footage.
+    const frameGeometry = new PlaneGeometry(width + FRAME_MARGIN, height + FRAME_MARGIN);
+    const frameEdges = new EdgesGeometry(frameGeometry);
+    const frameMaterial = new LineBasicMaterial({ color: 0xc6a7ff, transparent: true, opacity: 0.55 });
+    const frame = new LineSegments(frameEdges, frameMaterial);
+    frame.position.z = 0.01;
+    mesh.add(frame);
 
     textureLoader.load(project.poster, (tex) => {
       tex.colorSpace = SRGBColorSpace;
@@ -64,15 +88,15 @@ export class WorkField {
     });
 
     // Deterministic-but-varied placement: alternating sides, gentle drift
-    // in y, mild rotation so planes read as floating in space rather than
+    // in y, mild rotation so panels read as floating in space rather than
     // lined up like a slideshow.
     const side = index % 2 === 0 ? 1 : -1;
     const depth = this.startZ - index * this.spacing;
-    mesh.position.set(side * 1.5, Math.sin(index * 1.7) * 0.5, depth);
-    mesh.rotation.y = side * -0.36;
-    mesh.rotation.z = Math.sin(index * 2.3) * 0.04;
+    mesh.position.set(side * 1.05, Math.sin(index * 1.7) * 0.4, depth);
+    mesh.rotation.y = side * -0.22;
+    mesh.rotation.z = Math.sin(index * 2.3) * 0.025;
 
-    return { project, video, videoTexture, mesh, material, depth, videoBound: false };
+    return { project, video, videoTexture, mesh, panel, frameMaterial, material, depth, videoBound: false };
   }
 
   _bindVideoTexture(item) {
@@ -90,9 +114,9 @@ export class WorkField {
     item.videoBound = false;
   }
 
-  // cameraZ: current world-space camera Z. Focus is whichever plane's
+  // cameraZ: current world-space camera Z. Focus is whichever panel's
   // depth is closest to (cameraZ - focusOffset).
-  update(cameraZ, focusOffset = -1.5) {
+  update(cameraZ, focusOffset = -7.2) {
     const focusZ = cameraZ + focusOffset;
     let nearestIndex = -1;
     let nearestDist = Infinity;
@@ -102,11 +126,13 @@ export class WorkField {
         nearestDist = d;
         nearestIndex = i;
       }
-      // Depth cueing: the focused plane sits notably larger/brighter than
-      // its neighbors so "which one is active" reads at a glance.
+      // Depth cueing: the focused panel sits notably larger/brighter than
+      // its neighbors so "which one is active" reads at a glance, without
+      // any single panel ever filling the whole frame.
       const settle = 1 - Math.min(1, d / 5);
-      const scale = 0.72 + settle * 0.42;
+      const scale = 0.62 + settle * 0.5;
       item.mesh.scale.setScalar(scale);
+      item.frameMaterial.opacity = 0.18 + settle * 0.5;
     });
 
     if (nearestIndex !== this.activeIndex && nearestDist < 3.4) {
@@ -144,10 +170,11 @@ export class WorkField {
 
   dispose() {
     this.items.forEach((item) => {
-      item.mesh.geometry.dispose();
+      item.panel.geometry.dispose();
       item.material.dispose();
       item.videoTexture.dispose();
       item.material.posterTexture?.dispose();
+      item.frameMaterial.dispose();
       item.video.src = "";
     });
   }
