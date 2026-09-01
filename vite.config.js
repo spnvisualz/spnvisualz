@@ -15,7 +15,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, "index.html"),
-        planetLab: resolve(__dirname, "dev/planet-lab.html")
+        planetLab: resolve(__dirname, "dev/planet-lab.html"),
+        liquidLab: resolve(__dirname, "dev/liquid-lab.html")
       }
     }
   },

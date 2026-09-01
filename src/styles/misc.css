@@ -16,21 +16,25 @@
   .process-line li:first-child{ border-top: 0; }
 }
 
-/* ============ VISUAL LAB teaser ============ */
-.chapter--lab{ padding: var(--space-2xl) var(--pad-inline); }
-.lab-index{ border-top: 1px solid var(--line); }
-.lab-index a{
-  display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-md);
-  padding: 18px 4px; border-bottom: 1px solid var(--line);
-  transition: padding-left .25s, color .25s;
+/* ============ VISUAL LAB portal — entering another part of the universe ============ */
+.chapter--lab{ padding: var(--space-3xl) var(--pad-inline); display: flex; justify-content: center; }
+.lab-portal{
+  position: relative; width: min(720px, 100%);
+  border: 1px solid var(--line); padding: var(--space-2xl) var(--space-lg);
+  text-align: center; overflow: hidden;
+  transition: border-color .4s, transform .4s var(--ease-signal);
 }
-.lab-index a:hover{ padding-left: 12px; color: var(--purple-light); }
-.lab-index a span{ color: var(--purple-light); flex-shrink: 0; }
-.lab-index a strong{ font-weight: 500; font-size: clamp(15px, 1.6vw, 19px); }
-.lab-enter{
-  display: inline-flex; align-items: center; gap: 10px; margin-top: var(--space-lg);
-  font-size: 13px; color: var(--purple-light);
+.lab-portal::before{
+  content: ""; position: absolute; inset: -40%;
+  background: radial-gradient(circle, rgba(138,77,255,.25), transparent 60%);
+  opacity: 0; transition: opacity .5s;
 }
+.lab-portal:hover{ border-color: var(--purple-light); transform: translateY(-4px); }
+.lab-portal:hover::before{ opacity: 1; }
+.lab-portal__label{ position: relative; display: block; font-size: 10px; color: var(--purple-light); margin-bottom: var(--space-sm); }
+.lab-portal h2{ position: relative; font-size: clamp(36px, 6vw, 68px); letter-spacing: -.03em; line-height: .95; margin: 0 0 var(--space-sm); }
+.lab-portal p{ position: relative; color: var(--muted); font-size: 14px; margin: 0 0 var(--space-md); }
+.lab-portal__cta{ position: relative; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); }
 
 /* ============ CONTACT ============ */
 .chapter--contact{

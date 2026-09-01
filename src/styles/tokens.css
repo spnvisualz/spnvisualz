@@ -1,12 +1,12 @@
 /*
-  SIGNAL — design tokens.
-  Brand colors carried forward from the current production palette
-  (styles.css :root) so the rebuild stays recognizably SPNVISUALZ.
-  Typography is a working choice for the rebuild, not a permanent lock —
-  swap here if the final composition calls for it.
+  FOUNDRY — design tokens.
+  Brand colors carried forward (they're the real brand, not a SIGNAL
+  invention). Typography drops SIGNAL's editorial-italic pairing — this
+  system is architectural/material rather than editorial, one grotesk
+  doing all the work plus a mono for specification-style captions.
 */
 
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
 
 :root{
   /* — brand surface — */
@@ -18,15 +18,11 @@
   --quiet: rgba(245,242,251,.34);
   --line: rgba(255,255,255,.14);
 
-  /* — signal accents (used deliberately, not ambiently) — */
   --purple: #8a4dff;
   --purple-light: #c6a7ff;
-  --green: #86ffbd;
   --gold: #e8c27a;
 
-  /* — type — */
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-editorial: "Fraunces", Georgia, serif;
   --font-mono: "IBM Plex Mono", "Courier New", monospace;
 
   --type-2xs: clamp(.6875rem, .66rem + .1vw, .75rem);
@@ -38,8 +34,8 @@
   --type-2xl: clamp(2.5rem, 1.8rem + 3.6vw, 4.25rem);
   --type-3xl: clamp(3.5rem, 2.2rem + 6.5vw, 7rem);
   --type-4xl: clamp(4rem, 2.2rem + 9vw, 9rem);
+  --type-hero: clamp(3.4rem, 1.6rem + 9.5vw, 10.5rem);
 
-  /* — spacing scale — */
   --space-3xs: .25rem;
   --space-2xs: .5rem;
   --space-xs: .75rem;
@@ -50,12 +46,10 @@
   --space-2xl: 6.5rem;
   --space-3xl: 10rem;
 
-  /* — layout — */
   --header-h: 84px;
   --pad-inline: clamp(20px, 4.5vw, 76px);
   --radius-sharp: 2px;
 
-  /* — motion — */
   --ease-signal: cubic-bezier(.22,.75,.25,1);
   --ease-depth: cubic-bezier(.16,.84,.2,1);
   --dur-fast: .32s;

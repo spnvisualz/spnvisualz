@@ -3,7 +3,7 @@ import { getLenis } from "../motion/scrollTimeline.js";
 export function initNav() {
   const header = document.getElementById("siteHeader");
   const toggle = document.getElementById("menuToggle");
-  const menu = document.getElementById("mobileMenu");
+  const menu = document.getElementById("siteMenu");
 
   window.addEventListener(
     "scroll",

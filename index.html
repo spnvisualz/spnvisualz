@@ -147,275 +147,154 @@
   <script type="module" src="/src/main.js"></script>
 </head>
 
+
 <body class="page-main is-loading">
 
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <!-- ============ PLANET — persists behind the entire journey ============ -->
-  <div class="planet-stage" id="planetStage" aria-hidden="true">
-    <canvas id="planetCanvas"></canvas>
-    <img class="planet-stage__fallback" src="/assets/spn-orbit-transparent.png" alt="" width="1097" height="706" decoding="async" />
+  <!-- ============ WORLD — one persistent 3D scene the camera travels through ============ -->
+  <div class="world-stage" id="worldStage" aria-hidden="true">
+    <canvas id="worldCanvas"></canvas>
   </div>
 
   <div class="grain" aria-hidden="true"></div>
-  <div class="atmosphere" aria-hidden="true">
-    <span class="atmosphere__stars"></span>
-  </div>
-
-  <!-- ============ TELEMETRY — a supporting accent, not the whole UI ============ -->
-  <div class="signal-hud" id="signalHud" aria-hidden="true">
-    <span class="signal-hud__corner signal-hud__corner--tl"></span>
-    <span class="signal-hud__corner signal-hud__corner--br"></span>
-    <p class="signal-hud__chapter"><b id="hudIndex">01</b><span id="hudName">Origin</span></p>
-    <div class="signal-hud__track"><i id="hudProgress"></i></div>
-  </div>
 
   <div class="page-progress" aria-hidden="true"><span id="pageProgress"></span></div>
 
   <!-- ============ NAVIGATION ============ -->
   <header class="site-header" id="siteHeader">
-    <a class="wordmark" href="#top" aria-label="SPNVISUALZ home">
-      <span>SPN</span>VISUALZ
-    </a>
-
-    <nav class="desktop-nav" aria-label="Primary navigation">
-      <a href="#work">Work</a>
-      <a href="#services">Services</a>
-      <a href="#pricing">Pricing</a>
-      <a href="/websites/">Websites</a>
-      <a href="/visual-lab/">Visual Lab</a>
-      <a href="#contact">Contact</a>
-    </nav>
-
+    <a class="wordmark" href="#top" aria-label="SPNVISUALZ home">SPN<span>VISUALZ</span></a>
     <div class="header-actions">
-      <button class="project-button" type="button" data-order>
-        <span>Start a project</span><i aria-hidden="true">&#8599;</i>
-      </button>
-      <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="mobileMenu">
-        <span>Menu</span><i></i>
+      <button class="project-button" type="button" data-order><span>Start a project</span></button>
+      <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="siteMenu">
+        <span>Menu</span>
+        <i></i>
       </button>
     </div>
   </header>
 
-  <div class="mobile-menu" id="mobileMenu" aria-hidden="true" data-lenis-prevent inert>
-    <nav aria-label="Mobile navigation">
-      <a href="#work" data-menu-link><span>01</span>Work</a>
-      <a href="#services" data-menu-link><span>02</span>Services</a>
-      <a href="#pricing" data-menu-link><span>03</span>Pricing</a>
-      <a href="/websites/" data-menu-link><span>04</span>Websites</a>
-      <a href="/visual-lab/" data-menu-link><span>05</span>Visual Lab</a>
-      <a href="#contact" data-menu-link><span>06</span>Contact</a>
-    </nav>
-    <div class="mobile-menu__conversion">
-      <button type="button" data-order data-menu-project>Start a project &#8599;</button>
-      <a href="https://instagram.com/na.flamez" target="_blank" rel="noopener noreferrer">Instagram &#8599;</a>
-      <a href="mailto:spnvisualz@gmail.com">Email &#8599;</a>
+  <div class="site-menu" id="siteMenu" aria-hidden="true" data-lenis-prevent inert>
+    <div class="site-menu__inner">
+      <nav class="site-menu__primary" aria-label="Primary navigation">
+        <a href="#work" data-menu-link><span>01</span>Selected Work</a>
+        <a href="#services" data-menu-link><span>02</span>Services</a>
+        <a href="#pricing" data-menu-link><span>03</span>Pricing</a>
+        <a href="#contact" data-menu-link><span>04</span>Contact</a>
+      </nav>
+      <div class="site-menu__portals">
+        <a class="portal-link" href="/websites/" data-menu-link>
+          <span class="portal-link__label">Dedicated service</span>
+          <strong>Website Services</strong>
+          <span class="portal-link__arrow" aria-hidden="true">&#8599;</span>
+        </a>
+        <a class="portal-link" href="/visual-lab/" data-menu-link>
+          <span class="portal-link__label">Enter another world</span>
+          <strong>Visual Lab</strong>
+          <span class="portal-link__arrow" aria-hidden="true">&#8599;</span>
+        </a>
+      </div>
+      <div class="site-menu__foot">
+        <a href="mailto:spnvisualz@gmail.com">spnvisualz@gmail.com</a>
+        <a href="https://instagram.com/na.flamez" target="_blank" rel="noopener noreferrer">@na.flamez</a>
+      </div>
     </div>
   </div>
 
   <main id="main">
 
-    <!-- ============ 01 · ORIGIN ============ -->
-    <section class="chapter chapter--origin" id="top" data-chapter="origin" data-chapter-name="Origin">
-      <div class="origin-boot" id="originBoot" aria-hidden="true">
-        <p class="mono">ACQUIRING SIGNAL<span id="bootDots">...</span></p>
+    <!-- ============ ORIGIN ============ -->
+    <section class="chapter chapter--origin" id="top" data-chapter="origin">
+      <div class="origin-mark">
+        <p class="origin-eyebrow mono">OSLO &mdash; MOTION &amp; IDENTITY STUDIO</p>
+        <h1 class="origin-word">SPNVISUALZ</h1>
       </div>
-
-      <div class="origin-copy">
-        <p class="eyebrow reveal-line">Luxury motion-first creative studio</p>
-        <h1 class="origin-title">
-          <span class="reveal-line">Your vision.</span>
-          <span class="reveal-line editorial">In motion.</span>
-        </h1>
-        <p class="origin-lead reveal-line">We create cinematic logos, motion graphics and visual worlds that make artists, brands and events impossible to ignore.</p>
-        <div class="origin-actions reveal-line">
-          <a class="btn btn--light" href="#work"><span>Explore the work</span><i>&#8595;</i></a>
-          <button class="btn btn--outline" type="button" data-order><span>Order artwork</span><i>&#8599;</i></button>
-        </div>
-      </div>
-
-      <div class="origin-foot">
-        <div><span>Based in</span><strong>Oslo / Worldwide</strong></div>
-        <div class="origin-foot__scroll"><span>Scroll to discover</span><b aria-hidden="true"></b></div>
+      <div class="origin-scroll">
+        <span>Scroll</span>
+        <b aria-hidden="true"></b>
       </div>
     </section>
 
-    <!-- ============ 02 · STUDIO ============ -->
-    <section class="chapter chapter--studio" id="studio" data-chapter="studio" data-chapter-name="Studio">
-      <div class="studio-inner">
-        <p class="section-label reveal">SPNVISUALZ / 2026</p>
-        <h2 class="studio-heading reveal">About SPNVISUALZ</h2>
-        <p class="studio-note reveal">SPNVISUALZ is an Oslo-based luxury motion-first creative studio creating cinematic logo systems, animated identities, visual campaigns and premium websites for artists, brands and events worldwide.</p>
-        <p class="studio-credit reveal">Creative direction by CHUBAE</p>
-      </div>
+    <!-- ============ MANIFESTO (brief beat as the camera starts moving) ============ -->
+    <section class="chapter chapter--manifesto" data-chapter="manifesto">
+      <p class="manifesto-line">Oslo-based. Motion-first.<br />Built for artists, brands and events.</p>
     </section>
 
-    <!-- ============ 03 · SELECTED WORK ============ -->
-    <section class="chapter chapter--work" id="work" data-chapter="work" data-chapter-name="Selected work">
-      <div class="work-pin" id="workPin">
-        <header class="work-head">
-          <p class="section-label">Portfolio / 01&mdash;07</p>
-          <h2>Selected work</h2>
-          <div class="work-count"><strong id="workCurrent">01</strong><span>/</span><em>07</em></div>
-        </header>
-
-        <div class="work-stage" id="workStage">
-          <!-- panels injected/controlled by src/work/workSequence.js; markup below is the real, crawlable content -->
-          <article class="work-panel is-active" data-index="0">
-            <div class="work-panel__media">
-              <video muted loop playsinline preload="none" poster="/assets/work-icekiid.webp" data-src="/assets/videos/icekiid.mp4"></video>
-            </div>
-            <div class="work-panel__copy">
-              <span class="mono">01 / FROZEN IDENTITY</span>
-              <h3>Icekiid</h3>
-              <p>Ice-built lettering and sharp stage motion designed to land with impact.</p>
-            </div>
-          </article>
-          <article class="work-panel" data-index="1">
-            <div class="work-panel__media">
-              <video muted loop playsinline preload="none" poster="/assets/work-7.jpg" data-src="/assets/videos/spn-visual-05.mp4" data-src-mobile="/assets/videos/spn-visual-05-mobile.mp4"></video>
-            </div>
-            <div class="work-panel__copy">
-              <span class="mono">02 / CUSTOM WORLD</span>
-              <h3>TAO Special</h3>
-              <p>When the package list is not enough, we build the visual world from zero.</p>
-            </div>
-          </article>
-          <article class="work-panel" data-index="2">
-            <div class="work-panel__media">
-              <video muted loop playsinline preload="none" poster="/assets/work-gezana-lalux.webp" data-src="/assets/videos/gezana-x-lalux.mp4"></video>
-            </div>
-            <div class="work-panel__copy">
-              <span class="mono">03 / EVENT COLLABORATION</span>
-              <h3>Gezana &times; LaLux</h3>
-              <p>Two nightlife identities united in one electric motion piece.</p>
-            </div>
-          </article>
-          <article class="work-panel" data-index="3">
-            <div class="work-panel__media">
-              <video muted loop playsinline preload="none" poster="/assets/work-2.jpg" data-src="/assets/videos/spn-visual-02.mp4" data-src-mobile="/assets/videos/spn-visual-02-mobile.mp4"></video>
-            </div>
-            <div class="work-panel__copy">
-              <span class="mono">04 / LOGO MOTION</span>
-              <h3>3 Nation Studios</h3>
-              <p>Diamond-set type, high-gloss lighting and a reveal made to feel expensive.</p>
-            </div>
-          </article>
-          <article class="work-panel" data-index="4">
-            <div class="work-panel__media">
-              <video muted loop playsinline preload="none" poster="/assets/work-1.jpg" data-src="/assets/videos/spn-visual-01.mp4" data-src-mobile="/assets/videos/spn-visual-01-mobile.mp4"></video>
-            </div>
-            <div class="work-panel__copy">
-              <span class="mono">05 / EVENT IDENTITY</span>
-              <h3>Gezana Events</h3>
-              <p>Luxury emblem animation built for nightlife, events and social campaigns.</p>
-            </div>
-          </article>
-          <article class="work-panel" data-index="5">
-            <div class="work-panel__media">
-              <video muted loop playsinline preload="none" poster="/assets/work-3.jpg" data-src="/assets/videos/spn-visual-03.mp4" data-src-mobile="/assets/videos/spn-visual-03-mobile.mp4"></video>
-            </div>
-            <div class="work-panel__copy">
-              <span class="mono">06 / ARTIST INTRO</span>
-              <h3>TAO</h3>
-              <p>A cinematic artist mark shaped through metal, movement and atmosphere.</p>
-            </div>
-          </article>
-          <article class="work-panel" data-index="6">
-            <div class="work-panel__media">
-              <video muted loop playsinline preload="none" poster="/assets/work-4.jpg" data-src="/assets/videos/spn-visual-04.mp4" data-src-mobile="/assets/videos/spn-visual-04-mobile.mp4"></video>
-            </div>
-            <div class="work-panel__copy">
-              <span class="mono">07 / EMBLEM MOTION</span>
-              <h3>Prince O</h3>
-              <p>A dark chrome signature engineered to land with impact in every reveal.</p>
-            </div>
-          </article>
-        </div>
-
-        <div class="work-index" aria-hidden="true">
-          <span class="is-active" data-go="0">01</span><span data-go="1">02</span><span data-go="2">03</span><span data-go="3">04</span><span data-go="4">05</span><span data-go="5">06</span><span data-go="6">07</span>
-        </div>
-      </div>
+    <!-- ============ SELECTED WORK — real 3D video field, camera flies past ============ -->
+    <section class="chapter chapter--work" id="work" data-chapter="work">
+      <div class="work-spacer" id="workSpacer"></div>
     </section>
 
-    <!-- ============ 04 · SERVICES ============ -->
-    <section class="chapter chapter--services" id="services" data-chapter="services" data-chapter-name="Services">
+    <div class="work-caption" id="workCaption" aria-hidden="true">
+      <p class="mono"><span id="workNumber">01</span> / <span id="workTag">FROZEN IDENTITY</span></p>
+      <h2 id="workTitle">Icekiid</h2>
+      <p class="work-caption__desc" id="workDescription">Ice-built lettering and sharp stage motion designed to land with impact.</p>
+      <p class="work-caption__count mono"><span id="workCurrentDisplay">01</span> / <span id="workTotal">09</span></p>
+    </div>
+
+    <!-- ============ SERVICES ============ -->
+    <section class="chapter chapter--services section-pad" id="services" data-chapter="services">
       <header class="section-head reveal">
-        <div><p class="section-label">What we create</p><h2>Services</h2></div>
-        <p>Choose the kind of work you need. Select a service to see what&rsquo;s included.</p>
+        <p class="section-label">What we create</p>
+        <h2>Services</h2>
       </header>
-
-      <div class="service-layout">
-        <div class="service-preview" aria-hidden="true">
-          <img id="serviceImage" src="/assets/brand-gezana.jpg" alt="" loading="lazy" decoding="async" />
-          <span id="servicePreviewLabel" class="mono">Gezana Events / Logo design</span>
-        </div>
-
-        <ol class="service-list">
-          <li>
-            <button class="service-row is-active" type="button" data-number="01"
-              data-image="/assets/brand-gezana.jpg" data-label="Gezana Events / Logo design"
-              data-product="Logo Design" data-price="From &euro;14"
-              data-description="A custom logo built around your name, sound or business &mdash; including the core marks you need to show up consistently."
-              data-includes="Primary logo|Secondary mark|Social icon">
-              <span class="mono">01</span><strong>Logo design</strong><em>Identity / Custom / Chrome</em><b>From &euro;14</b>
-            </button>
-          </li>
-          <li>
-            <button class="service-row" type="button" data-number="02"
-              data-image="/assets/work-1.jpg" data-label="Gezana Events / Animated logo"
-              data-product="Animated Logo" data-price="From &euro;20"
-              data-description="We bring your existing logo to life with a polished reveal made for posts, promos, screens and video."
-              data-includes="Custom motion|Sound-ready edit|Social export">
-              <span class="mono">02</span><strong>Animated logos</strong><em>Motion / Reveal / Social</em><b>From &euro;20</b>
-            </button>
-          </li>
-          <li>
-            <button class="service-row" type="button" data-number="03"
-              data-image="/assets/work-3.jpg" data-label="TAO / Cinematic intro"
-              data-product="Intro" data-price="From &euro;18"
-              data-description="A short cinematic opener that introduces your name, channel, event or release with impact."
-              data-includes="Cinematic reveal|Platform-ready format|Custom pacing">
-              <span class="mono">03</span><strong>Intros</strong><em>Reels / YouTube / Campaigns</em><b>From &euro;18</b>
-            </button>
-          </li>
-          <li>
-            <button class="service-row" type="button" data-number="04"
-              data-image="/assets/work-4.jpg" data-label="Prince O / Motion loop"
-              data-product="Motion Loop" data-price="From &euro;22"
-              data-description="A seamless animated visual built to repeat cleanly behind music, on screens or across social content."
-              data-includes="Seamless playback|Atmospheric motion|Social export">
-              <span class="mono">04</span><strong>Motion loops</strong><em>Seamless / Screens / Social</em><b>From &euro;22</b>
-            </button>
-          </li>
-          <li>
-            <button class="service-row" type="button" data-number="05"
-              data-image="/assets/work-3.jpg" data-label="TAO / Black chrome social loop"
-              data-product="Social Visuals" data-price="From &euro;17"
-              data-description="Scroll-stopping artwork for announcements, releases and campaigns &mdash; designed to feel like one clear visual world."
-              data-includes="Campaign artwork|Platform-ready sizes|Consistent direction">
-              <span class="mono">05</span><strong>Social visuals</strong><em>Posts / Drops / Releases</em><b>From &euro;17</b>
-            </button>
-          </li>
-          <li>
-            <button class="service-row" type="button" data-number="06"
-              data-image="/assets/brand-glowvana.jpg" data-label="Glowvana / Brand visuals"
-              data-product="Brand Visuals" data-price="From &euro;30"
-              data-description="A complete visual direction that brings your logo, colours, type and content together as one recognisable brand."
-              data-includes="Visual direction|Colour and type system|Campaign-ready assets">
-              <span class="mono">06</span><strong>Brand visuals</strong><em>Campaign / System / Direction</em><b>From &euro;30</b>
-            </button>
-          </li>
-        </ol>
-      </div>
+      <ol class="service-list">
+        <li>
+          <button class="service-row is-active" type="button"
+            data-product="Logo Design" data-price="From &euro;14"
+            data-description="A custom logo built around your name, sound or business &mdash; including the core marks you need to show up consistently."
+            data-includes="Primary logo|Secondary mark|Social icon">
+            <span class="mono">01</span><strong>Logo design</strong><em>Identity / Custom / Chrome</em><b>From &euro;14</b>
+          </button>
+        </li>
+        <li>
+          <button class="service-row" type="button"
+            data-product="Animated Logo" data-price="From &euro;20"
+            data-description="We bring your existing logo to life with a polished reveal made for posts, promos, screens and video."
+            data-includes="Custom motion|Sound-ready edit|Social export">
+            <span class="mono">02</span><strong>Animated logos</strong><em>Motion / Reveal / Social</em><b>From &euro;20</b>
+          </button>
+        </li>
+        <li>
+          <button class="service-row" type="button"
+            data-product="Intro" data-price="From &euro;18"
+            data-description="A short cinematic opener that introduces your name, channel, event or release with impact."
+            data-includes="Cinematic reveal|Platform-ready format|Custom pacing">
+            <span class="mono">03</span><strong>Intros</strong><em>Reels / YouTube / Campaigns</em><b>From &euro;18</b>
+          </button>
+        </li>
+        <li>
+          <button class="service-row" type="button"
+            data-product="Motion Loop" data-price="From &euro;22"
+            data-description="A seamless animated visual built to repeat cleanly behind music, on screens or across social content."
+            data-includes="Seamless playback|Atmospheric motion|Social export">
+            <span class="mono">04</span><strong>Motion loops</strong><em>Seamless / Screens / Social</em><b>From &euro;22</b>
+          </button>
+        </li>
+        <li>
+          <button class="service-row" type="button"
+            data-product="Social Visuals" data-price="From &euro;17"
+            data-description="Scroll-stopping artwork for announcements, releases and campaigns &mdash; designed to feel like one clear visual world."
+            data-includes="Campaign artwork|Platform-ready sizes|Consistent direction">
+            <span class="mono">05</span><strong>Social visuals</strong><em>Posts / Drops / Releases</em><b>From &euro;17</b>
+          </button>
+        </li>
+        <li>
+          <button class="service-row" type="button"
+            data-product="Brand Visuals" data-price="From &euro;30"
+            data-description="A complete visual direction that brings your logo, colours, type and content together as one recognisable brand."
+            data-includes="Visual direction|Colour and type system|Campaign-ready assets">
+            <span class="mono">06</span><strong>Brand visuals</strong><em>Campaign / System / Direction</em><b>From &euro;30</b>
+          </button>
+        </li>
+      </ol>
     </section>
 
-    <!-- ============ 05 · PRICING ============ -->
-    <section class="chapter chapter--pricing" id="pricing" data-chapter="pricing" data-chapter-name="Pricing">
+    <!-- ============ PRICING ============ -->
+    <section class="chapter chapter--pricing section-pad" id="pricing" data-chapter="pricing">
       <header class="section-head reveal">
-        <div><p class="section-label">Clear packages</p><h2>Pricing</h2></div>
-        <div class="offer-note"><strong>Launch pricing &mdash; up to 80% off</strong><p>Express delivery available in 24&ndash;48 hours.</p></div>
+        <p class="section-label">Clear packages</p>
+        <h2>Pricing</h2>
+        <p class="offer-note">Launch pricing &mdash; up to 80% off. Express delivery in 24&ndash;48 hours.</p>
       </header>
 
       <div class="price-tabs reveal" role="tablist" aria-label="Pricing type">
@@ -424,37 +303,37 @@
       </div>
 
       <div class="price-panel is-active" id="singlePrices" role="tabpanel" aria-labelledby="singleTab">
-        <article class="price-ledger-row">
-          <div class="price-ledger-row__head"><span class="mono">01 / LOGO</span><h3>Logo design</h3></div>
-          <div class="price-ledger-row__tiers">
+        <article class="price-row">
+          <div class="price-row__head"><span class="mono">01 / LOGO</span><h3>Logo design</h3></div>
+          <div class="price-row__tiers">
             <div class="price-tier"><strong>Basic</strong><p>Quick identity / social-ready</p><div><del>&euro;70</del><b>&euro;14</b></div></div>
             <div class="price-tier"><strong>Premium</strong><p>More polish + variants</p><div><del>&euro;140</del><b>&euro;28</b></div></div>
           </div>
-          <button type="button" data-order data-product="Logo Design">Order logo <i>&#8599;</i></button>
+          <button type="button" data-order data-product="Logo Design">Order logo</button>
         </article>
-        <article class="price-ledger-row">
-          <div class="price-ledger-row__head"><span class="mono">02 / INTRO</span><h3>Intro visual</h3></div>
-          <div class="price-ledger-row__tiers">
+        <article class="price-row">
+          <div class="price-row__head"><span class="mono">02 / INTRO</span><h3>Intro visual</h3></div>
+          <div class="price-row__tiers">
             <div class="price-tier"><strong>Standard</strong><p>Short motion intro</p><div><del>&euro;90</del><b>&euro;18</b></div></div>
             <div class="price-tier"><strong>Premium</strong><p>High-impact motion polish</p><div><del>&euro;170</del><b>&euro;34</b></div></div>
           </div>
-          <button type="button" data-order data-product="Intro">Order intro <i>&#8599;</i></button>
+          <button type="button" data-order data-product="Intro">Order intro</button>
         </article>
-        <article class="price-ledger-row">
-          <div class="price-ledger-row__head"><span class="mono">03 / LOOP</span><h3>Motion loop</h3></div>
-          <div class="price-ledger-row__tiers">
+        <article class="price-row">
+          <div class="price-row__head"><span class="mono">03 / LOOP</span><h3>Motion loop</h3></div>
+          <div class="price-row__tiers">
             <div class="price-tier"><strong>Basic</strong><p>Seamless motion loop</p><div><del>&euro;110</del><b>&euro;22</b></div></div>
             <div class="price-tier"><strong>Premium</strong><p>More depth + texture</p><div><del>&euro;190</del><b>&euro;38</b></div></div>
           </div>
-          <button type="button" data-order data-product="Motion Loop">Order loop <i>&#8599;</i></button>
+          <button type="button" data-order data-product="Motion Loop">Order loop</button>
         </article>
-        <article class="price-ledger-row">
-          <div class="price-ledger-row__head"><span class="mono">04 / VISUAL</span><h3>Visuals</h3></div>
-          <div class="price-ledger-row__tiers">
+        <article class="price-row">
+          <div class="price-row__head"><span class="mono">04 / VISUAL</span><h3>Visuals</h3></div>
+          <div class="price-row__tiers">
             <div class="price-tier"><strong>Social</strong><p>Posts / reels visual pack</p><div><del>&euro;85</del><b>&euro;17</b></div></div>
             <div class="price-tier"><strong>Brand</strong><p>Campaign-grade visual system</p><div><del>&euro;150</del><b>&euro;30</b></div></div>
           </div>
-          <button type="button" data-order data-product="Social Visuals">Order visual <i>&#8599;</i></button>
+          <button type="button" data-order data-product="Social Visuals">Order visual</button>
         </article>
       </div>
 
@@ -462,33 +341,30 @@
         <article class="bundle-card">
           <header><span>Starter</span><small>20% off</small><div><del>&euro;210</del><strong>&euro;168</strong></div></header>
           <p>Logo + intro + social visual pack</p>
-          <ul><li>Complete starting identity</li><li>Ready for social launch</li><li>One clear visual direction</li></ul>
-          <button type="button" data-order data-product="Starter Bundle">Choose starter <i>&#8599;</i></button>
+          <button type="button" data-order data-product="Starter Bundle">Choose starter</button>
         </article>
         <article class="bundle-card is-featured">
           <header><span>Creator</span><small class="bundle-badge">Most popular</small><div><del>&euro;300</del><strong>&euro;240</strong></div></header>
           <p>Creator pack + motion loops</p>
-          <ul><li>Identity and intro motion</li><li>Looping visual assets</li><li>Built for regular content</li></ul>
-          <button type="button" data-order data-product="Creator Bundle">Choose creator <i>&#8599;</i></button>
+          <button type="button" data-order data-product="Creator Bundle">Choose creator</button>
         </article>
         <article class="bundle-card">
           <header><span>Business</span><small>20% off</small><div><del>&euro;420</del><strong>&euro;336</strong></div></header>
           <p>Full visual brand foundation</p>
-          <ul><li>Campaign-ready identity</li><li>Complete visual system</li><li>Premium creative direction</li></ul>
-          <button type="button" data-order data-product="Business Bundle">Choose business <i>&#8599;</i></button>
+          <button type="button" data-order data-product="Business Bundle">Choose business</button>
         </article>
       </div>
 
       <div class="delivery-bar reveal">
         <span><small>Standard</small>3&ndash;5 day delivery</span>
         <span><small>Express</small>24&ndash;48h / +&euro;40</span>
-        <span><small>Something different?</small><button type="button" data-order data-product="Custom Project">Ask for custom &#8599;</button></span>
+        <span><small>Something different?</small><button type="button" data-order data-product="Custom Project">Ask for custom</button></span>
       </div>
     </section>
 
-    <!-- ============ 06 · PROCESS ============ -->
-    <section class="chapter chapter--process" id="process" data-chapter="process" data-chapter-name="Process">
-      <header class="section-head reveal"><div><p class="section-label">Simple process</p><h2>How it works</h2></div><p>Tell us what you need and we take it from there.</p></header>
+    <!-- ============ PROCESS ============ -->
+    <section class="chapter chapter--process section-pad" data-chapter="process">
+      <header class="section-head reveal"><p class="section-label">Simple process</p><h2>How it works</h2></header>
       <ol class="process-line">
         <li class="reveal"><span class="mono">01</span><strong>Choose</strong><p>Select a service or ask for a custom project.</p></li>
         <li class="reveal"><span class="mono">02</span><strong>Send your idea</strong><p>Share the name, references and feeling you want.</p></li>
@@ -497,30 +373,25 @@
       </ol>
     </section>
 
-    <!-- ============ 07 · VISUAL LAB ============ -->
-    <section class="chapter chapter--lab" id="visual-lab" data-chapter="lab" data-chapter-name="Visual Lab">
-      <header class="section-head reveal">
-        <div><p class="section-label">SPNVISUALZ / Editorial</p><h2>Visual Lab</h2></div>
-        <p>Original studio notes on identity, motion, chrome and digital worlds &mdash; made to help brands choose stronger visual directions.</p>
-      </header>
-      <div class="lab-index">
-        <a href="/visual-lab/articles/how-to-make-a-brand-look-expensive/" class="reveal"><span class="mono">01 / Branding</span><strong>How to Make a Brand Look Expensive</strong></a>
-        <a href="/visual-lab/articles/logo-design-trends-2026/" class="reveal"><span class="mono">02 / Logo design</span><strong>Logo Design Trends 2026</strong></a>
-        <a href="/visual-lab/articles/dark-website-design-inspiration/" class="reveal"><span class="mono">03 / Website design</span><strong>Dark Website Design Inspiration</strong></a>
-        <a href="/visual-lab/articles/animated-logo-vs-static-logo/" class="reveal"><span class="mono">04 / Motion identity</span><strong>Animated Logo vs Static Logo</strong></a>
-      </div>
-      <a class="lab-enter reveal" href="/visual-lab/">Enter Visual Lab <span aria-hidden="true">&#8599;</span></a>
+    <!-- ============ VISUAL LAB portal ============ -->
+    <section class="chapter chapter--lab section-pad" data-chapter="lab">
+      <a class="lab-portal reveal" href="/visual-lab/">
+        <span class="lab-portal__label mono">SPNVISUALZ / EDITORIAL</span>
+        <h2>Enter the<br />Visual Lab</h2>
+        <p>Studio notes on identity, motion, chrome and digital worlds.</p>
+        <span class="lab-portal__cta">Step inside <i aria-hidden="true">&#8599;</i></span>
+      </a>
     </section>
 
-    <!-- ============ 08 · CONTACT ============ -->
-    <section class="chapter chapter--contact" id="contact" data-chapter="contact" data-chapter-name="Contact">
+    <!-- ============ CONTACT ============ -->
+    <section class="chapter chapter--contact section-pad" id="contact" data-chapter="contact">
       <div class="contact-inner">
         <p class="section-label reveal">Contact</p>
         <h2 class="reveal">Start a project</h2>
         <p class="contact-lead reveal">Tell us what you need. We&rsquo;ll help shape the right visual direction.</p>
         <div class="contact-actions reveal">
-          <button class="btn btn--light" type="button" data-order><span>Start a project</span><i>&#8599;</i></button>
-          <a class="btn btn--outline" href="https://instagram.com/na.flamez" target="_blank" rel="noopener noreferrer"><span>Instagram</span><i>&#8599;</i></a>
+          <button class="btn btn--light" type="button" data-order><span>Start a project</span></button>
+          <a class="btn btn--outline" href="https://instagram.com/na.flamez" target="_blank" rel="noopener noreferrer"><span>Instagram</span></a>
         </div>
         <div class="contact-details reveal">
           <a href="mailto:spnvisualz@gmail.com"><span>Email</span><strong>spnvisualz@gmail.com</strong></a>
@@ -532,11 +403,10 @@
   </main>
 
   <footer class="site-footer">
-    <a class="wordmark" href="#top"><span>SPN</span>VISUALZ</a>
+    <a class="wordmark" href="#top">SPN<span>VISUALZ</span></a>
     <nav class="site-footer-links" aria-label="Footer navigation">
-      <a href="/work/">Selected Work</a>
+      <a href="/websites/">Website Services</a>
       <a href="/visual-lab/">Visual Lab</a>
-      <a href="/websites/">Websites</a>
       <a href="/privacy/">Privacy</a>
     </nav>
     <p>&copy; <span id="year">2026</span> SPNVISUALZ. All rights reserved.</p>
@@ -568,7 +438,7 @@
         <label class="wide">Describe the vision<textarea name="brief" rows="4" placeholder="Name, style, colours, deadline and any references&hellip;" required></textarea></label>
         <div class="order-dialog__foot">
           <p>This opens your email app with the brief already filled in.</p>
-          <button type="submit" class="btn btn--light"><span>Send project brief</span><i>&#8599;</i></button>
+          <button type="submit" class="btn btn--light"><span>Send project brief</span></button>
         </div>
       </form>
     </div>
@@ -577,13 +447,12 @@
   <dialog class="service-dialog" id="serviceDialog" aria-labelledby="serviceDialogTitle">
     <div class="service-dialog__shell" data-lenis-prevent>
       <button class="service-dialog__close" id="closeServiceDialog" type="button" aria-label="Close">&times;</button>
-      <img id="serviceDialogImage" src="/assets/brand-gezana.jpg" alt="" />
       <div class="service-dialog__copy">
         <span class="mono" id="serviceDialogPrice"></span>
         <h3 id="serviceDialogTitle"></h3>
         <p id="serviceDialogDescription"></p>
         <ul id="serviceDialogIncludes"></ul>
-        <button type="button" class="btn btn--light" id="serviceDialogOrder"><span>Order this</span><i>&#8599;</i></button>
+        <button type="button" class="btn btn--light" id="serviceDialogOrder"><span>Order this</span></button>
       </div>
     </div>
   </dialog>

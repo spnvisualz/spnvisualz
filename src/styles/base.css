@@ -28,8 +28,6 @@ body.menu-open{ overflow: hidden; }
 body.is-loading main, body.is-loading .site-header{ opacity: 0; }
 body main, body .site-header{ opacity: 1; transition: opacity .8s ease; }
 
-#originBoot{ transition: opacity .5s ease; }
-
 ::selection{ background: var(--purple); color: #fff; }
 
 :focus-visible{
@@ -54,14 +52,7 @@ button, input, select, textarea{ font: inherit; color: inherit; }
 }
 .skip-link:focus{ transform: translateY(0); }
 
-em, .editorial{
-  font-family: var(--font-editorial);
-  font-style: italic;
-  font-weight: 400;
-  color: var(--purple-light);
-}
-
-.mono, .hud{
+.mono{
   font-family: var(--font-mono);
   letter-spacing: .08em;
   font-variant-numeric: tabular-nums;

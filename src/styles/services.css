@@ -1,58 +1,42 @@
 .chapter--services{ padding: var(--space-3xl) var(--pad-inline); }
-.section-head{
-  display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-lg);
-  margin-bottom: var(--space-lg); flex-wrap: wrap;
-}
+.section-head{ margin-bottom: var(--space-lg); }
 .section-head h2{ font-size: clamp(32px, 4vw, 58px); letter-spacing: -.03em; margin: 4px 0 0; }
-.section-head > p{ max-width: 36ch; font-size: 13px; color: var(--muted); line-height: 1.6; }
 
-.service-layout{
-  display: grid; grid-template-columns: 1fr .9fr; gap: var(--space-2xl);
-  align-items: start;
+/* The facet object occupies the right ~40% of the frame in 3D (see
+   SceneDirector) — the list stays in the left column so it never has to
+   compete with it. */
+.service-list{
+  list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line);
+  max-width: 640px;
 }
-.service-preview{
-  position: sticky; top: calc(var(--header-h) + var(--space-lg));
-  aspect-ratio: 4/5; border: 1px solid var(--line); overflow: hidden; background: #010103;
-}
-.service-preview img{ width: 100%; height: 100%; object-fit: cover; transition: opacity .4s var(--ease-signal); }
-.service-preview__label, #servicePreviewLabel{
-  position: absolute; left: 16px; bottom: 16px; font-size: 10px; color: var(--text);
-  background: rgba(3,2,7,.6); padding: 6px 10px; backdrop-filter: blur(6px);
-}
-
-.service-list{ list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
 .service-row{
-  width: 100%; display: grid; grid-template-columns: 40px 1.2fr 1fr auto;
+  width: 100%; display: grid; grid-template-columns: 40px 1.3fr 1fr auto;
   align-items: center; gap: var(--space-sm);
-  padding: 22px 4px; border: 0; border-bottom: 1px solid var(--line);
+  padding: 24px 4px; border: 0; border-bottom: 1px solid var(--line);
   background: transparent; text-align: left; cursor: pointer;
   transition: background .25s, padding-left .25s;
 }
 .service-row:hover, .service-row.is-active{ background: linear-gradient(90deg, rgba(138,77,255,.08), transparent); padding-left: 14px; }
 .service-row span{ color: var(--purple-light); font-size: 10px; }
-.service-row strong{ font-size: clamp(19px, 2vw, 28px); letter-spacing: -.02em; font-weight: 500; }
+.service-row strong{ font-size: clamp(20px, 2.2vw, 30px); letter-spacing: -.02em; font-weight: 500; }
 .service-row em{ font-style: normal; font-size: 11px; color: var(--muted); }
 .service-row b{ font-size: 12px; font-weight: 500; }
 
 @media (max-width: 900px){
-  .service-layout{ grid-template-columns: 1fr; }
-  .service-preview{ position: relative; top: 0; aspect-ratio: 16/10; }
   .service-row{ grid-template-columns: 28px 1fr auto; }
   .service-row em{ display: none; }
 }
 
-/* — service detail dialog — */
+/* — dialogs (shared) — */
 dialog{ border: 0; padding: 0; background: transparent; max-width: none; max-height: none; }
 dialog::backdrop{ background: rgba(3,2,7,.72); backdrop-filter: blur(6px); }
 
 .service-dialog__shell{
   position: fixed; inset: 0; margin: auto;
-  width: min(760px, 92vw); max-height: 88vh; overflow: auto;
-  background: var(--panel); border: 1px solid var(--line);
-  display: grid; grid-template-columns: 1fr 1fr;
+  width: min(560px, 92vw); max-height: 88vh; overflow: auto;
+  background: var(--panel); border: 1px solid var(--line); padding: var(--space-lg);
 }
-.service-dialog__shell img{ width: 100%; height: 100%; object-fit: cover; min-height: 260px; }
-.service-dialog__copy{ padding: var(--space-lg); position: relative; }
+.service-dialog__copy{ position: relative; }
 .service-dialog__copy h3{ font-size: var(--type-xl); letter-spacing: -.03em; margin: 8px 0 var(--space-sm); }
 .service-dialog__copy p{ color: var(--muted); line-height: 1.6; margin: 0 0 var(--space-sm); }
 .service-dialog__copy ul{ list-style: none; margin: 0 0 var(--space-lg); padding: 0; }
@@ -62,4 +46,3 @@ dialog::backdrop{ background: rgba(3,2,7,.72); backdrop-filter: blur(6px); }
   border: 1px solid var(--line); background: transparent; color: var(--text); font-size: 18px;
   display: grid; place-items: center; z-index: 2;
 }
-@media (max-width: 720px){ .service-dialog__shell{ grid-template-columns: 1fr; } .service-dialog__shell img{ min-height: 180px; } }
