@@ -30,9 +30,16 @@ const FRAME_MARGIN = 0.045;
 const textureLoader = new TextureLoader();
 
 export class WorkField {
-  constructor(projects, { spacing = 5.6, startZ = 0 } = {}) {
+  constructor(projects, { spacing = 5.6, startZ = 0, lateralSpread = 1 } = {}) {
     this.spacing = spacing;
     this.startZ = startZ;
+    // lateralSpread scales the side-to-side offset/rotation each panel
+    // gets. At 1 (desktop) panels alternate left/right like a gallery
+    // wall. Narrower viewports pass a smaller value — off-axis panels
+    // under a narrow FOV can appear larger than the true nearest one
+    // (perspective foreshortening), making "which one is active" visually
+    // ambiguous. Centering them keeps depth the only thing that matters.
+    this.lateralSpread = lateralSpread;
     this.group = new Group();
     this.items = projects.map((project, index) => this._buildItem(project, index));
     this.items.forEach((item) => this.group.add(item.mesh));
@@ -92,9 +99,13 @@ export class WorkField {
     // lined up like a slideshow.
     const side = index % 2 === 0 ? 1 : -1;
     const depth = this.startZ - index * this.spacing;
-    mesh.position.set(side * 1.05, Math.sin(index * 1.7) * 0.4, depth);
-    mesh.rotation.y = side * -0.22;
-    mesh.rotation.z = Math.sin(index * 2.3) * 0.025;
+    mesh.position.set(
+      side * 1.05 * this.lateralSpread,
+      Math.sin(index * 1.7) * 0.4 * this.lateralSpread,
+      depth
+    );
+    mesh.rotation.y = side * -0.22 * this.lateralSpread;
+    mesh.rotation.z = Math.sin(index * 2.3) * 0.025 * this.lateralSpread;
 
     return { project, video, videoTexture, mesh, panel, frameMaterial, material, depth, videoBound: false };
   }
@@ -115,9 +126,24 @@ export class WorkField {
   }
 
   // cameraZ: current world-space camera Z. Focus is whichever panel's
-  // depth is closest to (cameraZ - focusOffset).
-  update(cameraZ, focusOffset = -7.2) {
+  // depth is closest to (cameraZ - focusOffset). falloffTightness > 1
+  // makes neighboring panels recede faster — on a narrow/portrait
+  // viewport several simultaneously-visible neighbors read as clutter
+  // (there's no room for a "gallery wall" the way there is on desktop),
+  // so mobile passes a tighter falloff to keep one clear focal panel.
+  //
+  // The falloff radius and activation gate are both derived from
+  // this.spacing rather than fixed constants — they were hardcoded
+  // desktop-tuned numbers (5 and 3.4) in an earlier version, which broke
+  // badly once mobile's aspect-compensated spacing grew ~3.5x: the gate
+  // almost never opened (activeIndex stayed stuck on whatever it was at
+  // construction) while a physically-closer neighbor, already past the
+  // saturated falloff radius, rendered larger via plain perspective —
+  // two different panels disagreeing about which one was "active".
+  update(cameraZ, focusOffset = -7.2, falloffTightness = 1) {
     const focusZ = cameraZ + focusOffset;
+    const falloffRadius = this.spacing * 0.85;
+    const activationGate = this.spacing * 0.55;
     let nearestIndex = -1;
     let nearestDist = Infinity;
     this.items.forEach((item, i) => {
@@ -128,14 +154,19 @@ export class WorkField {
       }
       // Depth cueing: the focused panel sits notably larger/brighter than
       // its neighbors so "which one is active" reads at a glance, without
-      // any single panel ever filling the whole frame.
-      const settle = 1 - Math.min(1, d / 5);
+      // any single panel ever filling the whole frame. A power curve (not
+      // a linear one scaled by tightness) keeps settle pinned at 1 when
+      // d=0 regardless of falloffTightness — only the *rate* neighbors
+      // recede changes, so the active panel never shrinks just because
+      // scroll landed a fraction off dead-center.
+      const linear = 1 - Math.min(1, d / falloffRadius);
+      const settle = Math.pow(linear, falloffTightness);
       const scale = 0.62 + settle * 0.5;
       item.mesh.scale.setScalar(scale);
       item.frameMaterial.opacity = 0.18 + settle * 0.5;
     });
 
-    if (nearestIndex !== this.activeIndex && nearestDist < 3.4) {
+    if (nearestIndex !== this.activeIndex && nearestDist < activationGate) {
       this._setActive(nearestIndex);
     }
   }

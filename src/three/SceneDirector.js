@@ -10,6 +10,20 @@ import { PROJECTS } from "../work/projects.js";
 
 const WORK_SPACING = 6.2;
 
+// A fixed vertical FOV projects a fixed world-space object to very
+// different apparent screen sizes depending on aspect ratio: the same
+// panel that's comfortably framed at 1440x900 (aspect 1.6) overflows both
+// edges of a 390x844 phone (aspect 0.46), because horizontal FOV scales
+// with aspect while vertical FOV stays constant. Rather than hand-tune
+// separate mobile positions, every distance-from-camera in this file is
+// scaled by this factor — pushing objects proportionally further back
+// on narrow viewports keeps their apparent size (and, as a side effect,
+// their apparent lateral offset from center) consistent across aspects.
+const REFERENCE_ASPECT = 1440 / 900;
+function distanceScale(camera) {
+  return Math.max(1, REFERENCE_ASPECT / camera.aspect);
+}
+
 export function mountSceneDirector() {
   const canvas = document.getElementById("worldCanvas");
   if (!canvas) return null;
@@ -29,7 +43,46 @@ export function mountSceneDirector() {
   liquid.mesh.position.set(0, 0, 6.5);
   scene.add(liquid.mesh);
 
-  const workField = new WorkField(PROJECTS, { spacing: WORK_SPACING, startZ: -2 });
+  // On a narrow/portrait viewport there's no room for a "gallery wall" of
+  // simultaneously-visible neighbors the way there is on desktop — rather
+  // than fight that with steeper opacity/scale falloff curves alone
+  // (tried first; a panel a fraction off dead-center still read as
+  // cluttered with 5-6 others peeking in), physically space panels
+  // further apart in the corridor so neighbors are further away and
+  // naturally recede more.
+  const mountDistScale = distanceScale(camera);
+  const workSpacing = WORK_SPACING * mountDistScale;
+  const lateralSpread = Math.max(0.15, 1 / mountDistScale);
+
+  const originEl = document.querySelector('[data-chapter="origin"]');
+  const manifestoEl = document.querySelector('[data-chapter="manifesto"]');
+  const workEl = document.querySelector('[data-chapter="work"]');
+
+  // The first work panel must not become visually prominent before the
+  // Origin+Manifesto text has actually scrolled out of the viewport, or
+  // the two overlap into an illegible mess — reported live: the manifesto
+  // line and a Selected Work panel both fully on screen at once. startZ
+  // was a flat -2 regardless of how tall Origin+Manifesto actually render;
+  // on any viewport where that text takes more than ~17% of the corridor's
+  // total scroll distance (it usually does), the camera reached the first
+  // panel before the text cleared. Solve for startZ instead, from the
+  // real measured DOM heights and the real corridor length, so there's
+  // always a comfortable buffer regardless of viewport size or content
+  // length changes later.
+  const leadInPixels = (originEl?.offsetHeight || 0) + (manifestoEl?.offsetHeight || 0);
+  const corridorPixels = Math.max(
+    1,
+    (workEl?.offsetTop || 0) + (workEl?.offsetHeight || 0) - (originEl?.offsetTop || 0) - window.innerHeight
+  );
+  const leadInFraction = Math.min(0.55, (leadInPixels / corridorPixels) * 1.55);
+
+  const zCameraStart = camera.position.z;
+  const corridorDepthSpan = (PROJECTS.length - 1) * workSpacing + 4 * mountDistScale;
+  const k = leadInFraction;
+  const startZ = zCameraStart - (k * corridorDepthSpan) / (1 - k);
+  const zEnd = startZ - corridorDepthSpan;
+
+  const workField = new WorkField(PROJECTS, { spacing: workSpacing, startZ, lateralSpread });
   scene.add(workField.group);
 
   const facet = new FacetObject();
@@ -40,14 +93,7 @@ export function mountSceneDirector() {
   planet.mesh.scale.setScalar(0.001);
   scene.add(planet.mesh);
 
-  const originEl = document.querySelector('[data-chapter="origin"]');
-  const workEl = document.querySelector('[data-chapter="work"]');
-  const rig = new WorldRig({
-    camera,
-    startTrigger: originEl,
-    endTrigger: workEl,
-    zEnd: -2 - (PROJECTS.length - 1) * WORK_SPACING - 4
-  });
+  const rig = new WorldRig({ camera, startTrigger: originEl, endTrigger: workEl, zEnd });
 
   let pointer = { x: 0, y: 0 };
   window.addEventListener("pointermove", (e) => {
@@ -60,9 +106,17 @@ export function mountSceneDirector() {
   window.addEventListener("resize", resize);
 
   onTick((dt, elapsed) => {
+    const distScale = distanceScale(camera);
     liquid.setPointer(pointer.x, pointer.y);
     liquid.tick(dt, elapsed);
-    workField.update(camera.position.z);
+    // The focus point must sit closer to the camera than half a panel's
+    // spacing, or a neighboring panel can end up physically nearer the
+    // camera than the "active" one — it then renders larger on screen
+    // despite a lower depth-cueing scale, since screen size follows real
+    // camera distance, not the cueing multiplier. (Caught by comparing
+    // workField.items' actual depths against camera.position.z at runtime
+    // — the mismatch wasn't visible in the scale numbers alone.)
+    workField.update(camera.position.z, -workSpacing * 0.42, Math.sqrt(distScale));
     facet.tick(dt, elapsed);
     planet.tick(dt, elapsed);
 
@@ -87,8 +141,8 @@ export function mountSceneDirector() {
     // version tweened both and the position tween silently won every
     // frame, freezing the facet at its bind-time camera Z instead of the
     // final parked one).
-    facet.mesh.position.z = camera.position.z - 5.6;
-    planet.mesh.position.z = camera.position.z - 4;
+    facet.mesh.position.z = camera.position.z - 5.6 * distScale;
+    planet.mesh.position.z = camera.position.z - 4 * distScale;
   });
 
   return { tier, scene, camera, rig, liquid, workField, facet, planet, onTick };
