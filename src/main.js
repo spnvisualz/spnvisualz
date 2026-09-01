@@ -11,6 +11,7 @@ import { mountSceneDirector, bindFacetToServices, bindPlanetToContact } from "./
 import { bindWorkOverlay } from "./work/workOverlay.js";
 import { PROJECTS } from "./work/projects.js";
 import { initNav } from "./nav/nav.js";
+import { initMagnetic } from "./nav/magnetic.js";
 import { initReveals } from "./motion/reveal.js";
 import { initServices } from "./services/services.js";
 import { initPricing } from "./pricing/pricing.js";
@@ -55,6 +56,7 @@ function boot() {
   });
 
   initReveals();
+  initMagnetic();
   initPricing();
   const orderDialog = initOrderDialog();
   initServices({ onOrder: (product) => orderDialog.open(product) });
