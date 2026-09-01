@@ -1,20 +1,22 @@
-/* SPNVISUALZ VISUAL LAB — dark editorial system */
-@font-face {
-  font-family: "SPN System";
-  src: local("Helvetica Neue");
-  font-display: swap;
-}
+/* SPNVISUALZ VISUAL LAB — dark editorial system
+   Typography/color tokens now match the FOUNDRY homepage system
+   (src/styles/tokens.css) so the Lab reads as the same studio, not a
+   separate site that happens to link back. */
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500&family=IBM+Plex+Mono:wght@400;500&display=swap");
 :root {
-  --lab-black: #050507;
-  --lab-black-2: #09090d;
-  --lab-paper: #f4f1f8;
+  --lab-black: #030207;
+  --lab-black-2: #08050e;
+  --lab-paper: #f5f2fb;
   --lab-muted: #9a96a2;
   --lab-line: rgba(230,226,239,.14);
   --lab-line-strong: rgba(230,226,239,.28);
-  --lab-violet: #b998ff;
+  --lab-violet: #c6a7ff;
   --lab-silver: #d7d6de;
   --lab-gutter: clamp(20px, 4.4vw, 72px);
   --lab-max: 1500px;
+  --lab-font: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --lab-serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --lab-mono: "IBM Plex Mono", "Courier New", monospace;
 }
 * { box-sizing: border-box; }
 html {
@@ -28,10 +30,10 @@ body.lab-page {
   overflow-x: hidden;
   background:
     radial-gradient(circle at 78% 4%, rgba(112,72,164,.1), transparent 32rem),
-    radial-gradient(circle at -8% 38%, rgba(185,152,255,.055), transparent 34rem),
+    radial-gradient(circle at -8% 38%, rgba(198,167,255,.055), transparent 34rem),
     var(--lab-black);
   color: var(--lab-paper);
-  font-family: "SPN System", Inter, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--lab-font);
   -webkit-font-smoothing: antialiased;
 }
 body.lab-page::before {
@@ -216,7 +218,7 @@ button, input { font: inherit; }
 }
 .lab-orbit::before {
   inset: 17%;
-  border: 1px solid rgba(185,152,255,.25);
+  border: 1px solid rgba(198,167,255,.25);
   transform: rotate(28deg) scaleY(.38);
 }
 .lab-orbit::after {
@@ -225,7 +227,7 @@ button, input { font: inherit; }
   width: 7px;
   height: 7px;
   background: #ece9f3;
-  box-shadow: 0 0 22px 7px rgba(185,152,255,.46);
+  box-shadow: 0 0 22px 7px rgba(198,167,255,.46);
 }
 @keyframes lab-orbit { to { transform: rotate(360deg); } }
 .lab-kicker {
@@ -367,7 +369,7 @@ button, input { font: inherit; }
   inset: 0;
   background:
     linear-gradient(to top, rgba(5,5,7,.72), transparent 45%),
-    radial-gradient(circle at 70% 20%, rgba(185,152,255,.18), transparent 42%);
+    radial-gradient(circle at 70% 20%, rgba(198,167,255,.18), transparent 42%);
 }
 .lab-feature__scan {
   position: absolute;
@@ -384,7 +386,7 @@ button, input { font: inherit; }
   justify-content: space-between;
   padding: clamp(30px, 4vw, 58px);
   background:
-    linear-gradient(150deg, rgba(185,152,255,.08), transparent 43%),
+    linear-gradient(150deg, rgba(198,167,255,.08), transparent 43%),
     var(--lab-black-2);
 }
 .lab-feature__meta,
@@ -458,7 +460,7 @@ button, input { font: inherit; }
 .lab-category:hover,
 .lab-category:focus-visible {
   color: var(--lab-paper);
-  background: rgba(185,152,255,.055);
+  background: rgba(198,167,255,.055);
 }
 .lab-grid {
   display: grid;
@@ -637,7 +639,7 @@ button, input { font: inherit; }
   width: 0;
   height: 2px;
   background: linear-gradient(90deg, var(--lab-violet), #f0edf6);
-  box-shadow: 0 0 18px rgba(185,152,255,.75);
+  box-shadow: 0 0 18px rgba(198,167,255,.75);
 }
 .lab-crumbs {
   display: flex;
@@ -761,7 +763,7 @@ button, input { font: inherit; }
 .lab-article-body p,
 .lab-article-body li {
   color: #bab6c0;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--lab-serif);
   font-size: clamp(17px, 1.55vw, 20px);
   line-height: 1.78;
 }
@@ -804,7 +806,7 @@ button, input { font: inherit; }
   overflow: hidden;
   border: 1px solid var(--lab-line-strong);
   background:
-    radial-gradient(circle at 100% 0, rgba(185,152,255,.16), transparent 44%),
+    radial-gradient(circle at 100% 0, rgba(198,167,255,.16), transparent 44%),
     rgba(255,255,255,.018);
 }
 .lab-inline-cta::before {
@@ -814,7 +816,7 @@ button, input { font: inherit; }
   right: -62px;
   width: 170px;
   height: 170px;
-  border: 1px solid rgba(185,152,255,.2);
+  border: 1px solid rgba(198,167,255,.2);
   border-radius: 50%;
 }
 .lab-inline-cta__label {
@@ -839,7 +841,7 @@ button, input { font: inherit; }
   padding-bottom: 9px;
   border-bottom: 1px solid var(--lab-paper);
   color: var(--lab-paper);
-  font-family: "SPN System", Inter, sans-serif;
+  font-family: var(--lab-font);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .17em;
@@ -1249,7 +1251,7 @@ button, input { font: inherit; }
   right: 8%;
   bottom: 16%;
   color: rgba(244,241,248,.46);
-  font: 7px/1 "Courier New", monospace;
+  font: 7px/1 var(--lab-mono);
   letter-spacing: .18em;
 }
 
@@ -1373,7 +1375,7 @@ button, input { font: inherit; }
     min-height: 0;
     align-items: stretch;
     overflow: hidden;
-    background: linear-gradient(140deg,rgba(185,152,255,.05),transparent 34%),rgba(7,6,10,.86);
+    background: linear-gradient(140deg,rgba(198,167,255,.05),transparent 34%),rgba(7,6,10,.86);
     perspective: 1500px;
     transform-style: preserve-3d;
     box-shadow: 0 55px 130px rgba(0,0,0,.36);
@@ -1468,7 +1470,7 @@ button, input { font: inherit; }
     border: 1px solid rgba(230,226,239,.16);
     background: rgba(5,5,7,.72);
     color: rgba(244,241,248,.65);
-    font: 7px/1 "Courier New", monospace;
+    font: 7px/1 var(--lab-mono);
     letter-spacing: .13em;
   }
 
@@ -1510,7 +1512,7 @@ button, input { font: inherit; }
 
   .lab-js .lab-card[data-reveal].is-visible:hover,
   .lab-js .lab-feature[data-reveal].is-visible:hover {
-    border-color: rgba(185,152,255,.42);
+    border-color: rgba(198,167,255,.42);
     box-shadow: 0 52px 125px rgba(0,0,0,.48), 0 0 80px rgba(113,49,221,.08);
   }
 
