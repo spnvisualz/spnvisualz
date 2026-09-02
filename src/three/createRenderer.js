@@ -15,6 +15,20 @@ export function createRenderer({ canvas, maxDpr = 2, alpha = true } = {}) {
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDpr));
 
+  // A dozen large video/planet/shader textures is real pressure on a phone
+  // GPU — losing the WebGL context there (driver reset, memory pressure)
+  // otherwise leaves the canvas permanently frozen on its last frame with
+  // no error and no way for the page to recover on its own, which reads
+  // exactly like "the site is stuck/unstable" from the outside. There's no
+  // way to safely resume the same scene mid-session (every texture/buffer
+  // is gone), so the honest recovery is a reload — jarring once, but a
+  // world better than a dead canvas that never comes back.
+  canvas.addEventListener("webglcontextlost", (e) => {
+    e.preventDefault();
+    console.error("[createRenderer] WebGL context lost — reloading");
+    window.location.reload();
+  });
+
   const scene = new Scene();
   const camera = new PerspectiveCamera(32, 1, 0.1, 100);
   camera.position.set(0, 0, 8);
@@ -59,7 +73,20 @@ export function createRenderer({ canvas, maxDpr = 2, alpha = true } = {}) {
     const dt = Math.min(0.1, (now - lastTime) / 1000);
     lastTime = now;
     if (!visible) return;
-    for (const fn of tickFns) fn(dt, now / 1000);
+    // A single tickFn throwing used to abort the whole frame before
+    // renderer.render() ran — the next rAF still fired, but hit the same
+    // exception every time, so the canvas silently froze on its last good
+    // frame forever while the page kept scrolling normally around it
+    // (reported live as "stuck on last work preview"). Isolating each
+    // tickFn means one bad frame in one system can't take the whole scene
+    // down with it.
+    for (const fn of tickFns) {
+      try {
+        fn(dt, now / 1000);
+      } catch (err) {
+        console.error("[createRenderer] tick error", err);
+      }
+    }
     renderer.render(scene, camera);
   };
   raf = requestAnimationFrame(loop);

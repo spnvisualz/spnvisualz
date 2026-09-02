@@ -156,6 +156,16 @@ export class WorkField {
     if (item.material.posterTexture) item.material.map = item.material.posterTexture;
     item.material.needsUpdate = true;
     item.videoBound = false;
+    // Every project's VideoTexture stays alive for the whole page session
+    // (only one is ever bound to a material, but all 9 objects exist from
+    // construction). Once GPU-uploaded, a texture's memory isn't freed
+    // just because the material stopped pointing at it — nine uploaded
+    // 1080p video frames is real pressure on a phone GPU, a plausible
+    // contributor to the reported "scene freezes solid" failures.
+    // Disposing here releases that panel's GPU texture the moment it's no
+    // longer the one on screen; Three.js re-uploads automatically from
+    // the still-intact <video> element the next time this panel binds.
+    item.videoTexture.dispose();
   }
 
   // cameraZ: current world-space camera Z. Focus is whichever panel's
