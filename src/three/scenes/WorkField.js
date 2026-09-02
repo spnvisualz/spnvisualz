@@ -147,6 +147,22 @@ export class WorkField {
     }
   }
 
+  _deactivateVideo(item) {
+    const finish = () => {
+      // A later _setActive may have already reactivated this same item
+      // (rapid back-and-forth scroll) by the time a pending play()
+      // settles — don't pause/unbind out from under it.
+      if (this.items[this.activeIndex] === item) return;
+      item.video.pause();
+      this._unbindVideoTexture(item);
+    };
+    if (item.playPromise) {
+      item.playPromise.then(finish, finish);
+    } else {
+      finish();
+    }
+  }
+
   _unbindVideoTexture(item) {
     if (item.videoReadyHandler) {
       item.video.removeEventListener("loadeddata", item.videoReadyHandler);
@@ -236,15 +252,21 @@ export class WorkField {
 
   _setActive(index) {
     const prev = this.items[this.activeIndex];
-    if (prev) {
-      prev.video.pause();
-      this._unbindVideoTexture(prev);
-    }
+    if (prev) this._deactivateVideo(prev);
     this.activeIndex = index;
     const next = this.items[index];
     if (!next) return;
     this._bindVideoTexture(next);
-    next.video.play().catch(() => {});
+    // play() is async — calling pause() while it's still settling is a
+    // well-known browser race ("play() request was interrupted by a call
+    // to pause()") that can leave a <video> refusing to produce further
+    // frames until reloaded. Fast scrolling or a menu jump fires
+    // activate/deactivate in quick succession, hitting this constantly;
+    // item 0 hit it hardest of all since it can activate within the very
+    // first frames of boot, right as everything else is still
+    // initializing. Tracking the promise lets deactivation wait for it.
+    next.playPromise = next.video.play();
+    next.playPromise?.catch(() => {});
   }
 
   getActiveProject() {
