@@ -88,7 +88,14 @@ export function mountSceneDirector() {
   const startZ = zCameraStart - (k * corridorDepthSpan) / (1 - k);
   const zEnd = startZ - corridorDepthSpan;
 
-  const workField = new WorkField(PROJECTS, { spacing: workSpacing, startZ, lateralSpread, sizeBoost: workSizeBoost });
+  const preferMobileVideo = window.innerWidth < 700 || tier.tier !== "full";
+  const workField = new WorkField(PROJECTS, {
+    spacing: workSpacing,
+    startZ,
+    lateralSpread,
+    sizeBoost: workSizeBoost,
+    preferMobileVideo
+  });
   scene.add(workField.group);
 
   // The nav's "Selected Work" link needs to land somewhere that actually

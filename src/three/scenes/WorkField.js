@@ -30,9 +30,10 @@ const FRAME_MARGIN = 0.045;
 const textureLoader = new TextureLoader();
 
 export class WorkField {
-  constructor(projects, { spacing = 5.6, startZ = 0, lateralSpread = 1, sizeBoost = 1 } = {}) {
+  constructor(projects, { spacing = 5.6, startZ = 0, lateralSpread = 1, sizeBoost = 1, preferMobileVideo = false } = {}) {
     this.spacing = spacing;
     this.startZ = startZ;
+    this.preferMobileVideo = preferMobileVideo;
     // lateralSpread scales the side-to-side offset/rotation each panel
     // gets. At 1 (desktop) panels alternate left/right like a gallery
     // wall. Narrower viewports pass a smaller value — off-axis panels
@@ -68,7 +69,7 @@ export class WorkField {
     video.playsInline = true;
     video.preload = "none";
     video.crossOrigin = "anonymous";
-    video.src = project.video;
+    video.src = (this.preferMobileVideo && project.videoMobile) || project.video;
 
     const videoTexture = new VideoTexture(video);
     videoTexture.minFilter = LinearFilter;
@@ -119,18 +120,40 @@ export class WorkField {
     mesh.rotation.y = side * -0.22 * this.lateralSpread;
     mesh.rotation.z = Math.sin(index * 2.3) * 0.025 * this.lateralSpread;
 
-    return { project, video, videoTexture, mesh, panel, frameMaterial, material, depth, videoBound: false };
+    return { project, video, videoTexture, mesh, panel, frameMaterial, material, depth, videoBound: false, videoReadyHandler: null };
   }
 
+  // `_setActive` calls video.play() the instant a panel gains focus, but a
+  // freshly-`preload="none"` video has zero decoded frames at that point —
+  // on a fast local server the fetch finishes within a frame or two and
+  // this is invisible, but over a real network it can take seconds, during
+  // which a VideoTexture with no data samples as solid black. That read as
+  // the whole panel silently failing to render rather than "loading" — it
+  // showed instantly in every local/dev test and only over the real
+  // network in production. Keeping the poster bound until the video
+  // actually has a decodable frame (readyState >= HAVE_CURRENT_DATA)
+  // guarantees something is always visible regardless of connection speed.
   _bindVideoTexture(item) {
     if (item.videoBound) return;
-    item.material.map = item.videoTexture;
-    item.material.color.set(0xffffff);
-    item.material.needsUpdate = true;
     item.videoBound = true;
+    const swap = () => {
+      item.material.map = item.videoTexture;
+      item.material.color.set(0xffffff);
+      item.material.needsUpdate = true;
+    };
+    if (item.video.readyState >= 2) {
+      swap();
+    } else {
+      item.videoReadyHandler = swap;
+      item.video.addEventListener("loadeddata", swap, { once: true });
+    }
   }
 
   _unbindVideoTexture(item) {
+    if (item.videoReadyHandler) {
+      item.video.removeEventListener("loadeddata", item.videoReadyHandler);
+      item.videoReadyHandler = null;
+    }
     if (!item.videoBound) return;
     if (item.material.posterTexture) item.material.map = item.material.posterTexture;
     item.material.needsUpdate = true;
