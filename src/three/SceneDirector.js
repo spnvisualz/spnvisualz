@@ -53,12 +53,13 @@ export function mountSceneDirector() {
   const mountDistScale = distanceScale(camera);
   const workSpacing = WORK_SPACING * mountDistScale;
   const lateralSpread = Math.max(0.15, 1 / mountDistScale);
-  // Claw back part (not all) of the apparent-size loss that pushing panels
-  // further back on a narrow/portrait aspect causes — see WorkField's
-  // sizeBoost comment. sqrt (not the full mountDistScale) keeps the
-  // "pulled back, gallery-framed" composition intent instead of just
-  // re-zooming back in to where the original "zoomed in" complaint was.
-  const workSizeBoost = Math.min(1.85, Math.sqrt(mountDistScale));
+  // Claw back a small part (not most) of the apparent-size loss that
+  // pushing panels further back on a narrow/portrait aspect causes — see
+  // WorkField's sizeBoost comment. A first pass at sqrt(mountDistScale)
+  // (~1.85x on a typical phone) read as too large and too dominant on a
+  // real device — dialed back hard to a gentle lift instead of a near
+  // doubling.
+  const workSizeBoost = Math.min(1.3, 1 + (Math.sqrt(mountDistScale) - 1) * 0.35);
 
   const originEl = document.querySelector('[data-chapter="origin"]');
   const manifestoEl = document.querySelector('[data-chapter="manifesto"]');
@@ -80,7 +81,11 @@ export function mountSceneDirector() {
     1,
     (workEl?.offsetTop || 0) + (workEl?.offsetHeight || 0) - (originEl?.offsetTop || 0) - window.innerHeight
   );
-  const leadInFraction = Math.min(0.55, (leadInPixels / corridorPixels) * 1.55);
+  // Reported live: the first panel was still becoming prominent too soon
+  // after Origin/Manifesto — 1.55x of the raw text-height fraction wasn't
+  // enough buffer on a real device. Bumped hard for more breathing room
+  // before Selected Work asserts itself.
+  const leadInFraction = Math.min(0.6, (leadInPixels / corridorPixels) * 2.4);
 
   const zCameraStart = camera.position.z;
   const corridorDepthSpan = (PROJECTS.length - 1) * workSpacing + 4 * mountDistScale;
