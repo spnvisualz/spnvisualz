@@ -30,7 +30,7 @@ const FRAME_MARGIN = 0.045;
 const textureLoader = new TextureLoader();
 
 export class WorkField {
-  constructor(projects, { spacing = 5.6, startZ = 0, lateralSpread = 1 } = {}) {
+  constructor(projects, { spacing = 5.6, startZ = 0, lateralSpread = 1, sizeBoost = 1 } = {}) {
     this.spacing = spacing;
     this.startZ = startZ;
     // lateralSpread scales the side-to-side offset/rotation each panel
@@ -40,6 +40,17 @@ export class WorkField {
     // (perspective foreshortening), making "which one is active" visually
     // ambiguous. Centering them keeps depth the only thing that matters.
     this.lateralSpread = lateralSpread;
+    // The aspect-compensation in SceneDirector (pushing panels further
+    // back so apparent width-vs-viewport stays constant across aspects)
+    // shrinks a portrait phone's *area* far more than its width, since a
+    // phone has much more spare vertical room than a 16:9 desktop — the
+    // focused panel read as a small thumbnail lost in empty space rather
+    // than a held gallery piece. sizeBoost (>1 on narrow aspects, passed
+    // in by SceneDirector) enlarges the panel geometry itself to claw
+    // back some of that, deliberately less than the full distance
+    // increase so it stays a "pulled back" composition, not a reversion
+    // to the original zoomed-in complaint.
+    this.sizeBoost = sizeBoost;
     this.group = new Group();
     this.items = projects.map((project, index) => this._buildItem(project, index));
     this.items.forEach((item) => this.group.add(item.mesh));
@@ -48,8 +59,8 @@ export class WorkField {
 
   _buildItem(project, index) {
     const aspect = project.aspect || 16 / 9;
-    const width = PANEL_WIDTH;
-    const height = PANEL_WIDTH / aspect;
+    const width = PANEL_WIDTH * this.sizeBoost;
+    const height = width / aspect;
 
     const video = document.createElement("video");
     video.muted = true;
@@ -73,7 +84,8 @@ export class WorkField {
 
     // A thin glowing outline held slightly in front — reads as a held
     // frame/slide rather than a flat crop of raw footage.
-    const frameGeometry = new PlaneGeometry(width + FRAME_MARGIN, height + FRAME_MARGIN);
+    const margin = FRAME_MARGIN * this.sizeBoost;
+    const frameGeometry = new PlaneGeometry(width + margin, height + margin);
     const frameEdges = new EdgesGeometry(frameGeometry);
     const frameMaterial = new LineBasicMaterial({ color: 0xc6a7ff, transparent: true, opacity: 0.55 });
     const frame = new LineSegments(frameEdges, frameMaterial);

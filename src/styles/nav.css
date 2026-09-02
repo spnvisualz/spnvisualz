@@ -72,6 +72,9 @@ body.menu-open .menu-toggle i::after{ transform: translateY(-6px) rotate(-45deg)
   position: fixed; inset: 0; z-index: 55;
   background: rgba(3,2,7,.97); backdrop-filter: blur(24px);
   opacity: 0; visibility: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   clip-path: circle(2% at calc(100% - 40px) 40px);
   transition: opacity .5s var(--ease-depth), visibility .6s, clip-path .6s var(--ease-depth);
 }
@@ -80,8 +83,17 @@ body.menu-open .site-menu{
   clip-path: circle(150% at calc(100% - 40px) 40px);
 }
 .site-menu__inner{
-  height: 100%; display: flex; flex-direction: column; justify-content: center;
-  padding: var(--pad-inline); max-width: 1100px; margin: 0 auto;
+  /* min-height (not height) + justify-content:center lets short menus stay
+     perfectly centered while letting a taller one (small laptop window,
+     landscape phone) grow past the viewport and scroll via .site-menu's
+     own overflow, instead of being clipped/centered-off-screen with no way
+     to reach it — the first link ("01 Selected Work") was landing entirely
+     above y=0 and was neither visible nor focusable on any viewport short
+     enough for the full list + portals + footer to exceed its height. Top
+     padding clears the fixed header so that link never sits under it. */
+  min-height: 100%; display: flex; flex-direction: column; justify-content: center;
+  padding: calc(var(--header-h) + var(--space-md)) var(--pad-inline) var(--space-lg);
+  max-width: 1100px; margin: 0 auto;
 }
 .site-menu__primary{ display: flex; flex-direction: column; gap: 2px; }
 .site-menu__primary a{

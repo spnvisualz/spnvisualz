@@ -38,7 +38,18 @@ export function initNav() {
       const target = document.querySelector(id);
       if (!target) return;
       event.preventDefault();
-      getLenis()?.scrollTo(target, { offset: -20 });
+      // #work spans the whole camera corridor (12,000px+) — its literal
+      // top is scroll-wise *before* any project panel becomes prominent
+      // (see SceneDirector's lead-in fix), so jumping there would land on
+      // an apparently empty scene. SceneDirector stamps the real reveal
+      // point once it knows it; fall back to the plain element scroll for
+      // every other link, and for #work itself before the scene mounts.
+      const entryScrollY = target.dataset.entryScrollY;
+      if (entryScrollY) {
+        getLenis()?.scrollTo(Number(entryScrollY));
+      } else {
+        getLenis()?.scrollTo(target, { offset: -20 });
+      }
     });
   });
 }

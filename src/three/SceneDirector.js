@@ -53,6 +53,12 @@ export function mountSceneDirector() {
   const mountDistScale = distanceScale(camera);
   const workSpacing = WORK_SPACING * mountDistScale;
   const lateralSpread = Math.max(0.15, 1 / mountDistScale);
+  // Claw back part (not all) of the apparent-size loss that pushing panels
+  // further back on a narrow/portrait aspect causes — see WorkField's
+  // sizeBoost comment. sqrt (not the full mountDistScale) keeps the
+  // "pulled back, gallery-framed" composition intent instead of just
+  // re-zooming back in to where the original "zoomed in" complaint was.
+  const workSizeBoost = Math.min(1.85, Math.sqrt(mountDistScale));
 
   const originEl = document.querySelector('[data-chapter="origin"]');
   const manifestoEl = document.querySelector('[data-chapter="manifesto"]');
@@ -82,8 +88,18 @@ export function mountSceneDirector() {
   const startZ = zCameraStart - (k * corridorDepthSpan) / (1 - k);
   const zEnd = startZ - corridorDepthSpan;
 
-  const workField = new WorkField(PROJECTS, { spacing: workSpacing, startZ, lateralSpread });
+  const workField = new WorkField(PROJECTS, { spacing: workSpacing, startZ, lateralSpread, sizeBoost: workSizeBoost });
   scene.add(workField.group);
+
+  // The nav's "Selected Work" link needs to land somewhere that actually
+  // shows a panel, not the literal top of a 12,000px section (which, after
+  // the fix above, is scroll position *before* the reveal point — a
+  // visitor clicking the link would land on an apparently blank scene).
+  // originEl.offsetTop is 0 (it's the first element), so a corridor
+  // progress fraction converts directly to an absolute scrollY.
+  if (workEl) {
+    workEl.dataset.entryScrollY = String(Math.round(leadInFraction * corridorPixels));
+  }
 
   const facet = new FacetObject();
   facet.mesh.scale.setScalar(0.001); // hidden until Services chapter scrubs it in
@@ -128,8 +144,15 @@ export function mountSceneDirector() {
 
     // Fade the liquid surface out as the rig leaves the Origin chapter so
     // it doesn't linger, ghost-like, behind the Work planes.
+    // Must finish fading strictly before leadInFraction (where the first
+    // work panel becomes prominent) — this used to be a flat 0.22
+    // regardless of leadInFraction, which is often larger, so the liquid
+    // surface was still partially visible, bleeding through behind the
+    // panel, exactly when a visitor lands via the "Selected Work" nav link
+    // (which jumps straight to that reveal point, skipping the gradual
+    // scroll-through where the mismatch was less noticeable).
     const fadeStart = rig.zAt(0);
-    const fadeEnd = rig.zAt(0.22);
+    const fadeEnd = rig.zAt(leadInFraction * 0.7);
     const fade = 1 - Math.min(1, Math.max(0, (fadeStart - camera.position.z) / (fadeStart - fadeEnd)));
     liquid.mesh.visible = fade > 0.01;
 
@@ -154,11 +177,22 @@ export function bindFacetToServices(director) {
   const section = document.querySelector('[data-chapter="services"]');
   if (!section || !rows.length) return;
 
-  director.facet.mesh.position.set(2.1, 0.15, director.camera.position.z - 5.6);
+  // On mobile the service list runs the full content width (there's no
+  // separate column for the object the way desktop has), so the object
+  // needs to sit further right AND be smaller, not just further away —
+  // distance alone (already applied to Z every frame) wasn't enough on
+  // its own and the sphere was overlapping the price column. Both the
+  // lateral offset and peak scale now dampen with the same aspect
+  // compensation used for the Work panels.
+  const distScale = distanceScale(director.camera);
+  const xOffset = 2.1 + Math.min(2.2, (distScale - 1) * 1.1);
+  const peakScale = 1.3 / Math.sqrt(distScale);
+
+  director.facet.mesh.position.set(xOffset, 0.15, director.camera.position.z - 5.6 * distScale);
 
   gsap.timeline({
     scrollTrigger: { trigger: section, start: "top bottom", end: "top 40%", scrub: 1 }
-  }).to(director.facet.mesh.scale, { x: 1.3, y: 1.3, z: 1.3, ease: "none" });
+  }).to(director.facet.mesh.scale, { x: peakScale, y: peakScale, z: peakScale, ease: "none" });
 
   gsap.timeline({
     scrollTrigger: { trigger: section, start: "bottom 60%", end: "bottom top", scrub: 1 }
@@ -175,9 +209,13 @@ export function bindPlanetToContact(director) {
   const section = document.querySelector('[data-chapter="contact"]');
   if (!section) return;
 
-  director.planet.mesh.position.set(2.4, -0.1, director.camera.position.z - 4);
+  const distScale = distanceScale(director.camera);
+  const xOffset = 2.4 + Math.min(2.2, (distScale - 1) * 1.1);
+  const peakScale = 1 / Math.sqrt(distScale);
+
+  director.planet.mesh.position.set(xOffset, -0.1, director.camera.position.z - 4 * distScale);
 
   gsap.timeline({
     scrollTrigger: { trigger: section, start: "top bottom", end: "top 45%", scrub: 1 }
-  }).to(director.planet.mesh.scale, { x: 1, y: 1, z: 1, ease: "none" });
+  }).to(director.planet.mesh.scale, { x: peakScale, y: peakScale, z: peakScale, ease: "none" });
 }

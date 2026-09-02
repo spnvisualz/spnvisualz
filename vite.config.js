@@ -59,10 +59,12 @@ export default defineConfig({
     outDir: "dist",
     assetsInlineLimit: 0,
     rollupOptions: {
+      // dev/planet-lab.html and dev/liquid-lab.html are internal shader/
+      // scene iteration harnesses — served fine by `vite`'s dev server on
+      // their own, but not real pages and not worth shipping to the
+      // production site, so they're deliberately not build inputs.
       input: {
-        main: resolve(__dirname, "index.html"),
-        planetLab: resolve(__dirname, "dev/planet-lab.html"),
-        liquidLab: resolve(__dirname, "dev/liquid-lab.html")
+        main: resolve(__dirname, "index.html")
       }
     }
   },
