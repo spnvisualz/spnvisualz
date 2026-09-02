@@ -123,8 +123,16 @@ export function mountSceneDirector() {
 
   const rig = new WorldRig({ camera, startTrigger: originEl, endTrigger: workEl, zEnd });
 
+  // Reported live: on phones, holding a finger down and dragging it around
+  // (not a normal scroll swipe) made the site feel unstable — Pointer
+  // Events unify touch and mouse, so a touch-drag was driving the same
+  // camera/shader parallax a mouse does, fighting the scroll-only journey
+  // the site is built around. Filtering to `pointerType === "mouse"`
+  // keeps the subtle "looking around" feel on desktop while touch input
+  // only ever scrolls.
   let pointer = { x: 0, y: 0 };
   window.addEventListener("pointermove", (e) => {
+    if (e.pointerType !== "mouse") return;
     pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
     pointer.y = -((e.clientY / window.innerHeight) * 2 - 1);
   });

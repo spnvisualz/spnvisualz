@@ -109,18 +109,16 @@ export class WorkField {
 
     // Deterministic-but-varied placement: alternating sides, gentle drift
     // in y, mild rotation so panels read as floating in space rather than
-    // lined up like a slideshow.
+    // lined up like a slideshow. X is re-driven every frame in update() —
+    // this is just the resting position before the first update() call.
     const side = index % 2 === 0 ? 1 : -1;
     const depth = this.startZ - index * this.spacing;
-    mesh.position.set(
-      side * 1.05 * this.lateralSpread,
-      Math.sin(index * 1.7) * 0.4 * this.lateralSpread,
-      depth
-    );
+    const baseY = Math.sin(index * 1.7) * 0.4 * this.lateralSpread;
+    mesh.position.set(side * 2.4 * this.lateralSpread, baseY, depth);
     mesh.rotation.y = side * -0.22 * this.lateralSpread;
     mesh.rotation.z = Math.sin(index * 2.3) * 0.025 * this.lateralSpread;
 
-    return { project, video, videoTexture, mesh, panel, frameMaterial, material, depth, videoBound: false, videoReadyHandler: null };
+    return { project, video, videoTexture, mesh, panel, frameMaterial, material, depth, side, baseY, videoBound: false, videoReadyHandler: null };
   }
 
   // `_setActive` calls video.play() the instant a panel gains focus, but a
@@ -179,6 +177,12 @@ export class WorkField {
     const focusZ = cameraZ + focusOffset;
     const falloffRadius = this.spacing * 0.85;
     const activationGate = this.spacing * 0.55;
+    // How much scroll-depth the full side-to-side slide spans. Smaller
+    // than `spacing` so a panel has fully arrived at center before the
+    // next one starts sliding in behind it, rather than the two crossing
+    // mid-slide.
+    const slideRange = this.spacing * 0.85;
+    const amplitude = 2.4 * this.lateralSpread;
     let nearestIndex = -1;
     let nearestDist = Infinity;
     this.items.forEach((item, i) => {
@@ -196,9 +200,23 @@ export class WorkField {
       // scroll landed a fraction off dead-center.
       const linear = 1 - Math.min(1, d / falloffRadius);
       const settle = Math.pow(linear, falloffTightness);
-      const scale = 0.62 + settle * 0.5;
+      // Live feedback: growing almost to full scale read as "zooming
+      // completely in" on a panel as the camera passed it. The slide (below)
+      // is now the primary sense of motion through a project — scale only
+      // adds a light emphasis on top of that, not the main effect.
+      const scale = 0.72 + settle * 0.32;
       item.mesh.scale.setScalar(scale);
       item.frameMaterial.opacity = 0.18 + settle * 0.5;
+
+      // Signed distance from focus: negative while the panel is still
+      // ahead (not yet reached), positive once the camera has passed it.
+      // Panels enter from their designated side, cross toward center as
+      // the camera nears, and continue sliding out the *opposite* side as
+      // it moves on — a continuous lateral pass rather than a still,
+      // centered object that merely grows and shrinks in place.
+      const signedD = item.depth - focusZ;
+      const slideT = Math.max(-1, Math.min(1, signedD / slideRange));
+      item.mesh.position.x = -item.side * amplitude * slideT;
     });
 
     if (nearestIndex !== this.activeIndex && nearestDist < activationGate) {
