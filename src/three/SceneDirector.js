@@ -161,7 +161,15 @@ export function mountSceneDirector() {
     // camera distance, not the cueing multiplier. (Caught by comparing
     // workField.items' actual depths against camera.position.z at runtime
     // — the mismatch wasn't visible in the scale numbers alone.)
-    workField.update(camera.position.z, -workSpacing * 0.42, Math.sqrt(distScale));
+    // Which video plays is now driven directly by scroll progress through
+    // the corridor (see WorkField.update) — a simple, always-well-defined
+    // fraction — rather than solely by comparing 3D depths, which could
+    // fail to ever trigger if camera Z and the panels' depths drifted out
+    // of step for any reason (aspect-ratio math, a stale measurement,
+    // rounding). Reported live as videos never playing regardless of how
+    // the page was scrolled; this removes that failure mode entirely.
+    const workProgress = Math.max(0, Math.min(1, (rig.progress - leadInFraction) / (1 - leadInFraction)));
+    workField.update(camera.position.z, workProgress, -workSpacing * 0.42, Math.sqrt(distScale));
     facet.tick(dt, elapsed);
     planet.tick(dt, elapsed);
 

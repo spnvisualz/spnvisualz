@@ -212,24 +212,28 @@ export class WorkField {
   // construction) while a physically-closer neighbor, already past the
   // saturated falloff radius, rendered larger via plain perspective —
   // two different panels disagreeing about which one was "active".
-  update(cameraZ, focusOffset = -7.2, falloffTightness = 1) {
+  // workProgress: 0..1 fraction of the way through Selected Work, driven
+  // directly by scroll (see SceneDirector). This is the sole source of
+  // which project is active/playing — a simple, always-well-defined
+  // mapping that can never fail to trigger. The panels' visual
+  // position/scale (below) still comes from comparing 3D depths against
+  // the camera, which is a richer effect but was fragile enough as an
+  // *activation* signal (any drift between camera Z and panel depth could
+  // mean no panel is ever "close enough" to activate) that it had caused
+  // real, repeated "video never plays" failures. Decoupling the two means
+  // a video always plays somewhere, regardless of any visual-positioning
+  // edge case.
+  update(cameraZ, workProgress, focusOffset = -7.2, falloffTightness = 1) {
     const focusZ = cameraZ + focusOffset;
     const falloffRadius = this.spacing * 0.85;
-    const activationGate = this.spacing * 0.55;
     // How much scroll-depth the full side-to-side slide spans. Smaller
     // than `spacing` so a panel has fully arrived at center before the
     // next one starts sliding in behind it, rather than the two crossing
     // mid-slide.
     const slideRange = this.spacing * 0.85;
     const amplitude = this.slideAmplitude;
-    let nearestIndex = -1;
-    let nearestDist = Infinity;
-    this.items.forEach((item, i) => {
+    this.items.forEach((item) => {
       const d = Math.abs(item.depth - focusZ);
-      if (d < nearestDist) {
-        nearestDist = d;
-        nearestIndex = i;
-      }
       // Depth cueing: the focused panel sits notably larger/brighter than
       // its neighbors so "which one is active" reads at a glance, without
       // any single panel ever filling the whole frame. A power curve (not
@@ -258,8 +262,12 @@ export class WorkField {
       item.mesh.position.x = -item.side * amplitude * slideT;
     });
 
-    if (nearestIndex !== this.activeIndex && nearestDist < activationGate) {
-      this._setActive(nearestIndex);
+    // Guaranteed valid for any workProgress in [0,1]: at most the last
+    // index, never -1, never NaN. No gate, no "close enough" threshold —
+    // scroll progress always maps to exactly one active project.
+    const targetIndex = Math.min(this.items.length - 1, Math.floor(workProgress * this.items.length));
+    if (targetIndex !== this.activeIndex) {
+      this._setActive(targetIndex);
     }
   }
 
