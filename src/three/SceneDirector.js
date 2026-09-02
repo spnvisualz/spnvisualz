@@ -60,6 +60,14 @@ export function mountSceneDirector() {
   // real device — dialed back hard to a gentle lift instead of a near
   // doubling.
   const workSizeBoost = Math.min(1.3, 1 + (Math.sqrt(mountDistScale) - 1) * 0.35);
+  // The full side-to-side slide (see WorkField) was a fix for narrow
+  // portrait viewports, where panels had nowhere to go but "sit in the
+  // center and grow/shrink" — reported live as looking like a zoom.
+  // Desktop's original static-offset composition was never reported as a
+  // problem; applying the same wide sweep there anyway made it feel just
+  // as unsettled as the phone issue it was meant to fix. Only widen the
+  // slide once the aspect is actually narrower than the desktop reference.
+  const workSlideAmplitude = mountDistScale > 1.05 ? 2.4 * Math.max(0.15, 1 / mountDistScale) : 1.05;
 
   const originEl = document.querySelector('[data-chapter="origin"]');
   const manifestoEl = document.querySelector('[data-chapter="manifesto"]');
@@ -99,6 +107,7 @@ export function mountSceneDirector() {
     startZ,
     lateralSpread,
     sizeBoost: workSizeBoost,
+    slideAmplitude: workSlideAmplitude,
     preferMobileVideo
   });
   scene.add(workField.group);

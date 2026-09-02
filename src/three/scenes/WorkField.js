@@ -30,10 +30,23 @@ const FRAME_MARGIN = 0.045;
 const textureLoader = new TextureLoader();
 
 export class WorkField {
-  constructor(projects, { spacing = 5.6, startZ = 0, lateralSpread = 1, sizeBoost = 1, preferMobileVideo = false } = {}) {
+  constructor(projects, {
+    spacing = 5.6,
+    startZ = 0,
+    lateralSpread = 1,
+    sizeBoost = 1,
+    preferMobileVideo = false,
+    slideAmplitude = 1.05
+  } = {}) {
     this.spacing = spacing;
     this.startZ = startZ;
     this.preferMobileVideo = preferMobileVideo;
+    // How far a panel travels side-to-side across its screen time. Kept
+    // small (close to the original static offset) on desktop, where a
+    // full cross-screen sweep read as chaotic on a composition that was
+    // already working well — the wide slide is a narrow/portrait-aspect
+    // fix (see SceneDirector), not a universal one.
+    this.slideAmplitude = slideAmplitude;
     // lateralSpread scales the side-to-side offset/rotation each panel
     // gets. At 1 (desktop) panels alternate left/right like a gallery
     // wall. Narrower viewports pass a smaller value — off-axis panels
@@ -114,7 +127,7 @@ export class WorkField {
     const side = index % 2 === 0 ? 1 : -1;
     const depth = this.startZ - index * this.spacing;
     const baseY = Math.sin(index * 1.7) * 0.4 * this.lateralSpread;
-    mesh.position.set(side * 2.4 * this.lateralSpread, baseY, depth);
+    mesh.position.set(side * this.slideAmplitude, baseY, depth);
     mesh.rotation.y = side * -0.22 * this.lateralSpread;
     mesh.rotation.z = Math.sin(index * 2.3) * 0.025 * this.lateralSpread;
 
@@ -208,7 +221,7 @@ export class WorkField {
     // next one starts sliding in behind it, rather than the two crossing
     // mid-slide.
     const slideRange = this.spacing * 0.85;
-    const amplitude = 2.4 * this.lateralSpread;
+    const amplitude = this.slideAmplitude;
     let nearestIndex = -1;
     let nearestDist = Infinity;
     this.items.forEach((item, i) => {
