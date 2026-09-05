@@ -15,7 +15,7 @@ const __dirname = import.meta.dirname;
 // SPA fallback there ends up shadowing nested public/ HTML before static
 // resolution gets a chance to run. This plugin is the fix that doesn't
 // trade one working mode for the other.)
-const STATIC_SUBSITES = ["visual-lab", "websites", "work", "privacy"];
+const STATIC_SUBSITES = ["visual-lab", "websites", "work", "privacy", "about"];
 
 // Legacy noindex,follow meta-refresh redirect stubs for old bookmarked/
 // indexed URLs (e.g. /contact.html -> /#contact). Not linked from anywhere

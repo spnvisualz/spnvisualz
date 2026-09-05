@@ -30,57 +30,24 @@ function sourceFor(project, useMobile) {
   return useMobile && project.videoMobile ? project.videoMobile : project.video;
 }
 
-function buildItem(project, index) {
-  const article = document.createElement("article");
-  article.className = "work-item";
-  article.dataset.index = String(index);
-  article.id = `work-${project.slug}`;
-
-  const media = document.createElement("div");
-  media.className = "work-item__media";
-  // Reserve the exact aspect up front so nothing reflows when the video
-  // finally decodes — a late size change here is a layout shift, which is
-  // both a Core Web Vitals problem and a visible jolt mid-scroll.
-  media.style.aspectRatio = String(project.aspect || 16 / 9);
-
-  const video = document.createElement("video");
-  video.muted = true;
-  video.loop = true;
-  video.playsInline = true;
-  video.setAttribute("playsinline", "");
-  video.setAttribute("muted", "");
-  video.preload = "none";
-  video.poster = project.poster;
-  video.tabIndex = -1;
-  video.setAttribute("aria-label", `${project.title} — motion reel`);
-  media.appendChild(video);
-
-  const frame = document.createElement("span");
-  frame.className = "work-item__frame";
-  frame.setAttribute("aria-hidden", "true");
-  media.appendChild(frame);
-
-  const meta = document.createElement("div");
-  meta.className = "work-item__meta";
-  meta.innerHTML = `
-    <p class="work-item__tag mono"><span class="work-item__num">${project.number}</span>${project.tag}</p>
-    <h3 class="work-item__title">${project.title}</h3>
-    <p class="work-item__desc">${project.description}</p>
-  `;
-
-  article.appendChild(media);
-  article.appendChild(meta);
-
-  return { project, article, media, video, index };
-}
-
 export function initWorkSequence({ reduceMotion = false } = {}) {
   const track = document.getElementById("workTrack");
   if (!track) return null;
 
   const useMobile = window.matchMedia(MOBILE_QUERY).matches;
-  const items = PROJECTS.map((project, i) => buildItem(project, i));
-  items.forEach((item) => track.appendChild(item.article));
+
+  // The project markup ships in the HTML rather than being created here.
+  // Building it in JS meant a crawler — or an ad-network reviewer, or
+  // anyone with JS blocked — saw an empty container where the portfolio
+  // should be, which is exactly the content the page most needs to prove
+  // it has. This only attaches behaviour to markup that already exists.
+  const items = PROJECTS.map((project, i) => {
+    const article = track.querySelector(`.work-item[data-index="${i}"]`);
+    if (!article) return null;
+    return { project, article, video: article.querySelector("video"), index: i };
+  }).filter(Boolean);
+
+  if (!items.length) return null;
 
   const totalEl = document.getElementById("workTotal");
   if (totalEl) totalEl.textContent = String(items.length).padStart(2, "0");
