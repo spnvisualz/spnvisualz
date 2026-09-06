@@ -112,7 +112,11 @@
     if (analytics) analytics.checked = state.analytics;
     requestAnimationFrame(() => {
       const target = layer.querySelector(view === "preferences" ? "#spnConsentSave" : "#spnConsentAccept");
-      target?.focus();
+      // preventScroll matters: if this panel is ever unstyled or
+      // mispositioned, a plain focus() scrolls the whole document to it.
+      // That is exactly how every first-time visitor to the homepage
+      // ended up dumped at the bottom of the page.
+      target?.focus({ preventScroll: true });
     });
   };
 
