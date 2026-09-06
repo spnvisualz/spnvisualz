@@ -1,5 +1,6 @@
 import "./styles/base.css";
 import "./styles/nav.css";
+import "./styles/consent.css";
 import "./styles/origin.css";
 import "./styles/work.css";
 import "./styles/services.css";
