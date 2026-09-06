@@ -1,0 +1,94 @@
+.chapter{ position: relative; z-index: 2; }
+
+/* — shared buttons — */
+.btn{
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 15px 26px; border: 1px solid transparent;
+  font-family: var(--font-display); font-size: 13px; letter-spacing: .02em;
+  border-radius: var(--radius-sharp);
+  transition: transform .3s var(--ease-signal), background .3s, border-color .3s;
+  cursor: pointer;
+}
+.btn--light{ background: var(--text); color: #050308; }
+.btn--light:hover{ transform: translateY(-2px); }
+.btn--outline{ border-color: var(--line); background: transparent; color: var(--text); }
+.btn--outline:hover{ border-color: var(--purple-light); background: rgba(198,167,255,.06); }
+.mono{ font-family: var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
+
+.section-label{
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--purple-light); margin: 0 0 10px;
+}
+
+/* fade/rise-in utility, driven by ScrollTrigger in JS */
+.reveal, .reveal-line{ opacity: 0; transform: translateY(24px); }
+.reveal.is-revealed, .reveal-line.is-revealed{
+  opacity: 1; transform: translateY(0);
+  transition: opacity .9s var(--ease-depth), transform .9s var(--ease-depth);
+}
+
+/* ============ ORIGIN ============ */
+.chapter--origin{
+  min-height: 100svh;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: calc(var(--header-h) + var(--space-lg)) var(--pad-inline) var(--space-xl);
+}
+.origin-boot{
+  position: absolute; top: calc(var(--header-h) + 12px); left: 50%; transform: translateX(-50%);
+  color: var(--quiet); font-size: 10px;
+}
+.origin-copy{ max-width: 900px; }
+.eyebrow{
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 var(--space-sm);
+}
+.origin-title{
+  margin: 0 0 var(--space-md);
+  font-size: var(--type-4xl);
+  line-height: .92;
+  letter-spacing: -.03em;
+  font-weight: 600;
+}
+.origin-title span{ display: block; }
+.origin-title .editorial{
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--purple-light);
+  letter-spacing: -.01em;
+}
+.origin-lead{
+  max-width: 46ch; font-size: var(--type-md); color: var(--muted); line-height: 1.6;
+  margin: 0 0 var(--space-lg);
+}
+.origin-actions{ display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+.origin-foot{
+  margin-top: var(--space-lg);
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding-top: var(--space-md); border-top: 1px solid var(--line);
+  font-size: 12px; color: var(--muted);
+}
+.origin-foot > div span{ display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--quiet); margin-bottom: 4px; }
+.origin-foot > div strong{ color: var(--text); font-weight: 500; }
+.origin-foot__scroll{ display: flex; align-items: center; gap: 10px; }
+.origin-foot__scroll b{
+  width: 1px; height: 26px; background: linear-gradient(var(--purple-light), transparent);
+  display: block; animation: scrollHint 2.2s ease-in-out infinite;
+}
+@keyframes scrollHint{ 0%,100%{ opacity: .2; } 50%{ opacity: 1; } }
+@media (max-width: 720px){
+  .origin-foot{ flex-direction: column; align-items: flex-start; gap: var(--space-sm); }
+}
+
+/* ============ STUDIO ============ */
+.chapter--studio{
+  min-height: 70vh;
+  display: flex; align-items: center;
+  padding: var(--space-3xl) var(--pad-inline);
+}
+.studio-inner{ max-width: 640px; }
+.studio-heading{
+  font-size: var(--type-2xl); letter-spacing: -.03em; line-height: .95; margin: 0 0 var(--space-md);
+}
+.studio-note{ font-size: var(--type-lg); line-height: 1.5; color: var(--muted); margin: 0 0 var(--space-md); max-width: 34ch; }
+.studio-credit{ font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; color: var(--quiet); text-transform: uppercase; margin: 0; }

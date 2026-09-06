@@ -1,0 +1,81 @@
+.chapter{ position: relative; z-index: 2; }
+
+.btn{
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 15px 26px; border: 1px solid transparent;
+  font-family: var(--font-display); font-size: 13px; letter-spacing: .02em;
+  border-radius: var(--radius-sharp);
+  transition: transform .3s var(--ease-signal), background .3s, border-color .3s;
+  cursor: pointer;
+}
+.btn--light{ background: var(--text); color: #050308; }
+.btn--light:hover{ transform: translateY(-2px); }
+.btn--outline{ border-color: var(--line); background: transparent; color: var(--text); }
+.btn--outline:hover{ border-color: var(--purple-light); background: rgba(198,167,255,.06); }
+.mono{ font-family: var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
+
+.section-label{
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--purple-light); margin: 0 0 10px;
+}
+
+.reveal, .reveal-line{ opacity: 0; transform: translateY(24px); }
+.reveal.is-revealed, .reveal-line.is-revealed{
+  opacity: 1; transform: translateY(0);
+  transition: opacity .9s var(--ease-depth), transform .9s var(--ease-depth);
+}
+
+/* ============ ORIGIN — the wordmark is the whole opening ============ */
+.chapter--origin{
+  height: 100svh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  overflow: hidden;
+}
+.origin-mark{ position: relative; }
+.origin-eyebrow{
+  font-size: 11px; letter-spacing: .3em; color: var(--muted); margin: 0 0 var(--space-md);
+}
+.origin-word{
+  margin: 0;
+  font-size: var(--type-hero);
+  font-weight: 700;
+  letter-spacing: -.04em;
+  line-height: .9;
+  mix-blend-mode: overlay;
+  color: #fff;
+  animation: originFade 1.6s var(--ease-depth) both;
+}
+@keyframes originFade{
+  from{ opacity: 0; transform: translateY(28px) scale(.97); }
+  to{ opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.origin-scroll{
+  position: absolute; left: 50%; bottom: var(--space-xl); transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--quiet);
+}
+.origin-scroll b{
+  width: 1px; height: 30px;
+  background: linear-gradient(var(--purple-light), transparent);
+  animation: scrollHint 2.4s ease-in-out infinite;
+}
+@keyframes scrollHint{ 0%,100%{ opacity: .25; } 50%{ opacity: 1; } }
+
+/* ============ MANIFESTO beat ============ */
+.chapter--manifesto{
+  min-height: 60vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: var(--space-2xl) var(--pad-inline);
+}
+.manifesto-line{
+  max-width: 20ch; text-align: center;
+  font-size: clamp(28px, 4vw, 52px); letter-spacing: -.02em; line-height: 1.15;
+  color: var(--text);
+}
+
+@media (max-width: 720px){
+  .origin-word{ letter-spacing: -.02em; }
+}

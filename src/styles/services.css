@@ -1,0 +1,48 @@
+.chapter--services{ padding: var(--space-3xl) var(--pad-inline); }
+.section-head{ margin-bottom: var(--space-lg); }
+.section-head h2{ font-size: clamp(32px, 4vw, 58px); letter-spacing: -.03em; margin: 4px 0 0; }
+
+/* The facet object occupies the right ~40% of the frame in 3D (see
+   SceneDirector) — the list stays in the left column so it never has to
+   compete with it. */
+.service-list{
+  list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line);
+  max-width: 640px;
+}
+.service-row{
+  width: 100%; display: grid; grid-template-columns: 40px 1.3fr 1fr auto;
+  align-items: center; gap: var(--space-sm);
+  padding: 24px 4px; border: 0; border-bottom: 1px solid var(--line);
+  background: transparent; text-align: left; cursor: pointer;
+  transition: background .25s, padding-left .25s;
+}
+.service-row:hover, .service-row.is-active{ background: linear-gradient(90deg, rgba(138,77,255,.08), transparent); padding-left: 14px; }
+.service-row span{ color: var(--purple-light); font-size: 10px; }
+.service-row strong{ font-size: clamp(20px, 2.2vw, 30px); letter-spacing: -.02em; font-weight: 500; }
+.service-row em{ font-style: normal; font-size: 11px; color: var(--muted); }
+.service-row b{ font-size: 12px; font-weight: 500; }
+
+@media (max-width: 900px){
+  .service-row{ grid-template-columns: 28px 1fr auto; }
+  .service-row em{ display: none; }
+}
+
+/* — dialogs (shared) — */
+dialog{ border: 0; padding: 0; background: transparent; max-width: none; max-height: none; }
+dialog::backdrop{ background: rgba(3,2,7,.72); backdrop-filter: blur(6px); }
+
+.service-dialog__shell{
+  position: fixed; inset: 0; margin: auto;
+  width: min(560px, 92vw); max-height: 88vh; overflow: auto;
+  background: var(--panel); border: 1px solid var(--line); padding: var(--space-lg);
+}
+.service-dialog__copy{ position: relative; }
+.service-dialog__copy h3{ font-size: var(--type-xl); letter-spacing: -.03em; margin: 8px 0 var(--space-sm); }
+.service-dialog__copy p{ color: var(--muted); line-height: 1.6; margin: 0 0 var(--space-sm); }
+.service-dialog__copy ul{ list-style: none; margin: 0 0 var(--space-lg); padding: 0; }
+.service-dialog__copy ul li{ padding: 10px 0; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+.service-dialog__close, .order-dialog__close{
+  position: absolute; top: 14px; right: 14px; width: 32px; height: 32px;
+  border: 1px solid var(--line); background: transparent; color: var(--text); font-size: 18px;
+  display: grid; place-items: center; z-index: 2;
+}

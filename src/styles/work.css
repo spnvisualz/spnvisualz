@@ -1,0 +1,130 @@
+/* ============ SELECTED WORK ============
+   Real DOM video scenes (see work/workSequence.js). Each project is its
+   own composed moment with a large cropped video, a floating index, and
+   metadata that drifts against the media as you scroll past. */
+
+.chapter--work{
+  position: relative;
+  padding: var(--space-3xl) 0 var(--space-3xl);
+}
+
+.work-head{
+  padding: 0 var(--pad-inline);
+  margin-bottom: var(--space-2xl);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+}
+.work-head h2{
+  font-size: clamp(38px, 6vw, 88px);
+  letter-spacing: -.04em;
+  line-height: .95;
+  margin: 6px 0 0;
+}
+.work-head__count{
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .12em;
+  color: var(--quiet);
+}
+.work-head__count b{ color: var(--purple-light); font-weight: 500; }
+
+.work-track{
+  display: flex;
+  flex-direction: column;
+  gap: clamp(90px, 14vh, 190px);
+}
+
+.work-item{
+  position: relative;
+  padding: 0 var(--pad-inline);
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, .85fr);
+  align-items: center;
+  gap: clamp(24px, 4vw, 64px);
+}
+/* Alternate which side the media sits on so the sequence reads as
+   composed scenes rather than a repeating template. */
+.work-item:nth-child(even){ grid-template-columns: minmax(0, .85fr) minmax(0, 1.55fr); }
+.work-item:nth-child(even) .work-item__media{ order: 2; }
+.work-item:nth-child(even) .work-item__meta{ order: 1; text-align: right; }
+.work-item:nth-child(even) .work-item__tag{ justify-content: flex-end; }
+
+.work-item__media{
+  position: relative;
+  overflow: hidden;
+  background: #07050d;
+  border-radius: 2px;
+  /* aspect-ratio is set inline per project from its real source ratio */
+}
+.work-item__media video{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  will-change: transform;
+}
+.work-item__frame{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1px solid rgba(198,167,255,.22);
+  transition: border-color .6s var(--ease-signal);
+}
+.work-item.is-visible .work-item__frame{ border-color: rgba(198,167,255,.5); }
+
+.work-item__media::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(3,2,7,.28) 0%, transparent 30%, transparent 70%, rgba(3,2,7,.42) 100%);
+}
+
+.work-item__meta{ will-change: transform; }
+.work-item__tag{
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--purple-light);
+  margin: 0 0 14px;
+}
+.work-item__num{
+  font-size: 12px;
+  color: var(--text);
+  opacity: .5;
+}
+.work-item__title{
+  font-size: clamp(30px, 3.6vw, 54px);
+  letter-spacing: -.03em;
+  line-height: 1.02;
+  margin: 0 0 14px;
+}
+.work-item__desc{
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 40ch;
+  margin: 0;
+}
+.work-item:nth-child(even) .work-item__desc{ margin-left: auto; }
+
+@media (max-width: 860px){
+  .chapter--work{ padding: var(--space-2xl) 0; }
+  .work-track{ gap: clamp(64px, 10vh, 110px); }
+  .work-item,
+  .work-item:nth-child(even){
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  .work-item:nth-child(even) .work-item__media{ order: 0; }
+  .work-item:nth-child(even) .work-item__meta{ order: 0; text-align: left; }
+  .work-item:nth-child(even) .work-item__tag{ justify-content: flex-start; }
+  .work-item:nth-child(even) .work-item__desc{ margin-left: 0; }
+  .work-item__desc{ font-size: 14px; max-width: none; }
+  .work-head{ margin-bottom: var(--space-xl); }
+}

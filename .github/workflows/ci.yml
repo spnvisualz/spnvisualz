@@ -1,0 +1,126 @@
+name: CI
+
+# Runs the same build and the same checks as the deploy workflow, but
+# publishes nothing. This is what makes it safe to work in Codespaces and
+# open a pull request: a broken build or a policy regression is caught
+# before it can reach main, which now deploys automatically.
+
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Syntax-check standalone scripts
+        run: |
+          set -euo pipefail
+          # These ship as plain <script src> files outside the Vite graph,
+          # so nothing else would catch a syntax error in them.
+          for f in public/assets/js/*.js; do
+            node --check "$f"
+            echo "ok  $f"
+          done
+
+      - name: Check HTML structure and JSON-LD
+        run: |
+          python3 - <<'PY'
+          import glob, io, json, re, sys
+          from html.parser import HTMLParser
+
+          class V(HTMLParser):
+              VOID = {'area','base','br','col','embed','hr','img','input','link',
+                      'meta','source','track','wbr'}
+              def __init__(self):
+                  super().__init__(); self.stack=[]; self.errs=[]
+              def handle_starttag(self, t, a):
+                  if t not in self.VOID: self.stack.append(t)
+              def handle_endtag(self, t):
+                  if t in self.VOID: return
+                  if not self.stack: self.errs.append(f"stray </{t}>"); return
+                  if self.stack[-1] == t: self.stack.pop()
+                  elif t in self.stack:
+                      while self.stack and self.stack[-1] != t:
+                          self.errs.append(f"unclosed <{self.stack.pop()}>")
+                      if self.stack: self.stack.pop()
+                  else: self.errs.append(f"stray </{t}>")
+
+          problems = []
+          for p in sorted(glob.glob('dist/**/*.html', recursive=True)):
+              s = io.open(p, encoding='utf-8', errors='replace').read()
+              v = V(); v.feed(s)
+              leftover = [t for t in v.stack if t not in ('html','body')]
+              if v.errs or leftover:
+                  problems.append(f"{p}: {v.errs[:3]} {leftover}")
+              for m in re.finditer(r'<script type="application/ld\+json">(.*?)</script>', s, re.S):
+                  try: json.loads(m.group(1))
+                  except Exception as e: problems.append(f"{p}: invalid JSON-LD — {e}")
+
+          if problems:
+              for x in problems: print(f"::error::{x}")
+              sys.exit(1)
+          print(f"{len(glob.glob('dist/**/*.html', recursive=True))} pages: structure and JSON-LD OK")
+          PY
+
+      - name: Check internal links and assets resolve
+        run: |
+          python3 - <<'PY'
+          import glob, io, os, re, sys
+          def exists(h):
+              h = h.split('#')[0].split('?')[0]
+              if not h or h.startswith(('mailto:','tel:','http','javascript:','data:')):
+                  return True
+              p = os.path.join('dist', h.lstrip('/'))
+              return os.path.exists(os.path.join(p,'index.html')) if h.endswith('/') else os.path.exists(p)
+
+          bad = set()
+          for page in glob.glob('dist/**/*.html', recursive=True):
+              s = io.open(page, encoding='utf-8', errors='replace').read()
+              for h in set(re.findall(r'(?:href|src)="([^"]+)"', s)):
+                  if not exists(h): bad.add((page, h))
+          if bad:
+              for p,h in sorted(bad): print(f"::error::{p} -> {h}")
+              sys.exit(1)
+          print("all internal links and assets resolve")
+          PY
+
+      - name: Advertising policy checks
+        run: |
+          set -euo pipefail
+          if grep -rl "pagead2.googlesyndication.com" dist --include='*.html' | grep -q .; then
+            echo "::error::AdSense library tag hard-coded in HTML"; exit 1
+          fi
+          if grep -rl "Partner space" dist | grep -q .; then
+            echo "::error::empty ad placeholder present"; exit 1
+          fi
+          if grep -rn "ADSENSE_SLOT_ID" dist --include='*.html' | grep -q .; then
+            echo "::error::placeholder slot ID present in markup"; exit 1
+          fi
+          echo "advertising policy checks passed"
+
+      - name: Upload build for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist
+          retention-days: 7

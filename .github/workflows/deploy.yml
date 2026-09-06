@@ -1,0 +1,151 @@
+name: Build and deploy site
+
+# Replaces the previous manual flow (build on a Mac, rsync dist/ into a
+# clone, push the built output to main). main is now the source of truth
+# and GitHub Pages serves the artifact this workflow produces, so the
+# published site always corresponds to a known commit.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race; let a newer commit supersede an in-flight
+# run rather than cancelling a deploy half-way.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Original master media is stored via Git LFS. The site itself
+          # only needs the committed optimized web assets, so skip LFS
+          # blobs here — it keeps checkout fast and avoids spending LFS
+          # bandwidth on every deploy.
+          lfs: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify build output
+        run: |
+          set -euo pipefail
+
+          fail() { echo "::error::$1"; exit 1; }
+
+          # Pages that must exist for the site to be whole.
+          for page in \
+            index.html \
+            about/index.html \
+            privacy/index.html \
+            websites/index.html \
+            work/index.html \
+            visual-lab/index.html \
+            visual-lab/author/chubae/index.html \
+            visual-lab/articles/how-to-make-a-brand-look-expensive/index.html
+          do
+            [ -s "dist/$page" ] || fail "missing or empty: dist/$page"
+          done
+
+          # Files that keep the domain and its search presence working.
+          for f in CNAME robots.txt sitemap.xml ads.txt favicon.ico; do
+            [ -s "dist/$f" ] || fail "missing or empty: dist/$f"
+          done
+
+          # The authoring scaffold is full of unresolved {{PLACEHOLDER}}
+          # tokens and must never be published.
+          [ -e dist/visual-lab/article-template.html ] && fail "article-template.html must not be published"
+
+          # Selected Work is the portfolio; an empty container means the
+          # markup regressed to being JS-generated.
+          items=$(grep -c 'class="work-item"' dist/index.html || true)
+          [ "$items" -eq 9 ] || fail "expected 9 work items in dist/index.html, found $items"
+
+          # Every referenced work video must actually be present.
+          missing=0
+          for v in $(grep -ohE '/assets/videos/work/[a-z0-9.-]+\.mp4' dist/index.html dist/assets/*.js 2>/dev/null | sort -u); do
+            [ -s "dist$v" ] || { echo "::error::missing video: $v"; missing=1; }
+          done
+          [ "$missing" -eq 0 ] || fail "one or more referenced videos are missing from the build"
+
+          # Advertising policy: no AdSense library tag may be hard-coded in
+          # markup. ads.js requests it only after a certified CMP grants
+          # consent and a real numeric slot exists.
+          if grep -rl "pagead2.googlesyndication.com" dist --include='*.html' | grep -q .; then
+            grep -rn "pagead2.googlesyndication.com" dist --include='*.html' | head
+            fail "AdSense library tag found in published HTML"
+          fi
+
+          # Empty ad placeholders are an AdSense policy problem.
+          if grep -rl "Partner space" dist | grep -q .; then
+            fail "empty ad placeholder text found in build"
+          fi
+
+          echo "Build verified: $(find dist -name '*.html' | wc -l) HTML pages, $(du -sh dist | cut -f1) total"
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  verify-production:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the live site
+        run: |
+          set -euo pipefail
+          base=https://spnvisualz.com
+
+          # Pages can take a moment to serve the new deployment.
+          sleep 20
+
+          fail=0
+          for path in "/" "/about/" "/privacy/" "/websites/" "/work/" \
+                      "/visual-lab/" "/visual-lab/author/chubae/" \
+                      "/sitemap.xml" "/ads.txt"; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' -L "$base$path")
+            printf '%-42s %s\n' "$path" "$code"
+            [ "$code" = "200" ] || fail=1
+          done
+
+          # The authoring scaffold must not be reachable.
+          code=$(curl -s -o /dev/null -w '%{http_code}' "$base/visual-lab/article-template.html")
+          printf '%-42s %s (expect 404)\n' "/visual-lab/article-template.html" "$code"
+          [ "$code" = "404" ] || fail=1
+
+          # No ad library on the live homepage.
+          if curl -s "$base/" | grep -q "pagead2.googlesyndication.com"; then
+            echo "::error::AdSense library tag present on live homepage"
+            fail=1
+          fi
+
+          [ "$fail" -eq 0 ] || { echo "::error::production verification failed"; exit 1; }
+          echo "Production verified."
