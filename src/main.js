@@ -18,7 +18,15 @@ import { initPricing } from "./pricing/pricing.js";
 import { initOrderDialog } from "./contact/orderDialog.js";
 
 function boot() {
+  // Setting history.scrollRestoration directly is not enough. ScrollTrigger
+  // snapshots the value at *import* time — which happens before boot() runs —
+  // and restores its snapshot later, putting "auto" back. The browser then
+  // restores the previous scroll offset on reload, which on this very tall
+  // page meant refreshing could drop a visitor thousands of pixels down.
+  // clearScrollMemory updates ScrollTrigger's snapshot and history together,
+  // so the setting actually sticks.
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  ScrollTrigger.clearScrollMemory("manual");
   window.scrollTo(0, 0);
 
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
