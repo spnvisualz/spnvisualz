@@ -223,46 +223,28 @@
   opacity: .72;
   cursor: not-allowed;
 }
+/* Manual ad container.
+   Collapsed by default: no height, no borders, no background, no visible
+   "reserved" box. It only takes up space once ads.js has actually
+   rendered an ad into it (data-ad-state="loaded"). An empty advertising
+   placeholder is both an AdSense policy problem and dead space for a
+   visitor, so there is deliberately nothing to look at until real
+   content exists. */
 .spn-ad-reserve {
+  display: none;
   width: min(100%, 920px);
-  min-height: 190px;
-  margin: clamp(64px, 10vw, 112px) auto;
+  margin: 0 auto;
+  contain: layout paint;
+}
+.spn-ad-reserve[data-ad-state="loaded"] {
   display: grid;
   align-items: center;
+  min-height: 280px;
+  margin: clamp(64px, 10vw, 112px) auto;
+  padding: 16px 0;
   overflow: hidden;
   border-top: 1px solid rgba(217,216,223,.15);
   border-bottom: 1px solid rgba(217,216,223,.15);
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.018), transparent);
-  contain: layout paint;
-}
-.spn-ad-reserve__fallback {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 22px;
-  padding: 28px 6px;
-}
-.spn-ad-reserve__mark {
-  color: var(--spn-violet);
-  font-size: 10px;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-}
-.spn-ad-reserve__line {
-  color: rgba(245,242,251,.38);
-  font-size: 12px;
-  line-height: 1.5;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-.spn-ad-reserve[data-ad-state="loaded"] {
-  min-height: 280px;
-  padding: 16px 0;
-}
-.spn-ad-reserve[data-ad-state="loaded"] .spn-ad-reserve__fallback {
-  display: none;
 }
 .spn-ad-reserve .adsbygoogle {
   width: 100%;
@@ -291,8 +273,8 @@
   .spn-consent-layer { align-items: end; padding: 10px; }
   .spn-consent-card { max-height: calc(100dvh - 20px); }
   .spn-consent-card__body { padding: 24px 19px; }
-  .spn-ad-reserve {
-    min-height: 160px;
+  .spn-ad-reserve[data-ad-state="loaded"] {
+    min-height: 200px;
     margin: 56px auto;
   }
 }

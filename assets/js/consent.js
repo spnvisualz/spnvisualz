@@ -1,6 +1,21 @@
 (() => {
   "use strict";
 
+  /*
+   * Built-in privacy banner — ANALYTICS ONLY.
+   *
+   * This banner is NOT a Google-certified CMP. It therefore must never
+   * grant advertising consent: doing so would mean serving ads on a
+   * consent signal Google does not recognise. It previously offered an
+   * "Advertising" toggle that flipped ad_storage / ad_user_data /
+   * ad_personalization to granted, which is exactly that problem.
+   *
+   * Advertising consent now has exactly one legitimate source: a
+   * Google-certified CMP calling SPNConsent.syncFromCmp(). Until that is
+   * deployed, the ad_* signals stay denied for every visitor and ads.js
+   * refuses to request or render anything.
+   */
+
   const config = window.SPN_CONFIG?.consent || {};
   const storageKey = config.storageKey || "spn_privacy_choices";
   const consentVersion = config.version || "1";
@@ -19,17 +34,23 @@
   });
   window.gtag("set", "ads_data_redaction", true);
 
-  const normalize = (value = {}) => ({
+  // `advertising` is only ever true when a certified CMP supplied it.
+  // Any other source (the built-in banner, stored state written before
+  // this rule existed, a stray API call) is normalised back to false.
+  const normalize = (value = {}, source = "") => ({
     necessary: true,
     analytics: value.analytics === true,
-    advertising: value.advertising === true
+    advertising: value.advertising === true && source === "certified_cmp"
   });
 
   const readStored = () => {
     try {
       const stored = JSON.parse(localStorage.getItem(storageKey) || "null");
       if (!stored || stored.version !== consentVersion) return null;
-      return normalize(stored);
+      // Stored advertising grants are re-validated against their source,
+      // so a consent given to the old uncertified banner does not carry
+      // over as an advertising grant after this change.
+      return normalize(stored, stored.source === "certified_cmp" ? "certified_cmp" : "");
     } catch (_) {
       return null;
     }
@@ -59,12 +80,13 @@
   };
 
   const save = (next, source = "banner") => {
-    state = normalize(next);
+    state = normalize(next, source);
     hasDecision = true;
     try {
       localStorage.setItem(storageKey, JSON.stringify({
         ...state,
         version: consentVersion,
+        source,
         updatedAt: new Date().toISOString()
       }));
     } catch (_) {}
@@ -87,9 +109,7 @@
     document.body.classList.toggle("consent-open", view === "preferences");
     layer.querySelector("[role=\"dialog\"]")?.setAttribute("aria-modal", String(view === "preferences"));
     const analytics = layer.querySelector("#spnConsentAnalytics");
-    const advertising = layer.querySelector("#spnConsentAdvertising");
     if (analytics) analytics.checked = state.analytics;
-    if (advertising) advertising.checked = state.advertising;
     requestAnimationFrame(() => {
       const target = layer.querySelector(view === "preferences" ? "#spnConsentSave" : "#spnConsentAccept");
       target?.focus();
@@ -110,7 +130,7 @@
           <div>
             <p class="spn-consent-kicker">SPNVISUALZ / PRIVACY</p>
             <h2 id="spnConsentTitle">Your visit. Your choice.</h2>
-            <p>We use optional measurement to understand what visitors value. Advertising technology is reserved for Visual Lab and stays off unless you allow it.</p>
+            <p>We use optional analytics to understand what visitors value. No advertising or ad-personalisation cookies are used on this site.</p>
           </div>
           <div class="spn-consent-actions">
             <button type="button" class="spn-consent-primary" id="spnConsentAccept">Accept all</button>
@@ -133,10 +153,6 @@
               <span><strong>Analytics</strong><small>Anonymous traffic and interaction measurement through GA4 after activation.</small></span>
               <input type="checkbox" id="spnConsentAnalytics"><i aria-hidden="true"></i>
             </label>
-            <label>
-              <span><strong>Advertising</strong><small>AdSense inside eligible Visual Lab content after certified CMP activation.</small></span>
-              <input type="checkbox" id="spnConsentAdvertising"><i aria-hidden="true"></i>
-            </label>
           </div>
           <p class="spn-consent-note">You can change this later from “Privacy settings” in the footer. Read the <a href="/privacy/">privacy notice</a>.</p>
           <div class="spn-consent-actions">
@@ -149,13 +165,12 @@
 
     document.body.append(layer);
 
-    layer.querySelector("#spnConsentAccept")?.addEventListener("click", () => save({ analytics: true, advertising: true }, "accept_all"));
-    layer.querySelector("#spnConsentAcceptPreferences")?.addEventListener("click", () => save({ analytics: true, advertising: true }, "accept_all"));
+    layer.querySelector("#spnConsentAccept")?.addEventListener("click", () => save({ analytics: true }, "accept_all"));
+    layer.querySelector("#spnConsentAcceptPreferences")?.addEventListener("click", () => save({ analytics: true }, "accept_all"));
     layer.querySelector("#spnConsentNecessary")?.addEventListener("click", () => save(defaults, "necessary_only"));
     layer.querySelector("#spnConsentManage")?.addEventListener("click", () => openLayer("preferences"));
     layer.querySelector("#spnConsentSave")?.addEventListener("click", () => save({
-      analytics: layer.querySelector("#spnConsentAnalytics")?.checked === true,
-      advertising: layer.querySelector("#spnConsentAdvertising")?.checked === true
+      analytics: layer.querySelector("#spnConsentAnalytics")?.checked === true
     }, "custom"));
     layer.querySelector("#spnConsentClose")?.addEventListener("click", () => {
       if (hasDecision) closeLayer();
@@ -183,6 +198,7 @@
   window.SPNConsent = Object.freeze({
     get: () => ({ ...state }),
     hasDecision: () => hasDecision,
+    // Cannot grant advertising — normalize() rejects it from this source.
     set: (next) => save(next, "api"),
     open: () => openLayer("preferences"),
     // A certified CMP bridge can call this after it resolves a TCF decision.

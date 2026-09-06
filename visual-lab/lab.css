@@ -1566,3 +1566,51 @@ button, input { font: inherit; }
   .lab-card,
   .lab-feature { transform: none !important; }
 }
+
+/* ============ CASE-STUDY IMAGE SLOTS ============
+   Prepared positions for additional genuine project photography inside the
+   case studies. Each slot ships with the `hidden` attribute so nothing
+   empty or unfinished is ever shown to a reader — deliberately, since a
+   visible "image pending" box reads as incomplete content.
+
+   To publish one: drop the real file into /assets/, set the <img> src,
+   alt, width and height, write the caption, and remove `hidden` from the
+   <figure>. No CSS changes needed. */
+.lab-figure-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: clamp(12px, 2vw, 20px);
+  margin: clamp(32px, 5vw, 56px) 0;
+}
+.lab-figure-slot {
+  position: relative;
+  margin: clamp(32px, 5vw, 56px) 0;
+  overflow: hidden;
+  background: #0b0a0d;
+  border: 1px solid rgba(217,216,223,.12);
+}
+.lab-figure-pair .lab-figure-slot { margin: 0; }
+.lab-figure-slot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  filter: saturate(.62) contrast(1.07) brightness(.75);
+}
+.lab-figure-slot figcaption {
+  padding: 12px 14px;
+  color: rgba(244,241,248,.58);
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: .04em;
+  border-top: 1px solid rgba(217,216,223,.1);
+}
+.lab-figure-slot figcaption b {
+  display: block;
+  margin-bottom: 3px;
+  color: rgba(244,241,248,.82);
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
