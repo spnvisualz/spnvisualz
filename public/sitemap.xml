@@ -3,7 +3,7 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://spnvisualz.com/</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image><image:loc>https://spnvisualz.com/assets/spnvisualz-social.jpg</image:loc></image:image>
@@ -13,7 +13,7 @@
   </url>
   <url>
     <loc>https://spnvisualz.com/work/</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <image:image><image:loc>https://spnvisualz.com/assets/work-icekiid.webp</image:loc></image:image>
@@ -22,85 +22,96 @@
   </url>
   <url>
     <loc>https://spnvisualz.com/work/icekiid/</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image><image:loc>https://spnvisualz.com/assets/work-icekiid.webp</image:loc></image:image>
   </url>
   <url>
     <loc>https://spnvisualz.com/work/gezana-x-lalux/</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image><image:loc>https://spnvisualz.com/assets/work-gezana-lalux.webp</image:loc></image:image>
   </url>
   <url>
     <loc>https://spnvisualz.com/websites/</loc>
-    <lastmod>2026-08-16</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://spnvisualz.com/visual-lab/</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image><image:loc>https://spnvisualz.com/assets/brand-glowvana.jpg</image:loc></image:image>
   </url>
   <url>
     <loc>https://spnvisualz.com/visual-lab/articles/how-to-make-a-brand-look-expensive/</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image><image:loc>https://spnvisualz.com/assets/brand-glowvana.jpg</image:loc></image:image>
   </url>
   <url>
     <loc>https://spnvisualz.com/visual-lab/articles/logo-design-trends-2026/</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image><image:loc>https://spnvisualz.com/assets/brand-gezana.jpg</image:loc></image:image>
   </url>
   <url>
     <loc>https://spnvisualz.com/visual-lab/articles/dark-website-design-inspiration/</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image><image:loc>https://spnvisualz.com/assets/work-3.jpg</image:loc></image:image>
   </url>
   <url>
     <loc>https://spnvisualz.com/visual-lab/articles/animated-logo-vs-static-logo/</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image><image:loc>https://spnvisualz.com/assets/work-1.jpg</image:loc></image:image>
   </url>
   <url>
     <loc>https://spnvisualz.com/visual-lab/articles/gezana-events-visual-identity-case-study/</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image><image:loc>https://spnvisualz.com/assets/brand-gezana.jpg</image:loc></image:image>
   </url>
   <url>
     <loc>https://spnvisualz.com/visual-lab/articles/glowvana-beauty-brand-identity-case-study/</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image><image:loc>https://spnvisualz.com/assets/brand-glowvana.jpg</image:loc></image:image>
   </url>
   <url>
     <loc>https://spnvisualz.com/visual-lab/articles/tao-black-chrome-motion-loop-case-study/</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image><image:loc>https://spnvisualz.com/assets/work-3.jpg</image:loc></image:image>
   </url>
   <url>
     <loc>https://spnvisualz.com/privacy/</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
-  <url><loc>https://spnvisualz.com/about/</loc></url>
+  <url>
+    <loc>https://spnvisualz.com/about/</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://spnvisualz.com/visual-lab/author/chubae/</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
 </urlset>

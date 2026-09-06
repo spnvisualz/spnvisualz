@@ -29,6 +29,12 @@ const STATIC_REDIRECT_STUBS = [
   "work.html"
 ];
 
+// Authoring artifacts that must never reach the published site. The
+// article template is a scaffold full of unresolved {{PLACEHOLDER}}
+// tokens — harmless in the repo, but a reviewer or crawler reaching it
+// on the live domain sees a broken, contentless page.
+const EXCLUDED_FROM_BUILD = new Set(["article-template.html"]);
+
 function copyStaticSubsites() {
   return {
     name: "copy-static-subsites",
@@ -37,7 +43,10 @@ function copyStaticSubsites() {
       for (const dir of STATIC_SUBSITES) {
         const src = resolve(__dirname, dir);
         if (!existsSync(src)) continue;
-        cpSync(src, resolve(__dirname, "dist", dir), { recursive: true });
+        cpSync(src, resolve(__dirname, "dist", dir), {
+          recursive: true,
+          filter: (from) => !EXCLUDED_FROM_BUILD.has(from.split("/").pop())
+        });
       }
       for (const file of STATIC_REDIRECT_STUBS) {
         const src = resolve(__dirname, file);
