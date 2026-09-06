@@ -1,0 +1,49 @@
+{
+  "name": "SPNVISUALZ",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+
+  "features": {
+    // ffmpeg is part of this project's real workflow, not an extra: every
+    // Selected Work clip is transcoded to a desktop and a mobile variant
+    // and checked for a clean loop point. git-lfs is required to fetch
+    // original master media (see .gitattributes).
+    "ghcr.io/devcontainers/features/git-lfs:1": {},
+    "ghcr.io/devcontainers-extra/features/ffmpeg-apt-get:1": {}
+  },
+
+  "onCreateCommand": "npm ci || npm install",
+
+  "postAttachCommand": {
+    "hint": "echo 'SPNVISUALZ ready. npm run dev = local preview. Push to main = build + deploy via GitHub Actions.'"
+  },
+
+  "forwardPorts": [5173],
+  "portsAttributes": {
+    "5173": {
+      "label": "Vite dev server",
+      "onAutoForward": "openPreview"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "slevesque.shader"
+      ],
+      "settings": {
+        "editor.formatOnSave": false,
+        "files.eol": "\n"
+      }
+    }
+  },
+
+  // The repo carries ~130MB of optimized web video. A 4-core machine keeps
+  // checkout and `vite build` comfortable; 2-core works but is slow on the
+  // asset copy.
+  "hostRequirements": {
+    "cpus": 4
+  }
+}
