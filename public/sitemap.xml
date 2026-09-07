@@ -42,10 +42,17 @@
   </url>
   <url>
     <loc>https://spnvisualz.com/visual-lab/</loc>
-    <lastmod>2026-09-06</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image><image:loc>https://spnvisualz.com/assets/brand-glowvana.jpg</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://spnvisualz.com/visual-lab/articles/event-visual-design-trends-2026/</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://spnvisualz.com/assets/spnvisualz-social.jpg</image:loc></image:image>
   </url>
   <url>
     <loc>https://spnvisualz.com/visual-lab/articles/how-to-make-a-brand-look-expensive/</loc>
