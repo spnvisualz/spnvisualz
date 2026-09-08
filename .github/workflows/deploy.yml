@@ -72,6 +72,26 @@ jobs:
           # tokens and must never be published.
           [ -e dist/visual-lab/article-template.html ] && fail "article-template.html must not be published"
 
+          # Every homepage section must survive a build. An earlier edit to
+          # the Selected Work markup anchored on the last "</article>" in
+          # the document — which belongs to a pricing card — and silently
+          # deleted the whole Services and Pricing sections. Nothing caught
+          # it until it was live.
+          for chapter in origin manifesto work services pricing process lab contact; do
+            grep -q "data-chapter=\"$chapter\"" dist/index.html || fail "homepage section missing: $chapter"
+          done
+
+          # Counts, so a section cannot survive as an empty shell.
+          check_count () {
+            local pattern="$1" expected="$2" label="$3"
+            local n; n=$(grep -c "$pattern" dist/index.html || true)
+            [ "$n" -ge "$expected" ] || fail "$label: expected at least $expected, found $n"
+          }
+          check_count 'service-row'  6 "service rows"
+          check_count 'price-row'    4 "pricing rows"
+          check_count 'bundle-card'  3 "pricing bundles"
+          check_count 'data-order'   4 "order buttons"
+
           # Selected Work is the portfolio; an empty container means the
           # markup regressed to being JS-generated.
           items=$(grep -c 'class="work-item"' dist/index.html || true)

@@ -104,6 +104,24 @@ jobs:
           print("all internal links and assets resolve")
           PY
 
+      - name: Check homepage sections survived the build
+        run: |
+          set -euo pipefail
+          fail() { echo "::error::$1"; exit 1; }
+          for chapter in origin manifesto work services pricing process lab contact; do
+            grep -q "data-chapter=\"$chapter\"" dist/index.html || fail "homepage section missing: $chapter"
+          done
+          check_count () {
+            local n; n=$(grep -c "$1" dist/index.html || true)
+            [ "$n" -ge "$2" ] || fail "$3: expected at least $2, found $n"
+          }
+          check_count 'class="work-item"' 9 "work items"
+          check_count 'service-row'       6 "service rows"
+          check_count 'price-row'         4 "pricing rows"
+          check_count 'bundle-card'       3 "pricing bundles"
+          check_count 'data-order'        4 "order buttons"
+          echo "all homepage sections present"
+
       - name: Advertising policy checks
         run: |
           set -euo pipefail
