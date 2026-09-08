@@ -6,7 +6,7 @@ export const PROJECTS = [
     slug: "icekiid",
     aspect: 16 / 9,
     number: "01",
-    tag: "FROZEN IDENTITY",
+    tag: "ARTIST MOTION LOOP",
     title: "Icekiid",
     description: "Ice-built lettering and sharp stage motion designed to land with impact.",
     video: "/assets/videos/work/icekiid.mp4",
@@ -14,15 +14,15 @@ export const PROJECTS = [
     poster: "/assets/images/work/icekiid.jpg"
   },
   {
-    slug: "gezana-x-lalux",
+    slug: "byron-messia",
     aspect: 16 / 9,
     number: "02",
-    tag: "EVENT COLLABORATION",
-    title: "Gezana × LaLux",
-    description: "Two nightlife identities united in one electric motion piece.",
-    video: "/assets/videos/work/gezana-x-lalux.mp4",
-    videoMobile: "/assets/videos/work/gezana-x-lalux-mobile.mp4",
-    poster: "/assets/images/work/gezana-x-lalux.jpg"
+    tag: "ARTIST MOTION LOOP",
+    title: "Byron Messia",
+    description: "Motion identity built for an artist's release cycle.",
+    video: "/assets/videos/work/byron-messia.mp4",
+    videoMobile: "/assets/videos/work/byron-messia-mobile.mp4",
+    poster: "/assets/images/work/byron-messia.jpg"
   },
   {
     slug: "3-nation-studios",
@@ -36,43 +36,10 @@ export const PROJECTS = [
     poster: "/assets/images/work/3-nation-studios.jpg"
   },
   {
-    slug: "gezana-events",
-    aspect: 16 / 9,
-    number: "04",
-    tag: "EVENT IDENTITY",
-    title: "Gezana Events",
-    description: "Luxury emblem animation built for nightlife, events and social campaigns.",
-    video: "/assets/videos/work/gezana-events.mp4",
-    videoMobile: "/assets/videos/work/gezana-events-mobile.mp4",
-    poster: "/assets/images/work/gezana-events.jpg"
-  },
-  {
-    slug: "prince-o",
-    aspect: 2 / 1,
-    number: "05",
-    tag: "EMBLEM MOTION",
-    title: "Prince O",
-    description: "A dark chrome signature engineered to land with impact in every reveal.",
-    video: "/assets/videos/work/prince-o.mp4",
-    videoMobile: "/assets/videos/work/prince-o-mobile.mp4",
-    poster: "/assets/images/work/prince-o.jpg"
-  },
-  {
-    slug: "byron-messia",
-    aspect: 16 / 9,
-    number: "06",
-    tag: "ARTIST MOTION",
-    title: "Byron Messia",
-    description: "Motion identity built for an artist's release cycle.",
-    video: "/assets/videos/work/byron-messia.mp4",
-    videoMobile: "/assets/videos/work/byron-messia-mobile.mp4",
-    poster: "/assets/images/work/byron-messia.jpg"
-  },
-  {
     slug: "motion-view",
     aspect: 16 / 9,
-    number: "07",
-    tag: "VISUAL LOOP",
+    number: "04",
+    tag: "BRAND VISUAL",
     title: "Motion View",
     description: "An atmospheric motion loop built for screens and social playback.",
     video: "/assets/videos/work/motion-view.mp4",
@@ -80,10 +47,21 @@ export const PROJECTS = [
     poster: "/assets/images/work/motion-view.jpg"
   },
   {
+    slug: "prince-o",
+    aspect: 2 / 1,
+    number: "05",
+    tag: "ARTIST VISUALS",
+    title: "Prince O",
+    description: "A dark chrome signature engineered to land with impact in every reveal.",
+    video: "/assets/videos/work/prince-o.mp4",
+    videoMobile: "/assets/videos/work/prince-o-mobile.mp4",
+    poster: "/assets/images/work/prince-o.jpg"
+  },
+  {
     slug: "tao-1",
     aspect: 2 / 1,
-    number: "08",
-    tag: "ARTIST INTRO",
+    number: "06",
+    tag: "ARTIST MOTION LOOP",
     title: "TAO 1.0",
     description: "A cinematic artist mark shaped through metal, movement and atmosphere.",
     video: "/assets/videos/work/tao-1.mp4",
@@ -93,12 +71,34 @@ export const PROJECTS = [
   {
     slug: "tao-2",
     aspect: 2 / 1,
-    number: "09",
-    tag: "ARTIST WORLD",
+    number: "07",
+    tag: "ARTIST INTRO",
     title: "TAO 2.0",
     description: "An extended visual world built around the same identity.",
     video: "/assets/videos/work/tao-2.mp4",
     videoMobile: "/assets/videos/work/tao-2-mobile.mp4",
     poster: "/assets/images/work/tao-2.jpg"
+  },
+  {
+    slug: "gezana-x-lalux",
+    aspect: 16 / 9,
+    number: "08",
+    tag: "EVENT COLLABORATION",
+    title: "Gezana × LaLux",
+    description: "Two nightlife identities united in one electric motion piece.",
+    video: "/assets/videos/work/gezana-x-lalux.mp4",
+    videoMobile: "/assets/videos/work/gezana-x-lalux-mobile.mp4",
+    poster: "/assets/images/work/gezana-x-lalux.jpg"
+  },
+  {
+    slug: "gezana-events",
+    aspect: 16 / 9,
+    number: "09",
+    tag: "EVENT IDENTITY",
+    title: "Gezana Events",
+    description: "Luxury emblem animation built for nightlife, events and social campaigns.",
+    video: "/assets/videos/work/gezana-events.mp4",
+    videoMobile: "/assets/videos/work/gezana-events-mobile.mp4",
+    poster: "/assets/images/work/gezana-events.jpg"
   }
 ];
