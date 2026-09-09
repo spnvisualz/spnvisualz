@@ -80,25 +80,19 @@ export const PROJECTS = [
     poster: "/assets/images/work/tao-2.jpg"
   },
   {
-    slug: "gezana-x-lalux",
-    aspect: 16 / 9,
-    number: "08",
-    tag: "EVENT COLLABORATION",
-    title: "Gezana × LaLux",
-    description: "Two nightlife identities united in one electric motion piece.",
-    video: "/assets/videos/work/gezana-x-lalux.mp4",
-    videoMobile: "/assets/videos/work/gezana-x-lalux-mobile.mp4",
-    poster: "/assets/images/work/gezana-x-lalux.jpg"
-  },
-  {
     slug: "gezana-events",
     aspect: 16 / 9,
-    number: "09",
+    number: "08",
     tag: "EVENT IDENTITY",
     title: "Gezana Events",
     description: "Luxury emblem animation built for nightlife, events and social campaigns.",
-    video: "/assets/videos/work/gezana-events.mp4",
-    videoMobile: "/assets/videos/work/gezana-events-mobile.mp4",
-    poster: "/assets/images/work/gezana-events.jpg"
+    // Rendered live in 3D rather than played as a video — see LogoPanel.
+    // The emblem is the delivered artwork, alpha-keyed from the piece; the
+    // depth, lighting and motion around it are generated in the browser.
+    logo3d: {
+      src: "/assets/images/work/gezana-events-mark.png",
+      tint: "#ffe0a3"
+    },
+    poster: "/assets/images/work/gezana-events-mark.png"
   }
 ];

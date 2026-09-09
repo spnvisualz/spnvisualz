@@ -115,7 +115,8 @@ jobs:
             local n; n=$(grep -c "$1" dist/index.html || true)
             [ "$n" -ge "$2" ] || fail "$3: expected at least $2, found $n"
           }
-          check_count 'class="work-item"' 9 "work items"
+          expected_items=$(grep -c 'slug:' src/work/projects.js)
+          check_count 'class="work-item"' "$expected_items" "work items"
           check_count 'service-row'       6 "service rows"
           check_count 'price-row'         4 "pricing rows"
           check_count 'bundle-card'       3 "pricing bundles"

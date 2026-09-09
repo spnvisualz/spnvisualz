@@ -94,8 +94,13 @@ jobs:
 
           # Selected Work is the portfolio; an empty container means the
           # markup regressed to being JS-generated.
+          # Count comes from src/work/projects.js so the guard follows the
+          # portfolio instead of pinning a number that has to be chased by
+          # hand every time a project is added or removed.
+          expected=$(grep -c 'slug:' src/work/projects.js)
           items=$(grep -c 'class="work-item"' dist/index.html || true)
-          [ "$items" -eq 9 ] || fail "expected 9 work items in dist/index.html, found $items"
+          [ "$items" -eq "$expected" ] || fail "expected $expected work items in dist/index.html, found $items"
+          [ "$items" -ge 5 ] || fail "only $items work items — the portfolio looks truncated"
 
           # Every referenced work video must actually be present.
           missing=0
