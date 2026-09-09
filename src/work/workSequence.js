@@ -1,6 +1,5 @@
 import { PROJECTS } from "./projects.js";
 import { gsap, ScrollTrigger } from "../motion/scrollTimeline.js";
-import { mountLogoPanel } from "../three/scenes/LogoPanel.js";
 
 // Selected Work, rebuilt as real DOM video scenes.
 //
@@ -60,11 +59,7 @@ export function initWorkSequence({ reduceMotion = false } = {}) {
   const items = PROJECTS.map((project, i) => {
     const article = track.querySelector(`.work-item[data-index="${i}"]`);
     if (!article) return null;
-    return {
-      project, article, index: i,
-      video: article.querySelector("video"),
-      media: article.querySelector(".work-item__media")
-    };
+    return { project, article, video: article.querySelector("video"), index: i };
   }).filter(Boolean);
 
   if (!items.length) return null;
@@ -87,7 +82,6 @@ export function initWorkSequence({ reduceMotion = false } = {}) {
   const PRELOAD_DEFER_MS = 400;
 
   const attachSource = (item, { eager = false } = {}) => {
-    if (!item.video) return;
     if (item.video.dataset.loaded) return;
 
     if (!eager) {
@@ -116,7 +110,6 @@ export function initWorkSequence({ reduceMotion = false } = {}) {
   // showing its real still image while unloaded, and scrolling back
   // re-fetches from cache.
   const releaseSource = (item) => {
-    if (!item.video) return;
     if (item.preloadTimer) {
       clearTimeout(item.preloadTimer);
       item.preloadTimer = null;
@@ -132,7 +125,6 @@ export function initWorkSequence({ reduceMotion = false } = {}) {
   };
 
   const play = (item) => {
-    if (!item.video) return;
     attachSource(item, { eager: true });
     if (item.playing) return;
     item.playing = true;
@@ -147,7 +139,6 @@ export function initWorkSequence({ reduceMotion = false } = {}) {
   };
 
   const pause = (item) => {
-    if (!item.video) return;
     if (!item.playing) return;
     item.playing = false;
     const stop = () => {
@@ -213,16 +204,6 @@ export function initWorkSequence({ reduceMotion = false } = {}) {
         if (item.article.classList.contains("is-visible")) play(item);
       });
     }
-  });
-
-  // --- live 3D panels ------------------------------------------------
-  // These render their mark as real geometry instead of playing a file.
-  // mountLogoPanel gates its own frames on visibility, so an off-screen
-  // panel costs nothing.
-  items.forEach((item) => {
-    if (!item.project.logo3d || !item.media) return;
-    item.media.classList.add("work-item__media--logo");
-    mountLogoPanel(item.media, item.project.logo3d);
   });
 
   // --- index readout ------------------------------------------------
