@@ -64,43 +64,11 @@
     }
   }
 
-  const labWorld = document.querySelector("[data-lab-world]");
-  const finePointer = window.matchMedia("(pointer: fine)").matches;
-  let spatialFrame = 0;
-  let pointerX = 0;
-  let pointerY = 0;
-
-  const renderSpatialLab = () => {
-    const heroProgress = Math.min(1, Math.max(0, window.scrollY / Math.max(1, window.innerHeight)));
-    root.style.setProperty("--lab-world-x", (pointerX * 22).toFixed(2) + "px");
-    root.style.setProperty("--lab-world-y", (heroProgress * 96 + pointerY * 14).toFixed(2) + "px");
-    root.style.setProperty("--lab-world-rx", (-pointerY * 7 + heroProgress * 3).toFixed(2) + "deg");
-    root.style.setProperty("--lab-world-ry", (pointerX * 10 - heroProgress * 5).toFixed(2) + "deg");
-    root.style.setProperty("--lab-hero-drift", (heroProgress * 72).toFixed(2) + "px");
-    spatialFrame = 0;
-  };
-
-  const scheduleSpatialLab = () => {
-    if (spatialFrame) return;
-    spatialFrame = requestAnimationFrame(renderSpatialLab);
-  };
-
-  if (labWorld && !reducedMotion) {
-    addEventListener("scroll", scheduleSpatialLab, { passive: true });
-    if (finePointer) {
-      addEventListener("pointermove", event => {
-        pointerX = event.clientX / Math.max(1, innerWidth) - .5;
-        pointerY = event.clientY / Math.max(1, innerHeight) - .5;
-        scheduleSpatialLab();
-      }, { passive: true });
-      addEventListener("pointerleave", () => {
-        pointerX = 0;
-        pointerY = 0;
-        scheduleSpatialLab();
-      }, { passive: true });
-    }
-    renderSpatialLab();
-  }
+  // The hero's parallax used to live here, nudging CSS custom properties on
+  // a PNG-and-rings mock-up. That mock-up is gone: the landing page now
+  // renders a real Three.js specimen (src/visual-lab/labHero.js), which reads
+  // pointer and scroll inside its own render loop. This file stays the plain
+  // script the ten article pages load, so it must not grow a 3D dependency.
 
   const topicForm = document.querySelector("[data-topic-form]");
   if (topicForm) {

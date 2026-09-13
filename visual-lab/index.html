@@ -26,6 +26,7 @@
   <link rel="manifest" href="/site.webmanifest">
   <link rel="stylesheet" href="/assets/css/monetization.css?v=20260906.1">
   <link rel="stylesheet" href="/visual-lab/lab.css?v=20260901.1">
+  <link rel="stylesheet" href="/visual-lab/lab-home.css?v=20260913.1">
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -56,7 +57,7 @@
   <script src="/assets/js/consent.js?v=20260906.1"></script>
 <script src="/assets/js/analytics.js?v=20260809.2" defer></script>
 </head>
-<body class="lab-page">
+<body class="lab-page vl-page">
   <a class="lab-skip" href="#main">Skip to content</a>
   <div class="lab-boot" data-lab-boot hidden aria-hidden="true">
     <div class="lab-boot__inner">
@@ -84,179 +85,241 @@
   </header>
 
   <main id="main">
-    <section class="lab-hero" data-section-track="visual_lab_hero">
-      <div class="lab-orbit" aria-hidden="true"></div>
-      <div class="lab-hero__world" data-lab-world aria-hidden="true">
-        <span class="lab-hero__world-aura"></span>
-        <span class="lab-hero__world-ring lab-hero__world-ring--one"></span>
-        <span class="lab-hero__world-ring lab-hero__world-ring--two"></span>
-        <img src="/assets/spn-orbit-transparent.png" alt="" width="1097" height="706" fetchpriority="high" decoding="async">
-        <small>SPN / RESEARCH ORBIT</small>
-      </div>
-      <div class="lab-shell lab-hero__grid">
-        <div>
-          <p class="lab-kicker">Ideas built for visual impact</p>
-          <h1>Visual <span>Lab</span></h1>
+    <section class="vl-hero" data-section-track="visual_lab_hero">
+      <div class="vl-hero__stage" aria-hidden="true">
+        <canvas class="vl-hero__canvas" data-lab-canvas></canvas>
+        <div class="vl-hero__fallback">
+          <img src="/assets/spn-orbit-transparent.png" alt="" width="1097" height="706" fetchpriority="high" decoding="async">
         </div>
-        <div class="lab-hero__side">
-          <p>A field journal for brands, designers and founders who care about how things feel—not just how they look.</p>
-          <div class="lab-hero__index"><span>Original studio notes</span><span>2026—</span></div>
+      </div>
+
+      <div class="lab-shell vl-hero__inner">
+        <p class="vl-eyebrow">
+          <span class="vl-eyebrow__dot" aria-hidden="true"></span>
+          Specimen 001 — Obsidian chrome
+        </p>
+        <h1 class="vl-title">
+          <span class="vl-title__line">Visual</span>
+          <span class="vl-title__line vl-title__line--chrome">Lab</span>
+        </h1>
+        <p class="vl-deck">
+          A field journal for brands, designers and founders who care about how
+          things <em>feel</em> — not just how they look. We take one visual
+          decision apart at a time and show the working.
+        </p>
+        <div class="vl-hero__actions">
+          <a class="vl-hero__cta" href="#archive">
+            Enter the archive <span class="lab-arrow" aria-hidden="true"></span>
+          </a>
+          <a class="vl-hero__ghost" href="#topics">Browse by topic</a>
+        </div>
+      </div>
+
+      <div class="lab-shell vl-hero__rail">
+        <dl class="vl-specs">
+          <div class="vl-specs__item"><dt>Archive</dt><dd>001</dd></div>
+          <div class="vl-specs__item"><dt>Files</dt><dd>08</dd></div>
+          <div class="vl-specs__item"><dt>Opened</dt><dd>2026</dd></div>
+          <div class="vl-specs__item"><dt>Studio</dt><dd>Norway</dd></div>
+        </dl>
+        <div class="vl-readout" data-lab-readout hidden>
+          <span class="vl-readout__label">Signal</span>
+          <span class="vl-readout__meter" data-lab-level aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+          <span class="vl-readout__label">Sweep</span>
+          <span class="vl-readout__value" data-lab-sweeps>000</span>
         </div>
       </div>
     </section>
 
-    <div class="lab-marquee" aria-hidden="true">
-      <div class="lab-marquee__track">
+    <div class="vl-ticker" aria-hidden="true">
+      <div class="vl-ticker__track">
         <span>Logo Design</span><span>Branding</span><span>Chrome</span><span>Motion</span><span>3D Design</span><span>Creative Direction</span><span>Website Design</span>
         <span>Logo Design</span><span>Branding</span><span>Chrome</span><span>Motion</span><span>3D Design</span><span>Creative Direction</span><span>Website Design</span>
       </div>
     </div>
 
-    <section class="lab-section" data-section-track="visual_lab_featured">
+    <section class="vl-section" data-section-track="visual_lab_featured">
       <div class="lab-shell">
-        <header class="lab-section__head" data-reveal>
-          <span class="lab-section__no">01 / FEATURED SIGNAL</span>
-          <h2 class="lab-section__title">Featured</h2>
-          <p class="lab-section__intro">Practical creative direction, decoded through the details that make an identity feel considered, desirable and unmistakably its own.</p>
+        <header class="vl-head" data-reveal>
+          <span class="vl-head__no">01 / Featured signal</span>
+          <h2 class="vl-head__title">Featured</h2>
+          <p class="vl-head__intro">Practical creative direction, decoded through the details that make an identity feel considered, desirable and unmistakably its own.</p>
         </header>
-        <a class="lab-feature" href="/visual-lab/articles/how-to-make-a-brand-look-expensive/" data-visual-lab-article data-reveal>
-          <div class="lab-feature__visual">
+        <a class="vl-feature" href="/visual-lab/articles/how-to-make-a-brand-look-expensive/" data-visual-lab-article data-lab-pulse data-reveal>
+          <div class="vl-feature__visual">
             <img src="/assets/brand-glowvana.jpg" alt="Glowvana luxury beauty brand identity with pink chrome typography and packaging" width="1600" height="1200" loading="eager" fetchpriority="high">
-            <span class="lab-feature__scan" aria-hidden="true"></span>
+            <span class="vl-feature__sweep" aria-hidden="true"></span>
           </div>
-          <div class="lab-feature__body">
-            <div>
-              <div class="lab-feature__meta"><span>Branding</span><span>6 min read</span><span>Guide 001</span></div>
-              <h3>How to Make a Brand Look Expensive</h3>
-              <p>Luxury is not a font, a colour or a foil effect. It is the discipline of making every signal agree.</p>
-            </div>
-            <span class="lab-read-link">Enter the guide <span class="lab-arrow" aria-hidden="true"></span></span>
+          <div class="vl-feature__body">
+            <span class="vl-tag">Branding — Guide 001</span>
+            <h3>How to Make a Brand Look Expensive</h3>
+            <p>Luxury is not a font, a colour or a foil effect. It is the discipline of making every signal agree.</p>
+            <span class="vl-link">Enter the guide <span class="lab-arrow" aria-hidden="true"></span></span>
+            <span class="vl-feature__time">6 min read</span>
           </div>
         </a>
       </div>
     </section>
 
-    <section class="lab-section" data-section-track="visual_lab_topics">
+    <section class="vl-section" id="topics" data-section-track="visual_lab_topics">
       <div class="lab-shell">
-        <header class="lab-section__head" data-reveal>
-          <span class="lab-section__no">02 / TOPIC INDEX</span>
-          <h2 class="lab-section__title">Topics</h2>
-          <p class="lab-section__intro">Choose the area you are building. Each topic connects visual thinking to a real brand decision.</p>
+        <header class="vl-head" data-reveal>
+          <span class="vl-head__no">02 / Topic index</span>
+          <h2 class="vl-head__title">Topics</h2>
+          <p class="vl-head__intro">Choose the area you are building. Each topic connects visual thinking to a real brand decision.</p>
         </header>
-        <nav class="lab-categories" aria-label="Visual Lab topics" data-reveal>
-          <a class="lab-category" href="/visual-lab/articles/logo-design-trends-2026/" data-visual-lab-article>Logo design</a>
-          <a class="lab-category" href="/visual-lab/articles/how-to-make-a-brand-look-expensive/" data-visual-lab-article>Branding</a>
-          <a class="lab-category" href="/visual-lab/articles/logo-design-trends-2026/#precision-chrome" data-visual-lab-article>3D design</a>
-          <a class="lab-category" href="/visual-lab/articles/logo-design-trends-2026/#controlled-nostalgia" data-visual-lab-article>Chrome + Y2K</a>
-          <a class="lab-category" href="/visual-lab/articles/animated-logo-vs-static-logo/" data-visual-lab-article>Motion</a>
-          <a class="lab-category" href="/visual-lab/articles/event-visual-design-trends-2026/" data-visual-lab-article>Event visuals</a>
-          <a class="lab-category" href="/visual-lab/articles/how-to-make-a-brand-look-expensive/#build-a-core" data-visual-lab-article>Creative direction</a>
-          <a class="lab-category" href="/visual-lab/articles/dark-website-design-inspiration/" data-visual-lab-article>Website design</a>
+        <nav class="vl-index" aria-label="Visual Lab topics" data-reveal>
+          <a class="vl-index__row" href="/visual-lab/articles/logo-design-trends-2026/" data-visual-lab-article data-lab-pulse>
+            <span class="vl-index__no">01</span><span class="vl-index__name">Logo design</span><span class="lab-arrow" aria-hidden="true"></span>
+          </a>
+          <a class="vl-index__row" href="/visual-lab/articles/how-to-make-a-brand-look-expensive/" data-visual-lab-article data-lab-pulse>
+            <span class="vl-index__no">02</span><span class="vl-index__name">Branding</span><span class="lab-arrow" aria-hidden="true"></span>
+          </a>
+          <a class="vl-index__row" href="/visual-lab/articles/logo-design-trends-2026/#precision-chrome" data-visual-lab-article data-lab-pulse>
+            <span class="vl-index__no">03</span><span class="vl-index__name">3D design</span><span class="lab-arrow" aria-hidden="true"></span>
+          </a>
+          <a class="vl-index__row" href="/visual-lab/articles/logo-design-trends-2026/#controlled-nostalgia" data-visual-lab-article data-lab-pulse>
+            <span class="vl-index__no">04</span><span class="vl-index__name">Chrome + Y2K</span><span class="lab-arrow" aria-hidden="true"></span>
+          </a>
+          <a class="vl-index__row" href="/visual-lab/articles/animated-logo-vs-static-logo/" data-visual-lab-article data-lab-pulse>
+            <span class="vl-index__no">05</span><span class="vl-index__name">Motion</span><span class="lab-arrow" aria-hidden="true"></span>
+          </a>
+          <a class="vl-index__row" href="/visual-lab/articles/event-visual-design-trends-2026/" data-visual-lab-article data-lab-pulse>
+            <span class="vl-index__no">06</span><span class="vl-index__name">Event visuals</span><span class="lab-arrow" aria-hidden="true"></span>
+          </a>
+          <a class="vl-index__row" href="/visual-lab/articles/how-to-make-a-brand-look-expensive/#build-a-core" data-visual-lab-article data-lab-pulse>
+            <span class="vl-index__no">07</span><span class="vl-index__name">Creative direction</span><span class="lab-arrow" aria-hidden="true"></span>
+          </a>
+          <a class="vl-index__row" href="/visual-lab/articles/dark-website-design-inspiration/" data-visual-lab-article data-lab-pulse>
+            <span class="vl-index__no">08</span><span class="vl-index__name">Website design</span><span class="lab-arrow" aria-hidden="true"></span>
+          </a>
         </nav>
       </div>
     </section>
 
-    <section class="lab-section" id="latest" data-section-track="visual_lab_latest">
+    <section class="vl-section" id="archive" data-section-track="visual_lab_latest">
       <div class="lab-shell">
-        <header class="lab-section__head" data-reveal>
-          <span class="lab-section__no">03 / LATEST FILES</span>
-          <h2 class="lab-section__title">Latest</h2>
-          <p class="lab-section__intro">Eight carefully made starting points. More files will be added when there is something worth saying.</p>
+        <header class="vl-head" data-reveal>
+          <span class="vl-head__no">03 / Latest files</span>
+          <h2 class="vl-head__title">Archive</h2>
+          <p class="vl-head__intro">Eight carefully made starting points. More files will be added when there is something worth saying.</p>
         </header>
-        <div class="lab-grid">
-          <a class="lab-card" href="/visual-lab/articles/event-visual-design-trends-2026/" data-visual-lab-article data-reveal>
-            <div class="lab-card__image">
-              <img src="/assets/spnvisualz-social.jpg" alt="SPNVISUALZ chrome planet logo inside a dark violet cosmic motion world" width="1200" height="630" loading="lazy" decoding="async">
+        <div class="vl-archive">
+          <a class="vl-file vl-file--wide" href="/visual-lab/articles/event-visual-design-trends-2026/" data-visual-lab-article data-lab-pulse data-reveal>
+            <div class="vl-file__image">
+              <img src="/assets/work-2.jpg" alt="3NATION STUDIOS logo built as a red and chrome three-dimensional badge set with stones" width="1280" height="720" loading="lazy" decoding="async">
             </div>
-            <div class="lab-card__body">
-              <div class="lab-card__meta"><span>Event visual design</span><span>10 min</span></div>
+            <div class="vl-file__body">
+              <span class="vl-file__no">File 001</span>
               <h3>Event Visual Design Trends 2026</h3>
               <p>How to turn current visual signals into a coherent LED-screen, motion and social system for the whole show.</p>
-              <span class="lab-read-link">Open file <span class="lab-arrow" aria-hidden="true"></span></span>
+              <span class="vl-file__meta"><span>Event visual design</span><span>10 min</span></span>
             </div>
           </a>
-          <a class="lab-card" href="/visual-lab/articles/logo-design-trends-2026/" data-visual-lab-article data-reveal>
-            <div class="lab-card__image">
-              <img src="/assets/brand-gezana.jpg" alt="Gezana Events identity system presented in a premium dark brand board" width="1200" height="900" loading="lazy" decoding="async">
+          <a class="vl-file" href="/visual-lab/articles/logo-design-trends-2026/" data-visual-lab-article data-lab-pulse data-reveal>
+            <div class="vl-file__image">
+              <img src="/assets/work-4.jpg" alt="Polished chrome monogram and star emblem rendered in silver on a black background" width="1280" height="720" loading="lazy" decoding="async">
             </div>
-            <div class="lab-card__body">
-              <div class="lab-card__meta"><span>Logo design</span><span>6 min</span></div>
+            <div class="vl-file__body">
+              <span class="vl-file__no">File 002</span>
               <h3>Logo Design Trends 2026</h3>
               <p>The visual movements that matter—and how to use them without looking like everybody else.</p>
-              <span class="lab-read-link">Open file <span class="lab-arrow" aria-hidden="true"></span></span>
+              <span class="vl-file__meta"><span>Logo design</span><span>6 min</span></span>
             </div>
           </a>
-          <a class="lab-card" href="/visual-lab/articles/how-to-make-a-brand-look-expensive/" data-visual-lab-article data-reveal>
-            <div class="lab-card__image">
-              <img src="/assets/brand-glowvana.jpg" alt="Glowvana beauty brand board with metallic pink logo, business cards and icon system" width="1200" height="900" loading="lazy" decoding="async">
+          <a class="vl-file" href="/visual-lab/articles/how-to-make-a-brand-look-expensive/" data-visual-lab-article data-lab-pulse data-reveal>
+            <div class="vl-file__image">
+              <img src="/assets/spn-orbit.jpg" alt="SPNVISUALZ chrome planet emblem circled by a violet orbital ring on deep black" width="1280" height="720" loading="lazy" decoding="async">
             </div>
-            <div class="lab-card__body">
-              <div class="lab-card__meta"><span>Branding</span><span>6 min</span></div>
+            <div class="vl-file__body">
+              <span class="vl-file__no">File 003</span>
               <h3>How to Make a Brand Look Expensive</h3>
               <p>A practical guide to coherence, restraint, art direction and premium brand perception.</p>
-              <span class="lab-read-link">Open file <span class="lab-arrow" aria-hidden="true"></span></span>
+              <span class="vl-file__meta"><span>Branding</span><span>6 min</span></span>
             </div>
           </a>
-          <a class="lab-card" href="/visual-lab/articles/dark-website-design-inspiration/" data-visual-lab-article data-reveal>
-            <div class="lab-card__image">
-              <img src="/assets/work-3.jpg" alt="Dark cinematic SPNVISUALZ digital artwork used as website design inspiration" width="1200" height="900" loading="lazy" decoding="async">
+          <a class="vl-file" href="/visual-lab/articles/dark-website-design-inspiration/" data-visual-lab-article data-lab-pulse data-reveal>
+            <div class="vl-file__image">
+              <img src="/assets/spnvisualz-social.jpg" alt="Dark violet cosmic SPNVISUALZ artwork used as dark website design inspiration" width="1200" height="630" loading="lazy" decoding="async">
             </div>
-            <div class="lab-card__body">
-              <div class="lab-card__meta"><span>Website design</span><span>6 min</span></div>
+            <div class="vl-file__body">
+              <span class="vl-file__no">File 004</span>
               <h3>Dark Website Design Inspiration</h3>
               <p>How contrast, rhythm, motion and restraint turn a black interface into a branded world.</p>
-              <span class="lab-read-link">Open file <span class="lab-arrow" aria-hidden="true"></span></span>
+              <span class="vl-file__meta"><span>Website design</span><span>6 min</span></span>
             </div>
           </a>
-          <a class="lab-card" href="/visual-lab/articles/animated-logo-vs-static-logo/" data-visual-lab-article data-reveal>
-            <div class="lab-card__image">
+          <a class="vl-file vl-file--wide" href="/visual-lab/articles/animated-logo-vs-static-logo/" data-visual-lab-article data-lab-pulse data-reveal>
+            <div class="vl-file__image">
               <img src="/assets/work-1.jpg" alt="Gezana Events logo animation frame with a dimensional silver emblem on a dark background" width="1280" height="720" loading="lazy" decoding="async">
             </div>
-            <div class="lab-card__body">
-              <div class="lab-card__meta"><span>Motion identity</span><span>7 min</span></div>
+            <div class="vl-file__body">
+              <span class="vl-file__no">File 005</span>
               <h3>Animated Logo vs Static Logo</h3>
               <p>How to build a mark that works everywhere, then use motion to give it timing, character and impact.</p>
-              <span class="lab-read-link">Open file <span class="lab-arrow" aria-hidden="true"></span></span>
+              <span class="vl-file__meta"><span>Motion identity</span><span>7 min</span></span>
             </div>
           </a>
-          <a class="lab-card" href="/visual-lab/articles/gezana-events-visual-identity-case-study/" data-visual-lab-article data-reveal>
-            <div class="lab-card__image"><img src="/assets/brand-gezana.jpg" alt="Gezana Events visual identity system with logo, symbol and event applications" width="1200" height="900" loading="lazy" decoding="async"></div>
-            <div class="lab-card__body"><div class="lab-card__meta"><span>Case study / Branding</span><span>6 min</span></div><h3>Inside the Gezana Events Visual Identity</h3><p>How the idea of home became a flexible identity for events, social content and branded touchpoints.</p><span class="lab-read-link">Open file <span class="lab-arrow" aria-hidden="true"></span></span></div>
+          <a class="vl-file" href="/visual-lab/articles/gezana-events-visual-identity-case-study/" data-visual-lab-article data-lab-pulse data-reveal>
+            <div class="vl-file__image">
+              <img src="/assets/brand-gezana.jpg" alt="Gezana Events visual identity system with logo, symbol and event applications" width="1200" height="900" loading="lazy" decoding="async">
+            </div>
+            <div class="vl-file__body">
+              <span class="vl-file__no">File 006</span>
+              <h3>Inside the Gezana Events Visual Identity</h3>
+              <p>How the idea of home became a flexible identity for events, social content and branded touchpoints.</p>
+              <span class="vl-file__meta"><span>Case study / Branding</span><span>6 min</span></span>
+            </div>
           </a>
-          <a class="lab-card" href="/visual-lab/articles/glowvana-beauty-brand-identity-case-study/" data-visual-lab-article data-reveal>
-            <div class="lab-card__image"><img src="/assets/brand-glowvana.jpg" alt="Glowvana metallic pink beauty identity with wordmark, icon and brand applications" width="1200" height="900" loading="lazy" decoding="async"></div>
-            <div class="lab-card__body"><div class="lab-card__meta"><span>Case study / Branding</span><span>6 min</span></div><h3>Inside the Glowvana Beauty Brand Identity</h3><p>How softness, shine and practical identity assets were shaped into one recognizable beauty world.</p><span class="lab-read-link">Open file <span class="lab-arrow" aria-hidden="true"></span></span></div>
+          <a class="vl-file" href="/visual-lab/articles/glowvana-beauty-brand-identity-case-study/" data-visual-lab-article data-lab-pulse data-reveal>
+            <div class="vl-file__image">
+              <img src="/assets/brand-glowvana.jpg" alt="Glowvana metallic pink beauty identity with wordmark, icon and brand applications" width="1200" height="900" loading="lazy" decoding="async">
+            </div>
+            <div class="vl-file__body">
+              <span class="vl-file__no">File 007</span>
+              <h3>Inside the Glowvana Beauty Brand Identity</h3>
+              <p>How softness, shine and practical identity assets were shaped into one recognizable beauty world.</p>
+              <span class="vl-file__meta"><span>Case study / Branding</span><span>6 min</span></span>
+            </div>
           </a>
-          <a class="lab-card" href="/visual-lab/articles/tao-black-chrome-motion-loop-case-study/" data-visual-lab-article data-reveal>
-            <div class="lab-card__image"><img src="/assets/work-3.jpg" alt="TAO black-and-chrome motion loop artwork by SPNVISUALZ" width="1200" height="900" loading="lazy" decoding="async"></div>
-            <div class="lab-card__body"><div class="lab-card__meta"><span>Case study / Motion</span><span>5 min</span></div><h3>Inside TAO’s Black-and-Chrome Motion World</h3><p>How contrast, material and controlled repetition turn a short loop into recognizable brand atmosphere.</p><span class="lab-read-link">Open file <span class="lab-arrow" aria-hidden="true"></span></span></div>
+          <a class="vl-file" href="/visual-lab/articles/tao-black-chrome-motion-loop-case-study/" data-visual-lab-article data-lab-pulse data-reveal>
+            <div class="vl-file__image">
+              <img src="/assets/work-7.jpg" alt="TAO wordmark rendered as liquid black chrome with sparkle highlights" width="1280" height="720" loading="lazy" decoding="async">
+            </div>
+            <div class="vl-file__body">
+              <span class="vl-file__no">File 008</span>
+              <h3>Inside TAO’s Black-and-Chrome Motion World</h3>
+              <p>How contrast, material and controlled repetition turn a short loop into recognizable brand atmosphere.</p>
+              <span class="vl-file__meta"><span>Case study / Motion</span><span>5 min</span></span>
+            </div>
           </a>
         </div>
-
-</div>
-    </section>
-
-    <section class="lab-section" data-section-track="visual_lab_principle">
-      <div class="lab-shell lab-manifesto" data-reveal>
-        <span class="lab-manifesto__index">04 / OUR RULE</span>
-        <p class="lab-manifesto__copy">We do not publish filler. Every file should help you <em>see more clearly</em>, make a stronger choice or build something people remember.</p>
       </div>
     </section>
 
-    <section data-section-track="visual_lab_topic_request">
-      <div class="lab-shell lab-newsletter">
+    <section class="vl-section" data-section-track="visual_lab_principle">
+      <div class="lab-shell">
+        <blockquote class="vl-rule" data-reveal>
+          <span class="vl-rule__no">04 / Our rule</span>
+          <p>We do not publish filler. Every file should help you <em>see more clearly</em>, make a stronger choice or build something people remember.</p>
+        </blockquote>
+      </div>
+    </section>
+
+    <section class="vl-section" data-section-track="visual_lab_topic_request">
+      <div class="lab-shell vl-request">
         <div data-reveal>
-          <p class="lab-kicker">Missing a question?</p>
-          <h2>Suggest a topic.</h2>
+          <span class="vl-head__no">05 / Open request</span>
+          <h2 class="vl-request__title">Missing a question?</h2>
         </div>
         <div data-reveal>
           <p>Tell us what you are trying to build. Strong questions can become future Visual Lab files.</p>
-          <form class="lab-newsletter__form" data-topic-form>
+          <form class="lab-newsletter__form vl-form" data-topic-form>
             <label class="spn-visually-hidden" for="lab-topic">Suggest a Visual Lab topic</label>
             <input id="lab-topic" name="topic" type="text" placeholder="Your design question" required autocomplete="off">
             <button type="submit" aria-label="Send topic suggestion"><span class="lab-arrow" aria-hidden="true"></span></button>
           </form>
-          <p class="lab-newsletter__note">Opens your email app. No mailing list or hidden subscription.</p>
+          <p class="vl-request__note">Opens your email app. No mailing list or hidden subscription.</p>
         </div>
       </div>
     </section>
@@ -275,6 +338,7 @@
     </div>
   </footer>
 
-<script src="/visual-lab/lab.js?v=20260813.2" defer></script>
+<script src="/visual-lab/lab.js?v=20260913.1" defer></script>
+<script type="module" src="/src/visual-lab/main.js"></script>
 </body>
 </html>

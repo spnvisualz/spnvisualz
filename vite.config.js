@@ -35,6 +35,15 @@ const STATIC_REDIRECT_STUBS = [
 // on the live domain sees a broken, contentless page.
 const EXCLUDED_FROM_BUILD = new Set(["article-template.html"]);
 
+// Pages inside a static sub-site that Vite builds itself, because they need
+// the module graph (the Visual Lab landing page imports Three.js for its
+// hero). The copy step runs after the bundle is written, so without this it
+// would put the unprocessed source file back over Vite's output and the page
+// would ship with a bare `<script src="/src/...">` that 404s in production.
+// Everything else under those directories still copies through untouched --
+// the ten Visual Lab articles stay plain static files.
+const BUNDLED_PAGES = new Set([resolve(__dirname, "visual-lab/index.html")]);
+
 function copyStaticSubsites() {
   return {
     name: "copy-static-subsites",
@@ -45,7 +54,8 @@ function copyStaticSubsites() {
         if (!existsSync(src)) continue;
         cpSync(src, resolve(__dirname, "dist", dir), {
           recursive: true,
-          filter: (from) => !EXCLUDED_FROM_BUILD.has(from.split("/").pop())
+          filter: (from) =>
+            !EXCLUDED_FROM_BUILD.has(from.split("/").pop()) && !BUNDLED_PAGES.has(from)
         });
       }
       for (const file of STATIC_REDIRECT_STUBS) {
@@ -73,7 +83,8 @@ export default defineConfig({
       // their own, but not real pages and not worth shipping to the
       // production site, so they're deliberately not build inputs.
       input: {
-        main: resolve(__dirname, "index.html")
+        main: resolve(__dirname, "index.html"),
+        visualLab: resolve(__dirname, "visual-lab/index.html")
       }
     }
   },

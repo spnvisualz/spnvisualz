@@ -1,0 +1,743 @@
+/* SPNVISUALZ VISUAL LAB — landing page.
+   
+   Scoped to the `vl-` namespace and loaded *after* lab.css. lab.css is the
+   shared Lab system: page chrome (header, footer, boot, skip link, shell)
+   plus everything the ten article pages need. Those pages are live and
+   indexed, so the landing page owns its own component layer here instead of
+   redefining shared class names and risking an article regression.
+   
+   Tokens (--lab-*) come from lab.css. Only what is genuinely new to this
+   page is declared below. */
+
+.vl-page {
+  /* Chrome is read from the *bands*, not the average tone: alternating hard
+     white and mid-violet is what the eye resolves as polished metal. Keeping
+     the darkest stop above #8c means a display-size word still reads bright
+     against the black page. */
+  --vl-chrome: linear-gradient(
+    100deg,
+    #8f84ab 0%, #ffffff 13%, #c9bbee 26%,
+    #ffffff 43%, #a294cc 58%, #ffffff 74%, #8c81a8 100%
+  );
+  --vl-panel: linear-gradient(168deg, rgba(20, 14, 32, .78), rgba(7, 5, 13, .86));
+  --vl-edge: rgba(198, 167, 255, .34);
+  --vl-hairline: rgba(230, 226, 239, .11);
+}
+
+/* ---------------------------------------------------------------- hero -- */
+
+.vl-hero {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: clamp(26px, 4.5vh, 54px);
+  min-height: clamp(560px, calc(100svh - 92px), 1000px);
+  padding-block: clamp(28px, 5.5vh, 78px) clamp(18px, 3vh, 34px);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* The canvas is deliberately taller and wider than the text column: the
+   specimen should feel like it is in the room behind the page, not framed
+   inside a box on it. */
+.vl-hero__stage {
+  position: absolute;
+  z-index: -1;
+  inset: -8% -4% -14%;
+  pointer-events: none;
+}
+
+.vl-hero__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.4s var(--vl-ease, cubic-bezier(.22,.75,.25,1));
+}
+
+html.lab-webgl .vl-hero__canvas { opacity: 1; }
+
+/* Shown until WebGL confirms it mounted — which also covers no-JS, since
+   nothing removes it in that case. */
+.vl-hero__fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transition: opacity .8s ease;
+}
+
+.vl-hero__fallback img {
+  width: min(78%, 660px);
+  height: auto;
+  opacity: .5;
+  filter: saturate(.8) brightness(.9);
+}
+
+html.lab-webgl .vl-hero__fallback {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.vl-hero__inner {
+  align-self: end;
+  width: min(100%, var(--lab-max));
+}
+
+.vl-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 clamp(20px, 3vw, 34px);
+  color: var(--lab-violet);
+  font-family: var(--lab-mono);
+  font-size: 11px;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+}
+
+.vl-eyebrow__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--lab-violet);
+  box-shadow: 0 0 0 4px rgba(198, 167, 255, .16);
+  animation: vl-pulse 2.6s var(--vl-ease, ease) infinite;
+}
+
+@keyframes vl-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 4px rgba(198, 167, 255, .16); }
+  50% { opacity: .45; box-shadow: 0 0 0 9px rgba(198, 167, 255, 0); }
+}
+
+.vl-title {
+  margin: 0;
+  font-weight: 500;
+  font-size: clamp(3.4rem, 13.6vw, 11.4rem);
+  line-height: .82;
+  letter-spacing: -.05em;
+}
+
+.vl-title__line { display: block; }
+
+/* Second line is set in chrome and indented, so the pair reads as a
+   composed lockup rather than two stacked words. */
+.vl-title__line--chrome {
+  margin-left: .09em;
+  background: var(--vl-chrome);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: vl-chrome-drift 14s linear infinite;
+}
+
+@keyframes vl-chrome-drift {
+  to { background-position: 220% 0; }
+}
+
+.vl-deck {
+  max-width: 46ch;
+  margin: clamp(24px, 3.5vw, 40px) 0 0;
+  color: rgba(245, 242, 251, .66);
+  font-size: clamp(1rem, .95rem + .35vw, 1.2rem);
+  line-height: 1.62;
+}
+
+.vl-deck em {
+  color: var(--lab-paper);
+  font-style: italic;
+}
+
+.vl-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(16px, 2.4vw, 30px);
+  margin-top: clamp(28px, 4vw, 44px);
+}
+
+.vl-hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 26px;
+  border: 1px solid var(--vl-edge);
+  border-radius: 999px;
+  background: rgba(198, 167, 255, .05);
+  color: var(--lab-paper);
+  font-size: 14px;
+  letter-spacing: .04em;
+  text-decoration: none;
+  transition: background .4s ease, border-color .4s ease, color .4s ease;
+}
+
+.vl-hero__cta:hover,
+.vl-hero__cta:focus-visible {
+  background: var(--lab-paper);
+  border-color: var(--lab-paper);
+  color: #08070a;
+}
+
+.vl-hero__ghost {
+  color: rgba(245, 242, 251, .6);
+  font-family: var(--lab-mono);
+  font-size: 12px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 1px solid var(--vl-hairline);
+  padding-bottom: 4px;
+  transition: color .35s ease, border-color .35s ease;
+}
+
+.vl-hero__ghost:hover,
+.vl-hero__ghost:focus-visible {
+  color: var(--lab-paper);
+  border-color: var(--lab-violet);
+}
+
+/* --- hero instrument rail --- */
+
+.vl-hero__rail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: clamp(20px, 4vw, 48px);
+  width: min(100%, var(--lab-max));
+  padding-top: clamp(20px, 3vh, 34px);
+  border-top: 1px solid var(--vl-hairline);
+}
+
+.vl-specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(22px, 4vw, 58px);
+  margin: 0;
+}
+
+.vl-specs__item { display: grid; gap: 6px; }
+
+.vl-specs dt {
+  color: rgba(245, 242, 251, .38);
+  font-family: var(--lab-mono);
+  font-size: 10px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+
+.vl-specs dd {
+  margin: 0;
+  font-size: clamp(1rem, 1.4vw, 1.35rem);
+  letter-spacing: -.01em;
+}
+
+.vl-readout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(245, 242, 251, .5);
+  font-family: var(--lab-mono);
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.vl-readout[hidden] { display: none; }
+
+/* Drawn, not typed. The first version spelled the meter out in block-drawing
+   characters, which depend on whichever font happens to have the glyph and
+   render at a different weight and baseline in each one. */
+.vl-readout__meter {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.vl-readout__meter i {
+  width: 3px;
+  height: 11px;
+  background: rgba(198, 167, 255, .2);
+  transition: background .18s linear, box-shadow .18s linear;
+}
+
+.vl-readout__meter i.is-on {
+  background: var(--lab-violet);
+  box-shadow: 0 0 6px rgba(198, 167, 255, .55);
+}
+
+.vl-readout__value { color: var(--lab-paper); }
+
+/* -------------------------------------------------------------- ticker -- */
+
+.vl-ticker {
+  overflow: hidden;
+  padding-block: 18px;
+  border-block: 1px solid var(--vl-hairline);
+  background: rgba(6, 4, 12, .5);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.vl-ticker__track {
+  display: flex;
+  width: max-content;
+  animation: vl-ticker 42s linear infinite;
+}
+
+.vl-ticker__track span {
+  padding-inline: clamp(20px, 3vw, 44px);
+  color: rgba(245, 242, 251, .42);
+  font-family: var(--lab-mono);
+  font-size: 11px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+}
+
+/* The track holds the list twice; translating exactly -50% lands the copy
+   on the original's start position, so the loop has no visible seam. */
+@keyframes vl-ticker {
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+/* ------------------------------------------------------------- section -- */
+
+.vl-section { padding-block: clamp(72px, 11vw, 168px); }
+
+.vl-head {
+  display: grid;
+  gap: clamp(14px, 2vw, 22px);
+  margin-bottom: clamp(38px, 6vw, 76px);
+}
+
+@media (min-width: 900px) {
+  .vl-head {
+    grid-template-columns: minmax(0, 1fr) minmax(0, .92fr);
+    align-items: end;
+    column-gap: clamp(40px, 6vw, 96px);
+  }
+  .vl-head__no { grid-column: 1 / -1; }
+}
+
+.vl-head__no {
+  color: var(--lab-violet);
+  font-family: var(--lab-mono);
+  font-size: 11px;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+}
+
+.vl-head__title {
+  margin: 0;
+  font-weight: 500;
+  font-size: clamp(2.4rem, 6.4vw, 5.25rem);
+  line-height: .95;
+  letter-spacing: -.035em;
+}
+
+.vl-head__intro {
+  max-width: 52ch;
+  margin: 0;
+  color: rgba(245, 242, 251, .58);
+  font-size: clamp(.95rem, .9rem + .25vw, 1.06rem);
+  line-height: 1.66;
+}
+
+/* ------------------------------------------------------------- feature -- */
+
+.vl-feature {
+  position: relative;
+  display: grid;
+  gap: clamp(20px, 3vw, 40px);
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (min-width: 960px) {
+  .vl-feature {
+    grid-template-columns: 1.3fr .7fr;
+    align-items: center;
+    gap: clamp(36px, 5vw, 72px);
+  }
+}
+
+.vl-feature__visual {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--vl-hairline);
+  aspect-ratio: 16 / 10;
+}
+
+.vl-feature__visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(.72) contrast(1.04) brightness(.82);
+  transform: scale(1.02);
+  transition: transform 1.2s cubic-bezier(.16,.84,.2,1), filter .9s ease;
+}
+
+.vl-feature:hover .vl-feature__visual img,
+.vl-feature:focus-visible .vl-feature__visual img {
+  transform: scale(1.07);
+  filter: none;
+}
+
+/* A single specular pass across the image on hover — the same chrome move
+   the studio's motion work uses, borrowed here as the hover state. */
+.vl-feature__sweep {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(104deg, transparent 38%, rgba(232, 226, 255, .22) 50%, transparent 62%);
+  transform: translate3d(-110%, 0, 0);
+  transition: transform 1.1s cubic-bezier(.16,.84,.2,1);
+}
+
+.vl-feature:hover .vl-feature__sweep,
+.vl-feature:focus-visible .vl-feature__sweep {
+  transform: translate3d(110%, 0, 0);
+}
+
+.vl-feature__body { display: grid; gap: 18px; justify-items: start; }
+
+.vl-tag,
+.vl-file__no {
+  color: rgba(245, 242, 251, .42);
+  font-family: var(--lab-mono);
+  font-size: 10px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+
+.vl-feature__body h3 {
+  margin: 0;
+  font-weight: 500;
+  font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+  line-height: 1.06;
+  letter-spacing: -.028em;
+}
+
+.vl-feature__body p {
+  margin: 0;
+  max-width: 40ch;
+  color: rgba(245, 242, 251, .6);
+  line-height: 1.62;
+}
+
+.vl-feature__time {
+  color: rgba(245, 242, 251, .34);
+  font-family: var(--lab-mono);
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+
+.vl-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--vl-edge);
+  font-size: 13px;
+  letter-spacing: .05em;
+  transition: border-color .4s ease, color .4s ease;
+}
+
+.vl-feature:hover .vl-link { border-color: var(--lab-paper); }
+
+/* --------------------------------------------------------- topic index -- */
+
+.vl-index {
+  display: grid;
+  border-top: 1px solid var(--vl-hairline);
+}
+
+@media (min-width: 820px) {
+  .vl-index { grid-template-columns: 1fr 1fr; column-gap: clamp(40px, 6vw, 96px); }
+}
+
+.vl-index__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: clamp(14px, 2vw, 24px);
+  padding: clamp(18px, 2.4vw, 26px) 4px;
+  border-bottom: 1px solid var(--vl-hairline);
+  color: inherit;
+  text-decoration: none;
+  isolation: isolate;
+}
+
+/* Wash sweeps in from the left edge on hover. scaleX from a left origin
+   animates the compositor's transform rather than width/background, so the
+   whole index stays cheap even with eight of them. */
+.vl-index__row::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 -12px;
+  background: linear-gradient(90deg, rgba(198, 167, 255, .12), transparent 72%);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform .6s cubic-bezier(.16,.84,.2,1);
+}
+
+.vl-index__row:hover::before,
+.vl-index__row:focus-visible::before { transform: scaleX(1); }
+
+.vl-index__no {
+  color: rgba(245, 242, 251, .3);
+  font-family: var(--lab-mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  transition: color .4s ease;
+}
+
+.vl-index__row:hover .vl-index__no,
+.vl-index__row:focus-visible .vl-index__no { color: var(--lab-violet); }
+
+.vl-index__name {
+  font-size: clamp(1.05rem, 1.9vw, 1.5rem);
+  letter-spacing: -.02em;
+  transition: transform .5s cubic-bezier(.16,.84,.2,1);
+}
+
+.vl-index__row:hover .vl-index__name,
+.vl-index__row:focus-visible .vl-index__name { transform: translateX(8px); }
+
+/* ------------------------------------------------------------- archive -- */
+
+.vl-archive {
+  display: grid;
+  gap: clamp(18px, 2.4vw, 34px);
+}
+
+@media (min-width: 720px) {
+  .vl-archive { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1120px) {
+  .vl-archive { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  /* Full-width at three columns only. At two, a spanning card leaves a hole
+     in the flow that auto-placement cannot fill without reordering. */
+  .vl-file--wide {
+    grid-column: 1 / -1;
+    grid-template-columns: 1.05fr .95fr;
+    align-items: stretch;
+  }
+  .vl-file--wide .vl-file__image { aspect-ratio: auto; height: 100%; }
+  .vl-file--wide .vl-file__body {
+    padding: clamp(28px, 3vw, 52px);
+    /* The narrow cards stack image-then-text so their copy starts at the top.
+       A spanning card sets its copy beside a full-height image instead, where
+       top alignment just leaves a wedge of empty panel underneath. */
+    align-content: center;
+  }
+  .vl-file--wide h3 { font-size: clamp(1.5rem, 2.4vw, 2.1rem); }
+  .vl-file--wide p { max-width: 44ch; }
+}
+
+.vl-file {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  border: 1px solid var(--vl-hairline);
+  background: var(--vl-panel);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color .5s ease, transform .6s cubic-bezier(.16,.84,.2,1);
+}
+
+.vl-file:hover,
+.vl-file:focus-visible {
+  border-color: var(--vl-edge);
+  transform: translateY(-4px);
+}
+
+/* Violet filament along the top edge, drawn on hover. */
+.vl-file::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--lab-violet), transparent);
+  transform: scaleX(0);
+  transition: transform .7s cubic-bezier(.16,.84,.2,1);
+}
+
+.vl-file:hover::after,
+.vl-file:focus-visible::after { transform: scaleX(1); }
+
+.vl-file__image {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+}
+
+.vl-file__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Held back at rest so the grid reads as one dark surface, but not so far
+     that an already-dark source (chrome on black) goes to a black rectangle.
+     Hover restores it fully. */
+  filter: saturate(.74) contrast(1.03) brightness(.88);
+  transform: scale(1.03);
+  transition: transform 1.1s cubic-bezier(.16,.84,.2,1), filter .8s ease;
+}
+
+.vl-file:hover .vl-file__image img,
+.vl-file:focus-visible .vl-file__image img {
+  transform: scale(1.08);
+  filter: saturate(1) contrast(1) brightness(.94);
+}
+
+.vl-file__body {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: clamp(20px, 2.2vw, 30px);
+}
+
+.vl-file h3 {
+  margin: 0;
+  font-weight: 500;
+  font-size: clamp(1.15rem, 1.6vw, 1.45rem);
+  line-height: 1.16;
+  letter-spacing: -.022em;
+}
+
+.vl-file p {
+  margin: 0;
+  color: rgba(245, 242, 251, .55);
+  font-size: .93rem;
+  line-height: 1.6;
+}
+
+.vl-file__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--vl-hairline);
+  color: rgba(245, 242, 251, .38);
+  font-family: var(--lab-mono);
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------- rule -- */
+
+/* Measure the line length on the element that actually carries the display
+   size. `ch` resolves against the element's own font-size, so putting it on
+   this wrapper (still at body size) would clamp the whole block to ~190px and
+   wrap the statement one word at a time. */
+.vl-rule {
+  display: grid;
+  gap: clamp(20px, 3vw, 34px);
+  max-width: min(100%, 1000px);
+  margin: 0;
+}
+
+.vl-rule__no {
+  color: var(--lab-violet);
+  font-family: var(--lab-mono);
+  font-size: 11px;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+}
+
+.vl-rule p {
+  margin: 0;
+  max-width: 15ch;
+  font-size: clamp(1.9rem, 5.6vw, 4.4rem);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -.035em;
+}
+
+.vl-rule em {
+  font-style: italic;
+  background: var(--vl-chrome);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ------------------------------------------------------------- request -- */
+
+.vl-request {
+  display: grid;
+  gap: clamp(26px, 4vw, 56px);
+  padding: clamp(30px, 5vw, 68px);
+  border: 1px solid var(--vl-hairline);
+  background: var(--vl-panel);
+}
+
+@media (min-width: 900px) {
+  .vl-request {
+    grid-template-columns: minmax(0, .85fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.vl-request__title {
+  margin: 12px 0 0;
+  font-weight: 500;
+  font-size: clamp(1.9rem, 4.2vw, 3.2rem);
+  line-height: 1;
+  letter-spacing: -.035em;
+}
+
+.vl-request p {
+  margin: 0 0 22px;
+  color: rgba(245, 242, 251, .6);
+  line-height: 1.66;
+}
+
+.vl-request__note {
+  margin: 16px 0 0;
+  color: rgba(245, 242, 251, .34);
+  font-family: var(--lab-mono);
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+/* The form markup is shared with the previous layout so lab.css already
+   styles it; only the frame changes here. */
+.vl-form input { background: rgba(4, 3, 9, .6); }
+
+/* -------------------------------------------------------- accessibility -- */
+
+.vl-hero__cta:focus-visible,
+.vl-hero__ghost:focus-visible,
+.vl-index__row:focus-visible,
+.vl-file:focus-visible,
+.vl-feature:focus-visible {
+  outline: 2px solid var(--lab-violet);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vl-eyebrow__dot,
+  .vl-title__line--chrome,
+  .vl-ticker__track { animation: none; }
+
+  .vl-hero__canvas { transition: none; }
+
+  .vl-feature__visual img,
+  .vl-feature__sweep,
+  .vl-file,
+  .vl-file::after,
+  .vl-file__image img,
+  .vl-index__row::before,
+  .vl-index__name { transition: none; }
+}
