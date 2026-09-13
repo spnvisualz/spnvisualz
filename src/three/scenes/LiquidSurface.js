@@ -15,8 +15,15 @@ export class LiquidSurface {
         uTime: { value: 0 },
         uPointer: { value: new Vector2(0, 0) },
         uResolution: { value: new Vector2(1, 1) },
-        uEnergy: { value: 0.5 }
-      }
+        uEnergy: { value: 0.5 },
+        uFade: { value: 1 }
+      },
+      // Alpha-blended so the surface can dissolve into the page background
+      // (--bg shows through the transparent canvas). depthWrite stays off
+      // because a fading plane must not keep punching a hole in the depth
+      // buffer in front of the facet and planet behind it.
+      transparent: true,
+      depthWrite: false
     });
     this.mesh = new Mesh(geometry, this.material);
     this.pointerTarget = new Vector2(0, 0);
@@ -32,6 +39,10 @@ export class LiquidSurface {
 
   setEnergy(value) {
     this.material.uniforms.uEnergy.value = value;
+  }
+
+  setFade(value) {
+    this.material.uniforms.uFade.value = value;
   }
 
   tick(dt, elapsed) {

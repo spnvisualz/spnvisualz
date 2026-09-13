@@ -20,6 +20,8 @@ import { gsap, ScrollTrigger } from "../motion/scrollTimeline.js";
 // scales with aspect while vertical FOV stays constant. Every
 // distance-from-camera below is scaled by this factor.
 const REFERENCE_ASPECT = 1440 / 900;
+const clamp01 = (v) => Math.min(1, Math.max(0, v));
+const smoothstep = (t) => t * t * (3 - 2 * t);
 function distanceScale(camera) {
   return Math.max(1, REFERENCE_ASPECT / camera.aspect);
 }
@@ -59,6 +61,13 @@ export function mountSceneDirector() {
   // explicit fade across the first screen and nothing else: fully present
   // at the top, completely gone by the time the manifesto has passed, and
   // it never returns.
+  //
+  // That fixed the range, but not the fade itself: uEnergy only modulates
+  // one additive violet term, so the plane stayed at essentially full
+  // brightness until `visible` flipped and it vanished in a single frame.
+  // Scrubbing across that threshold switched it on and off — the black
+  // flicker. The plane now fades on its own alpha (uFade), so the scrub
+  // dissolves it into the page background instead of cutting it away.
   const originEl = document.querySelector('[data-chapter="origin"]');
   const manifestoEl = document.querySelector('[data-chapter="manifesto"]');
   let liquidFade = 1;
@@ -93,11 +102,20 @@ export function mountSceneDirector() {
   onTick((dt, elapsed) => {
     const distScale = distanceScale(camera);
 
-    liquid.mesh.visible = liquidFade > 0.01;
+    // Ease the raw scrub so the surface leaves gently at both ends rather
+    // than tapering at a constant rate into nothing.
+    const fade = smoothstep(clamp01(liquidFade));
+
+    // Only skip the draw once the plane is genuinely invisible. The old
+    // cutoff (0.01) was high enough to be seen going out; at this level
+    // the last drawn frame is already indistinguishable from the
+    // background, so switching it off cannot register as a pop.
+    liquid.mesh.visible = fade > 0.0005;
     if (liquid.mesh.visible) {
       liquid.setPointer(pointer.x, pointer.y);
-      liquid.setEnergy(0.5 * liquidFade);
-      liquid.mesh.scale.setScalar(1 + (1 - liquidFade) * 0.35);
+      liquid.setFade(fade);
+      liquid.setEnergy(0.5 * fade);
+      liquid.mesh.scale.setScalar(1 + (1 - fade) * 0.35);
       liquid.tick(dt, elapsed);
     }
 

@@ -31,6 +31,7 @@ uniform float uTime;
 uniform vec2 uPointer;
 uniform vec2 uResolution;
 uniform float uEnergy;
+uniform float uFade;
 
 varying vec2 vUv;
 varying vec3 vWorldPosition;
@@ -116,6 +117,10 @@ void main() {
 
   color = color / (color + vec3(1.0));
   color = pow(max(color, vec3(0.0)), vec3(0.85));
-  gl_FragColor = vec4(color, 1.0);
+  // The surface leaves by dissolving into the page background, not by
+  // being switched off. uFade is the alpha the caller scrubs to zero, so
+  // the plane thins out over the whole opening rather than popping to
+  // black the instant a visibility threshold is crossed.
+  gl_FragColor = vec4(color, uFade);
 }
 `;
