@@ -39,9 +39,41 @@ function boot() {
   // height changes out from under the scroll position later.
   initWorkSequence({ reduceMotion });
 
-  const director = mountSceneDirector();
-  bindFacetToServices(director);
-  bindPlanetToContact(director);
+  // The 3D layer waits for the intro to finish.
+  //
+  // Building the renderer, compiling four shader programs and uploading
+  // the planet texture is the heaviest thing this page does, and doing it
+  // while the arrival is flying costs exactly the frames the arrival is
+  // there to make an impression with. Deferring it is only safe because
+  // the background is CSS now (body::before in base.css): a late scene
+  // mount changes nothing on screen, where it used to mean black.
+  //
+  // If intro.js never loaded, __spnIntroActive is undefined and this runs
+  // straight away. The timeout is the third case — the flag was set but
+  // the event never came — so a broken intro cannot cost the whole scene.
+  let worldStarted = false;
+  const startWorld = () => {
+    if (worldStarted) return;
+    worldStarted = true;
+    const director = mountSceneDirector();
+    bindFacetToServices(director);
+    bindPlanetToContact(director);
+    ScrollTrigger.refresh();
+  };
+
+  if (window.__spnIntroActive) {
+    window.addEventListener("spn:intro-done", startWorld, { once: true });
+    setTimeout(() => {
+      // The intro normally clears this itself. If it hung, the page is
+      // still scroll-locked, and refreshing ScrollTrigger against a page
+      // that cannot scroll measures every trigger against a max of zero.
+      document.documentElement.classList.remove("intro-active");
+      window.__spnIntroActive = false;
+      startWorld();
+    }, 8000);
+  } else {
+    startWorld();
+  }
 
   ScrollTrigger.create({
     start: 0,

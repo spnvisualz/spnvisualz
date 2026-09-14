@@ -129,9 +129,108 @@
   }
   </script>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" />
+  <link rel="preload" as="image" href="/assets/spn-orbit-transparent.png" fetchpriority="high" />
+
+  <!-- ============ ARRIVAL — the intro overlay ============
+       Inline on purpose. Every other stylesheet on this page is imported
+       by /src/main.js, so it cannot apply until the module bundle has
+       downloaded and parsed — which is exactly the window a loading
+       screen exists to cover. These rules ship inside the HTML, so the
+       branded screen is painted from the first response, and intro.js
+       upgrades it to the flight when it arrives. -->
+  <style>
+    html.intro-active{ overflow: hidden; }
+    #spnIntro{
+      position: fixed; inset: 0; z-index: 2147483001;
+      background: radial-gradient(126% 92% at 50% 44%, #0c0722 0%, #070418 48%, #03020a 100%);
+      overflow: hidden;
+      opacity: 1;
+      transition: opacity .62s cubic-bezier(.4,0,.2,1), transform .62s cubic-bezier(.4,0,.2,1);
+    }
+    /* Leaving pushes the frame forward rather than dimming it, so the
+       cut into the site reads as arriving rather than as a curtain. */
+    #spnIntro.is-leaving{ opacity: 0; transform: scale(1.12); pointer-events: none; }
+    #spnIntroCanvas{ position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+
+    /* The planet art doubles as the canvas source and as the still frame
+       shown when the flight cannot run. Kept at zero opacity rather than
+       display:none so it is decoded and drawable either way. */
+    .spn-intro__poster{
+      position: absolute; left: 50%; top: 48.5%; transform: translate(-50%,-50%);
+      width: min(72vw, 52vh); height: auto; opacity: 0; pointer-events: none;
+    }
+    #spnIntro.is-static .spn-intro__poster{ opacity: 1; transition: opacity .9s ease .1s; }
+
+    .spn-intro__ui{
+      position: absolute; left: 0; right: 0; bottom: clamp(44px, 11vh, 124px);
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      text-align: center; padding: 0 24px; z-index: 2;
+    }
+    .spn-intro__word, .spn-intro__tag, .spn-intro__enter{
+      opacity: 0; transform: translateY(15px);
+      transition: opacity .75s cubic-bezier(.16,.84,.2,1), transform .75s cubic-bezier(.16,.84,.2,1);
+    }
+    #spnIntro.is-arrived .spn-intro__word,
+    #spnIntro.is-arrived .spn-intro__tag,
+    #spnIntro.is-static .spn-intro__word,
+    #spnIntro.is-static .spn-intro__tag{ opacity: 1; transform: none; }
+    #spnIntro.is-arrived .spn-intro__tag{ transition-delay: .12s; }
+    #spnIntro.is-ready .spn-intro__enter,
+    #spnIntro.is-static .spn-intro__enter{ opacity: 1; transform: none; }
+
+    .spn-intro__word{
+      margin: 0; font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+      font-size: clamp(30px, 7vw, 62px); font-weight: 700; letter-spacing: -.03em;
+      line-height: 1; color: #fff;
+    }
+    .spn-intro__word span{ color: #c6a7ff; }
+    .spn-intro__tag{
+      margin: 0; font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: clamp(9px, 2.2vw, 11px); letter-spacing: .34em; text-transform: uppercase;
+      color: rgba(245,242,251,.62);
+    }
+    .spn-intro__enter{
+      margin-top: 10px; cursor: pointer;
+      font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+      font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+      color: #f5f2fb; background: rgba(198,167,255,.07);
+      border: 1px solid rgba(198,167,255,.42); border-radius: 2px;
+      padding: 14px 30px;
+      transition: background .3s, border-color .3s, opacity .75s cubic-bezier(.16,.84,.2,1), transform .75s cubic-bezier(.16,.84,.2,1);
+    }
+    .spn-intro__enter:hover{ background: rgba(198,167,255,.16); border-color: #c6a7ff; }
+    .spn-intro__skip{
+      position: absolute; right: clamp(16px, 4vw, 34px); bottom: clamp(16px, 3vh, 28px); z-index: 3;
+      cursor: pointer; background: none; border: 0; padding: 10px;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+      color: rgba(245,242,251,.5); transition: color .3s;
+    }
+    .spn-intro__skip:hover{ color: #f5f2fb; }
+    #spnIntro :focus-visible{ outline: 2px solid #c6a7ff; outline-offset: 3px; }
+
+    /* Backstop for the one case the script cannot cover: JS is on, but
+       intro.js never arrives. intro.js adds .is-live the moment it takes
+       control, so this only ever fires when nothing is driving the
+       overlay. Scoped that way it cannot race the real sequence. */
+    @keyframes spnIntroFailsafe{ to{ opacity: 0; visibility: hidden; pointer-events: none; } }
+    #spnIntro:not(.is-live){ animation: spnIntroFailsafe .01s linear 6.5s forwards; }
+
+    @media (prefers-reduced-motion: reduce){
+      #spnIntro, #spnIntro *{ transition-duration: .2s !important; }
+    }
+  </style>
+  <noscript><style>#spnIntro{ display: none; }</style></noscript>
+
   <!-- Google consent defaults must run before analytics or advertising tags. -->
   <script src="/assets/js/spn-config.js?v=20260906.1"></script>
-  <script src="/assets/js/consent.js?v=20260906.1"></script>
+  <!-- Before consent.js: it defers the privacy banner until the intro has
+       finished, so the two never fight for the same first screen. -->
+  <script src="/assets/js/intro.js?v=20260914.1"></script>
+  <script src="/assets/js/consent.js?v=20260914.1"></script>
   <script src="/assets/js/analytics.js?v=20260809.2" defer></script>
 
   <script type="module" src="/src/main.js"></script>
@@ -139,6 +238,23 @@
 
 
 <body class="page-main is-loading">
+
+  <!-- ============ ARRIVAL ============
+       Flight through the galaxy, decelerating in front of SPN-1. Driven
+       by /assets/js/intro.js on a 2D canvas; the markup below is the
+       resting state it animates out of, and the state it falls back to
+       when the flight cannot run (reduced motion, no canvas context).
+       Shown once per tab session. -->
+  <div class="spn-intro" id="spnIntro" role="presentation">
+    <canvas id="spnIntroCanvas" aria-hidden="true"></canvas>
+    <img class="spn-intro__poster" src="/assets/spn-orbit-transparent.png" alt="" aria-hidden="true" fetchpriority="high" decoding="async" />
+    <div class="spn-intro__ui">
+      <p class="spn-intro__word">SPN<span>VISUALZ</span></p>
+      <p class="spn-intro__tag">Visuals that connect</p>
+      <button class="spn-intro__enter" type="button">Enter world</button>
+    </div>
+    <button class="spn-intro__skip" type="button">Skip</button>
+  </div>
 
   <a class="skip-link" href="#main">Skip to content</a>
 

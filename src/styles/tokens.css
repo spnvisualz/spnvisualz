@@ -6,7 +6,11 @@
   doing all the work plus a mono for specification-style captions.
 */
 
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
+/* The webfonts are loaded by a <link> in index.html, not from here.
+   An @import inside a bundled stylesheet cannot be discovered until
+   that bundle has been downloaded and parsed, which put the font
+   request a full round-trip behind the page — and behind the intro
+   overlay, which needs the display face immediately. */
 
 :root{
   /* — brand surface — */

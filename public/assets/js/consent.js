@@ -196,7 +196,19 @@
       openLayer("preferences");
     });
 
-    if (!hasDecision) openLayer("banner");
+    // The intro overlay owns the first screen. Opening the banner behind
+    // it would put keyboard focus on "Accept all" under a full-screen
+    // cover, so a stray Enter during the flight would answer a question
+    // the visitor has not been shown yet. intro.js clears the flag and
+    // fires this event when it is done; if it never loaded, the flag is
+    // undefined and the banner opens as it always did.
+    if (!hasDecision) {
+      if (window.__spnIntroActive) {
+        window.addEventListener("spn:intro-done", () => openLayer("banner"), { once: true });
+      } else {
+        openLayer("banner");
+      }
+    }
   };
 
   window.SPNConsent = Object.freeze({
