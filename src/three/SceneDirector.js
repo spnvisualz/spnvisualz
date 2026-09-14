@@ -79,16 +79,31 @@ export function mountSceneDirector() {
   // the hero holds one steady surface no matter how the page is scrubbed,
   // and the dissolve happens once, over the section the reader passes
   // through on the way out.
+  // Where the dissolve sits matters as much as the fact that it is smooth.
+  // Fading across the manifesto started it a single screen into the page,
+  // so the surface began leaving while the opening was still being read —
+  // it never settled, which reads as restlessness rather than as a
+  // transition. The original page kept it at full strength right up to
+  // the work section and only then cut out; that timing was right, the
+  // instant cut was not.
+  //
+  // So it holds at full strength for exactly as long as it used to — the
+  // hero and the whole manifesto — and the dissolve is spent after that
+  // point, across the screen-height of scrolling that carries the work
+  // section up. Nothing above the work section moves the surface at all,
+  // so scrubbing around the opening cannot make it change.
   const originEl = document.querySelector('[data-chapter="origin"]');
-  const manifestoEl = document.querySelector('[data-chapter="manifesto"]');
+  const workEl = document.querySelector('[data-chapter="work"]');
   let liquidFade = 1;
-  const fadeTrigger = manifestoEl || originEl;
+  const fadeTrigger = workEl || originEl;
   if (fadeTrigger) {
     ScrollTrigger.create({
       trigger: fadeTrigger,
       start: "top top",
-      endTrigger: fadeTrigger,
-      end: "bottom top",
+      // A function so the distance re-resolves against the viewport on
+      // every refresh (orientation change), instead of baking in the
+      // height the page happened to load at.
+      end: () => "+=" + Math.round(window.innerHeight * 0.8),
       scrub: 0.4,
       onUpdate: (self) => {
         liquidFade = 1 - self.progress;
