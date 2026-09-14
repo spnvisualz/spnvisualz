@@ -68,14 +68,26 @@ export function mountSceneDirector() {
   // Scrubbing across that threshold switched it on and off — the black
   // flicker. The plane now fades on its own alpha (uFade), so the scrub
   // dissolves it into the page background instead of cutting it away.
+  //
+  // Spreading the fade across the whole opening (origin top -> manifesto
+  // bottom) made the surface scroll-reactive everywhere above the fold:
+  // any small drag up or down in the hero changed the background
+  // brightness, which reads as flickering just as much as a hard cut did
+  // (measured: a ~25 point luminance swing every time the scroll
+  // direction reversed between y=40 and y=410 on a 402x874 viewport).
+  // The fade therefore starts at the manifesto rather than at the top:
+  // the hero holds one steady surface no matter how the page is scrubbed,
+  // and the dissolve happens once, over the section the reader passes
+  // through on the way out.
   const originEl = document.querySelector('[data-chapter="origin"]');
   const manifestoEl = document.querySelector('[data-chapter="manifesto"]');
   let liquidFade = 1;
-  if (originEl) {
+  const fadeTrigger = manifestoEl || originEl;
+  if (fadeTrigger) {
     ScrollTrigger.create({
-      trigger: originEl,
+      trigger: fadeTrigger,
       start: "top top",
-      endTrigger: manifestoEl || originEl,
+      endTrigger: fadeTrigger,
       end: "bottom top",
       scrub: 0.4,
       onUpdate: (self) => {
