@@ -133,11 +133,11 @@ export function mountSceneDirector() {
     // than tapering at a constant rate into nothing.
     const fade = smoothstep(clamp01(liquidFade));
 
-    // Only skip the draw once the plane is genuinely invisible. The old
-    // cutoff (0.01) was high enough to be seen going out; at this level
-    // the last drawn frame is already indistinguishable from the
-    // background, so switching it off cannot register as a pop.
-    liquid.mesh.visible = fade > 0.0005;
+    // Skipped only at exactly zero, where the plane would be painting the
+    // page colour anyway and dropping it changes nothing on screen. Any
+    // threshold above zero is a frame that stops being drawn while it is
+    // still meant to be visible, which is what showed as black.
+    liquid.mesh.visible = fade > 0;
     if (liquid.mesh.visible) {
       liquid.setPointer(pointer.x, pointer.y);
       liquid.setFade(fade);

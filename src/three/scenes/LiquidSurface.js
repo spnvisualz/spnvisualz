@@ -17,13 +17,11 @@ export class LiquidSurface {
         uResolution: { value: new Vector2(1, 1) },
         uEnergy: { value: 0.5 },
         uFade: { value: 1 }
-      },
-      // Alpha-blended so the surface can dissolve into the page background
-      // (--bg shows through the transparent canvas). depthWrite stays off
-      // because a fading plane must not keep punching a hole in the depth
-      // buffer in front of the facet and planet behind it.
-      transparent: true,
-      depthWrite: false
+      }
+      // Deliberately opaque. The dissolve happens in the shader by mixing
+      // toward the page background, so this plane always paints every
+      // pixel it covers — a transparent one let a single missed frame
+      // show the black page behind the canvas.
     });
     this.mesh = new Mesh(geometry, this.material);
     this.pointerTarget = new Vector2(0, 0);

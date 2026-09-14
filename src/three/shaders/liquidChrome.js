@@ -117,10 +117,25 @@ void main() {
 
   color = color / (color + vec3(1.0));
   color = pow(max(color, vec3(0.0)), vec3(0.85));
-  // The surface leaves by dissolving into the page background, not by
-  // being switched off. uFade is the alpha the caller scrubs to zero, so
-  // the plane thins out over the whole opening rather than popping to
-  // black the instant a visibility threshold is crossed.
-  gl_FragColor = vec4(color, uFade);
+  // The surface leaves by dissolving toward the page background, not by
+  // going transparent and not by being switched off.
+  //
+  // Fading on alpha meant the canvas was only painted where the plane
+  // happened to be drawn, and the renderer clears to fully transparent
+  // every frame — so any single frame the plane missed showed the page's
+  // black background instead of chrome. Mixing toward that background in
+  // the shader keeps the plane opaque, so the worst a missed frame can do
+  // is repeat the previous one.
+  //
+  // BG is --bg (#030207) written straight as sRGB, NOT converted to
+  // linear: this is a raw ShaderMaterial, so it never gets the
+  // colorspace_fragment chunk and renderer.outputColorSpace does not
+  // encode what we write here. Passing linear values made the plane fade
+  // to roughly rgb(1,1,1) instead of rgb(3,2,7) — invisible against black
+  // on its own, but it left a seam in the blue channel at the moment the
+  // plane stopped being drawn and the real page showed through.
+  const vec3 BG = vec3(0.01176, 0.00784, 0.02745);
+  color = mix(BG, color, uFade);
+  gl_FragColor = vec4(color, 1.0);
 }
 `;
