@@ -15,18 +15,23 @@ export function createRenderer({ canvas, maxDpr = 2, alpha = true } = {}) {
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDpr));
 
-  // A dozen large video/planet/shader textures is real pressure on a phone
-  // GPU — losing the WebGL context there (driver reset, memory pressure)
-  // otherwise leaves the canvas permanently frozen on its last frame with
-  // no error and no way for the page to recover on its own, which reads
-  // exactly like "the site is stuck/unstable" from the outside. There's no
-  // way to safely resume the same scene mid-session (every texture/buffer
-  // is gone), so the honest recovery is a reload — jarring once, but a
-  // world better than a dead canvas that never comes back.
+  // Losing the context (driver reset, memory pressure on a phone GPU)
+  // used to reload the whole page, because a dead canvas *was* a dead
+  // background — there was nothing behind it but black. Now the surface
+  // is painted in CSS, so the honest response is to step off the canvas
+  // and let that surface stand: the page keeps its colour, its scroll
+  // position and its state, and loses only the motion. If the browser
+  // hands the context back, pick it up again.
   canvas.addEventListener("webglcontextlost", (e) => {
     e.preventDefault();
-    console.error("[createRenderer] WebGL context lost — reloading");
-    window.location.reload();
+    contextLost = true;
+    document.documentElement.classList.add("no-webgl");
+  });
+
+  canvas.addEventListener("webglcontextrestored", () => {
+    contextLost = false;
+    document.documentElement.classList.remove("no-webgl");
+    resize();
   });
 
   const scene = new Scene();
@@ -35,7 +40,18 @@ export function createRenderer({ canvas, maxDpr = 2, alpha = true } = {}) {
 
   let width = 1;
   let height = 1;
-  let visible = true;
+  // Two independent reasons to stop drawing, tracked separately. They
+  // used to share one `visible` flag, and that flag was the bug: going
+  // to another tab set it false, and nothing ever set it back. Only the
+  // IntersectionObserver did, and a position:fixed inset:0 canvas never
+  // leaves the viewport, so it had no crossing left to report. Coming
+  // back to the tab therefore found a render loop that returned early
+  // forever — the scene frozen, and (with preserveDrawingBuffer false)
+  // the buffer free to be dropped, leaving a transparent canvas over a
+  // black page with no way back but a reload.
+  let inViewport = true;
+  let pageVisible = !document.hidden;
+  let contextLost = false;
   let raf = 0;
   let lastTime = performance.now();
   const tickFns = new Set();
@@ -56,15 +72,20 @@ export function createRenderer({ canvas, maxDpr = 2, alpha = true } = {}) {
 
   const visibilityObserver = new IntersectionObserver(
     (entries) => {
-      for (const entry of entries) visible = entry.isIntersecting;
+      for (const entry of entries) inViewport = entry.isIntersecting;
     },
     { threshold: 0 }
   );
   visibilityObserver.observe(canvas);
 
   const onVisibilityChange = () => {
-    if (document.hidden) visible = false;
-    else resize();
+    pageVisible = !document.hidden;
+    if (!pageVisible) return;
+    // rAF is throttled or stopped while hidden, so `now` has run far
+    // ahead of the last frame we drew. Re-anchor the clock before
+    // resuming or the first frame back integrates the whole time away.
+    lastTime = performance.now();
+    resize();
   };
   document.addEventListener("visibilitychange", onVisibilityChange);
 
@@ -72,7 +93,7 @@ export function createRenderer({ canvas, maxDpr = 2, alpha = true } = {}) {
     raf = requestAnimationFrame(loop);
     const dt = Math.min(0.1, (now - lastTime) / 1000);
     lastTime = now;
-    if (!visible) return;
+    if (!inViewport || !pageVisible || contextLost) return;
     // A single tickFn throwing used to abort the whole frame before
     // renderer.render() ran — the next rAF still fired, but hit the same
     // exception every time, so the canvas silently froze on its last good

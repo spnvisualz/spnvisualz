@@ -66,3 +66,56 @@ button, input, select, textarea{ font: inherit; color: inherit; }
     scroll-behavior: auto !important;
   }
 }
+
+/* ============================================================
+   THE PAGE SURFACE
+   ============================================================
+   The homepage background is this rule — not the WebGL canvas.
+
+   It used to be the other way round: --bg is #030207 (all but
+   black) and the only thing painting anything else was the liquid
+   chrome plane, composited onto a transparent canvas. That made
+   every WebGL hiccup a black page, and there are many ways to get
+   one — the frame loop stalling, a lost context, the tier check
+   deciding this device gets no canvas, or simply the gap between
+   first paint and the first rendered frame. Tuning *when the plane
+   leaves* can never fix that, because what it left behind was
+   always black.
+
+   So the surface is painted here, in CSS, where it exists before
+   any script runs and cannot stop existing. The canvas draws on top
+   of a background that is already correct, so losing the canvas
+   costs the motion and the detail, never the colour.
+
+   The colour is measured from the shader, not read off it, and it
+   took three passes to get right. Read as source the surface looks
+   near-black (its "sky" term alone tone-maps to about #16151d).
+   Screenshot it at load and it looks like bright banded chrome
+   averaging #796e7d. Both are wrong: at t=0 the three octaves in
+   flow() sample the same point and reinforce each other, so the
+   first seconds are an unrepresentative flare. Once the octaves
+   decorrelate the surface settles, and what it settles to is
+   near-uniform #4e3e55 at every aspect ratio — which is why this is
+   one flat plum rather than the elaborate gradient stack the
+   transient seemed to call for.
+
+   --surface-presence is the one dial. SceneDirector drives it from
+   the same scrub that fades the plane, and both layers converge on
+   --bg together, so the handoff into Selected Work has nothing to
+   fall out of step with. It defaults to 1: with no JS at all, the
+   surface simply stays. */
+body::before{
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--surface-presence, 1);
+  background:
+    /* the vignette the shader multiplies in toward the frame edges */
+    radial-gradient(128% 92% at 50% 48%, transparent 52%, rgba(10,6,18,.30) 100%),
+    /* the pointer glow, which sits at rest in the middle of the plane */
+    radial-gradient(104% 62% at 50% 40%, rgba(158,128,186,.13), transparent 74%),
+    /* the settled surface itself */
+    linear-gradient(180deg, #4a3a51 0%, #4d3d54 20%, #514257 42%, #4e3e55 66%, #4c3c53 100%);
+}
