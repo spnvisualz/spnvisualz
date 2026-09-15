@@ -234,9 +234,9 @@
   // lighting are one surface, so no browser font or separate letter layer
   // can drift away from the planet during the fly-by.
   const planets = [
-    { x: -430, y: -215, z: 1120, r: 142, letter: "N", spin: -0.08, bodyFraction: 0.80 },
-    { x:  520, y:  260, z: 1540, r: 174, letter: "H", spin:  0.06, bodyFraction: 0.74 },
-    { x: -330, y:  340, z: 1960, r: 152, letter: "T", spin: -0.06, bodyFraction: 0.80 }
+    { x: -430, y: -215, z: 1120, r: 110, letter: "N", spin: -0.08, bodyFraction: 0.80 },
+    { x:  520, y:  260, z: 1540, r: 134, letter: "H", spin:  0.06, bodyFraction: 0.74 },
+    { x: -330, y:  340, z: 1960, r: 118, letter: "T", spin: -0.06, bodyFraction: 0.80 }
   ];
   planets.forEach((p) => {
     p.image = overlay.querySelector(`[data-planet-letter="${p.letter}"]`);
