@@ -39,6 +39,23 @@ const EXTENT = 1.72;          // how much of the requested width the object fill
 // The studio the chrome reflects: a dark violet ground with a few bright
 // horizontal softboxes. Shared by the body and the rings so they read as
 // being in the same room.
+const NOISE_GLSL = /* glsl */ `
+float h31(vec3 p){ return fract(sin(dot(p, vec3(27.1, 61.7, 12.4))) * 43758.5453); }
+float vnoise(vec3 p){
+  vec3 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(mix(h31(i), h31(i + vec3(1,0,0)), f.x),
+                 mix(h31(i + vec3(0,1,0)), h31(i + vec3(1,1,0)), f.x), f.y),
+             mix(mix(h31(i + vec3(0,0,1)), h31(i + vec3(1,0,1)), f.x),
+                 mix(h31(i + vec3(0,1,1)), h31(i + vec3(1,1,1)), f.x), f.y), f.z);
+}
+float fbm(vec3 p){
+  float a = 0.5, s = 0.0;
+  for (int i = 0; i < 4; i++) { s += vnoise(p) * a; p *= 2.03; a *= 0.5; }
+  return s;
+}
+`;
+
 const STUDIO_GLSL = /* glsl */ `
 vec3 studio(vec3 d) {
   float h = d.y * 0.5 + 0.5;
@@ -171,8 +188,10 @@ function makeMarkTexture(size = 1024) {
 const BODY_VERT = /* glsl */ `
 varying vec3 vN;
 varying vec3 vP;
+varying vec3 vObj;
 void main() {
   vN = normalize(normalMatrix * normal);
+  vObj = position;
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
   vP = mv.xyz;
   gl_Position = projectionMatrix * mv;
@@ -186,6 +205,8 @@ uniform float uRidge;
 uniform float uMarkFade;
 varying vec3 vN;
 varying vec3 vP;
+varying vec3 vObj;
+${NOISE_GLSL}
 ${STUDIO_GLSL}
 
 void main() {
@@ -194,8 +215,8 @@ void main() {
 
   // The mark lives on the facing hemisphere. Sampling by the view-space
   // normal's xy maps the texture square to the silhouette disc, so the
-  // figure compresses toward the limb exactly as paint on a sphere
-  // would — no UV seam, no pole pinching.
+  // figure compresses toward the limb exactly as it would if it were on
+  // the surface — no UV seam, no pole pinching.
   vec2 uv = N.xy * 0.5 + 0.5;
   float e = 0.0030;
   float m  = texture2D(uMark, uv).a;
@@ -203,48 +224,52 @@ void main() {
   float my = texture2D(uMark, uv + vec2(0.0, e)).a - texture2D(uMark, uv - vec2(0.0, e)).a;
 
   float facing = smoothstep(0.02, 0.40, N.z) * uMarkFade;
-
-  // A hard-ish core with a separate bevel band. In the brand art the mark
-  // meets the black body along a crisp edge, and it is the bevel that
-  // catches the key light — blend the two into one soft mask and it
-  // becomes an embossed smudge instead of cut metal.
-  float core  = smoothstep(0.40, 0.58, m) * facing;
-  float bevel = clamp(length(vec2(mx, my)) * 10.0, 0.0, 1.0) * facing;
-
-  // Gently. An earlier pass drove this hard enough to swing the mark's
-  // normal past the softboxes entirely, so the "chrome" ridge ended up
-  // reflecting the dark sky and the mark rendered darker than the body
-  // it sits on — the exact inverse of the brand art.
+  float core = smoothstep(0.40, 0.58, m) * facing;
+  float halo = m * (1.0 - core) * facing;          // the bloom skirt
   vec3 Nr = normalize(N + vec3(-mx, -my, 0.0) * uRidge * facing);
 
-  // Two lamps rather than a mirrored room. A full banded environment is
-  // correct for a chrome ball and wrong for this object: on a sphere it
-  // lays hard horizontal stripes across the disc, where the reference has
-  // one broad soft highlight over near-black.
+  // Marbled crust. The reference planet is not a plain black ball — it is
+  // dark stone shot through with violet veining, and without it the body
+  // reads as flat vinyl no matter how the mark is lit.
+  float marb = fbm(vObj * 3.1);
+  float veins = smoothstep(0.52, 0.80, marb);
+  float grain = smoothstep(0.30, 0.62, fbm(vObj * 9.0));
+
   vec3 L1 = normalize(vec3(-0.42, 0.60, 0.68));   // key, upper left
   vec3 L2 = normalize(vec3(0.58, -0.42, 0.70));   // cool fill, lower right
-  vec3 H1 = normalize(L1 + V);
-  vec3 H2 = normalize(L2 + V);
-  float n1 = max(dot(Nr, H1), 0.0);
-  float n2 = max(dot(Nr, H2), 0.0);
+  float n1 = max(dot(Nr, normalize(L1 + V)), 0.0);
+  float n2 = max(dot(Nr, normalize(L2 + V)), 0.0);
+  float broad = pow(n1, 40.0) * 0.55;
+  float hot   = pow(n1, 620.0) * 2.20;
+  float fill  = pow(n2, 120.0) * 0.32;
 
-  float broad = pow(n1, 42.0) * 0.85;     // the softbox in the glass
-  float hot   = pow(n1, 600.0) * 3.60;    // its hot centre
-  float fill  = pow(n2, 110.0) * 0.55;
+  // How squarely the ridge faces the key — this is what puts the
+  // white-hot points along the mark rather than lighting it evenly.
+  float lit = pow(max(dot(Nr, L1), 0.0), 0.80);
 
-  // How squarely the ridge faces the key. This is what gives the mark a
-  // gradient along its length instead of a flat fill, and is most of what
-  // makes it read as metal.
-  float lit = pow(max(dot(Nr, L1), 0.0), 0.75);
+  // Wide and bright. The brand art carries a heavy violet atmosphere all
+  // the way around the limb; a tight rim reads as a black ball with a
+  // pencil line on it.
+  float fres = pow(1.0 - max(dot(N, V), 0.0), 5.6);
 
-  float fres = pow(1.0 - max(dot(N, V), 0.0), 7.0);
+  vec3 col = vec3(0.006, 0.004, 0.014);
+  col += vec3(0.13, 0.04, 0.34) * veins * 0.34;          // violet veining
+  col += vec3(0.07, 0.06, 0.11) * grain * 0.13;          // stone grain
+  col += studio(reflect(-V, Nr)) * 0.13;                 // a trace of room
+  col += vec3(1.0, 0.99, 1.0) * (broad + hot + fill);
 
-  vec3 col = vec3(0.004, 0.003, 0.010);
-  col += studio(reflect(-V, Nr)) * 0.16;                       // faint room
-  col += vec3(1.0, 0.99, 1.0) * (broad + hot + fill) * mix(0.35, 1.0, core);
-  col += vec3(0.92, 0.84, 1.20) * core * (0.30 + 1.15 * lit);  // the chrome mark
-  col += vec3(1.0, 0.97, 1.0) * bevel * 0.42;                  // its lit edge
-  col += vec3(0.46, 0.22, 1.00) * fres * 0.95;                 // violet limb
+  // The mark is a light source, not a mirror. It is a violet trail with
+  // white-hot points where it catches, and it throws a bloom onto the
+  // surface around it. Shading it as chrome is what made it read grey
+  // and cheap — it is emissive in the art, and this is the whole fix.
+  // Emissive, not shaded. Tying the mark's base colour to how it faces a
+  // lamp is what kept it looking like matte plastic — in the art it is a
+  // light source of constant violet, and the lamps only add the white-hot
+  // points that run along its length.
+  col += vec3(0.62, 0.15, 1.00) * core * 2.35;                   // the trail
+  col += vec3(1.00, 0.93, 1.00) * core * pow(lit, 5.0) * 2.45;   // hot points
+  col += vec3(0.50, 0.13, 1.00) * halo * 2.70;                   // bloom
+  col += vec3(0.50, 0.20, 1.00) * fres * 2.60;           // atmosphere
 
   col = col / (col + vec3(1.0));
   col = pow(max(col, vec3(0.0)), vec3(0.85));
@@ -269,7 +294,7 @@ void main() {
   vec3 L = normalize(vec3(-0.40, 0.70, 0.58));
   vec3 Hv = normalize(L + V);
   float nh = max(dot(N, Hv), 0.0);
-  float hot = pow(nh, 90.0) * 2.6;
+  float hot = pow(nh, 70.0) * 4.2;
 
   float fres = pow(1.0 - max(dot(N, V), 0.0), 2.2);
   vec3 col = env + vec3(1.0, 0.98, 1.0) * hot + uTint * fres * 1.05;
@@ -318,10 +343,9 @@ export function createIntroPlanet(canvas) {
     fragmentShader: RING_FRAG,
     uniforms: { uTint: { value: new Color(tint) }, uGain: { value: gain } }
   });
-  const inner = new Mesh(new TorusGeometry(1.48, 0.075, 30, 200), ringMat(0x8a4dff, 4.2));
-  const outer = new Mesh(new TorusGeometry(1.82, 0.042, 22, 200), ringMat(0xc6a7ff, 2.4));
-  rings.add(inner, outer);
-  rings.rotation.set(1.245, 0, -0.50);   // open enough to read as a ring, leaning right
+  const hoop = new Mesh(new TorusGeometry(1.58, 0.078, 30, 240), ringMat(0xc3aaff, 8.5));
+  rings.add(hoop);
+  rings.rotation.set(1.300, 0, -0.50);
   group.add(rings);
 
   let cssW = 1;
@@ -367,10 +391,8 @@ export function createIntroPlanet(canvas) {
       body.geometry.dispose();
       bodyMat.dispose();
       mark.dispose();
-      inner.geometry.dispose();
-      inner.material.dispose();
-      outer.geometry.dispose();
-      outer.material.dispose();
+      hoop.geometry.dispose();
+      hoop.material.dispose();
       renderer.dispose();
       renderer.forceContextLoss?.();
     }

@@ -114,6 +114,10 @@
   let height = 0;
   let cx = 0;
   let cy = 0;
+  // Assigned further down, but declared here because finish() closes over
+  // it and can run from the reduced-motion path, which returns before the
+  // assignment is reached.
+  let onResize = null;
   let scale = 1;   // shortest-edge scale, so the flight frames the same on any screen
 
   // ---------------------------------------------------------------- exit
@@ -135,7 +139,7 @@
     // existence just as the overlay starts to dissolve.
     setTimeout(() => {
       cancelAnimationFrame(raf);
-      window.removeEventListener("resize", onResize);
+      if (onResize) window.removeEventListener("resize", onResize);
       try { window.__spnIntroPlanet?.dispose(); } catch (_) {}
       window.__spnIntroPlanet = null;
       overlay.remove();
@@ -176,7 +180,7 @@
   // Named, because finish() removes it by reference. Registering an
   // anonymous wrapper here left the listener attached for the life of the
   // page, still resizing a canvas that had been torn down.
-  const onResize = () => {
+  onResize = () => {
     resize();
     window.__spnIntroPlanet?.resize();
   };
@@ -223,10 +227,13 @@
   // The worlds passed on the way. Pushed well off the flight path so they
   // sweep past the edges of frame rather than through the middle, which
   // is what sells "we are moving" instead of "things are scaling up".
+  // Ordered by depth, so the nearest is the one you pass first. Each
+  // carries a single letter, the way SPN-1 carries its mark — they are
+  // the studio's other worlds, not set dressing.
   const planets = [
-    { x: -430, y: -215, z: 1180, r: 118, a: "#6a4bb8", b: "#241548", ring: false },
-    { x:  520, y:  260, z: 1520, r: 155, a: "#3f5f9e", b: "#121a33", ring: true  },
-    { x: -300, y:  330, z: 2050, r:  92, a: "#8a6bd0", b: "#1b1030", ring: false }
+    { x: -430, y: -215, z: 1120, r: 124, a: "#6a4bb8", b: "#241548", ring: false, letter: "N" },
+    { x:  520, y:  260, z: 1540, r: 158, a: "#3f5f9e", b: "#121a33", ring: true,  letter: "H" },
+    { x: -330, y:  340, z: 1960, r: 138, a: "#8a6bd0", b: "#1b1030", ring: false, letter: "T" }
   ];
 
   function speedAt(t) {
@@ -333,6 +340,10 @@
     }
   }
 
+  // Stars respawn at DEPTH; the worlds need to be visible from further
+  // back than that or the last one never resolves before it is passed.
+  const PLANET_DEPTH = 2300;
+
   function drawPassingPlanets(dt, speed, t) {
     // Faded out across the same window SPN-1 grows in: by the time the
     // destination is at rest, everything passed on the way is gone.
@@ -348,8 +359,8 @@
       if (r < 2) continue;
       if (x < -r * 1.6 || x > width + r * 1.6 || y < -r * 1.6 || y > height + r * 1.6) continue;
 
-      const near = clamp01(1 - p.z / DEPTH);
-      ctx.globalAlpha = clamp01(near * 1.6) * receding;
+      const near = clamp01(1 - p.z / PLANET_DEPTH);
+      ctx.globalAlpha = clamp01(near * 1.9) * receding;
 
       if (p.ring) {
         ctx.save();
@@ -371,6 +382,24 @@
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
+
+      // The letter, clipped to the sphere so it sits on the surface
+      // rather than floating in front of it. Skipped while the world is
+      // still small, where it would only be a smudge.
+      if (p.letter && r > 16) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x, y, r * 0.97, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.font = `600 ${Math.round(r * 1.18)}px "Space Grotesk", ui-sans-serif, system-ui, sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.shadowColor = "rgba(160,110,255,0.85)";
+        ctx.shadowBlur = r * 0.32;
+        ctx.fillStyle = "rgba(214,196,255,0.60)";
+        ctx.fillText(p.letter, x - r * 0.04, y + r * 0.03);
+        ctx.restore();
+      }
 
       // Rim light on the lit edge — without it these read as flat discs.
       ctx.strokeStyle = "rgba(198,167,255,0.42)";
