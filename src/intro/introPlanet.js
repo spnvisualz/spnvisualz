@@ -70,18 +70,29 @@ function makeMarkTexture(size = 1024) {
   // Spine of the S in unit space, terminals first. Tuned against
   // spn-orbit-transparent.png: the top bowl opens down-left, the bottom
   // bowl opens up-right, and the whole figure leans slightly right.
+  // An italic monogram S, traced from the reference: hairline terminals
+  // that curl at both ends, heavy diagonal bellies, and the very high
+  // stroke contrast of a Didone italic. Read top-terminal-first.
   const spine = [
-    [0.722, 0.168],   // tail, upper right — tapers to a point
-    [0.578, 0.146],
-    [0.410, 0.194],
-    [0.325, 0.294],
-    [0.370, 0.394],
-    [0.491, 0.462],
-    [0.616, 0.534],
-    [0.665, 0.640],
-    [0.601, 0.746],
-    [0.441, 0.806],
-    [0.269, 0.828]    // head, lower left
+    [0.700, 0.268],   // top terminal — tip of the hairline hook
+    [0.716, 0.222],
+    [0.700, 0.180],
+    [0.650, 0.156],
+    [0.580, 0.152],   // over the top of the upper bowl
+    [0.492, 0.184],
+    [0.412, 0.246],
+    [0.378, 0.322],   // upper bowl, thickening
+    [0.408, 0.396],
+    [0.492, 0.458],   // the heavy middle diagonal
+    [0.578, 0.520],
+    [0.640, 0.590],
+    [0.662, 0.672],   // lower belly
+    [0.626, 0.752],
+    [0.542, 0.808],
+    [0.442, 0.828],   // under the bottom of the lower bowl
+    [0.354, 0.812],
+    [0.310, 0.772],
+    [0.302, 0.726]    // bottom terminal — tip of the hairline hook
   ];
 
   // Fraction of the disc the figure is allowed to occupy. Texture space
@@ -103,8 +114,13 @@ function makeMarkTexture(size = 1024) {
     return [h(x0, x1, x2, x3), h(y0, y1, y2, y3)];
   };
 
-  // Thin at both terminals, fullest through the crossing.
-  const widthAt = (t) => (0.002 + 0.049 * Math.pow(Math.sin(Math.PI * t), 0.34)) * FIT;
+  // Stroke contrast is what makes this read as a written letter rather
+  // than a drawn ribbon: the two hooks stay hairline while the diagonal
+  // through the middle carries roughly seven times their weight.
+  const widthAt = (t) => {
+    const b = Math.sin(Math.PI * Math.min(1, Math.max(0, (t - 0.20) / 0.68)));
+    return (0.0122 + 0.0640 * Math.pow(b, 1.1)) * FIT;
+  };
 
   const STEPS = 400;
   const left = [];
@@ -132,7 +148,7 @@ function makeMarkTexture(size = 1024) {
   // Violet halo, then a hot core — the layering the reference shows where
   // the ridge catches the key light.
   g.save();
-  g.filter = `blur(${Math.round(size * 0.016)}px)`;
+  g.filter = `blur(${Math.round(size * 0.008)}px)`;
   g.fillStyle = "rgba(158,104,255,0.95)";
   ribbon();
   g.fill();

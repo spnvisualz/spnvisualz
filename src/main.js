@@ -92,6 +92,13 @@ function boot() {
     scroll?.resize();
     scroll?.start();
 
+    // Measure again once everything that changes page height has settled.
+    // Lenis caches scroll limits, and a limit captured before webfonts
+    // swap or the work posters lay out is a limit that no longer matches
+    // the page.
+    window.addEventListener("load", () => getLenis()?.resize(), { once: true });
+    document.fonts?.ready?.then(() => getLenis()?.resize()).catch(() => {});
+
     const director = mountSceneDirector();
     bindFacetToServices(director);
     bindPlanetToContact(director);
@@ -111,6 +118,26 @@ function boot() {
   } else {
     startWorld();
   }
+
+  // Safety net, not a diagnosis.
+  //
+  // A stale Lenis measurement leaves the wheel and trackpad completely
+  // dead while the scrollbar still works, because the scrollbar drives
+  // native scroll and everything else goes through Lenis. That exact
+  // failure has been reported on desktop and could not be reproduced
+  // here, so rather than leave a visitor on a page they cannot scroll,
+  // watch for the signature — a wheel gesture that moves nothing on a
+  // document that is clearly scrollable — and re-measure once.
+  let wheelProbe = 0;
+  window.addEventListener("wheel", () => {
+    const before = window.scrollY;
+    clearTimeout(wheelProbe);
+    wheelProbe = setTimeout(() => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const atBottom = before >= max - 2;
+      if (max > 50 && !atBottom && window.scrollY === before) getLenis()?.resize();
+    }, 200);
+  }, { passive: true });
 
   ScrollTrigger.create({
     start: 0,

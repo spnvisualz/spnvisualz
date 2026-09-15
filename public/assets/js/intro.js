@@ -135,7 +135,7 @@
     // existence just as the overlay starts to dissolve.
     setTimeout(() => {
       cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", onResize);
       try { window.__spnIntroPlanet?.dispose(); } catch (_) {}
       window.__spnIntroPlanet = null;
       overlay.remove();
@@ -173,10 +173,14 @@
     scale = Math.min(width, height) / 900;
   }
   resize();
-  window.addEventListener("resize", () => {
+  // Named, because finish() removes it by reference. Registering an
+  // anonymous wrapper here left the listener attached for the life of the
+  // page, still resizing a canvas that had been torn down.
+  const onResize = () => {
     resize();
     window.__spnIntroPlanet?.resize();
-  });
+  };
+  window.addEventListener("resize", onResize);
 
   // Star count follows the device rather than the design: a mid-range
   // phone should not be asked to draw 500 streaks a frame just because a
