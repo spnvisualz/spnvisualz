@@ -7,7 +7,7 @@ import "./styles/services.css";
 import "./styles/pricing.css";
 import "./styles/misc.css";
 
-import { createMasterScroll, ScrollTrigger } from "./motion/scrollTimeline.js";
+import { createMasterScroll, getLenis, ScrollTrigger } from "./motion/scrollTimeline.js";
 import { mountSceneDirector, bindFacetToServices, bindPlanetToContact } from "./three/SceneDirector.js";
 import { initWorkSequence } from "./work/workSequence.js";
 import { initNav } from "./nav/nav.js";
@@ -31,8 +31,19 @@ function boot() {
 
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  createMasterScroll({ reduceMotion });
+  const lenis = createMasterScroll({ reduceMotion });
   initNav();
+
+  // Lenis owns the scroll, and it measures the document when it is
+  // constructed. The intro holds the page with html{overflow:hidden},
+  // and this runs underneath it — main.js cannot execute until the
+  // Three.js chunk has arrived, which is long after the overlay went up.
+  // So Lenis was measuring a page that could not scroll, caching a limit
+  // of zero, and keeping it after the lock came off: the wheel and touch
+  // did nothing on the homepage while programmatic scrolling still
+  // worked, which is why this got past the first round of testing.
+  // Park it explicitly now and re-measure once the page is really free.
+  if (window.__spnIntroActive) lenis?.stop();
 
   // Work is real DOM content now, so its height comes from the content
   // itself — there is no JS-sized spacer to measure, and nothing whose
@@ -55,6 +66,12 @@ function boot() {
   const startWorld = () => {
     if (worldStarted) return;
     worldStarted = true;
+    // Order matters: the scroll lock is already off by the time the
+    // intro fires its event, so re-measuring here sees the real document.
+    const scroll = getLenis();
+    scroll?.resize();
+    scroll?.start();
+
     const director = mountSceneDirector();
     bindFacetToServices(director);
     bindPlanetToContact(director);
