@@ -87,39 +87,40 @@ function makeMarkTexture(size = 1024) {
   // Spine of the S in unit space, terminals first. Tuned against
   // spn-orbit-transparent.png: the top bowl opens down-left, the bottom
   // bowl opens up-right, and the whole figure leans slightly right.
-  // An italic monogram S, traced from the reference: hairline terminals
-  // that curl at both ends, heavy diagonal bellies, and the very high
-  // stroke contrast of a Didone italic. Read top-terminal-first.
+  // Traced point-for-point off the marked-up reference.
+  //
+  // The mark is a wide, flat swoosh, not a tall letterform: a bar sweeping
+  // left across the top, a long diagonal back to the right, and a bar
+  // sweeping left again along the bottom. Every previous attempt here was
+  // built as an upright S and was wrong in shape before it was ever wrong
+  // in colour.
+  //
+  // Coordinates are the traced path measured against the planet's disc and
+  // converted straight to texture space, which works because uv maps
+  // linearly across the silhouette — so these are the real proportions and
+  // need no fitting.
   const spine = [
-    [0.700, 0.268],   // top terminal — tip of the hairline hook
-    [0.716, 0.222],
-    [0.700, 0.180],
-    [0.650, 0.156],
-    [0.580, 0.152],   // over the top of the upper bowl
-    [0.492, 0.184],
-    [0.412, 0.246],
-    [0.378, 0.322],   // upper bowl, thickening
-    [0.408, 0.396],
-    [0.492, 0.458],   // the heavy middle diagonal
-    [0.578, 0.520],
-    [0.640, 0.590],
-    [0.662, 0.672],   // lower belly
-    [0.626, 0.752],
-    [0.542, 0.808],
-    [0.442, 0.828],   // under the bottom of the lower bowl
-    [0.354, 0.812],
-    [0.310, 0.772],
-    [0.302, 0.726]    // bottom terminal — tip of the hairline hook
+    [0.616, 0.116],   // top terminal, upper right
+    [0.496, 0.132],
+    [0.359, 0.178],
+    [0.234, 0.268],
+    [0.178, 0.364],   // far left of the top bar
+    [0.200, 0.439],
+    [0.303, 0.484],
+    [0.450, 0.514],   // through the middle
+    [0.609, 0.541],
+    [0.705, 0.582],   // far right of the diagonal
+    [0.696, 0.655],
+    [0.609, 0.718],
+    [0.462, 0.780],
+    [0.325, 0.818],
+    [0.241, 0.832]    // bottom terminal, lower left
   ];
 
-  // Fraction of the disc the figure is allowed to occupy. Texture space
-  // maps near-linearly across the silhouette, so this reads directly as
-  // "how much of the planet the mark covers".
-  const FIT = 0.87;
+  const FIT = 1.0;
   const fit = ([x, y]) => [0.5 + (x - 0.5) * FIT, 0.5 + (y - 0.5) * FIT];
 
   const at = (t) => {
-    // Catmull-Rom through the control points.
     const n = spine.length - 1;
     const f = Math.min(0.9999, Math.max(0, t)) * n;
     const i = Math.floor(f);
@@ -131,52 +132,49 @@ function makeMarkTexture(size = 1024) {
     return [h(x0, x1, x2, x3), h(y0, y1, y2, y3)];
   };
 
-  // Stroke contrast is what makes this read as a written letter rather
-  // than a drawn ribbon: the two hooks stay hairline while the diagonal
-  // through the middle carries roughly seven times their weight.
+  // A broad ribbon that thins toward each terminal — the reference band is
+  // roughly a twelfth of the planet across at its heaviest.
   const widthAt = (t) => {
-    const b = Math.sin(Math.PI * Math.min(1, Math.max(0, (t - 0.20) / 0.68)));
-    return (0.0122 + 0.0640 * Math.pow(b, 1.1)) * FIT;
+    const b = Math.sin(Math.PI * Math.min(1, Math.max(0, (t - 0.06) / 0.88)));
+    return 0.0070 + 0.0270 * Math.pow(b, 0.70);
   };
 
-  const STEPS = 400;
-  const left = [];
-  const right = [];
-  for (let i = 0; i <= STEPS; i++) {
-    const t = i / STEPS;
-    const [x, y] = at(t);
-    const [xa, ya] = at(Math.max(0, t - 0.004));
-    const [xb, yb] = at(Math.min(1, t + 0.004));
-    const dx = xb - xa, dy = yb - ya;
-    const len = Math.hypot(dx, dy) || 1;
-    const nx = -dy / len, ny = dx / len;
-    const w = widthAt(t);
-    left.push([(x + nx * w) * size, (y + ny * w) * size]);
-    right.push([(x - nx * w) * size, (y - ny * w) * size]);
-  }
+  const STEPS = 420;
 
-  const ribbon = () => {
+  // Offsets for a given half-width multiplier, so the three passes share
+  // one spine and differ only in weight.
+  const ribbon = (scale) => {
+    const left = [], right = [];
+    for (let i = 0; i <= STEPS; i++) {
+      const t = i / STEPS;
+      const [x, y] = at(t);
+      const [xa, ya] = at(Math.max(0, t - 0.004));
+      const [xb, yb] = at(Math.min(1, t + 0.004));
+      const dx = xb - xa, dy = yb - ya;
+      const len = Math.hypot(dx, dy) || 1;
+      const nx = -dy / len, ny = dx / len;
+      const w = widthAt(t) * scale;
+      left.push([(x + nx * w) * size, (y + ny * w) * size]);
+      right.push([(x - nx * w) * size, (y - ny * w) * size]);
+    }
     g.beginPath();
     left.forEach(([x, y], i) => (i === 0 ? g.moveTo(x, y) : g.lineTo(x, y)));
     for (let i = right.length - 1; i >= 0; i--) g.lineTo(right[i][0], right[i][1]);
     g.closePath();
   };
 
-  // Violet halo, then a hot core — the layering the reference shows where
-  // the ridge catches the key light.
-  g.save();
-  g.filter = `blur(${Math.round(size * 0.008)}px)`;
-  g.fillStyle = "rgba(158,104,255,0.95)";
-  ribbon();
-  g.fill();
-  g.restore();
+  const pass = (scale, blur, fill) => {
+    g.save();
+    if (blur) g.filter = `blur(${Math.round(size * blur)}px)`;
+    g.fillStyle = fill;
+    ribbon(scale);
+    g.fill();
+    g.restore();
+  };
 
-  g.save();
-  g.filter = `blur(${Math.round(size * 0.002)}px)`;
-  g.fillStyle = "rgba(255,252,255,1)";
-  ribbon();
-  g.fill();
-  g.restore();
+  pass(1.85, 0.022, "rgba(104, 44, 255, 0.32)");   // outer bloom
+  pass(1.00, 0.008, "rgba(140, 74, 255, 0.95)");   // the violet body
+  pass(0.34, 0.003, "rgba(238, 230, 255, 1)");     // the hot filament
 
   const tex = new CanvasTexture(c);
   tex.minFilter = LinearFilter;
@@ -219,7 +217,8 @@ void main() {
   // the surface — no UV seam, no pole pinching.
   vec2 uv = N.xy * 0.5 + 0.5;
   float e = 0.0030;
-  float m  = texture2D(uMark, uv).a;
+  vec4 mk = texture2D(uMark, uv);
+  float m = mk.a;
   float mx = texture2D(uMark, uv + vec2(e, 0.0)).a - texture2D(uMark, uv - vec2(e, 0.0)).a;
   float my = texture2D(uMark, uv + vec2(0.0, e)).a - texture2D(uMark, uv - vec2(0.0, e)).a;
 
@@ -253,7 +252,7 @@ void main() {
   float fres = pow(1.0 - max(dot(N, V), 0.0), 5.6);
 
   vec3 col = vec3(0.006, 0.004, 0.014);
-  col += vec3(0.13, 0.04, 0.34) * veins * 0.34;          // violet veining
+  col += vec3(0.15, 0.05, 0.36) * veins * 0.48;          // violet veining
   col += vec3(0.07, 0.06, 0.11) * grain * 0.13;          // stone grain
   col += studio(reflect(-V, Nr)) * 0.13;                 // a trace of room
   col += vec3(1.0, 0.99, 1.0) * (broad + hot + fill);
@@ -262,14 +261,15 @@ void main() {
   // white-hot points where it catches, and it throws a bloom onto the
   // surface around it. Shading it as chrome is what made it read grey
   // and cheap — it is emissive in the art, and this is the whole fix.
-  // Emissive, not shaded. Tying the mark's base colour to how it faces a
-  // lamp is what kept it looking like matte plastic — in the art it is a
-  // light source of constant violet, and the lamps only add the white-hot
-  // points that run along its length.
-  col += vec3(0.62, 0.15, 1.00) * core * 2.35;                   // the trail
-  col += vec3(1.00, 0.93, 1.00) * core * pow(lit, 5.0) * 2.45;   // hot points
-  col += vec3(0.50, 0.13, 1.00) * halo * 2.70;                   // bloom
-  col += vec3(0.50, 0.20, 1.00) * fres * 2.60;           // atmosphere
+  // Emissive, and coloured by the texture rather than by the shader. The
+  // mark is not one colour: it is a near-white filament inside a violet
+  // body inside a wider bloom, and painting it a single violet is what
+  // left it looking like a flat sticker. The three passes in the texture
+  // carry that structure, so all this has to do is let it emit.
+  col += mk.rgb * m * facing * 2.20;
+  col += vec3(1.00, 0.94, 1.00) * core * pow(lit, 5.0) * 1.35;   // catch points
+  col += vec3(0.46, 0.12, 1.00) * halo * 1.15;                   // spill
+  col += vec3(0.50, 0.20, 1.00) * fres * 2.05;           // atmosphere
 
   col = col / (col + vec3(1.0));
   col = pow(max(col, vec3(0.0)), vec3(0.85));
