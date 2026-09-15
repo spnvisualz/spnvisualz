@@ -16,7 +16,6 @@ import { initReveals } from "./motion/reveal.js";
 import { initServices } from "./services/services.js";
 import { initPricing } from "./pricing/pricing.js";
 import { initOrderDialog } from "./contact/orderDialog.js";
-import { createIntroPlanet } from "./intro/introPlanet.js";
 
 function boot() {
   // Setting history.scrollRestoration directly is not enough. ScrollTrigger
@@ -31,25 +30,6 @@ function boot() {
   window.scrollTo(0, 0);
 
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  // Hand SPN-1 to the intro as real geometry. This module cannot run
-  // until the Three chunk has arrived, which is why the overlay opens on
-  // a 2D starfield and only swaps the planet in when it is ready — the
-  // flight covers the download, and the planet is not needed until the
-  // approach begins about two seconds in. If it misses that window, or
-  // WebGL is unavailable, intro.js keeps drawing the flat brand art and
-  // nothing is lost but the geometry.
-  if (window.__spnIntroActive && !reduceMotion) {
-    const planetCanvas = document.getElementById("spnIntroPlanet");
-    if (planetCanvas) {
-      try {
-        window.__spnIntroPlanet = createIntroPlanet(planetCanvas);
-      } catch (err) {
-        console.error("[intro] could not build the 3D planet", err);
-        window.__spnIntroPlanet = null;
-      }
-    }
-  }
 
   const lenis = createMasterScroll({ reduceMotion });
   initNav();

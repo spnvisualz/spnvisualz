@@ -19,7 +19,10 @@
    * this script never loads, a CSS animation still retires the overlay.
    */
 
-  const SEEN_KEY = "spn_intro_seen";
+  // Version the key whenever the arrival is materially rebuilt so an
+  // existing visitor sees the new cut once without being trapped into
+  // replaying it on every page view.
+  const SEEN_KEY = "spn_intro_seen_v2";
 
   // Every timing in one place, in ms from the first frame. The whole
   // sequence is ~4.4s of content plus a 620ms exit — long enough to read
@@ -140,8 +143,6 @@
     setTimeout(() => {
       cancelAnimationFrame(raf);
       if (onResize) window.removeEventListener("resize", onResize);
-      try { window.__spnIntroPlanet?.dispose(); } catch (_) {}
-      window.__spnIntroPlanet = null;
       overlay.remove();
     }, T.fade + 120);
   }
@@ -182,7 +183,6 @@
   // page, still resizing a canvas that had been torn down.
   onResize = () => {
     resize();
-    window.__spnIntroPlanet?.resize();
   };
   window.addEventListener("resize", onResize);
 
@@ -231,10 +231,136 @@
   // carries a single letter, the way SPN-1 carries its mark — they are
   // the studio's other worlds, not set dressing.
   const planets = [
-    { x: -430, y: -215, z: 1120, r: 124, a: "#6a4bb8", b: "#241548", ring: false, letter: "N" },
-    { x:  520, y:  260, z: 1540, r: 158, a: "#3f5f9e", b: "#121a33", ring: true,  letter: "H" },
-    { x: -330, y:  340, z: 1960, r: 138, a: "#8a6bd0", b: "#1b1030", ring: false, letter: "T" }
+    { x: -430, y: -215, z: 1120, r: 124, light: "#7451b7", rock: "#170d28", ring: false, letter: "P", seed: 19, spin: -0.18 },
+    { x:  520, y:  260, z: 1540, r: 158, light: "#526b9e", rock: "#0c1328", ring: true,  letter: "N", seed: 43, spin:  0.12 },
+    { x: -330, y:  340, z: 1960, r: 138, light: "#8a62be", rock: "#150a24", ring: false, letter: "V", seed: 71, spin: -0.09 }
   ];
+
+  // These are geological monograms, not text placed over a circle. Each
+  // letter is drawn as a recessed mineral channel into an irregular rock
+  // surface, then the complete surface is lit and rotated as one object.
+  function makePlanetSurface(p) {
+    const size = 512;
+    const c = document.createElement("canvas");
+    c.width = c.height = size;
+    const g = c.getContext("2d");
+    let state = p.seed >>> 0;
+    const seeded = () => {
+      state = (state * 1664525 + 1013904223) >>> 0;
+      return state / 4294967296;
+    };
+
+    g.save();
+    g.beginPath();
+    g.arc(size / 2, size / 2, size * 0.492, 0, Math.PI * 2);
+    g.clip();
+
+    const base = g.createRadialGradient(size * 0.32, size * 0.27, size * 0.02, size * 0.54, size * 0.55, size * 0.62);
+    base.addColorStop(0, p.light);
+    base.addColorStop(0.24, p.rock);
+    base.addColorStop(0.72, "#080510");
+    base.addColorStop(1, "#010104");
+    g.fillStyle = base;
+    g.fillRect(0, 0, size, size);
+
+    // Broken plates and impact scars keep the surface tactile even when a
+    // world crosses a phone screen for less than a second.
+    for (let i = 0; i < 150; i++) {
+      const x = seeded() * size;
+      const y = seeded() * size;
+      const rx = (7 + seeded() * 35) * (0.6 + Math.abs(x - size / 2) / size);
+      const ry = 3 + seeded() * 14;
+      g.save();
+      g.translate(x, y);
+      g.rotate(seeded() * Math.PI);
+      g.fillStyle = `rgba(${80 + Math.round(seeded() * 55)},${45 + Math.round(seeded() * 35)},${105 + Math.round(seeded() * 75)},${(0.025 + seeded() * 0.09).toFixed(3)})`;
+      g.beginPath();
+      g.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+      g.fill();
+      g.restore();
+    }
+
+    for (let i = 0; i < 34; i++) {
+      const x = size * (0.12 + seeded() * 0.76);
+      const y = size * (0.12 + seeded() * 0.76);
+      const r = 4 + seeded() * 16;
+      const crater = g.createRadialGradient(x - r * 0.35, y - r * 0.4, 1, x, y, r);
+      crater.addColorStop(0, "rgba(157,125,199,.13)");
+      crater.addColorStop(0.45, "rgba(8,4,15,.52)");
+      crater.addColorStop(1, "rgba(70,38,104,0)");
+      g.fillStyle = crater;
+      g.beginPath();
+      g.arc(x, y, r, 0, Math.PI * 2);
+      g.fill();
+    }
+
+    // A bespoke angular path for each world avoids browser-font rendering
+    // and gives the cuts the same monumental proportions at every size.
+    const traceMonogram = () => {
+      g.beginPath();
+      if (p.letter === "P") {
+        g.moveTo(-0.31, 0.56); g.lineTo(-0.31, -0.58);
+        g.moveTo(-0.31, 0.52); g.bezierCurveTo(0.48, 0.58, 0.48, -0.04, -0.31, -0.05);
+      } else if (p.letter === "N") {
+        g.moveTo(-0.39, 0.58); g.lineTo(-0.39, -0.58); g.lineTo(0.39, 0.58); g.lineTo(0.39, -0.58);
+      } else {
+        g.moveTo(-0.46, 0.55); g.lineTo(0, -0.58); g.lineTo(0.46, 0.55);
+      }
+    };
+
+    g.save();
+    g.translate(size * 0.50, size * 0.51);
+    g.scale(size * 0.62, size * 0.62);
+    g.lineCap = "round";
+    g.lineJoin = "round";
+    g.shadowColor = "rgba(0,0,0,.95)";
+    g.shadowBlur = 14;
+    g.shadowOffsetX = 0.022;
+    g.shadowOffsetY = 0.035;
+    g.strokeStyle = "rgba(2,1,7,.98)";
+    g.lineWidth = 0.205;
+    traceMonogram(); g.stroke();
+    g.shadowColor = "rgba(164,102,255,.48)";
+    g.shadowBlur = 12;
+    g.shadowOffsetX = -0.018;
+    g.shadowOffsetY = -0.022;
+    g.strokeStyle = "rgba(104,60,156,.82)";
+    g.lineWidth = 0.145;
+    traceMonogram(); g.stroke();
+    g.shadowColor = "rgba(0,0,0,.85)";
+    g.shadowBlur = 5;
+    g.shadowOffsetX = 0.012;
+    g.shadowOffsetY = 0.018;
+    g.strokeStyle = "rgba(9,4,18,.96)";
+    g.lineWidth = 0.092;
+    traceMonogram(); g.stroke();
+    g.shadowColor = "rgba(174,112,255,.75)";
+    g.shadowBlur = 8;
+    g.shadowOffsetX = 0;
+    g.shadowOffsetY = 0;
+    g.strokeStyle = "rgba(170,116,230,.48)";
+    g.lineWidth = 0.016;
+    traceMonogram(); g.stroke();
+    g.restore();
+
+    // Veins cross the carved channels, tying the monogram back into the
+    // crust instead of leaving a pristine logo-shaped hole.
+    g.lineCap = "round";
+    for (let i = 0; i < 46; i++) {
+      const x = seeded() * size;
+      const y = seeded() * size;
+      g.strokeStyle = `rgba(151,96,220,${(0.035 + seeded() * 0.12).toFixed(3)})`;
+      g.lineWidth = 0.5 + seeded() * 1.25;
+      g.beginPath();
+      g.moveTo(x, y);
+      g.lineTo(x + (seeded() - 0.5) * 48, y + (seeded() - 0.5) * 34);
+      g.stroke();
+    }
+    g.restore();
+    return c;
+  }
+
+  planets.forEach((p) => { p.surface = makePlanetSurface(p); });
 
   function speedAt(t) {
     if (t < T.warpIn) return DRIFT + easeIn(t / T.warpIn) * (WARP_SPEED - DRIFT);
@@ -362,50 +488,59 @@
       const near = clamp01(1 - p.z / PLANET_DEPTH);
       ctx.globalAlpha = clamp01(near * 1.9) * receding;
 
+      // Back half of the orbit first; the front half is painted after the
+      // sphere. That occlusion is the small cue that makes a ring feel as
+      // if it surrounds a world instead of being an ellipse behind one.
       if (p.ring) {
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(-0.42);
-        ctx.strokeStyle = "rgba(198,178,255,0.34)";
-        ctx.lineWidth = Math.max(1, r * 0.055);
+        const chrome = ctx.createLinearGradient(-r * 1.7, 0, r * 1.7, 0);
+        chrome.addColorStop(0, "rgba(67,48,92,.52)");
+        chrome.addColorStop(0.28, "rgba(232,224,255,.88)");
+        chrome.addColorStop(0.52, "rgba(89,60,128,.62)");
+        chrome.addColorStop(0.78, "rgba(246,241,255,.94)");
+        chrome.addColorStop(1, "rgba(72,49,99,.5)");
+        ctx.strokeStyle = chrome;
+        ctx.lineWidth = Math.max(1.2, r * 0.075);
         ctx.beginPath();
-        ctx.ellipse(0, 0, r * 1.72, r * 0.42, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 0, r * 1.72, r * 0.42, 0, Math.PI, Math.PI * 2);
         ctx.stroke();
         ctx.restore();
       }
 
-      const g = ctx.createRadialGradient(x - r * 0.38, y - r * 0.42, r * 0.04, x, y, r);
-      g.addColorStop(0, p.a);
-      g.addColorStop(0.62, p.b);
-      g.addColorStop(1, "#05030c");
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(p.spin + t * (p.seed % 2 ? 0.000018 : -0.000014));
+      ctx.shadowColor = "rgba(116,72,210,.28)";
+      ctx.shadowBlur = r * 0.22;
+      ctx.drawImage(p.surface, -r, -r, r * 2, r * 2);
+      ctx.restore();
 
-      // The letter, clipped to the sphere so it sits on the surface
-      // rather than floating in front of it. Skipped while the world is
-      // still small, where it would only be a smudge.
-      if (p.letter && r > 16) {
+      if (p.ring) {
         ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(-0.42);
+        const frontChrome = ctx.createLinearGradient(-r * 1.7, 0, r * 1.7, 0);
+        frontChrome.addColorStop(0, "rgba(80,56,108,.65)");
+        frontChrome.addColorStop(0.34, "rgba(250,247,255,.98)");
+        frontChrome.addColorStop(0.60, "rgba(109,72,155,.72)");
+        frontChrome.addColorStop(0.84, "rgba(231,219,255,.94)");
+        frontChrome.addColorStop(1, "rgba(61,41,83,.58)");
+        ctx.strokeStyle = frontChrome;
+        ctx.lineWidth = Math.max(1.2, r * 0.075);
         ctx.beginPath();
-        ctx.arc(x, y, r * 0.97, 0, Math.PI * 2);
-        ctx.clip();
-        ctx.font = `600 ${Math.round(r * 1.18)}px "Space Grotesk", ui-sans-serif, system-ui, sans-serif`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.shadowColor = "rgba(160,110,255,0.85)";
-        ctx.shadowBlur = r * 0.32;
-        ctx.fillStyle = "rgba(214,196,255,0.60)";
-        ctx.fillText(p.letter, x - r * 0.04, y + r * 0.03);
+        ctx.ellipse(0, 0, r * 1.72, r * 0.42, 0, 0, Math.PI);
+        ctx.stroke();
         ctx.restore();
       }
 
-      // Rim light on the lit edge — without it these read as flat discs.
-      ctx.strokeStyle = "rgba(198,167,255,0.42)";
-      ctx.lineWidth = Math.max(0.6, r * 0.03);
+      // A broken rim, not a complete vector outline. The dark side is
+      // allowed to disappear into space like the reference Orb does.
+      ctx.strokeStyle = "rgba(207,180,255,0.52)";
+      ctx.lineWidth = Math.max(0.7, r * 0.022);
       ctx.beginPath();
-      ctx.arc(x, y, r * 0.985, Math.PI * 0.85, Math.PI * 1.95);
+      ctx.arc(x, y, r * 0.985, Math.PI * 0.82, Math.PI * 1.72);
       ctx.stroke();
       ctx.globalAlpha = 1;
     }
@@ -433,30 +568,15 @@
     ctx.arc(x, y, size * 0.92, 0, Math.PI * 2);
     ctx.fill();
 
-    // Real geometry if it made it in time (src/intro/introPlanet.js,
-    // mounted by main.js once the Three chunk lands), otherwise the flat
-    // brand art. The choice is re-made every frame so a planet that
-    // arrives mid-approach simply takes over.
-    const planet3d = window.__spnIntroPlanet;
-    if (planet3d) {
-      overlay.classList.add("has-planet3d");
-      try {
-        planet3d.render(size, k, t / 1000);
-        return;
-      } catch (err) {
-        window.__spnIntroPlanet = null;
-        overlay.classList.remove("has-planet3d");
-        console.error("[intro] 3D planet failed, falling back to the still", err);
-      }
-    }
-
     if (!poster || !poster.complete || !poster.naturalWidth) return;
 
     const ar = poster.naturalHeight / poster.naturalWidth;
     const w = size;
     const h = size * ar;
     ctx.globalAlpha = clamp01(k * 1.25);
+    ctx.globalCompositeOperation = "screen";
     ctx.drawImage(poster, x - w / 2, y - h / 2, w, h);
+    ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1;
   }
 
