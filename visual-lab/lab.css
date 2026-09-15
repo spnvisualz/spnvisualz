@@ -2,7 +2,10 @@
    Typography/color tokens now match the FOUNDRY homepage system
    (src/styles/tokens.css) so the Lab reads as the same studio, not a
    separate site that happens to link back. */
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500&family=IBM+Plex+Mono:wght@400;500&display=swap");
+/* The webfonts are loaded by a <link> in each page's head, not from here.
+   An @import inside a stylesheet cannot be discovered until that sheet has
+   been downloaded and parsed, which puts the font request a full round-trip
+   behind the page. */
 :root {
   --lab-black: #030207;
   --lab-black-2: #08050e;

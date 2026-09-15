@@ -42,7 +42,8 @@ HTML, JSON-LD, link and advertising-policy checks.
 - `CNAME`, `robots.txt`, `sitemap.xml`, `ads.txt`, `favicon.ico` present
 - `visual-lab/article-template.html` is **not** published (it contains
   unresolved `{{PLACEHOLDER}}` tokens)
-- Selected Work contains exactly 9 items in the HTML, not injected by JS
+- Selected Work contains as many items in the HTML as `src/work/projects.js`
+  declares, not injected by JS
 - Every referenced work video exists in the build
 - No AdSense library tag hard-coded in markup, and no empty ad
   placeholders

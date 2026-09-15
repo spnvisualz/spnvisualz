@@ -165,7 +165,10 @@
        display:none so it is decoded and drawable either way. */
     .spn-intro__poster{
       position: absolute; left: 50%; top: 48.5%; transform: translate(-50%,-50%);
-      width: min(76vw, 58vh); height: auto; opacity: 0; pointer-events: none;
+      /* Matches the canvas framing in intro.js drawHomePlanet (0.72w /
+         0.52h). These had drifted apart, so the reduced-motion still
+         drew the Orb larger than the flight everyone else sees. */
+      width: min(72vw, 52vh); height: auto; opacity: 0; pointer-events: none;
       mix-blend-mode: screen;
     }
     #spnIntro.is-static .spn-intro__poster{ opacity: 1; transition: opacity .9s ease .1s; }
@@ -347,7 +350,7 @@
           <p class="section-label">Selected work</p>
           <h2>Motion that carries a name.</h2>
         </div>
-        <p class="work-head__count"><b id="workCurrent">01</b> / <span id="workTotal">09</span></p>
+        <p class="work-head__count"><b id="workCurrent">01</b> / <span id="workTotal">07</span></p>
       </header>
       <div class="work-track" id="workTrack">
         <article class="work-item" data-index="0" id="work-icekiid">
@@ -608,6 +611,12 @@
       <a href="/websites/">Website Services</a>
       <a href="/visual-lab/">Visual Lab</a>
       <a href="/privacy/">Privacy</a>
+      <!-- consent.js opens its preferences panel from this hook. Every
+           other page carried one; without it here the banner's own
+           "change this later in the footer" line was false on the page
+           most visitors see, and an accepted choice could not be
+           withdrawn without clearing site data. -->
+      <a href="#" data-consent-settings>Privacy settings</a>
     </nav>
     <p>&copy; <span id="year">2026</span> SPNVISUALZ. All rights reserved.</p>
   </footer>

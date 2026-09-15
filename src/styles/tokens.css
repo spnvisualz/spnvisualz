@@ -19,7 +19,12 @@
   --panel: #0b0811;
   --text: #f5f2fb;
   --muted: rgba(245,242,251,.58);
-  --quiet: rgba(245,242,251,.34);
+  /* .34 measured 2.75:1 against --bg and --panel, under the 4.5:1 WCAG AA
+     floor for text this size — and this token carries real copy: pricing
+     tab labels, struck-through prices, delivery labels, contact labels,
+     the order-dialog helper line. .48 clears it at 4.56:1 and 4.60:1 while
+     staying well below --muted, so the hierarchy is unchanged. */
+  --quiet: rgba(245,242,251,.48);
   --line: rgba(255,255,255,.14);
 
   --purple: #8a4dff;

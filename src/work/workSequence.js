@@ -41,15 +41,31 @@ const LOAD_MARGIN = "150% 0px 150% 0px";
 const RELEASE_MARGIN = "260% 0px 260% 0px";
 const PLAY_THRESHOLD = 0.32;
 
-function sourceFor(project, useMobile) {
-  return useMobile && project.videoMobile ? project.videoMobile : project.video;
+function sourceFor(project, useLight) {
+  return useLight && project.videoMobile ? project.videoMobile : project.video;
+}
+
+// Selected Work is the heaviest thing on the page by a wide margin — seven
+// clips, up to 6.6 MB each — and it was choosing between them on viewport
+// width alone. deviceTier.js already reads Save-Data and effectiveType to
+// decide whether this visitor gets the 3D layer at all, so a data-saver
+// visitor on a desktop was being spared the scene and then handed several
+// times more video than it would ever have cost.
+//
+// The lighter encodes are used instead of dropping playback: the portfolio
+// is the content here, and the mobile cuts are roughly 60% smaller rather
+// than absent.
+function prefersLightMedia() {
+  const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (!c) return false;
+  return Boolean(c.saveData) || /(^|-)(2g|slow-2g)$/.test(c.effectiveType || "");
 }
 
 export function initWorkSequence({ reduceMotion = false } = {}) {
   const track = document.getElementById("workTrack");
   if (!track) return null;
 
-  const useMobile = window.matchMedia(MOBILE_QUERY).matches;
+  const useLight = window.matchMedia(MOBILE_QUERY).matches || prefersLightMedia();
 
   // The project markup ships in the HTML rather than being created here.
   // Building it in JS meant a crawler — or an ad-network reviewer, or
@@ -100,7 +116,7 @@ export function initWorkSequence({ reduceMotion = false } = {}) {
     item.video.dataset.loaded = "1";
     item.video.preload = "auto";
     if ("fetchPriority" in HTMLImageElement.prototype) item.video.fetchPriority = "high";
-    item.video.src = sourceFor(item.project, useMobile);
+    item.video.src = sourceFor(item.project, useLight);
     item.video.load();
   };
 
