@@ -29,6 +29,17 @@ jobs:
 
       - run: npm ci
 
+      - name: Lint
+        # Bug-finding rules only (eslint:recommended), no style enforcement,
+        # so this flags things that fail at runtime rather than reformatting
+        # hand-written code. Warnings do not fail the run; errors do.
+        run: npm run lint
+
+      - name: Tests
+        # tests/intro.test.mjs existed and passed but nothing ran it, so a
+        # regression in the arrival sequence could reach main unnoticed.
+        run: npm test
+
       - name: Build
         run: npm run build
 
