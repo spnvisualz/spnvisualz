@@ -78,6 +78,7 @@ test('N, H, T are preloaded and shipped; the approved main Orb is unchanged', ()
   assert.ok(html.includes('src="/assets/images/spn-orb-arrival.webp"'));
   assert.ok(!code.includes('makePlanetSurface'));
   assert.ok(!code.includes('fillText'));
+  assert.ok(html.includes('#spnIntro [data-planet-letter]{ display: none !important; }'));
 });
 
 for (const [width, height] of [[390, 844], [360, 640], [1440, 900], [844, 390]]) {
