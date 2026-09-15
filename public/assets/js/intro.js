@@ -120,8 +120,6 @@
   function finish() {
     if (done) return;
     done = true;
-    cancelAnimationFrame(raf);
-    window.removeEventListener("resize", resize);
     document.removeEventListener("keydown", onKey);
 
     overlay.classList.add("is-leaving");
@@ -131,7 +129,17 @@
     // The site is already mounted underneath; this only uncovers it.
     window.dispatchEvent(new CustomEvent("spn:intro-done"));
 
-    setTimeout(() => overlay.remove(), T.fade + 120);
+    // Keep drawing through the fade. Tearing the scene down here instead
+    // would blank the planet's canvas on the first frame of the exit, so
+    // the thing the whole flight was travelling towards would pop out of
+    // existence just as the overlay starts to dissolve.
+    setTimeout(() => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+      try { window.__spnIntroPlanet?.dispose(); } catch (_) {}
+      window.__spnIntroPlanet = null;
+      overlay.remove();
+    }, T.fade + 120);
   }
 
   function onKey(e) {
@@ -165,7 +173,10 @@
     scale = Math.min(width, height) / 900;
   }
   resize();
-  window.addEventListener("resize", resize);
+  window.addEventListener("resize", () => {
+    resize();
+    window.__spnIntroPlanet?.resize();
+  });
 
   // Star count follows the device rather than the design: a mid-range
   // phone should not be asked to draw 500 streaks a frame just because a
@@ -368,7 +379,7 @@
   }
 
   function drawHomePlanet(t) {
-    if (t < T.planetIn || !poster || !poster.complete || !poster.naturalWidth) return;
+    if (t < T.planetIn) return;
 
     const k = easeInOut(clamp01((t - T.planetIn) / (T.planetSet - T.planetIn)));
     const rest = Math.min(width * 0.72, height * 0.52);  // matches .spn-intro__poster
@@ -377,15 +388,36 @@
     const x = cx;
     const y = cy - height * 0.015 + drift;
 
-    // Atmosphere first, so the planet sits inside its own light.
+    // The atmosphere is painted here either way: this canvas sits behind
+    // the WebGL layer, so the glow reads as coming from behind the planet
+    // whichever one is drawing it.
     const glow = ctx.createRadialGradient(x, y, size * 0.30, x, y, size * 0.92);
-    glow.addColorStop(0, `rgba(138,77,255,${(0.30 * k).toFixed(3)})`);
-    glow.addColorStop(0.55, `rgba(110,70,220,${(0.13 * k).toFixed(3)})`);
+    glow.addColorStop(0, `rgba(138,77,255,${(0.13 * k).toFixed(3)})`);
+    glow.addColorStop(0.55, `rgba(110,70,220,${(0.055 * k).toFixed(3)})`);
     glow.addColorStop(1, "rgba(110,70,220,0)");
     ctx.fillStyle = glow;
     ctx.beginPath();
     ctx.arc(x, y, size * 0.92, 0, Math.PI * 2);
     ctx.fill();
+
+    // Real geometry if it made it in time (src/intro/introPlanet.js,
+    // mounted by main.js once the Three chunk lands), otherwise the flat
+    // brand art. The choice is re-made every frame so a planet that
+    // arrives mid-approach simply takes over.
+    const planet3d = window.__spnIntroPlanet;
+    if (planet3d) {
+      overlay.classList.add("has-planet3d");
+      try {
+        planet3d.render(size, k, t / 1000);
+        return;
+      } catch (err) {
+        window.__spnIntroPlanet = null;
+        overlay.classList.remove("has-planet3d");
+        console.error("[intro] 3D planet failed, falling back to the still", err);
+      }
+    }
+
+    if (!poster || !poster.complete || !poster.naturalWidth) return;
 
     const ar = poster.naturalHeight / poster.naturalWidth;
     const w = size;
@@ -399,7 +431,7 @@
   function frame(now) {
     raf = requestAnimationFrame(frame);
     if (!start) { start = now; last = now; }
-    const t = now - start;
+    const t = done ? T.autoExit : now - start;
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
 

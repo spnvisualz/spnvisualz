@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SPN-1 — intro planet harness</title>
+<style>
+  html,body{margin:0;height:100%;background:#05030e;color:#f5f2fb;font:12px ui-monospace,monospace}
+  #wrap{position:fixed;inset:0}
+  canvas{position:absolute;inset:0;width:100%;height:100%}
+  #ref{position:fixed;right:0;top:0;height:100%;width:38%;object-fit:contain;opacity:.0;pointer-events:none}
+  body.compare #ref{opacity:1}
+  #hud{position:fixed;left:10px;top:10px;z-index:9;opacity:.7}
+</style>
+</head>
+<body>
+  <div id="wrap"><canvas id="c"></canvas></div>
+  <img id="ref" src="/assets/spn-orbit-transparent.png" alt="">
+  <div id="hud">SPN-1 harness — ?compare=1 to overlay reference, ?p=0..1 for approach</div>
+  <script type="module">
+    import { createIntroPlanet } from "/src/intro/introPlanet.js";
+    const q = new URLSearchParams(location.search);
+    if (q.get("compare")) document.body.classList.add("compare");
+    const fixed = q.has("p") ? Number(q.get("p")) : null;
+    const planet = createIntroPlanet(document.getElementById("c"));
+    addEventListener("resize", () => planet.resize());
+    const t0 = performance.now();
+    (function loop(now){
+      requestAnimationFrame(loop);
+      const t = (now - t0) / 1000;
+      const p = fixed !== null ? fixed : Math.min(1, t / 1.4);
+      const width = Math.min(innerWidth * 0.72, innerHeight * 0.52);
+      planet.render(width * (0.035 + 0.965 * p), p, t);
+    })(performance.now());
+  </script>
+</body>
+</html>
