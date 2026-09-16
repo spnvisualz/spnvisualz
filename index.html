@@ -627,6 +627,10 @@
       <p class="section-label">Start a project</p>
       <h3 id="orderDialogTitle">Tell us what you need</h3>
       <form id="orderForm">
+        <!-- Set from ?billing= when the visitor arrives from a website
+             package, so the brief says whether they were looking at the
+             monthly or the yearly price. -->
+        <input type="hidden" name="billing" id="orderBilling" value="" />
         <label>Your name<input type="text" name="name" autocomplete="name" required /></label>
         <label>Email or Instagram<input type="text" name="contact" required /></label>
         <label>What do you need?

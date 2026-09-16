@@ -186,7 +186,10 @@ function boot() {
     const params = new URLSearchParams(location.search);
     const order = params.get("order");
     if (order) {
-      orderDialog.open(order);
+      // billing only comes from the website packages, where it is the
+      // difference between the monthly and the yearly price.
+      const billing = params.get("billing");
+      orderDialog.open(order, { billing: billing === "yearly" || billing === "monthly" ? billing : "" });
       return;
     }
     // ?service= carries #services with it, so the visitor is already

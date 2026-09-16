@@ -123,3 +123,17 @@ test("neither modal decides a backdrop click by pointer coordinates", () => {
     assert.doesNotMatch(src, /event\.clientX/, `${file} still closes on a coordinate test`);
   }
 });
+
+test("the billing choice survives the trip from /websites/ to the brief", () => {
+  // The toggle on /websites/ is the difference between $45 a month and
+  // $449 a year. The order link carried the package but not which of the
+  // two the visitor was looking at, so the brief arrived ambiguous.
+  const app = readFileSync(join(root, "websites/app.js"), "utf8");
+  assert.match(app, /billing=\$\{mode\}/, "websites/app.js must write the billing mode into the order links");
+
+  assert.match(index, /id="orderBilling"/, "the order form needs a field to carry it");
+  assert.match(main, /params\.get\("billing"\)/, "main.js must read ?billing=");
+
+  const dialog = readFileSync(join(root, "src/contact/orderDialog.js"), "utf8");
+  assert.match(dialog, /Billing: \$\{data\.get\("billing"\)\}/, "the email must state it");
+});

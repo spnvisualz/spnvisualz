@@ -17,6 +17,20 @@
       if (price) price.textContent = yearly ? plan.dataset.yearly : plan.dataset.monthly;
       if (label) label.textContent = yearly ? '/ year' : '/ month';
       if (note) note.textContent = yearly ? 'One yearly payment' : '12 monthly payments';
+
+      // The toggle is the whole difference between $45 a month and $449 a
+      // year, and the brief the button opens had no way to say which the
+      // visitor was looking at. Carry it across. Written into the href
+      // rather than handled on click, so the link still works — just
+      // without the billing mode — if this script never runs.
+      // Edited as a string rather than through URLSearchParams, which
+      // re-encodes the space in "Website Basic" as + and leaves the href
+      // spelled differently from the one written in the HTML.
+      const order = plan.querySelector('a[data-order-button][href*="?order="]');
+      if (order) {
+        const href = order.getAttribute('href').replace(/&billing=[^&]*/, '');
+        order.setAttribute('href', `${href}&billing=${mode}`);
+      }
     });
   };
 

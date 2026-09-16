@@ -10,9 +10,11 @@ export function initOrderDialog() {
   const serviceSelect = document.getElementById("serviceSelect");
   let lastFocus = null;
 
-  const open = (product = "") => {
+  const open = (product = "", { billing = "" } = {}) => {
     if (!dialog) return;
     lastFocus = document.activeElement;
+    const billingField = document.getElementById("orderBilling");
+    if (billingField) billingField.value = billing;
     if (serviceSelect && product) {
       const hasOption = Array.from(serviceSelect.options).some((o) => o.value === product);
       serviceSelect.value = hasOption ? product : "Custom Project";
@@ -56,6 +58,7 @@ export function initOrderDialog() {
       `My name: ${data.get("name") || ""}`,
       `Contact me via: ${data.get("contact") || ""}`,
       `Service: ${service}`,
+      ...(data.get("billing") ? [`Billing: ${data.get("billing")}`] : []),
       "",
       "Project idea:",
       String(data.get("brief") || ""),
