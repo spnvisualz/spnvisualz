@@ -528,7 +528,19 @@
   padding-block: clamp(70px, 10vw, 140px);
 }.lab-policy__hero {
   margin-bottom: clamp(64px, 9vw, 110px);
-}.lab-policy__hero h1 {
+}
+/* The CHUBAE mark above the author heading. Deliberately sized as a mark
+   and not a banner: the h1 under it runs to 138px and should stay the
+   loudest thing in the hero. The art is transparent, so it sits straight
+   on the page with nothing boxing it in. Scoped to its own class because
+   .lab-policy is shared with the privacy page. */
+.lab-author-mark {
+  display: block;
+  width: min(400px, 64%);
+  height: auto;
+  margin: 0 0 clamp(18px, 3vw, 30px);
+}
+.lab-policy__hero h1 {
   margin: 0;
   font-size: clamp(58px, 10vw, 138px);
   font-weight: 620;
