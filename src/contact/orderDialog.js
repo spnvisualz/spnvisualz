@@ -34,12 +34,15 @@ export function initOrderDialog() {
     if (lastFocus instanceof HTMLElement) lastFocus.focus();
     getLenis()?.start();
   });
+  // A backdrop click reports the dialog element itself as its target, and
+  // nothing inside the shell ever does. The previous test compared the
+  // pointer against the shell's bounding box, which is also true of a
+  // keyboard-activated button (those report their click at 0, 0) and of a
+  // native select popup drawn past the shell's edge — so picking a service
+  // with the keyboard, or from a dropdown that overflowed the panel, could
+  // shut the form instead.
   dialog?.addEventListener("click", (event) => {
-    const shell = dialog.querySelector(".order-dialog__shell");
-    const rect = shell?.getBoundingClientRect();
-    if (rect && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) {
-      close();
-    }
+    if (event.target === dialog) close();
   });
 
   form?.addEventListener("submit", (event) => {

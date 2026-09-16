@@ -1,8 +1,12 @@
+import { getLenis } from "../motion/scrollTimeline.js";
+
 export function initServices({ onOrder } = {}) {
   const rows = Array.from(document.querySelectorAll(".service-row"));
   const dialog = document.getElementById("serviceDialog");
   const closeDialogBtn = document.getElementById("closeServiceDialog");
-  if (!rows.length) return;
+  // Always hand back the same shape, so a caller can ask for a service by
+  // name without first checking whether this page had any.
+  if (!rows.length) return { openProduct: () => false };
 
   rows.forEach((row) => {
     row.addEventListener("click", () => {
@@ -34,14 +38,36 @@ export function initServices({ onOrder } = {}) {
       onOrder?.(row.dataset.product || "");
     };
     dialog.showModal();
+    getLenis()?.stop();
   }
 
   closeDialogBtn?.addEventListener("click", () => dialog?.close());
+
+  // The backdrop of a <dialog> reports the dialog element itself as the
+  // click target, and nothing inside the shell ever does — so this is the
+  // whole test. It used to compare the pointer against the shell's bounding
+  // box instead, which is true of a backdrop click but also of several
+  // things that are not one: a keyboard-activated button reports its click
+  // at (0, 0), and a native select popup can render past the shell's edge.
+  // Either one landed outside the box and shut the dialog.
   dialog?.addEventListener("click", (event) => {
-    const shell = dialog.querySelector(".service-dialog__shell");
-    const rect = shell?.getBoundingClientRect();
-    if (rect && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) {
-      dialog.close();
-    }
+    if (event.target === dialog) dialog.close();
   });
+
+  // The page behind a modal must not move. The order dialog parks Lenis
+  // while it is open; this one did not, so a wheel or trackpad gesture
+  // anywhere outside the shell scrolled the homepage underneath it.
+  // data-lenis-prevent on the shell only stops the shell's own overflow
+  // from propagating — it says nothing about the rest of the page.
+  dialog?.addEventListener("close", () => getLenis()?.start());
+
+  return {
+    openProduct(product) {
+      const row = rows.find((r) => r.dataset.product === product);
+      if (!row) return false;
+      rows.forEach((r) => r.classList.toggle("is-active", r === row));
+      openDetails(row);
+      return true;
+    }
+  };
 }

@@ -632,15 +632,28 @@
         <label>What do you need?
           <select name="service" id="serviceSelect" required>
             <option value="">Select a service</option>
-            <option>Logo Design</option>
-            <option>Animated Logo</option>
-            <option>Intro</option>
-            <option>Motion Loop</option>
-            <option>Social Visuals</option>
-            <option>Brand Visuals</option>
-            <option>Starter Bundle</option>
-            <option>Creator Bundle</option>
-            <option>Business Bundle</option>
+            <optgroup label="Motion &amp; identity">
+              <option>Logo Design</option>
+              <option>Animated Logo</option>
+              <option>Intro</option>
+              <option>Motion Loop</option>
+              <option>Social Visuals</option>
+              <option>Brand Visuals</option>
+              <option>Starter Bundle</option>
+              <option>Creator Bundle</option>
+              <option>Business Bundle</option>
+            </optgroup>
+            <!-- The website packages sell from /websites/, and its "Choose
+                 Basic / Premium / Exclusive" buttons all send the visitor
+                 here. Without these four the form could not name what they
+                 picked: it fell back to "Custom Project" and the brief
+                 arrived without the package on it. -->
+            <optgroup label="Websites">
+              <option>Website Basic</option>
+              <option>Website Premium</option>
+              <option>Website Exclusive</option>
+              <option>Custom Website</option>
+            </optgroup>
             <option>Custom Project</option>
           </select>
         </label>

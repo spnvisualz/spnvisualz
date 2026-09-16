@@ -29,6 +29,23 @@ function boot() {
   ScrollTrigger.clearScrollMemory("manual");
   window.scrollTo(0, 0);
 
+  // …which also wiped every deep link into this page. contact.html sends
+  // visitors to /#contact, the Visual Lab footer to /#work and /#services,
+  // and all of them arrived at the top of the homepage instead, because the
+  // reset above runs after the browser's own hash scroll. The intro makes
+  // that unavoidable — the page is held at overflow:hidden while it plays,
+  // so there is nothing to scroll to yet. Remember the target now and go
+  // there once the page can actually move (see startWorld).
+  const deepLinkTarget = (() => {
+    const hash = location.hash;
+    if (!hash || hash.length < 2) return null;
+    try {
+      return document.querySelector(hash);
+    } catch {
+      return null; // a hash that is not a valid selector
+    }
+  })();
+
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const lenis = createMasterScroll({ reduceMotion });
@@ -63,6 +80,13 @@ function boot() {
   // straight away. The timeout is the third case — the flag was set but
   // the event never came — so a broken intro cannot cost the whole scene.
   let worldStarted = false;
+  // Anything that needs a page which is measured, scrollable and fully
+  // wired waits here. startWorld can run synchronously — a visitor who has
+  // already seen the intro this session never gets one — and that is well
+  // before the dialogs below exist, so this cannot be a direct call.
+  const afterWorld = [];
+  const whenWorldReady = (fn) => (worldStarted ? fn() : afterWorld.push(fn));
+
   const startWorld = () => {
     if (worldStarted) return;
     worldStarted = true;
@@ -83,6 +107,8 @@ function boot() {
     bindFacetToServices(director);
     bindPlanetToContact(director);
     ScrollTrigger.refresh();
+
+    afterWorld.splice(0).forEach((fn) => fn());
   };
 
   if (window.__spnIntroActive) {
@@ -132,7 +158,42 @@ function boot() {
   initMagnetic();
   initPricing();
   const orderDialog = initOrderDialog();
-  initServices({ onOrder: (product) => orderDialog.open(product) });
+  const services = initServices({ onOrder: (product) => orderDialog.open(product) });
+
+  // /websites/ sells four packages and every one of its buttons links to
+  // /?order=Website%20Basic and friends; booking.html redirects to
+  // /?order=Custom%20Project; the Visual Lab articles link to
+  // /?service=Logo%20Design#services. Nothing on this page had ever read
+  // either parameter, so all of them landed on the homepage and stopped —
+  // the packages page's only call to action did nothing at all.
+  //
+  // Deferred like the deep link: opening a modal underneath the intro
+  // overlay would put the form somewhere the visitor cannot reach it.
+  whenWorldReady(() => {
+    // The hash first, so the page is already at the right section behind
+    // whatever opens on top of it. Read after ScrollTrigger's refresh, so
+    // the offset comes off the final layout rather than a stale one.
+    if (deepLinkTarget) {
+      const top = deepLinkTarget.getBoundingClientRect().top + window.scrollY;
+      const scroll = getLenis();
+      // force, because Lenis declines a scrollTo issued this soon after
+      // start(); immediate, because the visitor asked for a destination,
+      // not a nine-thousand-pixel journey to it.
+      if (scroll) scroll.scrollTo(top, { immediate: true, force: true });
+      else window.scrollTo(0, top);
+    }
+
+    const params = new URLSearchParams(location.search);
+    const order = params.get("order");
+    if (order) {
+      orderDialog.open(order);
+      return;
+    }
+    // ?service= carries #services with it, so the visitor is already
+    // looking at the right section; this opens the one they came for.
+    const service = params.get("service");
+    if (service) services.openProduct(service);
+  });
 
   const yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
