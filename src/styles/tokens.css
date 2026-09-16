@@ -25,6 +25,17 @@
      the order-dialog helper line. .48 clears it at 4.56:1 and 4.60:1 while
      staying well below --muted, so the hierarchy is unchanged. */
   --quiet: rgba(245,242,251,.48);
+
+  /* The opening chapters do not sit on --bg. body::before (base.css)
+     paints the page surface over it, and through the hero that surface
+     composites to rgb(83,67,91) — so the two steps above measure 3.97:1
+     and 3.24:1 there, under the AA floor, even though both clear it
+     comfortably further down the page once the surface has scrubbed away
+     at Selected Work. The alphas the surface needs, solved the same way:
+     5.35:1 and 4.63:1, with the same gap between them so the hierarchy
+     reads identically in both halves of the page. */
+  --muted-on-surface: rgba(245,242,251,.74);
+  --quiet-on-surface: rgba(245,242,251,.66);
   --line: rgba(255,255,255,.14);
 
   --purple: #8a4dff;

@@ -54,7 +54,7 @@ html.no-webgl .world-stage{ display: none; }
 
 .menu-toggle{
   display: flex; align-items: center; gap: 8px; background: transparent; border: 0;
-  font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+  font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted-on-surface);
 }
 .menu-toggle i{ width: 20px; height: 1px; background: var(--text); position: relative; }
 .menu-toggle i::before, .menu-toggle i::after{

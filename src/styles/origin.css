@@ -34,7 +34,7 @@
 }
 .origin-mark{ position: relative; }
 .origin-eyebrow{
-  font-size: 11px; letter-spacing: .3em; color: var(--muted); margin: 0 0 var(--space-md);
+  font-size: 11px; letter-spacing: .3em; color: var(--muted-on-surface); margin: 0 0 var(--space-md);
 }
 .origin-word{
   margin: 0;
@@ -55,7 +55,7 @@
   position: absolute; left: 50%; bottom: var(--space-xl); transform: translateX(-50%);
   display: flex; flex-direction: column; align-items: center; gap: 10px;
   font-family: var(--font-mono); font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
-  color: var(--quiet);
+  color: var(--quiet-on-surface);
 }
 .origin-scroll b{
   width: 1px; height: 30px;
