@@ -137,3 +137,24 @@ test("the billing choice survives the trip from /websites/ to the brief", () => 
   const dialog = readFileSync(join(root, "src/contact/orderDialog.js"), "utf8");
   assert.match(dialog, /Billing: \$\{data\.get\("billing"\)\}/, "the email must state it");
 });
+
+test("the whole site quotes one currency", () => {
+  // The homepage priced in EUR and the website packages in USD, which also
+  // made analytics.js wrong — it reports every lead as EUR regardless of
+  // which page produced it. One currency, asserted, so a new price cannot
+  // quietly reintroduce the split.
+  for (const { path, html } of pages) {
+    const dollars = [...html.matchAll(/\$\d[\d,]*/g)].map((m) => m[0]);
+    assert.deepEqual(dollars, [], `${path} quotes ${dollars.join(", ")} — the site prices in EUR`);
+  }
+
+  // …including the structured data, which is what a search result shows.
+  for (const { path, html } of pages) {
+    for (const m of html.matchAll(/<script[^>]*ld\+json[^>]*>([\s\S]*?)<\/script>/g)) {
+      const found = [...m[1].matchAll(/"priceCurrency"\s*:\s*"([^"]+)"/g)].map((c) => c[1]);
+      for (const currency of found) {
+        assert.equal(currency, "EUR", `${path} declares priceCurrency ${currency} in its structured data`);
+      }
+    }
+  }
+});

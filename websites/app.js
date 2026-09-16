@@ -18,7 +18,7 @@
       if (label) label.textContent = yearly ? '/ year' : '/ month';
       if (note) note.textContent = yearly ? 'One yearly payment' : '12 monthly payments';
 
-      // The toggle is the whole difference between $45 a month and $449 a
+      // The toggle is the whole difference between €45 a month and €449 a
       // year, and the brief the button opens had no way to say which the
       // visitor was looking at. Carry it across. Written into the href
       // rather than handled on click, so the link still works — just
