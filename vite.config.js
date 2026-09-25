@@ -17,10 +17,14 @@ const __dirname = import.meta.dirname;
 // trade one working mode for the other.)
 const STATIC_SUBSITES = ["visual-lab", "websites", "work", "privacy", "about"];
 
-// Legacy noindex,follow meta-refresh redirect stubs for old bookmarked/
-// indexed URLs (e.g. /contact.html -> /#contact). Not linked from anywhere
-// current, but real visitors can still land on them directly.
-const STATIC_REDIRECT_STUBS = [
+// Standalone pages at the site root that Vite has no reason to bundle:
+// they import nothing from src/. Most are legacy noindex,follow
+// meta-refresh stubs for old bookmarked or indexed URLs (/contact.html ->
+// /#contact) — not linked from anywhere current, but real visitors still
+// land on them. thank-you.html is the exception and no longer redirects:
+// it is where the payment provider returns a customer after checkout, so
+// it has to be a real page that renders on its own.
+const STATIC_ROOT_PAGES = [
   "about.html",
   "booking.html",
   "contact.html",
@@ -58,7 +62,7 @@ function copyStaticSubsites() {
             !EXCLUDED_FROM_BUILD.has(from.split("/").pop()) && !BUNDLED_PAGES.has(from)
         });
       }
-      for (const file of STATIC_REDIRECT_STUBS) {
+      for (const file of STATIC_ROOT_PAGES) {
         const src = resolve(__dirname, file);
         if (!existsSync(src)) continue;
         cpSync(src, resolve(__dirname, "dist", file));

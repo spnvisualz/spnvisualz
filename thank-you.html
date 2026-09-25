@@ -3,14 +3,128 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>SPNVISUALZ</title>
+  <title>Order received | SPNVISUALZ</title>
+  <!-- A post-payment page has nothing to offer a search engine and should
+       never be a landing page, but it must stay crawlable-follow so the
+       links out of it still carry. -->
   <meta name="robots" content="noindex,follow">
   <link rel="canonical" href="https://spnvisualz.com/">
-  <meta http-equiv="refresh" content="0;url=/">
-  <style>html{color-scheme:dark;background:#030207;color:#f5f2fb;font-family:Arial,sans-serif}body{min-height:100vh;display:grid;place-items:center;margin:0}a{color:#c6a7ff;text-underline-offset:4px}</style>
+  <meta name="description" content="Your SPNVISUALZ order is confirmed. Here is what happens next.">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    :root{
+      --bg:#030207; --text:#f5f2fb; --muted:rgba(245,242,251,.58);
+      --quiet:rgba(245,242,251,.48); --line:rgba(255,255,255,.14);
+      --purple-light:#c6a7ff; --green:#86ffbd;
+      --font:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;
+      --mono:"IBM Plex Mono","Courier New",monospace;
+    }
+    *{box-sizing:border-box}
+    html{background:var(--bg);color-scheme:dark}
+    body{
+      margin:0;min-height:100vh;background:var(--bg);color:var(--text);
+      font-family:var(--font);line-height:1.55;
+      display:flex;flex-direction:column;
+      -webkit-font-smoothing:antialiased;
+    }
+    a{color:inherit}
+    header,main,footer{width:min(760px,100% - 40px);margin-inline:auto}
+    header{padding:28px 0;display:flex;justify-content:space-between;align-items:baseline;gap:16px}
+    .wordmark{font-weight:700;letter-spacing:-.02em;text-decoration:none}
+    .wordmark span{color:var(--purple-light)}
+    header a:last-child{font-size:12px;color:var(--muted);text-decoration:none}
+    header a:last-child:hover{color:var(--text)}
+    main{flex:1;padding:clamp(40px,9vh,90px) 0 70px}
+    .tick{
+      width:46px;height:46px;border-radius:50%;display:grid;place-items:center;
+      border:1px solid rgba(134,255,189,.45);color:var(--green);
+      font-size:20px;line-height:1;margin-bottom:26px;
+    }
+    .label{
+      font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+      color:var(--purple-light);margin:0 0 12px;
+    }
+    h1{margin:0 0 16px;font-size:clamp(34px,6vw,60px);line-height:1.02;letter-spacing:-.035em}
+    .lede{margin:0 0 42px;max-width:52ch;color:var(--muted);font-size:17px}
+    ol{margin:0;padding:0;list-style:none;counter-reset:step;border-top:1px solid var(--line)}
+    li{
+      counter-increment:step;display:grid;grid-template-columns:34px 1fr;gap:16px;
+      padding:20px 0;border-bottom:1px solid var(--line);
+    }
+    li::before{
+      content:counter(step,decimal-leading-zero);
+      font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--quiet);padding-top:3px;
+    }
+    li h2{margin:0 0 4px;font-size:15px;font-weight:500;letter-spacing:-.01em}
+    li p{margin:0;font-size:14px;color:var(--muted)}
+    .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:40px}
+    .btn{
+      display:inline-flex;align-items:center;padding:13px 22px;font-size:13px;
+      text-decoration:none;border:1px solid var(--line);transition:border-color .25s,background .25s;
+    }
+    .btn:hover{border-color:var(--purple-light);background:rgba(198,167,255,.06)}
+    .btn--light{background:var(--text);color:#050308;border-color:var(--text)}
+    .btn--light:hover{background:#fff;border-color:#fff}
+    footer{padding:26px 0;border-top:1px solid var(--line);font-size:12px;color:var(--quiet)}
+    @media (prefers-reduced-motion:reduce){*{transition-duration:.001ms !important}}
+  </style>
 </head>
 <body>
-  <p>Opening <a href="/">SPNVISUALZ</a>…</p>
-  <script>location.replace("/");</script>
+  <header>
+    <a class="wordmark" href="/">SPN<span>VISUALZ</span></a>
+    <a href="/">Back to the studio</a>
+  </header>
+
+  <main>
+    <div class="tick" aria-hidden="true">&check;</div>
+    <p class="label">Order received</p>
+    <h1>That&rsquo;s booked.</h1>
+    <p class="lede">
+      Your payment went through and your brief is with the studio. You&rsquo;ll get a
+      receipt by email from our payment provider &mdash; keep it, it&rsquo;s your invoice.
+    </p>
+
+    <ol>
+      <li>
+        <div>
+          <h2>CHUBAE reads your brief</h2>
+          <p>Within one working day, usually much sooner. If anything in it is unclear you&rsquo;ll hear from us before work starts, not after.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h2>First version comes back</h2>
+          <p>3&ndash;5 days on standard delivery, 24&ndash;48 hours on express.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h2>You review, we refine</h2>
+          <p>Reply with what you want changed. Revisions are part of the price, not an extra.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h2>Final files land</h2>
+          <p>Delivered in the formats your package covers, ready to post, print or screen.</p>
+        </div>
+      </li>
+    </ol>
+
+    <div class="actions">
+      <a class="btn btn--light" href="/#work">See the work</a>
+      <a class="btn" href="/visual-lab/">Read the Visual Lab</a>
+    </div>
+  </main>
+
+  <footer>
+    Nothing arrived? Check spam first, then reach us at
+    <a href="mailto:spnvisualz@gmail.com">spnvisualz@gmail.com</a> &mdash; quote the
+    order number on your receipt.
+  </footer>
 </body>
 </html>

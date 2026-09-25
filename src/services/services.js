@@ -33,10 +33,22 @@ export function initServices({ onOrder } = {}) {
         list.appendChild(li);
       });
     }
-    if (orderBtn) orderBtn.onclick = () => {
-      dialog.close();
-      onOrder?.(row.dataset.product || "");
-    };
+    // The detail panel's button buys the service outright when that
+    // service has a checkout URL, and falls back to the enquiry dialog
+    // when it does not — so the panel never becomes a dead end while the
+    // catalogue is still being filled in.
+    if (orderBtn) {
+      const sku = row.dataset.sku || "";
+      const buyable = sku && window.SPN_CHECKOUT?.isConfigured(sku);
+      orderBtn.dataset.buy = buyable ? sku : "";
+      const priceLabel = row.dataset.price ? ` — ${row.dataset.price.replace(/^From\s*/i, "")}` : "";
+      orderBtn.textContent = buyable ? `Order this${priceLabel}` : "Order this";
+      orderBtn.onclick = () => {
+        if (buyable && window.SPN_CHECKOUT.open(sku)) return;
+        dialog.close();
+        onOrder?.(row.dataset.product || "");
+      };
+    }
     dialog.showModal();
     getLenis()?.stop();
   }

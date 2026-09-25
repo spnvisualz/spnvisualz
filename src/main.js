@@ -188,8 +188,31 @@ function boot() {
     if (order) {
       // billing only comes from the website packages, where it is the
       // difference between the monthly and the yearly price.
-      const billing = params.get("billing");
-      orderDialog.open(order, { billing: billing === "yearly" || billing === "monthly" ? billing : "" });
+      const billing = params.get("billing") === "yearly" ? "yearly" : "monthly";
+
+      // These links are written on other pages, in the studio's own words
+      // for what it sells. This is the one place those words have to meet
+      // the catalogue's keys, so the translation lives here rather than
+      // being spread across the pages that link in.
+      const sku = {
+        "Website Basic": `web-basic-${billing}`,
+        "Website Premium": `web-premium-${billing}`,
+        "Website Exclusive": `web-exclusive-${billing}`,
+        "Custom Website": "deposit-website",
+        "Custom Project": "deposit-custom",
+        "Logo Design": "logo-basic",
+        "Animated Logo": "animated-logo",
+        Intro: "intro-standard",
+        "Motion Loop": "loop-basic",
+        "Social Visuals": "visuals-social",
+        "Brand Visuals": "visuals-brand"
+      }[order];
+
+      // Straight to paying for the thing they clicked, one page back.
+      if (sku && window.SPN_CHECKOUT?.open(sku)) return;
+
+      // Not switched over yet — the enquiry dialog, exactly as before.
+      orderDialog.open(order, { billing: params.get("billing") === "yearly" || params.get("billing") === "monthly" ? params.get("billing") : "" });
       return;
     }
     // ?service= carries #services with it, so the visitor is already

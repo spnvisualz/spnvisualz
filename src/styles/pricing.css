@@ -18,7 +18,35 @@
 }
 .price-row__head h3{ font-size: clamp(22px, 2.4vw, 32px); letter-spacing: -.02em; margin: 6px 0 0; }
 .price-row__tiers{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
-.price-tier{ display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-sm); }
+/* Each tier buys itself now, so it is a <button> rather than a <div>.
+   Everything below the first line is undoing what a browser does to a
+   button — the tier has to keep reading as a price, not as a control
+   bolted onto one. The affordance is the hover state and the word that
+   appears with it, not a box drawn around the number. */
+.price-tier{
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-sm);
+  position: relative; width: 100%; text-align: left;
+  font: inherit; color: inherit; cursor: pointer;
+  background: transparent; border: 1px solid transparent;
+  margin: -8px -10px; padding: 8px 10px;
+  transition: border-color .25s var(--ease-signal), background .25s var(--ease-signal);
+}
+.price-tier:hover, .price-tier:focus-visible{
+  border-color: rgba(198,167,255,.45);
+  background: rgba(198,167,255,.05);
+}
+/* Reserved by the flex gap either way, so revealing it moves nothing. */
+.price-tier__go{
+  position: absolute; right: 10px; bottom: 4px;
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--purple-light); opacity: 0;
+  transition: opacity .25s var(--ease-signal);
+}
+.price-tier:hover .price-tier__go, .price-tier:focus-visible .price-tier__go{ opacity: 1; }
+@media (hover: none){
+  /* No hover to discover it with, so it is simply always there. */
+  .price-tier__go{ opacity: .75; }
+}
 .price-tier strong{ font-size: 12px; text-transform: uppercase; letter-spacing: .06em; display: block; }
 .price-tier p{ font-size: 11px; color: var(--quiet); margin: 3px 0 0; }
 .price-tier div{ text-align: right; white-space: nowrap; }

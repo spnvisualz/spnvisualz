@@ -424,3 +424,22 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   .float-card{width:116px;padding:8px}
   .trust-row{font-size:7px}
 }
+
+
+/* Care could be read about but not bought. Hidden in the markup until a
+   checkout URL exists for it, so it never appears as a dead button. */
+.care-buy {
+  margin-top: 18px;
+  align-self: start;
+  padding: 12px 20px;
+  border: 1px solid var(--green);
+  background: transparent;
+  color: var(--green);
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: .02em;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background .25s, color .25s;
+}
+.care-buy:hover { background: var(--green); color: #05110a; }

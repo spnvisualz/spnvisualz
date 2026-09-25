@@ -30,6 +30,12 @@
       if (order) {
         const href = order.getAttribute('href').replace(/&billing=[^&]*/, '');
         order.setAttribute('href', `${href}&billing=${mode}`);
+
+        // Monthly and yearly are two different things to buy, so the
+        // button's SKU moves with the toggle. No rebinding needed —
+        // spn-checkout.js reads data-buy when the click happens.
+        const sku = yearly ? plan.dataset.skuYearly : plan.dataset.skuMonthly;
+        if (sku) order.dataset.buy = sku;
       }
     });
   };
