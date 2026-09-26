@@ -140,18 +140,59 @@ export function initWorkSequence({ reduceMotion = false } = {}) {
     item.video.preload = "none";
   };
 
+  // Everything below exists because the old version treated a refused
+  // play() as nothing worth reporting: it set playing = false and left the
+  // poster up forever. That is indistinguishable, to a visitor, from a
+  // broken site — and it is exactly what an in-app browser (Instagram,
+  // TikTok, Facebook) produces, because those refuse the first
+  // programmatic play even for a muted inline video. There was also no
+  // listener for the video's own error event at all, so a bad file, a 404
+  // or a dropped connection failed just as silently.
+  //
+  // Three recoveries, cheapest first:
+  //   1. a user gesture anywhere unlocks media for the whole page, so the
+  //      first tap or scroll retries whatever is on screen;
+  //   2. failing that, the panel offers a tap-to-play, which is a gesture
+  //      on the video itself and cannot be refused;
+  //   3. if the file itself errors, try the other encode once before
+  //      giving up, so one bad variant does not kill the panel.
+
+  const markNeedsTap = (item) => {
+    item.playing = false;
+    item.article.classList.add("needs-tap");
+  };
+
+  const clearNeedsTap = (item) => item.article.classList.remove("needs-tap");
+
   const play = (item) => {
     attachSource(item, { eager: true });
     if (item.playing) return;
     item.playing = true;
     item.playPromise = item.video.play();
     if (item.playPromise) {
-      item.playPromise.catch(() => {
-        // Autoplay refused (or interrupted). Leave the poster showing —
-        // never let a rejected promise become an unhandled rejection.
-        item.playing = false;
-      });
+      item.playPromise.then(() => clearNeedsTap(item), () => markNeedsTap(item));
     }
+  };
+
+  // One bad encode should not cost the panel. Swap to the other variant
+  // once — and only once — then stop, so a genuinely missing file cannot
+  // loop between two 404s.
+  // A failed video keeps its poster, which is a real frame of the work, and
+  // stops pretending something is about to play.
+  //
+  // There is deliberately no retry on another encode. The obvious idea —
+  // if the mobile cut fails, try the desktop one — is backwards: the
+  // mobile cut is 720p High L3.1, which is about as widely decodable as
+  // H.264 gets, while the desktop cut is 1080p L5.0. Any device that
+  // cannot play the first cannot play the second. And it cannot be gated
+  // safely, because an aborted fetch reports MEDIA_ERR_SRC_NOT_SUPPORTED
+  // exactly like an unsupported codec does: measured here, a simulated
+  // connection drop on a phone pulled three desktop cuts, 14 MB, in
+  // response to a network error. A genuinely bad encode is fixed by
+  // re-encoding it, not by sending a phone a bigger file.
+  const onMediaError = (item) => {
+    item.article.classList.add("media-failed");
+    markNeedsTap(item);
   };
 
   const pause = (item) => {
@@ -208,7 +249,36 @@ export function initWorkSequence({ reduceMotion = false } = {}) {
     preloadObserver.observe(item.article);
     playObserver.observe(item.article);
     releaseObserver.observe(item.article);
+
+    item.video.addEventListener("error", () => onMediaError(item));
+
+    // A tap on the panel is a user gesture on the element itself, which no
+    // autoplay policy refuses. This is the guaranteed way through.
+    item.article.querySelector(".work-item__media")?.addEventListener("click", () => {
+      if (!item.article.classList.contains("needs-tap")) return;
+      clearNeedsTap(item);
+      item.playing = false;
+      play(item);
+    });
   });
+
+  // A single user gesture unlocks media playback for the whole document in
+  // every browser that refuses it up front, so the visitor's first touch —
+  // scrolling, tapping anything — is enough to start what is on screen. It
+  // runs once and then removes itself.
+  let unlocked = false;
+  const unlock = () => {
+    if (unlocked) return;
+    unlocked = true;
+    items.forEach((item) => {
+      if (!item.article.classList.contains("is-visible")) return;
+      item.playing = false;
+      play(item);
+    });
+  };
+  ["pointerdown", "touchstart", "keydown"].forEach((type) =>
+    window.addEventListener(type, unlock, { once: true, passive: true })
+  );
 
   // A tab switch pauses decoding anyway; make it explicit so we come back
   // to a playing clip rather than a frozen frame.
