@@ -3,14 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "SPNVISUALZ \u2014 cinematic motion-first creative studio site (SIGNAL rebuild).",
+  "description": "SPNVISUALZ — cinematic motion-first creative studio site (SIGNAL rebuild).",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run basket && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
     "test": "node --test tests/*.test.mjs",
-    "sitemap": "node scripts/build-sitemap.mjs"
+    "sitemap": "node scripts/build-sitemap.mjs",
+    "catalogue": "node scripts/build-catalogue.mjs",
+    "basket": "esbuild src/store/standalone.js --bundle --format=iife --minify --loader:.css=text --outfile=public/assets/js/spn-basket.js"
   },
   "dependencies": {
     "gsap": "^3.15.0",
@@ -19,6 +21,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "esbuild": "0.28.2",
     "eslint": "^9.39.5",
     "globals": "^17.12.0",
     "vite": "^8.2.2"

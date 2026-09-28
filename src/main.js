@@ -6,6 +6,7 @@ import "./styles/work.css";
 import "./styles/services.css";
 import "./styles/pricing.css";
 import "./styles/misc.css";
+import "./styles/basket.css";
 
 import { createMasterScroll, getLenis, ScrollTrigger } from "./motion/scrollTimeline.js";
 import { mountSceneDirector, bindFacetToServices, bindPlanetToContact } from "./three/SceneDirector.js";
@@ -16,6 +17,7 @@ import { initReveals } from "./motion/reveal.js";
 import { initServices } from "./services/services.js";
 import { initPricing } from "./pricing/pricing.js";
 import { initOrderDialog } from "./contact/orderDialog.js";
+import { initBasketUI } from "./store/basketUI.js";
 
 function boot() {
   // Setting history.scrollRestoration directly is not enough. ScrollTrigger
@@ -160,6 +162,12 @@ function boot() {
   const orderDialog = initOrderDialog();
   const services = initServices({ onOrder: (product) => orderDialog.open(product) });
 
+  // The basket needs to park the page behind it, the same way the dialogs
+  // do. Exposed rather than imported because basketUI is loaded on pages
+  // that have no Lenis at all.
+  window.SPN_SCROLL = { stop: () => getLenis()?.stop(), start: () => getLenis()?.start() };
+  initBasketUI();
+
   // /websites/ sells four packages and every one of its buttons links to
   // /?order=Website%20Basic and friends; booking.html redirects to
   // /?order=Custom%20Project; the Visual Lab articles link to
@@ -198,8 +206,9 @@ function boot() {
         "Website Basic": `web-basic-${billing}`,
         "Website Premium": `web-premium-${billing}`,
         "Website Exclusive": `web-exclusive-${billing}`,
-        "Custom Website": "deposit-website",
-        "Custom Project": "deposit-custom",
+        // Custom Website and Custom Project are deliberately absent: they
+        // are quotes, not orders, so their links fall through to the
+        // enquiry dialog rather than resolving to a price.
         "Logo Design": "logo-basic",
         "Animated Logo": "animated-logo",
         Intro: "intro-standard",

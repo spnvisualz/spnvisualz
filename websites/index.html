@@ -31,6 +31,7 @@
   </script>
   <!-- Google consent defaults must run before analytics or advertising tags. -->
   <script src="/assets/js/spn-config.js?v=20260925.1"></script>
+  <script src="/assets/js/spn-basket.js?v=20260928.1" defer></script>
   <script src="/assets/js/spn-checkout.js?v=20260925.1" defer></script>
   <script src="/assets/js/consent.js?v=20260914.1"></script>
 <script src="/assets/js/analytics.js?v=20260809.2" defer></script>
@@ -45,7 +46,8 @@
       <nav aria-label="Web design navigation">
         <a href="#packages">Packages</a><a href="#compare">Compare</a><a href="#process">Process</a>
       </nav>
-      <a class="header-cta" href="/?order=Custom%20Website" data-order-button data-product="Custom Website" data-buy="deposit-website" data-checkout-label="Book a custom site &mdash; &euro;50 deposit">Start a project <span aria-hidden="true">→</span></a>
+      <button class="basket-button" type="button" data-basket-open hidden data-basket-control><span>Basket</span><span class="basket-button__count" data-basket-count hidden>0</span></button>
+      <a class="header-cta" href="/?order=Custom%20Website" data-order-button data-product="Custom Website">Request a quote <span aria-hidden="true">→</span></a>
     </header>
 
     <section class="hero shell" id="top" data-section-track="websites_hero">
@@ -161,7 +163,7 @@
 
     <section class="final-cta shell section" data-section-track="website_final_cta">
       <p>SPNVISUALZ / WEB EXPERIENCE</p><h2>Start your website.</h2>
-      <a class="button button-primary large" href="/?order=Custom%20Website" data-order-button data-product="Custom Website" data-buy="deposit-website" data-checkout-label="Book a custom site &mdash; &euro;50 deposit">Start a website project <span>→</span></a>
+      <a class="button button-primary large" href="/?order=Custom%20Website" data-order-button data-product="Custom Website">Start a website project <span>→</span></a>
     </section>
     <footer class="shell">
       <a class="brand" href="/"><span>SPNVISUALZ</span></a>

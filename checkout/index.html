@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Checkout | SPNVISUALZ</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="canonical" href="https://spnvisualz.com/">
+  <meta name="description" content="Complete your SPNVISUALZ order.">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="/checkout/checkout.css?v=20260928.1">
+  <script src="/assets/js/spn-config.js?v=20260928.1"></script>
+  <script src="/assets/js/consent.js?v=20260914.1"></script>
+  <script src="/assets/js/analytics.js?v=20260809.2" defer></script>
+</head>
+<body>
+  <header class="co-head">
+    <a class="co-mark" href="/">SPN<span>VISUALZ</span></a>
+    <a class="co-back" href="/#services">&larr; Keep browsing</a>
+  </header>
+
+  <main class="co-shell">
+    <!-- Cancelled or failed payments land back here. The basket is never
+         cleared on the way out, so retrying is just pressing pay again. -->
+    <div class="co-notice" id="coNotice" hidden role="status"></div>
+
+    <section class="co-summary" aria-labelledby="coSummaryTitle">
+      <p class="co-label">Your order</p>
+      <h1 id="coSummaryTitle">Review &amp; pay</h1>
+      <div id="coLines" class="co-lines"></div>
+      <dl class="co-sums" id="coSums"></dl>
+      <p class="co-terms">
+        Delivery is 3&ndash;5 days as standard, 24&ndash;48 hours on express.
+        VAT is calculated at checkout. Paying confirms your order and sends
+        your brief straight to the studio &mdash; no email needed.
+      </p>
+      <a class="co-edit" href="#" data-basket-open>Edit basket</a>
+    </section>
+
+    <section class="co-pay" aria-labelledby="coPayTitle">
+      <p class="co-label">Payment</p>
+      <h2 id="coPayTitle">Secure checkout</h2>
+      <!-- Stripe mounts here. Card details are entered inside Stripe's own
+           frame and never touch this page or any SPNVISUALZ server. -->
+      <div id="coStripe" class="co-stripe"></div>
+      <div id="coState" class="co-state"></div>
+      <p class="co-secure">
+        <span aria-hidden="true">&#9679;</span> Payments processed by Stripe.
+        SPNVISUALZ never sees or stores your card details.
+      </p>
+    </section>
+  </main>
+
+  <footer class="co-foot">
+    <a href="/">Home</a><a href="/#work">Work</a><a href="/privacy/">Privacy</a>
+    <span>&copy; <span id="year">2026</span> SPNVISUALZ</span>
+  </footer>
+
+  <script type="module" src="/src/checkout.js"></script>
+</body>
+</html>

@@ -70,8 +70,17 @@
     .btn--light{background:var(--text);color:#050308;border-color:var(--text)}
     .btn--light:hover{background:#fff;border-color:#fff}
     footer{padding:26px 0;border-top:1px solid var(--line);font-size:12px;color:var(--quiet)}
+    .receipt{display:grid;grid-template-columns:auto 1fr;gap:8px 22px;margin:0 0 38px;
+      padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:14px}
+    .receipt dt{margin:0;color:var(--quiet);font-family:var(--mono);font-size:10px;
+      letter-spacing:.14em;text-transform:uppercase;padding-top:3px}
+    .receipt dd{margin:0;font-variant-numeric:tabular-nums}
+    .receipt .is-total{font-size:17px}
+    [hidden]{display:none !important}
     @media (prefers-reduced-motion:reduce){*{transition-duration:.001ms !important}}
   </style>
+  <script src="/assets/js/spn-config.js?v=20260928.1"></script>
+  <script src="/assets/js/analytics.js?v=20260809.2" defer></script>
 </head>
 <body>
   <header>
@@ -80,15 +89,39 @@
   </header>
 
   <main>
-    <div class="tick" aria-hidden="true">&check;</div>
-    <p class="label">Order received</p>
-    <h1>That&rsquo;s booked.</h1>
-    <p class="lede">
-      Your payment went through and your brief is with the studio. You&rsquo;ll get a
-      receipt by email from our payment provider &mdash; keep it, it&rsquo;s your invoice.
-    </p>
+    <!-- Everything below starts hidden. Reaching this URL proves nothing:
+         it can be typed, shared or kept in history. Nothing is presented
+         as paid until api/order has asked Stripe what the payment status
+         of this session actually is. -->
+    <div id="checking">
+      <p class="label">One moment</p>
+      <h1>Checking your order&hellip;</h1>
+      <p class="lede">Confirming the payment with Stripe.</p>
+    </div>
 
-    <ol>
+    <div id="confirmed" hidden>
+      <div class="tick" aria-hidden="true">&check;</div>
+      <p class="label">Payment confirmed &mdash; <span id="ref"></span></p>
+      <h1>That&rsquo;s booked.</h1>
+      <p class="lede">
+        Stripe has confirmed your payment and your brief is with the studio.
+        Your receipt is on its way to <strong id="email">your email</strong> &mdash;
+        keep it, it&rsquo;s your invoice.
+      </p>
+      <dl class="receipt" id="receipt"></dl>
+    </div>
+
+    <div id="unconfirmed" hidden>
+      <p class="label">Order not confirmed</p>
+      <h1 id="unconfirmedTitle">We can&rsquo;t confirm this order.</h1>
+      <p class="lede" id="unconfirmedBody"></p>
+      <div class="actions">
+        <a class="btn btn--light" href="/checkout/">Back to checkout</a>
+        <a class="btn" href="/#contact">Contact the studio</a>
+      </div>
+    </div>
+
+    <ol id="next">
       <li>
         <div>
           <h2>CHUBAE reads your brief</h2>
@@ -115,9 +148,9 @@
       </li>
     </ol>
 
-    <div class="actions">
-      <a class="btn btn--light" href="/#work">See the work</a>
-      <a class="btn" href="/visual-lab/">Read the Visual Lab</a>
+    <div class="actions" id="explore">
+      <a class="btn btn--light" href="/#work">Explore more work</a>
+      <a class="btn" href="/">Back to home</a>
     </div>
   </main>
 
@@ -126,5 +159,104 @@
     <a href="mailto:spnvisualz@gmail.com">spnvisualz@gmail.com</a> &mdash; quote the
     order number on your receipt.
   </footer>
+
+  <script>
+  (() => {
+    "use strict";
+    const $ = (id) => document.getElementById(id);
+    const base = (window.SPN_CONFIG?.checkout?.apiBase || "").replace(/\/$/, "");
+    const sessionId = new URLSearchParams(location.search).get("session_id");
+    const euro = (n, c) => new Intl.NumberFormat("en-IE", { style: "currency", currency: c || "EUR" }).format(n);
+
+    const show = (which) => {
+      for (const id of ["checking", "confirmed", "unconfirmed"]) $(id).hidden = id !== which;
+      // The "what happens next" list and the explore CTAs only make sense
+      // once there is a confirmed order behind them.
+      $("next").hidden = which !== "confirmed";
+      $("explore").hidden = which !== "confirmed";
+    };
+
+    const cannotConfirm = (title, body) => {
+      $("unconfirmedTitle").textContent = title;
+      $("unconfirmedBody").textContent = body;
+      show("unconfirmed");
+    };
+
+    // GA4 purchase, exactly once per order. Refreshing this page, or
+    // returning to it from history, must not report a second sale.
+    const reportOnce = (order) => {
+      const key = "spn_purchase_" + sessionId;
+      try { if (localStorage.getItem(key)) return; localStorage.setItem(key, "1"); } catch (_) { /* storage blocked: better to skip than double-count */ return; }
+      if (typeof window.gtag !== "function") return;
+      try {
+        window.gtag("event", "purchase", {
+          transaction_id: order.reference,
+          currency: order.currency || "EUR",
+          value: order.amountTotal ?? 0,
+          items: (order.items || []).map((i) => ({ item_name: i.description, quantity: i.quantity, price: i.amount }))
+        });
+      } catch (_) { /* consent not granted */ }
+    };
+
+    const renderReceipt = (order) => {
+      $("ref").textContent = order.reference || "";
+      if (order.email) $("email").textContent = order.email;
+      const dl = $("receipt");
+      dl.innerHTML = "";
+      const row = (label, value, cls) => {
+        const dt = document.createElement("dt"); dt.textContent = label;
+        const dd = document.createElement("dd"); dd.textContent = value;
+        if (cls) dd.className = cls;
+        dl.append(dt, dd);
+      };
+      for (const item of order.items || []) {
+        row(item.quantity > 1 ? `${item.quantity} \u00d7` : "Item", item.description || "\u2014");
+      }
+      if (order.amountTotal != null) row("Total paid", euro(order.amountTotal, order.currency), "is-total");
+      if (order.email) row("Receipt to", order.email);
+      row("Delivery", order.express ? "Express \u2014 24\u201348 hours" : "Standard \u2014 3\u20135 days");
+    };
+
+    if (!sessionId) {
+      return cannotConfirm(
+        "Nothing to show here.",
+        "This page confirms an order after payment. If you have just paid and landed here without a reference, check your email for the Stripe receipt, or contact the studio and we will find it."
+      );
+    }
+    if (!base) {
+      // Honest about the limit rather than assuming success.
+      return cannotConfirm(
+        "We can\u2019t verify this order yet.",
+        "Order verification is not connected on this site yet, so we cannot confirm the payment from here. If Stripe charged you, your receipt email is proof and the studio has the order."
+      );
+    }
+
+    fetch(`${base}/api/order?session_id=${encodeURIComponent(sessionId)}`, { headers: { accept: "application/json" } })
+      .then((r) => r.json())
+      .then((order) => {
+        if (!order || order.paid !== true) {
+          return cannotConfirm(
+            "This order has not been paid.",
+            order?.paymentStatus === "unpaid"
+              ? "Stripe shows no completed payment for this order. Nothing has been charged and your basket is still saved \u2014 you can try again from checkout."
+              : "Stripe could not confirm a completed payment for this reference. Nothing is lost \u2014 your basket is still saved."
+          );
+        }
+        renderReceipt(order);
+        show("confirmed");
+        reportOnce(order);
+        // The basket is cleared here and nowhere else: only a payment
+        // Stripe has confirmed should empty it. A cancelled or failed
+        // checkout leaves it exactly as it was.
+        try { localStorage.removeItem("spn_basket_v1"); } catch (_) { /* nothing to clear */ }
+      })
+      .catch(() =>
+        cannotConfirm(
+          "We couldn\u2019t reach Stripe to check.",
+          "This does not mean the payment failed. Check your email for a Stripe receipt, or contact the studio with your reference and we will confirm it."
+        )
+      );
+  })();
+  </script>
 </body>
 </html>

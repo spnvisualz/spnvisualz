@@ -1,0 +1,93 @@
+{
+  "currency": "eur",
+  "items": {
+    "logo-basic": {
+      "price": 17,
+      "label": "Logo design — Basic"
+    },
+    "logo-premium": {
+      "price": 33,
+      "label": "Logo design — Premium"
+    },
+    "animated-logo": {
+      "price": 24,
+      "label": "Animated logo"
+    },
+    "intro-standard": {
+      "price": 21,
+      "label": "Intro visual — Standard"
+    },
+    "intro-premium": {
+      "price": 40,
+      "label": "Intro visual — Premium"
+    },
+    "loop-basic": {
+      "price": 26,
+      "label": "Motion loop — Basic"
+    },
+    "loop-premium": {
+      "price": 45,
+      "label": "Motion loop — Premium"
+    },
+    "visuals-social": {
+      "price": 20,
+      "label": "Visuals — Social"
+    },
+    "visuals-brand": {
+      "price": 35,
+      "label": "Visuals — Brand"
+    },
+    "bundle-starter": {
+      "price": 168,
+      "label": "Starter bundle"
+    },
+    "bundle-creator": {
+      "price": 240,
+      "label": "Creator bundle"
+    },
+    "bundle-business": {
+      "price": 336,
+      "label": "Business bundle"
+    },
+    "web-basic-monthly": {
+      "price": 45,
+      "label": "Website Basic — monthly",
+      "recurring": "month"
+    },
+    "web-basic-yearly": {
+      "price": 449,
+      "label": "Website Basic — yearly",
+      "recurring": "year"
+    },
+    "web-premium-monthly": {
+      "price": 79,
+      "label": "Website Premium — monthly",
+      "recurring": "month"
+    },
+    "web-premium-yearly": {
+      "price": 799,
+      "label": "Website Premium — yearly",
+      "recurring": "year"
+    },
+    "web-exclusive-monthly": {
+      "price": 129,
+      "label": "Website Exclusive — monthly",
+      "recurring": "month"
+    },
+    "web-exclusive-yearly": {
+      "price": 1299,
+      "label": "Website Exclusive — yearly",
+      "recurring": "year"
+    },
+    "care-monthly": {
+      "price": 25,
+      "label": "SPNVISUALZ Care — monthly",
+      "recurring": "month"
+    },
+    "care-yearly": {
+      "price": 249,
+      "label": "SPNVISUALZ Care — yearly",
+      "recurring": "year"
+    }
+  }
+}

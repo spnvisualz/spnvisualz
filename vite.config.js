@@ -15,7 +15,7 @@ const __dirname = import.meta.dirname;
 // SPA fallback there ends up shadowing nested public/ HTML before static
 // resolution gets a chance to run. This plugin is the fix that doesn't
 // trade one working mode for the other.)
-const STATIC_SUBSITES = ["visual-lab", "websites", "work", "privacy", "about"];
+const STATIC_SUBSITES = ["visual-lab", "websites", "work", "privacy", "about", "checkout"];
 
 // Standalone pages at the site root that Vite has no reason to bundle:
 // they import nothing from src/. Most are legacy noindex,follow
@@ -46,7 +46,11 @@ const EXCLUDED_FROM_BUILD = new Set(["article-template.html"]);
 // would ship with a bare `<script src="/src/...">` that 404s in production.
 // Everything else under those directories still copies through untouched --
 // the ten Visual Lab articles stay plain static files.
-const BUNDLED_PAGES = new Set([resolve(__dirname, "visual-lab/index.html")]);
+const BUNDLED_PAGES = new Set([
+  resolve(__dirname, "visual-lab/index.html"),
+  // imports src/checkout.js, so Vite must build it rather than copy it
+  resolve(__dirname, "checkout/index.html")
+]);
 
 function copyStaticSubsites() {
   return {
@@ -88,7 +92,8 @@ export default defineConfig({
       // production site, so they're deliberately not build inputs.
       input: {
         main: resolve(__dirname, "index.html"),
-        visualLab: resolve(__dirname, "visual-lab/index.html")
+        visualLab: resolve(__dirname, "visual-lab/index.html"),
+        checkout: resolve(__dirname, "checkout/index.html")
       }
     }
   },

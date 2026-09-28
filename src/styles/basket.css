@@ -1,0 +1,143 @@
+/* The basket drawer. Same language as the rest of the site: near-black
+   panel, hairline rules, mono for anything that is a specification.
+
+   It mounts on the static sub-sites too, and those carry their own
+   smaller token sets — /websites/ has no --purple-light or --font-mono at
+   all, and a different --panel. So every colour here goes through a local
+   --bk-* alias with a fallback: the page's token wins where it exists,
+   and the drawer still looks like itself where it does not. */
+.spn-basket, .basket-button{
+  --bk-bg: var(--bg, #030207);
+  --bk-panel: var(--panel, #0b0811);
+  --bk-text: var(--text, #f5f2fb);
+  --bk-muted: var(--muted, rgba(245,242,251,.58));
+  --bk-quiet: var(--quiet, rgba(245,242,251,.48));
+  --bk-line: var(--line, rgba(255,255,255,.14));
+  --bk-accent: var(--purple-light, #c6a7ff);
+  --bk-mono: var(--font-mono, "IBM Plex Mono", "Courier New", monospace);
+  --bk-ease: var(--ease-signal, cubic-bezier(.22,.75,.25,1));
+  --bk-ease-depth: var(--ease-depth, cubic-bezier(.16,.84,.2,1));
+  --bk-space: var(--space-md, 1.5rem);
+  --bk-space-sm: var(--space-sm, 1rem);
+}
+.spn-basket{ position: fixed; inset: 0; z-index: 90; }
+.spn-basket[hidden]{ display: none; }
+.spn-basket__scrim{
+  position: absolute; inset: 0;
+  background: rgba(3,2,7,.72); backdrop-filter: blur(6px);
+  animation: spnBasketFade .3s var(--bk-ease) both;
+}
+.spn-basket__panel{
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: min(440px, 100%);
+  display: flex; flex-direction: column;
+  background: var(--bk-panel); border-left: 1px solid var(--bk-line);
+  animation: spnBasketIn .42s var(--bk-ease-depth) both;
+  overflow: hidden;
+}
+@keyframes spnBasketFade{ from{ opacity: 0; } }
+@keyframes spnBasketIn{ from{ transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce){
+  .spn-basket__scrim, .spn-basket__panel{ animation: none; }
+}
+
+.spn-basket__head{
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--bk-space); border-bottom: 1px solid var(--bk-line);
+}
+.spn-basket__label{
+  margin: 0; font-family: var(--bk-mono); font-size: 10px;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--bk-accent);
+}
+.spn-basket__close{
+  width: 32px; height: 32px; display: grid; place-items: center;
+  background: transparent; border: 1px solid var(--bk-line); color: var(--bk-text); font-size: 18px;
+}
+.spn-basket__close:hover{ border-color: var(--bk-accent); }
+
+.spn-basket__list{ flex: 1; overflow-y: auto; overscroll-behavior: contain; }
+.spn-basket__empty{
+  flex: 1; display: grid; place-items: center; margin: 0;
+  color: var(--bk-quiet); font-size: 14px;
+}
+.spn-basket__empty[hidden]{ display: none; }
+
+.spn-basket__line{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "name price" "meta price" "qty actions";
+  gap: 4px var(--bk-space-sm); align-items: center;
+  padding: var(--bk-space); border-bottom: 1px solid var(--bk-line);
+}
+.spn-basket__name{ grid-area: name; margin: 0; font-size: 14px; letter-spacing: -.01em; }
+.spn-basket__meta{ grid-area: meta; margin: 0; font-size: 11px; color: var(--bk-quiet); }
+.spn-basket__price{
+  grid-area: price; margin: 0; font-size: 16px; white-space: nowrap;
+  font-variant-numeric: tabular-nums; align-self: start;
+}
+.spn-basket__qty{ grid-area: qty; display: flex; align-items: center; gap: 2px; margin-top: 8px; }
+.spn-basket__qty button{
+  width: 28px; height: 28px; background: transparent; border: 1px solid var(--bk-line);
+  color: var(--bk-text); font-size: 14px; line-height: 1;
+}
+.spn-basket__qty button:hover{ border-color: var(--bk-accent); }
+.spn-basket__qty span{
+  min-width: 34px; text-align: center; font-family: var(--bk-mono);
+  font-size: 12px; font-variant-numeric: tabular-nums;
+}
+.spn-basket__actions{
+  grid-area: actions; display: flex; gap: var(--bk-space-sm);
+  justify-self: end; margin-top: 8px;
+}
+.spn-basket__express, .spn-basket__remove{
+  background: transparent; border: 0; padding: 0;
+  font-family: var(--bk-mono); font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--bk-muted);
+}
+.spn-basket__express[aria-pressed="true"]{ color: var(--bk-accent); }
+.spn-basket__express:hover, .spn-basket__remove:hover{ color: var(--bk-text); }
+
+.spn-basket__foot{ padding: var(--bk-space); border-top: 1px solid var(--bk-line); }
+.spn-basket__foot[hidden]{ display: none; }
+.spn-basket__sums{ margin: 0 0 var(--bk-space-sm); }
+.spn-basket__sums div{
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 4px 0; font-size: 13px; color: var(--bk-muted);
+}
+.spn-basket__sums div[hidden]{ display: none; }
+.spn-basket__sums dt, .spn-basket__sums dd{ margin: 0; }
+.spn-basket__sums dd{ font-variant-numeric: tabular-nums; }
+.spn-basket__sums .is-total{
+  margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--bk-line);
+  font-size: 17px; color: var(--bk-text);
+}
+.spn-basket__note{ margin: 0 0 var(--bk-space-sm); font-size: 11px; color: var(--bk-quiet); }
+.spn-basket__checkout{
+  display: block; text-align: center; padding: 15px;
+  background: var(--bk-text); color: #050308; font-size: 13px; letter-spacing: .04em;
+  transition: background .25s;
+}
+.spn-basket__checkout:hover{ background: #fff; }
+
+/* the header count */
+.basket-button{
+  position: relative; display: inline-flex; align-items: center; gap: 8px;
+  background: transparent; border: 1px solid var(--bk-line); padding: 10px 16px;
+  font-size: 12px; letter-spacing: .04em; color: inherit;
+  transition: border-color .25s, background .25s;
+}
+.basket-button:hover{ border-color: var(--bk-accent); background: rgba(198,167,255,.06); }
+.basket-button__count{
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+  display: grid; place-items: center;
+  background: var(--bk-accent); color: #14091f;
+  font-family: var(--bk-mono); font-size: 10px; font-variant-numeric: tabular-nums;
+}
+.basket-button__count[hidden]{ display: none; }
+
+html.basket-open{ overflow: hidden; }
+
+@media (max-width: 460px){
+  .spn-basket__panel{ width: 100%; }
+  .spn-basket__line{ padding: var(--bk-space-sm) var(--bk-space); }
+}

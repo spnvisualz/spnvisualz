@@ -71,6 +71,21 @@
     checkout: {
       // Shown on the success page and in the checkout window title.
       brand: "SPNVISUALZ",
+
+      /*
+       * The one switch that turns the store on.
+       *
+       * Empty: buy buttons behave exactly as they do today and there is
+       * no basket — because a basket that cannot reach a checkout is
+       * worse than no basket. Set to the origin serving api/ (same
+       * origin, or e.g. "https://api.spnvisualz.com"): buttons become
+       * Add to basket, the drawer appears, and /checkout/ can create a
+       * real Stripe session.
+       *
+       * Nothing secret goes here. The secret key lives only in the
+       * server's environment.
+       */
+      apiBase: "",
       // Where the provider should send the customer after paying.
       // Set this as the redirect/thank-you URL in the dashboard too.
       successUrl: "https://spnvisualz.com/thank-you.html",
@@ -91,11 +106,10 @@
         "bundle-creator":    { price: 240,  label: "Creator bundle",             url: "" },
         "bundle-business":   { price: 336,  label: "Business bundle",            url: "" },
 
-        // --- custom work ------------------------------------------
-        // A booking fee, credited against the final quote. This is
-        // what makes custom work orderable without knowing the price.
-        "deposit-custom":    { price: 50,   label: "Custom project — booking fee", url: "" },
-        "deposit-website":   { price: 50,   label: "Custom website — booking fee", url: "" },
+        // Custom work is deliberately NOT here. It cannot be priced
+        // before it is scoped, so it goes through Request a quote and is
+        // invoiced from Stripe once agreed — an item in the basket would
+        // have to invent a number.
 
         // --- website packages, recurring --------------------------
         "web-basic-monthly":     { price: 45,   label: "Website Basic — monthly",     url: "", recurring: "month" },
