@@ -53,8 +53,9 @@
      *
      * Stripe rather than a merchant-of-record because Lemon Squeezy
      * and Paddle both prohibit design services and web development.
-     * That means VAT/MVA is ours: turn on Stripe Tax so it is
-     * calculated and collected, and register/file where you owe.
+     * VAT/MVA remains the studio's responsibility. Only enable Stripe
+     * Tax after the business has an active registration in Stripe for
+     * each jurisdiction where tax must be collected.
      *
      * Worth setting on each link in the dashboard:
      *   - the success URL below, so paying lands on the right page
@@ -76,25 +77,27 @@
       successUrl: "https://spnvisualz.com/thank-you.html",
       items: {
         // --- single services, one-off -----------------------------
-        "logo-basic":        { price: 17,   label: "Logo design — Basic",        url: "" },
-        "logo-premium":      { price: 33,   label: "Logo design — Premium",      url: "" },
-        "animated-logo":     { price: 24,   label: "Animated logo",              url: "" },
-        "intro-standard":    { price: 21,   label: "Intro visual — Standard",    url: "" },
-        "intro-premium":     { price: 40,   label: "Intro visual — Premium",     url: "" },
-        "loop-basic":        { price: 26,   label: "Motion loop — Basic",        url: "" },
-        "loop-premium":      { price: 45,   label: "Motion loop — Premium",      url: "" },
-        "visuals-social":    { price: 20,   label: "Visuals — Social",           url: "" },
-        "visuals-brand":     { price: 35,   label: "Visuals — Brand",            url: "" },
+        "logo-basic":        { price: 22,   label: "Logo design — Basic",        url: "https://book.stripe.com/8x28wO3GN6Mh3PB39T0oM0k" },
+        "logo-premium":      { price: 55,   label: "Logo design — Premium",      url: "https://book.stripe.com/5kQ9AS6SZ1rX0Dph0J0oM0j" },
+        "animated-logo":     { price: 35,   label: "Animated logo",              url: "https://book.stripe.com/fZubJ02CJ4E9dqb7q90oM0l" },
+        "intro-standard":    { price: 32,   label: "Intro visual — Standard",    url: "https://book.stripe.com/cNi28qb9feeJ4TFeSB0oM0m" },
+        "intro-premium":     { price: 68,   label: "Intro visual — Premium",     url: "https://book.stripe.com/3cI3cu1yF9Ytcm711L0oM0o" },
+        "loop-basic":        { price: 44,   label: "Motion loop — Basic",        url: "https://book.stripe.com/bJe8wO7X35Id2LxcKt0oM0q" },
+        "loop-premium":      { price: 90,   label: "Motion loop — Premium",      url: "https://book.stripe.com/8x24gydhnc6BgCn8ud0oM0r" },
+        "visuals-social":    { price: 34,   label: "Visuals — Social",           url: "https://book.stripe.com/4gMfZgelrgmR2Lxh0J0oM0n" },
+        "visuals-brand":     { price: 72,   label: "Visuals — Brand",            url: "https://book.stripe.com/cNiaEWcdjgmR2Lx8ud0oM0p" },
 
         // --- bundles, one-off -------------------------------------
-        "bundle-starter":    { price: 168,  label: "Starter bundle",             url: "" },
-        "bundle-creator":    { price: 240,  label: "Creator bundle",             url: "" },
-        "bundle-business":   { price: 336,  label: "Business bundle",            url: "" },
+        "bundle-starter":    { price: 168,  label: "Starter bundle",             url: "https://book.stripe.com/4gMeVcfpvfiN1Ht11L0oM06" },
+        "bundle-creator":    { price: 240,  label: "Creator bundle",             url: "https://book.stripe.com/cNicN44KR8Upbi339T0oM0a" },
+        "bundle-business":   { price: 336,  label: "Business bundle",            url: "https://book.stripe.com/fZucN4fpv9Yt71NbGp0oM07" },
 
         // --- custom work ------------------------------------------
-        // A booking fee, credited against the final quote. This is
-        // what makes custom work orderable without knowing the price.
-        "deposit-custom":    { price: 50,   label: "Custom project — booking fee", url: "" },
+        // Custom projects stay enquiry-first. After the scope is agreed,
+        // the studio sends a Stripe deposit invoice, then invoices the
+        // remaining balance after delivery. Keep this URL empty so the
+        // site opens the project brief instead of an instant checkout.
+        "deposit-custom":    { price: 50,   label: "Custom project — invoice deposit", url: "" },
         "deposit-website":   { price: 50,   label: "Custom website — booking fee", url: "" },
 
         // --- website packages, recurring --------------------------
