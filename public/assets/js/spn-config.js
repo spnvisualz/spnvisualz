@@ -97,7 +97,7 @@
         // the studio sends a Stripe deposit invoice, then invoices the
         // remaining balance after delivery. Keep this URL empty so the
         // site opens the project brief instead of an instant checkout.
-        "deposit-custom":    { price: 50,   label: "Custom project — invoice deposit", url: "" },
+        "deposit-custom":    { price: 50,   label: "Custom project — quoted deposit", url: "" },
         "deposit-website":   { price: 50,   label: "Custom website — booking fee", url: "" },
 
         // --- website packages, recurring --------------------------
