@@ -30,6 +30,10 @@ new Function("window", cfgSrc)(globalThis.window);
 
 const basket = await import("../src/store/basket.js");
 
+// Prices are read from the catalogue, never written into the test. The
+// studio changes them; what must stay true is the arithmetic around them.
+const P = (sku) => globalThis.window.SPN_CONFIG.checkout.items[sku].price;
+
 beforeEach(() => { store.clear(); basket.clear(); });
 
 test("an empty basket is empty and costs nothing", () => {
@@ -40,9 +44,9 @@ test("an empty basket is empty and costs nothing", () => {
 test("adding a known item prices it from the catalogue", () => {
   assert.equal(basket.add("logo-basic"), true);
   const t = basket.totals();
-  assert.equal(t.base, 17);       // catalogue price
+  assert.equal(t.base, P("logo-basic"));
   assert.equal(t.express, 0);
-  assert.equal(t.total, 17);
+  assert.equal(t.total, P("logo-basic"));
   assert.equal(t.count, 1);
 });
 
@@ -52,11 +56,13 @@ test("an unknown sku cannot enter the basket", () => {
 });
 
 test("quantity multiplies, and express is 40% of the line", () => {
-  basket.add("logo-premium", { qty: 3, express: true }); // 33 x 3 = 99
+  basket.add("logo-premium", { qty: 3, express: true });
+  const base = P("logo-premium") * 3;
   const t = basket.totals();
-  assert.equal(t.base, 99);
-  assert.equal(t.express, 39.6);   // 40% of the whole line, not of one unit
-  assert.equal(t.total, 138.6);
+  assert.equal(t.base, base);
+  // 40% of the whole line, not of one unit
+  assert.equal(t.express, Math.round(base * 0.4 * 100) / 100);
+  assert.equal(t.total, Math.round(base * 1.4 * 100) / 100);
 });
 
 test("the same item added twice merges instead of duplicating", () => {
@@ -71,8 +77,8 @@ test("express and non-express of the same service are separate lines", () => {
   basket.add("loop-basic", { qty: 1, express: false });
   basket.add("loop-basic", { qty: 1, express: true });
   assert.equal(basket.lines().length, 2);
-  assert.equal(basket.totals().base, 52);
-  assert.equal(basket.totals().express, 10.4);
+  assert.equal(basket.totals().base, P("loop-basic") * 2);
+  assert.equal(basket.totals().express, Math.round(P("loop-basic") * 0.4 * 100) / 100);
 });
 
 test("toggling express merges into an existing matching line", () => {
@@ -81,7 +87,7 @@ test("toggling express merges into an existing matching line", () => {
   basket.setExpress("loop-basic", false, true);   // the single one joins the pair
   assert.equal(basket.lines().length, 1);
   assert.equal(basket.totals().count, 3);
-  assert.equal(basket.totals().base, 78);
+  assert.equal(basket.totals().base, P("loop-basic") * 3);
 });
 
 test("quantity of zero or less removes the line", () => {
@@ -101,9 +107,10 @@ test("quantity is clamped to something a studio could actually deliver", () => {
 // --- the security property -------------------------------------------
 
 test("no price is ever written to storage", () => {
-  basket.add("bundle-business", { qty: 2, express: true }); // a 336 item
+  basket.add("bundle-business", { qty: 2, express: true });
   const raw = localStorage.getItem(basket.STORAGE_KEY_FOR_TESTS);
-  assert.doesNotMatch(raw, /336/, "a price reached storage — it must be recomputed, never stored");
+  assert.doesNotMatch(raw, new RegExp(String(P("bundle-business"))),
+    "a price reached storage — it must be recomputed, never stored");
   assert.doesNotMatch(raw, /price|total|amount/i, "storage must hold sku, qty and express only");
   assert.deepEqual(JSON.parse(raw), [{ sku: "bundle-business", qty: 2, express: true }]);
 });
@@ -117,7 +124,7 @@ test("a tampered basket cannot invent a cheaper price", () => {
   );
   basket.refresh(); // what a page reload does
   const t = basket.totals();
-  assert.equal(t.total, 336, "the catalogue price must win over anything in storage");
+  assert.equal(t.total, P("bundle-business"), "the catalogue price must win over anything in storage");
 });
 
 test("a tampered basket cannot invent an item", () => {
@@ -152,6 +159,21 @@ test("the basket survives a reload", () => {
   store.clear();
   localStorage.setItem(basket.STORAGE_KEY_FOR_TESTS, saved);
   basket.refresh(); // a fresh page load
-  assert.equal(basket.totals().total, 25);
+  assert.equal(basket.totals().total, P("care-monthly"));
   assert.equal(basket.lines().length, 1);
+});
+
+
+test("a quote-only item cannot be added, however it is asked for", () => {
+  // Their buttons still carry data-buy so the Payment Link path can label
+  // them, so this refusal has to hold at the basket, not in markup.
+  assert.equal(basket.add("deposit-custom"), false);
+  assert.equal(basket.add("deposit-website", { qty: 3 }), false);
+  assert.equal(basket.isEmpty(), true);
+
+  // …and one smuggled straight into storage is dropped on read.
+  localStorage.setItem(basket.STORAGE_KEY_FOR_TESTS,
+    JSON.stringify([{ sku: "deposit-custom", qty: 1 }, { sku: "logo-basic", qty: 1 }]));
+  basket.refresh();
+  assert.deepEqual(basket.asOrder(), [{ sku: "logo-basic", qty: 1, express: false }]);
 });

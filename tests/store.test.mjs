@@ -51,20 +51,22 @@ test("the server carries no checkout urls", () => {
 
 test("express is 40% and rides on the whole line", () => {
   assert.equal(EXPRESS_RATE, 0.4);
+  const unit = lib.catalogue.items["logo-premium"].price;
   const o = priceOrder(lib.catalogue.items, [{ sku: "logo-premium", qty: 3, express: true }]);
-  assert.equal(o.base, 99);
-  assert.equal(o.express, 39.6);
-  assert.equal(o.total, 138.6);
-  assert.equal(o.totalCents, 13860);
+  assert.equal(o.base, unit * 3);
+  assert.equal(o.express, Math.round(unit * 3 * 0.4 * 100) / 100);
+  assert.equal(o.total, Math.round(unit * 3 * 1.4 * 100) / 100);
+  assert.equal(o.totalCents, Math.round(unit * 3 * 1.4 * 100));
 });
 
 test("the total is the sum of the lines a customer can read", () => {
   const o = priceOrder(lib.catalogue.items, [
-    { sku: "logo-basic", qty: 1, express: true },   // 17 + 6.80
-    { sku: "intro-standard", qty: 2, express: false } // 42
+    { sku: "logo-basic", qty: 1, express: true },
+    { sku: "intro-standard", qty: 2, express: false }
   ]);
   assert.equal(o.lines.reduce((a, l) => a + l.total, 0).toFixed(2), o.total.toFixed(2));
-  assert.equal(o.total, 65.8);
+  const expected = lib.catalogue.items["logo-basic"].price * 1.4 + lib.catalogue.items["intro-standard"].price * 2;
+  assert.equal(o.total, Math.round(expected * 100) / 100);
 });
 
 test("a subscription cannot be paid alongside a one-off", () => {
@@ -108,9 +110,10 @@ test("a price in the request body is ignored; Stripe is told the catalogue price
 
   assert.equal(res.status, 200);
   const unit = sent.get("line_items[0][price_data][unit_amount]");
-  assert.equal(unit, "33600", `Stripe was told ${unit} instead of the catalogue's 33600`);
+  const real = lib.catalogue.items["bundle-business"].price;
+  assert.equal(unit, String(real * 100), `Stripe was told ${unit} instead of the catalogue's ${real * 100}`);
   const body = await res.json();
-  assert.equal(body.total, 336, "the server reported a total other than the catalogue's");
+  assert.equal(body.total, real, "the server reported a total other than the catalogue's");
 });
 
 test("checkout refuses an empty or unsellable basket", async () => {
@@ -176,4 +179,11 @@ test("no secret is present anywhere in the repo's committed code", () => {
     assert.doesNotMatch(src, /sk_test_[A-Za-z0-9]{10}/, `${f} contains a test secret key`);
     assert.doesNotMatch(src, /whsec_[A-Za-z0-9]{10}/, `${f} contains a webhook signing secret`);
   }
+});
+
+
+test("a quote-only item is refused by the server too", () => {
+  const o = priceOrder(lib.catalogue.items, [{ sku: "deposit-custom", qty: 1 }]);
+  assert.deepEqual(o.rejected, ["deposit-custom"]);
+  assert.equal(o.lines.length, 0);
 });

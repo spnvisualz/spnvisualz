@@ -49,7 +49,7 @@ function read() {
   }
   if (!Array.isArray(parsed)) return [];
   return parsed
-    .filter((line) => line && typeof line.sku === "string" && itemFor(line.sku))
+    .filter((line) => line && typeof line.sku === "string" && itemFor(line.sku) && !itemFor(line.sku).quoteOnly)
     .map((line) => ({
       sku: line.sku,
       qty: clampQty(line.qty),
@@ -117,7 +117,12 @@ export const asOrder = () => load().map(({ sku, qty, express }) => ({ sku, qty, 
 /* ---------- writing -------------------------------------------------- */
 
 export function add(sku, { qty = 1, express = false } = {}) {
-  if (!itemFor(sku)) return false;
+  const entry = itemFor(sku);
+  // quoteOnly items are listed so the studio can invoice them, but they
+  // have no agreed price yet. Their buttons still carry data-buy for the
+  // Payment Link path, so the refusal has to live here rather than
+  // relying on markup.
+  if (!entry || entry.quoteOnly) return false;
   const next = [...load()];
   const line = { sku, qty: clampQty(qty), express: express === true };
   const existing = next.findIndex((l) => key(l) === key(line));

@@ -31,6 +31,7 @@ export function toServerCatalogue(checkout) {
   for (const [sku, item] of Object.entries(checkout.items)) {
     items[sku] = { price: item.price, label: item.label };
     if (item.recurring) items[sku].recurring = item.recurring;
+    if (item.quoteOnly) items[sku].quoteOnly = true;
   }
   return { currency: "eur", items };
 }

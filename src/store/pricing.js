@@ -36,7 +36,10 @@ export function priceOrder(catalogue, lines) {
 
   for (const line of Array.isArray(lines) ? lines : []) {
     const item = catalogue?.[line?.sku];
-    if (!item) {
+    // quoteOnly items have no agreed price, so they cannot be charged for
+    // automatically. Refused on the server as well as in the basket,
+    // because the basket is the client and the client is not trusted.
+    if (!item || item.quoteOnly) {
       rejected.push(line?.sku ?? null);
       continue;
     }

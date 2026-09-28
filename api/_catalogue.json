@@ -2,39 +2,39 @@
   "currency": "eur",
   "items": {
     "logo-basic": {
-      "price": 17,
+      "price": 22,
       "label": "Logo design — Basic"
     },
     "logo-premium": {
-      "price": 33,
+      "price": 55,
       "label": "Logo design — Premium"
     },
     "animated-logo": {
-      "price": 24,
+      "price": 35,
       "label": "Animated logo"
     },
     "intro-standard": {
-      "price": 21,
+      "price": 32,
       "label": "Intro visual — Standard"
     },
     "intro-premium": {
-      "price": 40,
+      "price": 68,
       "label": "Intro visual — Premium"
     },
     "loop-basic": {
-      "price": 26,
+      "price": 44,
       "label": "Motion loop — Basic"
     },
     "loop-premium": {
-      "price": 45,
+      "price": 90,
       "label": "Motion loop — Premium"
     },
     "visuals-social": {
-      "price": 20,
+      "price": 34,
       "label": "Visuals — Social"
     },
     "visuals-brand": {
-      "price": 35,
+      "price": 72,
       "label": "Visuals — Brand"
     },
     "bundle-starter": {
@@ -48,6 +48,16 @@
     "bundle-business": {
       "price": 336,
       "label": "Business bundle"
+    },
+    "deposit-custom": {
+      "price": 50,
+      "label": "Custom project — quoted deposit",
+      "quoteOnly": true
+    },
+    "deposit-website": {
+      "price": 50,
+      "label": "Custom website — booking fee",
+      "quoteOnly": true
     },
     "web-basic-monthly": {
       "price": 45,
