@@ -1,0 +1,50 @@
+# SPNVISUALZ store deployment
+
+The storefront uses a static Vite frontend plus three serverless endpoints:
+
+- `POST /api/create-checkout-session` validates the basket against the server-side Price allowlist and creates an embedded Stripe Checkout Session.
+- `GET /api/checkout-session` verifies an order before the thank-you page displays it as paid.
+- `POST /api/stripe-webhook` verifies Stripe signatures and records the order state in Checkout Session metadata.
+
+## Hosting
+
+Deploy the repository as one Vercel project so the portfolio, basket, Checkout iframe, API, and confirmation page all remain on `spnvisualz.com`. The build command is `npm run build` and the output directory is `dist`; both are already declared in `vercel.json`.
+
+After Vercel is live, attach both `spnvisualz.com` and `www.spnvisualz.com` to the project and make the apex domain canonical.
+
+## Environment variables
+
+Set these for Production and Preview without committing their values:
+
+- `STRIPE_RESTRICTED_KEY`
+- `STRIPE_PUBLISHABLE_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `PUBLIC_SITE_URL=https://spnvisualz.com`
+
+The restricted key needs Checkout Sessions read/write permission. It also needs permission to read the related line items and update Checkout Session metadata because the verified webhook marks paid, processing, or failed orders. Use a separate sandbox key set for Preview deployments.
+
+## Stripe webhook
+
+Create an event destination at:
+
+`https://spnvisualz.com/api/stripe-webhook`
+
+Subscribe to:
+
+- `checkout.session.completed`
+- `checkout.session.async_payment_succeeded`
+- `checkout.session.async_payment_failed`
+
+Copy the destination signing secret into `STRIPE_WEBHOOK_SECRET`. Do not reuse a webhook secret from another endpoint or environment.
+
+## Launch checks
+
+1. Add two different services and Express delivery to the basket.
+2. Change quantities and verify every line and the total.
+3. Complete a sandbox payment and confirm the thank-you page shows the verified order.
+4. Confirm the cart clears only after a paid order.
+5. Confirm the Checkout Session metadata contains `order_status=paid_ready`.
+6. Repeat with an asynchronous sandbox method and verify success and failure events.
+7. Test desktop and mobile layouts before pointing the production domain at Vercel.
+
+Do not enable Stripe Tax until the business has active tax registrations in Stripe.

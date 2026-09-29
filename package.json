@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "SPNVISUALZ \u2014 cinematic motion-first creative studio site (SIGNAL rebuild).",
+  "description": "SPNVISUALZ — cinematic motion-first creative studio site (SIGNAL rebuild).",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -15,6 +15,7 @@
   "dependencies": {
     "gsap": "^3.15.0",
     "lenis": "^1.3.26",
+    "stripe": "^22.6.0",
     "three": "^0.185.1"
   },
   "devDependencies": {

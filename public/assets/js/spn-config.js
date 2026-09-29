@@ -75,22 +75,33 @@
       // Where the provider should send the customer after paying.
       // Set this as the redirect/thank-you URL in the dashboard too.
       successUrl: "https://spnvisualz.com/thank-you.html",
+      store: {
+        enabled: true,
+        currency: "EUR",
+        storageKey: "spnvisualz_cart_v1",
+        checkoutUrl: "/checkout.html",
+        createSessionUrl: "/api/create-checkout-session",
+        sessionStatusUrl: "/api/checkout-session"
+      },
       items: {
         // --- single services, one-off -----------------------------
-        "logo-basic":        { price: 22,   label: "Logo design — Basic",        url: "https://book.stripe.com/8x28wO3GN6Mh3PB39T0oM0k" },
-        "logo-premium":      { price: 55,   label: "Logo design — Premium",      url: "https://book.stripe.com/5kQ9AS6SZ1rX0Dph0J0oM0j" },
-        "animated-logo":     { price: 35,   label: "Animated logo",              url: "https://book.stripe.com/fZubJ02CJ4E9dqb7q90oM0l" },
-        "intro-standard":    { price: 32,   label: "Intro visual — Standard",    url: "https://book.stripe.com/cNi28qb9feeJ4TFeSB0oM0m" },
-        "intro-premium":     { price: 68,   label: "Intro visual — Premium",     url: "https://book.stripe.com/3cI3cu1yF9Ytcm711L0oM0o" },
-        "loop-basic":        { price: 44,   label: "Motion loop — Basic",        url: "https://book.stripe.com/bJe8wO7X35Id2LxcKt0oM0q" },
-        "loop-premium":      { price: 90,   label: "Motion loop — Premium",      url: "https://book.stripe.com/8x24gydhnc6BgCn8ud0oM0r" },
-        "visuals-social":    { price: 34,   label: "Visuals — Social",           url: "https://book.stripe.com/4gMfZgelrgmR2Lxh0J0oM0n" },
-        "visuals-brand":     { price: 72,   label: "Visuals — Brand",            url: "https://book.stripe.com/cNiaEWcdjgmR2Lx8ud0oM0p" },
+        "logo-basic":        { price: 22,   label: "Logo design — Basic",        cart: true, url: "https://book.stripe.com/8x28wO3GN6Mh3PB39T0oM0k" },
+        "logo-premium":      { price: 55,   label: "Logo design — Premium",      cart: true, url: "https://book.stripe.com/5kQ9AS6SZ1rX0Dph0J0oM0j" },
+        "animated-logo":     { price: 35,   label: "Animated logo",              cart: true, url: "https://book.stripe.com/fZubJ02CJ4E9dqb7q90oM0l" },
+        "intro-standard":    { price: 32,   label: "Intro visual — Standard",    cart: true, url: "https://book.stripe.com/cNi28qb9feeJ4TFeSB0oM0m" },
+        "intro-premium":     { price: 68,   label: "Intro visual — Premium",     cart: true, url: "https://book.stripe.com/3cI3cu1yF9Ytcm711L0oM0o" },
+        "loop-basic":        { price: 44,   label: "Motion loop — Basic",        cart: true, url: "https://book.stripe.com/bJe8wO7X35Id2LxcKt0oM0q" },
+        "loop-premium":      { price: 90,   label: "Motion loop — Premium",      cart: true, url: "https://book.stripe.com/8x24gydhnc6BgCn8ud0oM0r" },
+        "visuals-social":    { price: 34,   label: "Visuals — Social",           cart: true, url: "https://book.stripe.com/4gMfZgelrgmR2Lxh0J0oM0n" },
+        "visuals-brand":     { price: 72,   label: "Visuals — Brand",            cart: true, url: "https://book.stripe.com/cNiaEWcdjgmR2Lx8ud0oM0p" },
 
         // --- bundles, one-off -------------------------------------
-        "bundle-starter":    { price: 168,  label: "Starter bundle",             url: "https://book.stripe.com/4gMeVcfpvfiN1Ht11L0oM06" },
-        "bundle-creator":    { price: 240,  label: "Creator bundle",             url: "https://book.stripe.com/cNicN44KR8Upbi339T0oM0a" },
-        "bundle-business":   { price: 336,  label: "Business bundle",            url: "https://book.stripe.com/fZucN4fpv9Yt71NbGp0oM07" },
+        "bundle-starter":    { price: 168,  label: "Starter bundle",             cart: true, url: "https://book.stripe.com/4gMeVcfpvfiN1Ht11L0oM06" },
+        "bundle-creator":    { price: 240,  label: "Creator bundle",             cart: true, url: "https://book.stripe.com/cNicN44KR8Upbi339T0oM0a" },
+        "bundle-business":   { price: 336,  label: "Business bundle",            cart: true, url: "https://book.stripe.com/fZucN4fpv9Yt71NbGp0oM07" },
+
+        // --- basket add-on ----------------------------------------
+        "express-delivery":  { price: 40,   label: "Express delivery — 24–48 hours", addon: true, url: "" },
 
         // --- custom work ------------------------------------------
         // Custom projects stay enquiry-first. After the scope is agreed,

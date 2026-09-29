@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#030207">
+  <meta name="robots" content="noindex,follow">
+  <title>Secure checkout | SPNVISUALZ</title>
+  <meta name="description" content="Review your SPNVISUALZ order and pay securely without leaving the studio.">
+  <link rel="canonical" href="https://spnvisualz.com/checkout.html">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="/assets/css/checkout.css?v=20260928.2">
+  <script src="https://js.stripe.com/v3/" defer></script>
+  <script src="/assets/js/spn-config.js?v=20260928.2"></script>
+  <script src="/assets/js/spn-checkout.js?v=20260928.2" defer></script>
+  <script src="/assets/js/spn-payment.js?v=20260928.2" defer></script>
+</head>
+<body data-store-checkout="true">
+  <header class="checkout-header">
+    <a class="wordmark" href="/">SPN<span>VISUALZ</span></a>
+    <div class="checkout-progress" aria-label="Checkout progress">
+      <span class="is-complete">Basket</span><i></i><span class="is-active">Payment</span><i></i><span>Confirmation</span>
+    </div>
+    <a class="checkout-back" href="/#pricing">Keep shopping</a>
+  </header>
+
+  <main class="checkout-main">
+    <section class="checkout-summary" aria-labelledby="summaryTitle">
+      <p class="eyebrow">YOUR ORDER</p>
+      <div class="summary-title">
+        <h1 id="summaryTitle">Review your basket</h1>
+        <a href="/#pricing">Edit basket</a>
+      </div>
+      <ul id="checkoutSummaryLines" class="summary-lines"></ul>
+      <div id="checkoutExpressLine" class="summary-express" hidden>
+        <span><strong>Express delivery</strong><small>Prioritised 24–48 hour delivery</small></span><b></b>
+      </div>
+      <div class="summary-total"><span>Total payable</span><strong id="checkoutTotal">€0</strong></div>
+      <div class="checkout-assurance">
+        <p><b aria-hidden="true">✓</b><span><strong>Secure payment</strong>Payment details are encrypted and handled by Stripe.</span></p>
+        <p><b aria-hidden="true">✓</b><span><strong>Clear delivery</strong>Standard delivery is 3–5 working days.</span></p>
+        <p><b aria-hidden="true">✓</b><span><strong>Studio support</strong>We review every brief before production begins.</span></p>
+      </div>
+    </section>
+
+    <section class="checkout-payment" aria-labelledby="paymentTitle">
+      <p class="eyebrow">SECURE CHECKOUT</p>
+      <h2 id="paymentTitle">Project details &amp; payment</h2>
+      <p class="checkout-payment__lede">Complete your brief and payment below. You stay on SPNVISUALZ throughout checkout.</p>
+      <div id="checkoutEmpty" class="checkout-message" hidden>
+        <h3>Your basket is empty.</h3>
+        <p>Choose a service or bundle before continuing to payment.</p>
+        <a href="/#pricing">Explore services</a>
+      </div>
+      <div id="checkoutLoading" class="checkout-loading" role="status">
+        <span></span><p>Preparing your secure checkout…</p>
+      </div>
+      <div id="checkoutError" class="checkout-message checkout-message--error" hidden>
+        <h3>Checkout could not be loaded.</h3>
+        <p id="checkoutErrorMessage">Please try again.</p>
+        <button id="checkoutRetry" type="button">Try again</button>
+      </div>
+      <div id="checkoutMount"></div>
+    </section>
+  </main>
+
+  <footer class="checkout-footer">
+    <span>© 2026 SPNVISUALZ</span>
+    <a href="/privacy/">Privacy</a>
+    <a href="mailto:spnvisualz@gmail.com">Need help?</a>
+  </footer>
+</body>
+</html>
+

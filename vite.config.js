@@ -29,6 +29,7 @@ const STATIC_ROOT_PAGES = [
   "booking.html",
   "contact.html",
   "splash.html",
+  "checkout.html",
   "thank-you.html",
   "work.html"
 ];
