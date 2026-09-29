@@ -64,6 +64,8 @@ test("duplicate lines combine safely and quantities are capped", () => {
 
 test("checkout uses embedded mode, dynamic payment methods, and verified return state", () => {
   const create = readFileSync(join(root, "api/create-checkout-session.js"), "utf8");
+  const worker = readFileSync(join(root, "worker/index.js"), "utf8");
+  const cloudflare = readFileSync(join(root, "wrangler.jsonc"), "utf8");
   const webhook = readFileSync(join(root, "api/stripe-webhook.js"), "utf8");
   const thankYou = readFileSync(join(root, "public/assets/js/spn-thank-you.js"), "utf8");
   assert.match(create, /ui_mode:\s*"embedded_page"/);
@@ -72,6 +74,11 @@ test("checkout uses embedded mode, dynamic payment methods, and verified return 
   assert.doesNotMatch(create, /^\s*payment_method_types:/m);
   assert.match(webhook, /constructEvent/);
   assert.match(webhook, /checkout\.session\.async_payment_succeeded/);
+  assert.match(worker, /ui_mode:\s*"embedded_page"/);
+  assert.match(worker, /constructEventAsync/);
+  assert.match(worker, /createSubtleCryptoProvider/);
+  assert.doesNotMatch(worker, /^\s*payment_method_types:/m);
+  assert.match(cloudflare, /"run_worker_first":\s*\["\/api\/\*"\]/);
   assert.match(thankYou, /paymentStatus === "paid"/);
   assert.match(thankYou, /localStorage\.removeItem/);
 });

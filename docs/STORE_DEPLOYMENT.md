@@ -8,18 +8,24 @@ The storefront uses a static Vite frontend plus three serverless endpoints:
 
 ## Hosting
 
-Deploy the repository as one Vercel project so the portfolio, basket, Checkout iframe, API, and confirmation page all remain on `spnvisualz.com`. The build command is `npm run build` and the output directory is `dist`; both are already declared in `vercel.json`.
+Deploy the repository as one Cloudflare Worker with static assets so the portfolio, basket, Checkout iframe, API, and confirmation page all remain on `spnvisualz.com`. The Worker entry point is `worker/index.js`; `wrangler.jsonc` serves `dist/` as static assets and runs the Worker only for `/api/*`.
 
-After Vercel is live, attach both `spnvisualz.com` and `www.spnvisualz.com` to the project and make the apex domain canonical.
+Use `npm run deploy:cloudflare` for a manual deployment or connect the GitHub repository in Cloudflare for automatic deployments. Create and verify the Cloudflare preview deployment before changing DNS. Keep GitHub Pages live until both the static site and the three API routes pass their launch checks.
+
+`npm run build:cloudflare` also enforces the Free-plan asset limits: no more than 20,000 static files and no individual file larger than 25 MB. Adding future Selected Work projects is safe as long as that check keeps passing. Static asset requests are free; only `/api/*` requests consume the Workers daily request allowance.
+
+After the preview is verified, attach both `spnvisualz.com` and `www.spnvisualz.com` to the Worker, make the apex domain canonical, and only then remove the old GitHub Pages DNS records. This ordering avoids downtime.
 
 ## Environment variables
 
-Set these for Production and Preview without committing their values:
+Set these as Cloudflare Worker secrets/variables without committing their values:
 
 - `STRIPE_RESTRICTED_KEY`
 - `STRIPE_PUBLISHABLE_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `PUBLIC_SITE_URL=https://spnvisualz.com`
+
+Create the three Stripe values with `wrangler secret put`. Set `PUBLIC_SITE_URL` as a non-secret variable in the Cloudflare dashboard or deployment configuration.
 
 The restricted key needs Checkout Sessions read/write permission. It also needs permission to read the related line items and update Checkout Session metadata because the verified webhook marks paid, processing, or failed orders. Use a separate sandbox key set for Preview deployments.
 
