@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   }
 
   const sessionId = typeof req.query?.session_id === "string" ? req.query.session_id : "";
-  if (!/^cs_(test_)?[a-zA-Z0-9]+$/.test(sessionId)) {
+  if (!/^cs_live_[a-zA-Z0-9]+$/.test(sessionId)) {
     return send(res, 400, { error: "Invalid order reference." });
   }
 
@@ -19,6 +19,9 @@ export default async function handler(req, res) {
     const session = await stripeClient().checkout.sessions.retrieve(sessionId, {
       expand: ["line_items"]
     });
+    if (!session.livemode || session.metadata?.order_source !== "spnvisualz_store") {
+      return send(res, 404, { error: "We could not find that order." });
+    }
     const lines = (session.line_items?.data || []).map((line) => ({
       name: line.description,
       quantity: line.quantity || 1,
@@ -38,4 +41,3 @@ export default async function handler(req, res) {
     return send(res, 404, { error: "We could not find that order." });
   }
 }
-

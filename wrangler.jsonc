@@ -1,6 +1,11 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "spnvisualz",
+  "account_id": "d1e7b81209dbbc87a3d8371a8f2c6a34",
+  "workers_dev": true,
+  "vars": {
+    "PUBLIC_SITE_URL": "https://spnvisualz.com"
+  },
   "main": "worker/index.js",
   "compatibility_date": "2026-09-29",
   "compatibility_flags": ["nodejs_compat"],

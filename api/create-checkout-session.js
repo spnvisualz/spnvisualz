@@ -27,6 +27,9 @@ export default async function handler(req, res) {
   }
 
   try {
+    if (!process.env.STRIPE_PUBLISHABLE_KEY?.startsWith("pk_live_")) {
+      throw new Error("Checkout requires a live Stripe publishable key.");
+    }
     const cart = parseCart(await bodyFrom(req));
     const stripe = stripeClient();
     const siteUrl = publicSiteUrl();
@@ -46,6 +49,7 @@ export default async function handler(req, res) {
       },
       phone_number_collection: { enabled: true },
       automatic_tax: { enabled: false },
+      adaptive_pricing: { enabled: false },
       managed_payments: { enabled: false },
       submit_type: "book",
       custom_fields: [
@@ -81,8 +85,7 @@ export default async function handler(req, res) {
         background_color: "#030207",
         button_color: "#8a4dff",
         border_style: "rounded",
-        font_family: "inter",
-        logo: { type: "url", url: `${siteUrl}/assets/favicon-512.png` }
+        font_family: "inter"
       },
       client_reference_id: cart.cartId,
       metadata: {
@@ -113,4 +116,3 @@ export default async function handler(req, res) {
     return send(res, 400, { error: safeMessage || "Checkout could not be started." });
   }
 }
-

@@ -34,6 +34,7 @@ function text(message, status = 200, extraHeaders = {}) {
 function stripeClient(env) {
   const apiKey = env.STRIPE_RESTRICTED_KEY || env.STRIPE_SECRET_KEY;
   if (!apiKey) throw new Error("Stripe server key is not configured.");
+  if (!/^(rk|sk)_live_/.test(apiKey)) throw new Error("Checkout requires a live Stripe server key.");
   return new Stripe(apiKey, {
     apiVersion: "2026-08-26.dahlia",
     httpClient: Stripe.createFetchHttpClient()
@@ -50,6 +51,9 @@ async function createCheckout(request, env) {
   }
 
   try {
+    if (!env.STRIPE_PUBLISHABLE_KEY?.startsWith("pk_live_")) {
+      throw new Error("Checkout requires a live Stripe publishable key.");
+    }
     const cart = parseCart(await request.json());
     const stripe = stripeClient(env);
     const publicUrl = siteUrl(env);
@@ -69,6 +73,7 @@ async function createCheckout(request, env) {
       },
       phone_number_collection: { enabled: true },
       automatic_tax: { enabled: false },
+      adaptive_pricing: { enabled: false },
       managed_payments: { enabled: false },
       submit_type: "book",
       custom_fields: [
@@ -104,8 +109,7 @@ async function createCheckout(request, env) {
         background_color: "#030207",
         button_color: "#8a4dff",
         border_style: "rounded",
-        font_family: "inter",
-        logo: { type: "url", url: `${publicUrl}/assets/favicon-512.png` }
+        font_family: "inter"
       },
       client_reference_id: cart.cartId,
       metadata: {
@@ -146,7 +150,7 @@ async function retrieveCheckout(request, env) {
   }
 
   const sessionId = new URL(request.url).searchParams.get("session_id") || "";
-  if (!/^cs_(test_)?[a-zA-Z0-9]+$/.test(sessionId)) {
+  if (!/^cs_live_[a-zA-Z0-9]+$/.test(sessionId)) {
     return json({ error: "Invalid order reference." }, 400);
   }
 
@@ -154,6 +158,9 @@ async function retrieveCheckout(request, env) {
     const session = await stripeClient(env).checkout.sessions.retrieve(sessionId, {
       expand: ["line_items"]
     });
+    if (!session.livemode || session.metadata?.order_source !== "spnvisualz_store") {
+      return json({ error: "We could not find that order." }, 404);
+    }
     const lines = (session.line_items?.data || []).map((line) => ({
       name: line.description,
       quantity: line.quantity || 1,
@@ -196,6 +203,9 @@ async function receiveWebhook(request, env) {
   }
 
   const session = event.data.object;
+  if (!event.livemode || session.metadata?.order_source !== "spnvisualz_store") {
+    return json({ received: true, ignored: true });
+  }
   try {
     if (event.type === "checkout.session.completed") {
       await stripe.checkout.sessions.update(session.id, {

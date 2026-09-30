@@ -65,7 +65,9 @@
       if (typeof window.Stripe !== "function") throw new Error("The secure payment form did not load. Check your connection and try again.");
 
       const stripe = window.Stripe(payload.publishableKey);
-      embeddedCheckout = await stripe.initEmbeddedCheckout({ clientSecret: payload.clientSecret });
+      embeddedCheckout = await stripe.createEmbeddedCheckoutPage({
+        fetchClientSecret: async () => payload.clientSecret
+      });
       embeddedCheckout.mount("#checkoutMount");
       loading.hidden = true;
     } catch (error) {

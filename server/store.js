@@ -31,6 +31,7 @@ export const EXPRESS_DELIVERY = Object.freeze({
 export function stripeClient() {
   const apiKey = process.env.STRIPE_RESTRICTED_KEY || process.env.STRIPE_SECRET_KEY;
   if (!apiKey) throw new Error("Stripe server key is not configured.");
+  if (!/^(rk|sk)_live_/.test(apiKey)) throw new Error("Checkout requires a live Stripe server key.");
   return new Stripe(apiKey, { apiVersion: "2026-08-26.dahlia" });
 }
 
@@ -47,7 +48,7 @@ export function parseCart(input) {
   for (const raw of input.items) {
     const sku = typeof raw?.sku === "string" ? raw.sku : "";
     const quantity = Number(raw?.quantity);
-    if (!STORE_CATALOG[sku]) throw new Error("One of the selected services is unavailable.");
+    if (!Object.hasOwn(STORE_CATALOG, sku)) throw new Error("One of the selected services is unavailable.");
     if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10) {
       throw new Error("Service quantities must be between 1 and 10.");
     }

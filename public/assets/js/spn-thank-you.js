@@ -40,7 +40,7 @@
     label.textContent = "Payment confirmed";
     title.textContent = "That’s booked.";
     lede.textContent = order.customerEmail
-      ? `Your payment went through. A confirmation has been sent to ${order.customerEmail}.`
+      ? `Your payment went through. Your booking email is ${order.customerEmail}.`
       : "Your payment went through and your project is now booked with SPNVISUALZ.";
     status.textContent = "We’ll review your brief and contact you within one working day.";
     nextSteps.hidden = false;
@@ -53,7 +53,7 @@
     label.textContent = "Payment processing";
     title.textContent = "Your order is in progress.";
     lede.textContent = "Your payment method needs a little more time. We’ll confirm the booking as soon as Stripe reports that it has cleared.";
-    status.textContent = "You may safely return to the studio. Stripe will email you when the payment is complete.";
+    status.textContent = "You may safely return to the studio and revisit this page to check your payment status.";
     renderOrder(order);
   };
 

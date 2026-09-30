@@ -31,6 +31,9 @@ export default async function handler(req, res) {
   }
 
   const session = event.data.object;
+  if (!event.livemode || session.metadata?.order_source !== "spnvisualz_store") {
+    return res.status(200).json({ received: true, ignored: true });
+  }
   try {
     if (event.type === "checkout.session.completed") {
       await stripe.checkout.sessions.update(session.id, {
@@ -52,4 +55,3 @@ export default async function handler(req, res) {
 
   return res.status(200).json({ received: true });
 }
-
