@@ -1,5 +1,35 @@
 import { getLenis } from "../motion/scrollTimeline.js";
 
+async function flyPreviewIntoBasket(dialog) {
+  const shell = dialog?.querySelector(".service-dialog__shell");
+  const basket = document.querySelector(".spn-cart-button");
+  const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  if (!shell || !basket || reduceMotion || typeof shell.animate !== "function") return;
+
+  const from = shell.getBoundingClientRect();
+  const to = basket.getBoundingClientRect();
+  const translateX = to.left + to.width / 2 - (from.left + from.width / 2);
+  const translateY = to.top + to.height / 2 - (from.top + from.height / 2);
+
+  dialog.classList.add("is-ordering");
+  try {
+    await shell.animate([
+      { transform: "translate3d(0,0,0) scale(1)", opacity: 1, filter: "blur(0)" },
+      { transform: `translate3d(${translateX * .18}px,${translateY * .18}px,0) scale(.96)`, opacity: 1, offset: .28 },
+      { transform: `translate3d(${translateX}px,${translateY}px,0) scale(.08)`, opacity: 0, filter: "blur(4px)" }
+    ], {
+      duration: 360,
+      easing: "cubic-bezier(.72,0,.2,1)",
+      fill: "forwards"
+    }).finished;
+  } catch (_) {
+    // Closing the dialog is still the correct result if animation is
+    // interrupted by navigation, reduced-motion changes or browser limits.
+  } finally {
+    dialog.classList.remove("is-ordering");
+  }
+}
+
 export function initServices({ onOrder } = {}) {
   const rows = Array.from(document.querySelectorAll(".service-row"));
   const dialog = document.getElementById("serviceDialog");
@@ -43,10 +73,14 @@ export function initServices({ onOrder } = {}) {
       orderBtn.dataset.buy = buyable ? sku : "";
       const priceLabel = row.dataset.price ? ` — ${row.dataset.price.replace(/^From\s*/i, "")}` : "";
       orderBtn.textContent = buyable ? `Order this${priceLabel}` : "Order this";
-      orderBtn.onclick = () => {
-        if (buyable && window.SPN_CHECKOUT.open(sku)) return;
+      orderBtn.onclick = async () => {
+        orderBtn.disabled = true;
+        if (buyable) await flyPreviewIntoBasket(dialog);
         dialog.close();
-        onOrder?.(row.dataset.product || "");
+        if (!buyable || !window.SPN_CHECKOUT.open(sku)) {
+          onOrder?.(row.dataset.product || "");
+        }
+        orderBtn.disabled = false;
       };
     }
     dialog.showModal();

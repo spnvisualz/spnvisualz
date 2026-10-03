@@ -259,6 +259,9 @@
   const onClick = (event) => {
     const el = event.target.closest?.("[data-buy]");
     if (!el) return;
+    // The service preview owns this control because it closes and animates
+    // the preview before opening the basket. Let its local handler run.
+    if (el.id === "serviceDialogOrder") return;
     const sku = el.dataset.buy;
     if (!sku || !isConfigured(sku)) return;
     event.preventDefault();
