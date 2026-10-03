@@ -22,6 +22,11 @@ async function flyPreviewIntoBasket(dialog) {
       easing: "cubic-bezier(.72,0,.2,1)",
       fill: "forwards"
     }).finished;
+    basket.animate([
+      { transform: "scale(1)" },
+      { transform: "scale(1.1)", boxShadow: "0 0 0 8px rgba(138,77,255,.16)" },
+      { transform: "scale(1)" }
+    ], { duration: 260, easing: "ease-out" });
   } catch (_) {
     // Closing the dialog is still the correct result if animation is
     // interrupted by navigation, reduced-motion changes or browser limits.
@@ -77,7 +82,9 @@ export function initServices({ onOrder } = {}) {
         orderBtn.disabled = true;
         if (buyable) await flyPreviewIntoBasket(dialog);
         dialog.close();
-        if (!buyable || !window.SPN_CHECKOUT.open(sku)) {
+        // Add the service without opening the drawer. The visitor stays in
+        // the catalogue and can keep shopping; they choose when to review.
+        if (!buyable || !window.SPN_CHECKOUT.cart.add(sku)) {
           onOrder?.(row.dataset.product || "");
         }
         orderBtn.disabled = false;

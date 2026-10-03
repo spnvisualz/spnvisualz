@@ -152,16 +152,18 @@ test("a configured buy button does not also open the enquiry form", () => {
     "stopPropagation is not enough here — the enquiry dialog is on the same element");
 });
 
-test("ordering from a service preview closes it before opening the basket", () => {
+test("ordering from a service preview flies into the basket without opening it", () => {
   const src = readFileSync(join(root, "src/services/services.js"), "utf8");
   const checkout = readFileSync(join(root, "public/assets/js/spn-checkout.js"), "utf8");
   const handler = src.match(/orderBtn\.onclick = async \(\) => \{([\s\S]*?)\n\s*\};/);
   assert.ok(handler, "service preview order handler is missing");
   const closeAt = handler[1].indexOf("dialog.close()");
-  const basketAt = handler[1].indexOf("window.SPN_CHECKOUT.open(sku)");
+  const basketAt = handler[1].indexOf("window.SPN_CHECKOUT.cart.add(sku)");
   assert.ok(closeAt >= 0, "service preview must close when Order this is pressed");
-  assert.ok(basketAt >= 0, "service preview must still open the configured basket item");
-  assert.ok(closeAt < basketAt, "close the service preview before opening the basket modal");
+  assert.ok(basketAt >= 0, "service preview must add the configured item to the basket");
+  assert.ok(closeAt < basketAt, "close the service preview before adding the basket item");
+  assert.doesNotMatch(handler[1], /SPN_CHECKOUT\.open\(/,
+    "Order this must not open the basket drawer; visitors should keep shopping");
   assert.match(handler[1], /await flyPreviewIntoBasket\(dialog\)/,
     "configured services should animate from the preview into the basket");
   assert.match(checkout, /if \(el\.id === "serviceDialogOrder"\) return;/,
