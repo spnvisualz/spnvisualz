@@ -13,7 +13,7 @@ async function flyPreviewIntoBasket(dialog) {
 
   dialog.classList.add("is-ordering");
   try {
-    await shell.animate([
+    const flight = shell.animate([
       { transform: "translate3d(0,0,0) scale(1)", opacity: 1, filter: "blur(0)" },
       { transform: `translate3d(${translateX * .18}px,${translateY * .18}px,0) scale(.96)`, opacity: 1, offset: .28 },
       { transform: `translate3d(${translateX}px,${translateY}px,0) scale(.08)`, opacity: 0, filter: "blur(4px)" }
@@ -21,7 +21,11 @@ async function flyPreviewIntoBasket(dialog) {
       duration: 360,
       easing: "cubic-bezier(.72,0,.2,1)",
       fill: "forwards"
-    }).finished;
+    });
+    // Some WebKit/embedded browsers do not settle Animation.finished for a
+    // modal dialog. Time the handoff explicitly so ordering can never hang.
+    flight.finished.catch(() => {});
+    await new Promise((resolve) => setTimeout(resolve, 370));
     basket.animate([
       { transform: "scale(1)" },
       { transform: "scale(1.1)", boxShadow: "0 0 0 8px rgba(138,77,255,.16)" },
