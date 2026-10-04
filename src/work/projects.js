@@ -25,9 +25,20 @@ export const PROJECTS = [
     poster: "/assets/images/work/byron-messia.jpg"
   },
   {
-    slug: "3-nation-studios",
+    slug: "illegal-vybz-darkoo",
     aspect: 16 / 9,
     number: "03",
+    tag: "ARTIST TITLE",
+    title: "Illegal Vybz × Darkoo",
+    description: "Darkoo's name tears into frame beneath the Illegal Vybz mark.",
+    video: "/assets/videos/work/illegal-vybz-darkoo.mp4",
+    videoMobile: "/assets/videos/work/illegal-vybz-darkoo-mobile.mp4",
+    poster: "/assets/images/work/illegal-vybz-darkoo.jpg"
+  },
+  {
+    slug: "3-nation-studios",
+    aspect: 16 / 9,
+    number: "04",
     tag: "LOGO MOTION",
     title: "3 Nation Studios",
     description: "Diamond-set type, high-gloss lighting and a reveal made to feel expensive.",
@@ -38,7 +49,7 @@ export const PROJECTS = [
   {
     slug: "motion-view",
     aspect: 16 / 9,
-    number: "04",
+    number: "05",
     tag: "BRAND VISUAL",
     title: "Motion View",
     description: "An atmospheric motion loop built for screens and social playback.",
@@ -49,7 +60,7 @@ export const PROJECTS = [
   {
     slug: "prince-o",
     aspect: 2 / 1,
-    number: "05",
+    number: "06",
     tag: "ARTIST VISUALS",
     title: "Prince O",
     description: "A dark chrome signature engineered to land with impact in every reveal.",
@@ -58,9 +69,31 @@ export const PROJECTS = [
     poster: "/assets/images/work/prince-o.jpg"
   },
   {
+    slug: "no-one-is-illegal",
+    aspect: 16 / 9,
+    number: "07",
+    tag: "BRAND VISUAL",
+    title: "No One Is Illegal",
+    description: "The Illegal Vybz mark caged in a glowing sphere beneath its headline.",
+    video: "/assets/videos/work/no-one-is-illegal.mp4",
+    videoMobile: "/assets/videos/work/no-one-is-illegal-mobile.mp4",
+    poster: "/assets/images/work/no-one-is-illegal.jpg"
+  },
+  {
+    slug: "illegal-vybz-truck",
+    aspect: 16 / 9,
+    number: "08",
+    tag: "BRAND VISUAL",
+    title: "Illegal Vybz Truck",
+    description: "An Illegal Vybz truck tearing down a wet motorway at night, tracked by a helicopter.",
+    video: "/assets/videos/work/illegal-vybz-truck.mp4",
+    videoMobile: "/assets/videos/work/illegal-vybz-truck-mobile.mp4",
+    poster: "/assets/images/work/illegal-vybz-truck.jpg"
+  },
+  {
     slug: "tao-1",
     aspect: 2 / 1,
-    number: "06",
+    number: "09",
     tag: "ARTIST MOTION LOOP",
     title: "TAO 1.0",
     description: "A cinematic artist mark shaped through metal, movement and atmosphere.",
@@ -71,7 +104,7 @@ export const PROJECTS = [
   {
     slug: "tao-2",
     aspect: 2 / 1,
-    number: "07",
+    number: "10",
     tag: "ARTIST INTRO",
     title: "TAO 2.0",
     description: "An extended visual world built around the same identity.",
