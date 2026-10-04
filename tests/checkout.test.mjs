@@ -152,20 +152,26 @@ test("a configured buy button does not also open the enquiry form", () => {
     "stopPropagation is not enough here — the enquiry dialog is on the same element");
 });
 
-test("ordering from a service preview flies into the basket without opening it", () => {
+test("ordering from a service preview jumps into the basket without opening it", () => {
   const src = readFileSync(join(root, "src/services/services.js"), "utf8");
   const checkout = readFileSync(join(root, "public/assets/js/spn-checkout.js"), "utf8");
   const handler = src.match(/orderBtn\.onclick = async \(\) => \{([\s\S]*?)\n\s*\};/);
   assert.ok(handler, "service preview order handler is missing");
   const closeAt = handler[1].indexOf("dialog.close()");
-  const basketAt = handler[1].indexOf("window.SPN_CHECKOUT.cart.add(sku)");
+  const basketAt = handler[1].indexOf("window.SPN_CHECKOUT.cart.add(sku");
   assert.ok(closeAt >= 0, "service preview must close when Order this is pressed");
   assert.ok(basketAt >= 0, "service preview must add the configured item to the basket");
   assert.ok(closeAt < basketAt, "close the service preview before adding the basket item");
   assert.doesNotMatch(handler[1], /SPN_CHECKOUT\.open\(/,
     "Order this must not open the basket drawer; visitors should keep shopping");
-  assert.match(handler[1], /await flyPreviewIntoBasket\(dialog\)/,
-    "configured services should animate from the preview into the basket");
+  // The preview uses the same jump as every other add on the site, launched
+  // from where its button was — measured before the dialog closes, because
+  // a modal dialog would otherwise draw over the token.
+  const measureAt = handler[1].indexOf("getBoundingClientRect()");
+  assert.ok(measureAt >= 0 && measureAt < closeAt,
+    "measure the launch point before closing the preview");
+  assert.match(handler[1], /cart\.add\(sku, 1, \{ from: launch \}\)/,
+    "configured services should jump from the preview into the basket");
   assert.match(checkout, /if \(el\.id === "serviceDialogOrder"\) return;/,
     "the document-level buy handler must let the animated preview handler run");
 });
@@ -181,4 +187,30 @@ test("the fallback is still reachable on every buy button", () => {
       assert.ok(hasFallback, `${path}: a data-buy control has no fallback — ${m[0].slice(0, 120)}`);
     }
   }
+});
+
+
+test("every add to the basket jumps in, from wherever it was pressed", () => {
+  // One animation for the whole site, so the tiers, the bundles and the
+  // service preview cannot drift apart into three different behaviours.
+  const checkout = readFileSync(join(root, "public/assets/js/spn-checkout.js"), "utf8");
+  assert.match(checkout, /add\(sku, 1, \{ from: el \}\)/,
+    "the document-level buy handler must launch the jump from the pressed button");
+  assert.match(checkout, /const add = \(sku, amount = 1, \{ from \} = \{\}\)/);
+
+  // The badge waits for the landing, and the landing cannot hang.
+  assert.match(checkout, /totalCount - inFlight/, "the visible count must wait for the item to land");
+  assert.match(checkout, /setTimeout\(land, duration \+ \d+\)/,
+    "landing must be timed independently of Animation.finished, which some WebKit builds never settle");
+
+  // Reduced motion gets the count and the confirmation, not the flight.
+  assert.match(checkout, /prefers-reduced-motion: reduce/);
+  const css = readFileSync(join(root, "public/assets/css/store.css"), "utf8");
+  const reduced = css.slice(css.lastIndexOf("@media(prefers-reduced-motion:reduce)"));
+  assert.match(reduced, /\.spn-cart-token\{display:none\}/, "no token is drawn under reduced motion");
+  assert.match(reduced, /\.spn-cart-button\.is-catching[^{]*\{animation:none\}/, "and the basket does not bounce");
+
+  // The old popup-only shrink is gone, so there is exactly one way this looks.
+  const services = readFileSync(join(root, "src/services/services.js"), "utf8");
+  assert.doesNotMatch(services, /flyPreviewIntoBasket/);
 });

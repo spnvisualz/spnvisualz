@@ -1,44 +1,5 @@
 import { getLenis } from "../motion/scrollTimeline.js";
 
-async function flyPreviewIntoBasket(dialog) {
-  const shell = dialog?.querySelector(".service-dialog__shell");
-  const basket = document.querySelector(".spn-cart-button");
-  const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-  if (!shell || !basket || reduceMotion || typeof shell.animate !== "function") return;
-
-  const from = shell.getBoundingClientRect();
-  const to = basket.getBoundingClientRect();
-  const translateX = to.left + to.width / 2 - (from.left + from.width / 2);
-  const translateY = to.top + to.height / 2 - (from.top + from.height / 2);
-
-  dialog.classList.add("is-ordering");
-  try {
-    const flight = shell.animate([
-      { transform: "translate3d(0,0,0) scale(1)", opacity: 1, filter: "blur(0)" },
-      { transform: `translate3d(${translateX * .18}px,${translateY * .18}px,0) scale(.96)`, opacity: 1, offset: .28 },
-      { transform: `translate3d(${translateX}px,${translateY}px,0) scale(.08)`, opacity: 0, filter: "blur(4px)" }
-    ], {
-      duration: 360,
-      easing: "cubic-bezier(.72,0,.2,1)",
-      fill: "forwards"
-    });
-    // Some WebKit/embedded browsers do not settle Animation.finished for a
-    // modal dialog. Time the handoff explicitly so ordering can never hang.
-    flight.finished.catch(() => {});
-    await new Promise((resolve) => setTimeout(resolve, 370));
-    basket.animate([
-      { transform: "scale(1)" },
-      { transform: "scale(1.1)", boxShadow: "0 0 0 8px rgba(138,77,255,.16)" },
-      { transform: "scale(1)" }
-    ], { duration: 260, easing: "ease-out" });
-  } catch (_) {
-    // Closing the dialog is still the correct result if animation is
-    // interrupted by navigation, reduced-motion changes or browser limits.
-  } finally {
-    dialog.classList.remove("is-ordering");
-  }
-}
-
 export function initServices({ onOrder } = {}) {
   const rows = Array.from(document.querySelectorAll(".service-row"));
   const dialog = document.getElementById("serviceDialog");
@@ -84,11 +45,17 @@ export function initServices({ onOrder } = {}) {
       orderBtn.textContent = buyable ? `Order this${priceLabel}` : "Order this";
       orderBtn.onclick = async () => {
         orderBtn.disabled = true;
-        if (buyable) await flyPreviewIntoBasket(dialog);
+        // Where the item jumps from, measured before the preview closes. A
+        // modal dialog lives in the top layer, so anything animated out of
+        // it while it is still open is drawn underneath it; closing first
+        // and launching from where the button was is what lets the jump be
+        // seen. Same animation as every other add on the site — it lives
+        // in spn-checkout.js, not here.
+        const launch = orderBtn.getBoundingClientRect();
         dialog.close();
         // Add the service without opening the drawer. The visitor stays in
         // the catalogue and can keep shopping; they choose when to review.
-        if (!buyable || !window.SPN_CHECKOUT.cart.add(sku)) {
+        if (!buyable || !window.SPN_CHECKOUT.cart.add(sku, 1, { from: launch })) {
           onOrder?.(row.dataset.product || "");
         }
         orderBtn.disabled = false;

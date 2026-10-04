@@ -31,4 +31,49 @@
 .spn-store-toast{position:fixed;left:50%;bottom:24px;z-index:9100;transform:translate(-50%,16px);padding:12px 16px;border:1px solid rgba(198,167,255,.42);background:#0b0719;color:#f5f2fb;font:12px "Space Grotesk",sans-serif;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;box-shadow:0 16px 50px rgba(0,0,0,.4)}
 .spn-store-toast.is-visible{opacity:1;transform:translate(-50%,0)}
 @media(max-width:640px){.spn-cart-button{top:auto;bottom:max(16px,env(safe-area-inset-bottom));}.spn-cart{width:100%}.spn-cart__shell{padding:24px 20px 30px}.spn-cart__line{grid-template-columns:minmax(0,1fr) auto}.spn-cart__line> b{grid-column:2}.spn-cart__quantity{grid-row:2;grid-column:1;justify-self:start}.spn-cart__remove{grid-row:2;grid-column:2;justify-self:end}.spn-store-toast{bottom:76px;max-width:calc(100% - 32px);white-space:nowrap}}
-@media(prefers-reduced-motion:reduce){.spn-store-toast{transition:none}}
+
+
+/* The jump into the basket. The token sits one layer under the basket
+   button (8990 vs 9000), so for the last few frames it is drawn behind it
+   and reads as going in rather than passing over. Positioned entirely by
+   transform from spn-checkout.js; nothing here triggers layout. */
+.spn-cart-token{
+  position:fixed;left:0;top:0;z-index:8990;pointer-events:none;
+  display:flex;align-items:center;gap:9px;max-width:240px;padding:9px 13px;
+  border:1px solid rgba(198,167,255,.6);border-radius:999px;
+  background:rgba(11,7,25,.94);color:#f5f2fb;
+  font:600 11px/1 "Space Grotesk",sans-serif;letter-spacing:.02em;white-space:nowrap;
+  box-shadow:0 0 0 1px rgba(198,167,255,.1),0 10px 34px rgba(138,77,255,.38);
+  will-change:transform,opacity;
+}
+.spn-cart-token span{overflow:hidden;text-overflow:ellipsis}
+.spn-cart-token b{color:#c6a7ff;font-weight:600}
+
+/* The catch: the basket gives under the landing, overshoots and settles,
+   and the count pops as it changes. */
+@keyframes spnCartCatch{
+  0%{transform:scale(1)}
+  28%{transform:scale(1.13)}
+  58%{transform:scale(.95)}
+  100%{transform:scale(1)}
+}
+@keyframes spnCartCount{
+  0%{transform:scale(1)}
+  38%{transform:scale(1.42)}
+  100%{transform:scale(1)}
+}
+@keyframes spnCartRing{
+  0%{box-shadow:0 0 0 0 rgba(198,167,255,.5),0 12px 40px rgba(0,0,0,.28)}
+  100%{box-shadow:0 0 0 14px rgba(198,167,255,0),0 12px 40px rgba(0,0,0,.28)}
+}
+.spn-cart-button.is-catching{
+  border-color:#c6a7ff;
+  animation:spnCartCatch .5s cubic-bezier(.3,1.35,.5,1),spnCartRing .6s ease-out;
+}
+.spn-cart-button.is-catching b{animation:spnCartCount .5s cubic-bezier(.3,1.6,.5,1)}
+
+@media(prefers-reduced-motion:reduce){
+  .spn-store-toast{transition:none}
+  .spn-cart-token{display:none}
+  .spn-cart-button.is-catching,.spn-cart-button.is-catching b{animation:none}
+}
