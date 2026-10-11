@@ -55,7 +55,7 @@ function cleanField(value, maxLength) {
   return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
 }
 
-async function receiveEnquiry(request, env) {
+async function receiveEnquiry(request, env, ctx) {
   if (request.method !== "POST") {
     return json({ error: "Method not allowed." }, 405, { Allow: "POST" });
   }
@@ -107,8 +107,7 @@ async function receiveEnquiry(request, env) {
     }), { expirationTtl: 60 * 60 * 24 * 90 });
 
     if (env.EMAIL?.send) {
-      try {
-        await env.EMAIL.send({
+      const notification = env.EMAIL.send({
           to: env.ENQUIRY_TO || "spnvisualz@gmail.com",
           from: {
             email: env.ENQUIRY_FROM || "enquiries@mail.spnvisualz.com",
@@ -118,14 +117,15 @@ async function receiveEnquiry(request, env) {
           subject,
           text: plain,
           html
-        });
-      } catch (error) {
+        }).catch((error) => {
         console.error(JSON.stringify({
           message: "enquiry_notification_failed",
           reference,
           error: error instanceof Error ? error.message : String(error)
         }));
-      }
+      });
+      if (ctx?.waitUntil) ctx.waitUntil(notification);
+      else await notification;
     }
     return json({ received: true, reference }, 202);
   } catch (error) {
@@ -323,12 +323,12 @@ async function receiveWebhook(request, env) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const pathname = new URL(request.url).pathname;
     if (pathname === "/api/create-checkout-session") return createCheckout(request, env);
     if (pathname === "/api/checkout-session") return retrieveCheckout(request, env);
     if (pathname === "/api/stripe-webhook") return receiveWebhook(request, env);
-    if (pathname === "/api/enquiry") return receiveEnquiry(request, env);
+    if (pathname === "/api/enquiry") return receiveEnquiry(request, env, ctx);
     return json({ error: "Not found." }, 404);
   }
 };
