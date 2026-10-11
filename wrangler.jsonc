@@ -9,13 +9,8 @@
     "ENQUIRY_FROM": "enquiries@mail.spnvisualz.com"
   },
   "main": "worker/index.js",
-  "compatibility_date": "2026-09-29",
+  "compatibility_date": "2026-10-11",
   "compatibility_flags": ["nodejs_compat"],
-  "assets": {
-    "directory": "./dist",
-    "binding": "ASSETS",
-    "run_worker_first": ["/api/*"]
-  },
   "observability": {
     "enabled": true
   },

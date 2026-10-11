@@ -101,9 +101,10 @@ test("checkout uses embedded mode, dynamic payment methods, and verified return 
   assert.match(worker, /constructEventAsync/);
   assert.match(worker, /createSubtleCryptoProvider/);
   assert.doesNotMatch(worker, /^\s*payment_method_types:/m);
-  assert.match(cloudflare, /"run_worker_first":\s*\["\/api\/\*"\]/);
+  assert.doesNotMatch(cloudflare, /"assets"|"ASSETS"/);
   assert.match(cloudflare, /"send_email"/);
   assert.match(worker, /pathname === "\/api\/enquiry"/);
+  assert.match(worker, /return json\(\{ error: "Not found\." \}, 404\)/);
   assert.match(thankYou, /paymentStatus === "paid"/);
   assert.match(thankYou, /localStorage\.removeItem/);
 });

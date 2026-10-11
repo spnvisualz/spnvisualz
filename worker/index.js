@@ -314,6 +314,6 @@ export default {
     if (pathname === "/api/checkout-session") return retrieveCheckout(request, env);
     if (pathname === "/api/stripe-webhook") return receiveWebhook(request, env);
     if (pathname === "/api/enquiry") return receiveEnquiry(request, env);
-    return env.ASSETS.fetch(request);
+    return json({ error: "Not found." }, 404);
   }
 };
