@@ -41,8 +41,13 @@ test("the catalogue is well formed", () => {
   assert.ok(skus.size > 0, "no items");
   for (const [sku, item] of Object.entries(catalogue.items)) {
     assert.match(sku, /^[a-z0-9-]+$/, `${sku} is not a url-safe key`);
-    assert.equal(typeof item.price, "number", `${sku} has no numeric price`);
-    assert.ok(item.price > 0, `${sku} is priced at ${item.price}`);
+    if (item.addon) {
+      assert.equal(typeof item.rate, "number", `${sku} has no numeric rate`);
+      assert.ok(item.rate > 0 && item.rate < 1, `${sku} has an invalid rate`);
+    } else {
+      assert.equal(typeof item.price, "number", `${sku} has no numeric price`);
+      assert.ok(item.price > 0, `${sku} is priced at ${item.price}`);
+    }
     assert.ok(item.label && item.label.length > 2, `${sku} has no label`);
     assert.equal(typeof item.url, "string", `${sku}.url must be a string, empty until configured`);
     if (item.recurring) assert.ok(["month", "year"].includes(item.recurring), `${sku} has an odd interval`);

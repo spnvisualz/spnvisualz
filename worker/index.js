@@ -45,6 +45,83 @@ function siteUrl(env) {
   return (env.PUBLIC_SITE_URL || STORE_SITE_URL).trim().replace(/\/$/, "");
 }
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[character]);
+}
+
+function cleanField(value, maxLength) {
+  return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
+}
+
+async function receiveEnquiry(request, env) {
+  if (request.method !== "POST") {
+    return json({ error: "Method not allowed." }, 405, { Allow: "POST" });
+  }
+
+  const expectedOrigin = siteUrl(env);
+  const origin = request.headers.get("origin") || "";
+  if (origin !== expectedOrigin && origin !== expectedOrigin.replace("://", "://www.")) {
+    return json({ error: "This form can only be sent from SPNVISUALZ." }, 403);
+  }
+  if (!request.headers.get("content-type")?.toLowerCase().startsWith("application/json")) {
+    return json({ error: "Invalid form submission." }, 415);
+  }
+  if (Number(request.headers.get("content-length") || 0) > 16_384) {
+    return json({ error: "That message is too long." }, 413);
+  }
+  if (!env.EMAIL?.send) {
+    console.error(JSON.stringify({ message: "enquiry email binding unavailable" }));
+    return json({ error: "Enquiries are temporarily unavailable. Please try again shortly." }, 503);
+  }
+
+  try {
+    const input = await request.json();
+    if (cleanField(input.website, 200)) return json({ received: true }, 202);
+    const type = input.type === "topic" ? "topic" : "project";
+    const name = cleanField(input.name, 100);
+    const contact = cleanField(input.contact, 160);
+    const service = cleanField(input.service, 100);
+    const billing = cleanField(input.billing, 40);
+    const message = cleanField(input.message || input.brief || input.topic, 4000);
+    if (!message || (type === "project" && (!name || !contact || !service))) {
+      return json({ error: "Please complete every required field." }, 400);
+    }
+
+    const subject = type === "topic"
+      ? "Visual Lab topic request"
+      : `New SPNVISUALZ project — ${service}`;
+    const plain = type === "topic"
+      ? `Visual Lab topic request\n\n${message}\n\nSent from spnvisualz.com`
+      : [
+          "New project enquiry", "", `Name: ${name}`, `Contact: ${contact}`,
+          `Service: ${service}`, ...(billing ? [`Billing: ${billing}`] : []),
+          "", "Project idea:", message, "", "Sent from spnvisualz.com"
+        ].join("\n");
+    const html = `<h1>${escapeHtml(subject)}</h1><pre style="font:14px/1.6 sans-serif;white-space:pre-wrap">${escapeHtml(plain)}</pre>`;
+    const emailContact = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) ? contact : null;
+    await env.EMAIL.send({
+      to: env.ENQUIRY_TO || "spnvisualz@gmail.com",
+      from: {
+        email: env.ENQUIRY_FROM || "enquiries@mail.spnvisualz.com",
+        name: "SPNVISUALZ Website"
+      },
+      ...(emailContact ? { replyTo: emailContact } : {}),
+      subject,
+      text: plain,
+      html
+    });
+    return json({ received: true }, 202);
+  } catch (error) {
+    console.error(JSON.stringify({
+      message: "enquiry_delivery_failed",
+      error: error instanceof Error ? error.message : String(error)
+    }));
+    return json({ error: "Your brief could not be delivered. Please try again." }, 502);
+  }
+}
+
 async function createCheckout(request, env) {
   if (request.method !== "POST") {
     return json({ error: "Method not allowed." }, 405, { Allow: "POST" });
@@ -236,6 +313,7 @@ export default {
     if (pathname === "/api/create-checkout-session") return createCheckout(request, env);
     if (pathname === "/api/checkout-session") return retrieveCheckout(request, env);
     if (pathname === "/api/stripe-webhook") return receiveWebhook(request, env);
+    if (pathname === "/api/enquiry") return receiveEnquiry(request, env);
     return env.ASSETS.fetch(request);
   }
 };

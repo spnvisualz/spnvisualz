@@ -1,8 +1,7 @@
 import { getLenis } from "../motion/scrollTimeline.js";
 
-// Preserves the production order flow exactly: there is no backend — the
-// form composes a mailto: link with the brief pre-filled, matching the
-// current live site's behavior (app.js). No fabricated form endpoint.
+// Sends the brief through the same-origin Worker so visitors never have to
+// leave the site or have a local email application configured.
 export function initOrderDialog() {
   const dialog = document.getElementById("orderDialog");
   const closeBtn = document.getElementById("closeOrderDialog");
@@ -47,25 +46,41 @@ export function initOrderDialog() {
     if (event.target === dialog) close();
   });
 
-  form?.addEventListener("submit", (event) => {
+  form?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = new FormData(form);
     const service = String(data.get("service") || "Custom Project");
-    const subject = `New SPNVISUALZ project — ${service}`;
-    const body = [
-      "Hi SPNVISUALZ,",
-      "",
-      `My name: ${data.get("name") || ""}`,
-      `Contact me via: ${data.get("contact") || ""}`,
-      `Service: ${service}`,
-      ...(data.get("billing") ? [`Billing: ${data.get("billing")}`] : []),
-      "",
-      "Project idea:",
-      String(data.get("brief") || ""),
-      "",
-      "Sent from spnvisualz.com"
-    ].join("\n");
-    location.href = `mailto:spnvisualz@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const button = form.querySelector('button[type="submit"]');
+    const label = button?.querySelector("span");
+    const status = form.querySelector("[data-enquiry-status]");
+    if (button) button.disabled = true;
+    if (label) label.textContent = "Sending…";
+    if (status) status.textContent = "";
+    try {
+      const response = await fetch("/api/enquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "project",
+          name: data.get("name"),
+          contact: data.get("contact"),
+          service,
+          billing: data.get("billing"),
+          message: data.get("brief"),
+          website: data.get("website")
+        })
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || "Your brief could not be sent.");
+      form.reset();
+      if (status) status.textContent = "Brief received. We’ll get back to you shortly.";
+      if (label) label.textContent = "Brief sent";
+      setTimeout(close, 1400);
+    } catch (error) {
+      if (status) status.textContent = error.message || "Your brief could not be sent. Please try again.";
+      if (label) label.textContent = "Send project brief";
+      if (button) button.disabled = false;
+    }
   });
 
   return { open };

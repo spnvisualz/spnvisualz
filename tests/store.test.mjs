@@ -5,7 +5,9 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   EXPRESS_DELIVERY,
+  EXPRESS_RATE,
   STORE_CATALOG,
+  expressUnitAmountFor,
   idempotencyKeyFor,
   lineItemsFor,
   parseCart
@@ -28,7 +30,8 @@ test("every cart item has one trusted live Stripe Price with the same amount", (
     assert.match(STORE_CATALOG[sku].price, /^price_[a-zA-Z0-9]+$/);
     assert.equal(STORE_CATALOG[sku].unitAmount, item.price * 100, `${sku} amount differs`);
   }
-  assert.equal(EXPRESS_DELIVERY.unitAmount, browserCatalogue.items["express-delivery"].price * 100);
+  assert.equal(EXPRESS_DELIVERY.rate, EXPRESS_RATE);
+  assert.equal(browserCatalogue.items["express-delivery"].rate, EXPRESS_RATE);
 });
 
 test("the server ignores browser prices and accepts only known SKUs", () => {
@@ -53,13 +56,33 @@ test("duplicate lines combine safely and quantities are capped", () => {
   assert.deepEqual(cart.items, [{ sku: "logo-basic", quantity: 5 }]);
   assert.deepEqual(lineItemsFor(cart), [
     { price: STORE_CATALOG["logo-basic"].price, quantity: 5 },
-    { price: EXPRESS_DELIVERY.price, quantity: 1 }
+    {
+      price_data: {
+        currency: "eur",
+        unit_amount: 4400,
+        product_data: { name: EXPRESS_DELIVERY.label }
+      },
+      quantity: 1
+    }
   ]);
+  assert.equal(expressUnitAmountFor(cart), 4400);
   assert.equal(idempotencyKeyFor(cart), "spn_checkout_cart_12345678_4");
   assert.throws(
     () => parseCart({ items: [{ sku: "logo-basic", quantity: 11 }] }),
     /between 1 and 10/
   );
+});
+
+test("Express is exactly 40% of the trusted service subtotal", () => {
+  const cart = parseCart({
+    items: [
+      { sku: "logo-premium", quantity: 1 },
+      { sku: "intro-premium", quantity: 1 }
+    ],
+    express: true
+  });
+  assert.equal(expressUnitAmountFor(cart), 4920);
+  assert.equal(lineItemsFor(cart).at(-1).price_data.unit_amount, 4920);
 });
 
 test("checkout uses embedded mode, dynamic payment methods, and verified return state", () => {
@@ -79,6 +102,8 @@ test("checkout uses embedded mode, dynamic payment methods, and verified return 
   assert.match(worker, /createSubtleCryptoProvider/);
   assert.doesNotMatch(worker, /^\s*payment_method_types:/m);
   assert.match(cloudflare, /"run_worker_first":\s*\["\/api\/\*"\]/);
+  assert.match(cloudflare, /"send_email"/);
+  assert.match(worker, /pathname === "\/api\/enquiry"/);
   assert.match(thankYou, /paymentStatus === "paid"/);
   assert.match(thankYou, /localStorage\.removeItem/);
 });

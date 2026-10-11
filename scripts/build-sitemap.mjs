@@ -36,10 +36,9 @@ const ORIGIN = "https://spnvisualz.com";
 const fileFor = (path) => join(root, path === "/" ? "index.html" : path.slice(1) + "index.html");
 
 export const PAGES = [
-  { path: "/", changefreq: "weekly", priority: "1.0", images: ["/assets/spnvisualz-social.jpg", "/assets/images/spnvisualz.PNG", "/assets/work-icekiid.webp", "/assets/work-gezana-lalux.webp"] },
-  { path: "/work/", changefreq: "monthly", priority: "0.9", images: ["/assets/work-icekiid.webp", "/assets/work-gezana-lalux.webp", "/assets/brand-gezana.jpg"] },
+  { path: "/", changefreq: "weekly", priority: "1.0", images: ["/assets/spnvisualz-social.jpg", "/assets/images/spnvisualz.PNG", "/assets/images/work/icekiid.jpg", "/assets/images/work/byron-messia.jpg"] },
+  { path: "/work/", changefreq: "monthly", priority: "0.9", images: ["/assets/images/work/icekiid.jpg", "/assets/images/work/byron-messia.jpg", "/assets/images/work/tao-2.jpg"] },
   { path: "/work/icekiid/", changefreq: "monthly", priority: "0.8", images: ["/assets/work-icekiid.webp"] },
-  { path: "/work/gezana-x-lalux/", changefreq: "monthly", priority: "0.8", images: ["/assets/work-gezana-lalux.webp"] },
   { path: "/websites/", changefreq: "monthly", priority: "0.9" },
   { path: "/visual-lab/", changefreq: "weekly", priority: "0.9", images: ["/assets/brand-glowvana.jpg"] },
   { path: "/visual-lab/articles/event-visual-design-trends-2026/", changefreq: "monthly", priority: "0.8", images: ["/assets/spnvisualz-social.jpg"] },
@@ -47,7 +46,6 @@ export const PAGES = [
   { path: "/visual-lab/articles/logo-design-trends-2026/", changefreq: "monthly", priority: "0.8", images: ["/assets/brand-gezana.jpg"] },
   { path: "/visual-lab/articles/dark-website-design-inspiration/", changefreq: "monthly", priority: "0.8", images: ["/assets/work-3.jpg"] },
   { path: "/visual-lab/articles/animated-logo-vs-static-logo/", changefreq: "monthly", priority: "0.8", images: ["/assets/work-1.jpg"] },
-  { path: "/visual-lab/articles/gezana-events-visual-identity-case-study/", changefreq: "monthly", priority: "0.8", images: ["/assets/brand-gezana.jpg"] },
   { path: "/visual-lab/articles/glowvana-beauty-brand-identity-case-study/", changefreq: "monthly", priority: "0.8", images: ["/assets/brand-glowvana.jpg"] },
   { path: "/visual-lab/articles/tao-black-chrome-motion-loop-case-study/", changefreq: "monthly", priority: "0.8", images: ["/assets/work-3.jpg"] },
   { path: "/visual-lab/articles/3d-logo-design-that-still-works-in-2d/", changefreq: "monthly", priority: "0.8", images: ["/assets/spnvisualz-social.jpg"] },
@@ -59,6 +57,11 @@ export const PAGES = [
 const git = (args) => execFileSync("git", args, { cwd: root, encoding: "utf8" }).trim();
 
 function lastChanged(file) {
+  try {
+    execFileSync("git", ["diff", "--quiet", "--", file], { cwd: root });
+  } catch {
+    return new Date().toISOString().slice(0, 10);
+  }
   const date = git(["log", "-1", "--format=%cd", "--date=short", "--", file]);
   if (date) return date;
   // never committed yet — fall back to the working copy

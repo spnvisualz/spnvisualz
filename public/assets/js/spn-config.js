@@ -61,7 +61,7 @@
      *   - the success URL below, so paying lands on the right page
      *   - custom fields for the brief (brand/artist name, what you
      *     need, deadline) — that is what replaces the old form
-     *   - Express delivery (+€40) as an optional add-on, so it does
+     *   - Express delivery (+40%) as an optional add-on, so it does
      *     not need a second set of links
      *
      * `price` is what the site shows. It is repeated here so a
@@ -101,7 +101,7 @@
         "bundle-business":   { price: 336,  label: "Business bundle",            cart: true, url: "https://book.stripe.com/fZucN4fpv9Yt71NbGp0oM07" },
 
         // --- basket add-on ----------------------------------------
-        "express-delivery":  { price: 40,   label: "Express delivery — 24–48 hours", addon: true, url: "" },
+        "express-delivery":  { rate: 0.4,   label: "Express delivery — 24–48 hours (+40%)", addon: true, url: "" },
 
         // --- custom work ------------------------------------------
         // Custom projects stay enquiry-first. After the scope is agreed,

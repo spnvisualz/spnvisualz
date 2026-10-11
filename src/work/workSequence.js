@@ -206,6 +206,38 @@ export function initWorkSequence({ reduceMotion = false } = {}) {
     else stop();
   };
 
+  // IntersectionObserver can report two neighbouring full-height panels as
+  // visible at once. Keep their ratios and let only the strongest candidate
+  // own playback; this prevents competing decoders and audio/video state.
+  const visibleRatios = new Map(items.map((item) => [item.index, 0]));
+  const selectPlaybackCandidate = () => {
+    if (document.hidden) {
+      items.forEach(pause);
+      return;
+    }
+    let candidate = null;
+    for (const item of items) {
+      const ratio = visibleRatios.get(item.index) || 0;
+      if (ratio <= 0) continue;
+      const rect = item.article.getBoundingClientRect();
+      const distance = Math.abs(rect.top + rect.height / 2 - window.innerHeight / 2);
+      if (!candidate || ratio > candidate.ratio || (ratio === candidate.ratio && distance < candidate.distance)) {
+        candidate = { item, ratio, distance };
+      }
+    }
+    items.forEach((item) => {
+      const active = candidate?.item === item;
+      item.article.classList.toggle("is-visible", active);
+      if (active) {
+        play(item);
+        setActive(item.index);
+      } else {
+        pause(item);
+        if ((visibleRatios.get(item.index) || 0) === 0) releaseSource(item);
+      }
+    });
+  };
+
   const preloadObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -233,16 +265,11 @@ export function initWorkSequence({ reduceMotion = false } = {}) {
       entries.forEach((entry) => {
         const item = items[Number(entry.target.dataset.index)];
         if (!item) return;
-        if (entry.isIntersecting) {
-          play(item);
-          item.article.classList.add("is-visible");
-          setActive(item.index);
-        } else {
-          pause(item);
-        }
+        visibleRatios.set(item.index, entry.isIntersecting ? entry.intersectionRatio : 0);
       });
+      selectPlaybackCandidate();
     },
-    { threshold: PLAY_THRESHOLD }
+    { threshold: [0, PLAY_THRESHOLD, 0.5, 0.75, 1] }
   );
 
   items.forEach((item) => {
@@ -286,9 +313,7 @@ export function initWorkSequence({ reduceMotion = false } = {}) {
     if (document.hidden) {
       items.forEach(pause);
     } else {
-      items.forEach((item) => {
-        if (item.article.classList.contains("is-visible")) play(item);
-      });
+      selectPlaybackCandidate();
     }
   });
 

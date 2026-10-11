@@ -3,6 +3,7 @@ import Stripe from "stripe";
 export const STORE_CURRENCY = "eur";
 export const STORE_SITE_URL = "https://spnvisualz.com";
 export const STORE_INTEGRATION_ID = "spn_store_yqnhvmtp";
+export const EXPRESS_RATE = 0.4;
 
 // This server-side allowlist is the source of truth for what can be charged.
 // The browser only sends SKUs and quantities; it can never choose a Price ID
@@ -23,9 +24,8 @@ export const STORE_CATALOG = Object.freeze({
 });
 
 export const EXPRESS_DELIVERY = Object.freeze({
-  price: "price_1UJcsTAhjDLOnNqKeWEv1jA4",
-  label: "Express delivery — 24–48 hours",
-  unitAmount: 4000
+  label: "Express delivery — 24–48 hours (+40%)",
+  rate: EXPRESS_RATE
 });
 
 export function stripeClient() {
@@ -73,13 +73,33 @@ export function lineItemsFor(cart) {
     price: STORE_CATALOG[sku].price,
     quantity
   }));
-  if (cart.express) lines.push({ price: EXPRESS_DELIVERY.price, quantity: 1 });
+  if (cart.express) {
+    lines.push({
+      price_data: {
+        currency: STORE_CURRENCY,
+        unit_amount: expressUnitAmountFor(cart),
+        product_data: { name: EXPRESS_DELIVERY.label }
+      },
+      quantity: 1
+    });
+  }
   return lines;
+}
+
+export function serviceSubtotalFor(cart) {
+  return cart.items.reduce(
+    (sum, { sku, quantity }) => sum + STORE_CATALOG[sku].unitAmount * quantity,
+    0
+  );
+}
+
+export function expressUnitAmountFor(cart) {
+  return Math.round(serviceSubtotalFor(cart) * EXPRESS_RATE);
 }
 
 export function cartDescription(cart) {
   const parts = cart.items.map(({ sku, quantity }) => `${sku}:${quantity}`);
-  if (cart.express) parts.push("express-delivery:1");
+  if (cart.express) parts.push(`express-delivery:${expressUnitAmountFor(cart)}`);
   return parts.join(",").slice(0, 480);
 }
 

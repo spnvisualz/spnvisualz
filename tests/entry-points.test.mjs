@@ -135,7 +135,7 @@ test("the billing choice survives the trip from /websites/ to the brief", () => 
   assert.match(main, /params\.get\("billing"\)/, "main.js must read ?billing=");
 
   const dialog = readFileSync(join(root, "src/contact/orderDialog.js"), "utf8");
-  assert.match(dialog, /Billing: \$\{data\.get\("billing"\)\}/, "the email must state it");
+  assert.match(dialog, /billing:\s*data\.get\("billing"\)/, "the hosted brief must carry it");
 });
 
 test("the whole site quotes one currency", () => {

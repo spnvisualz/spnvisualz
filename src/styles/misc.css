@@ -38,10 +38,27 @@
 
 /* ============ CONTACT ============ */
 .chapter--contact{
-  min-height: 90vh; display: flex; align-items: center;
+  min-height: 90vh; display: flex; align-items: center; overflow: hidden;
   padding: var(--space-3xl) var(--pad-inline);
 }
-.contact-inner{ max-width: 640px; }
+.contact-inner{ position: relative; z-index: 2; max-width: 640px; }
+.no-webgl .chapter--contact::after{
+  content: "";
+  position: absolute;
+  z-index: 1;
+  right: clamp(-190px,-8vw,-40px);
+  top: 50%;
+  width: min(58vw,760px);
+  aspect-ratio: 1097/706;
+  transform: translateY(-50%);
+  background: url("/assets/spn-orbit-transparent.png") center/contain no-repeat;
+  filter: drop-shadow(0 28px 80px rgba(138,77,255,.32)) saturate(1.08);
+  opacity: .82;
+  pointer-events: none;
+}
+@media(max-width:720px){
+  .no-webgl .chapter--contact::after{ width: 105vw; right: -54vw; opacity: .42; }
+}
 .contact-inner h2{ font-size: var(--type-3xl); letter-spacing: -.04em; line-height: .92; margin: 6px 0 var(--space-md); }
 .contact-lead{ font-size: var(--type-lg); color: var(--muted); max-width: 32ch; margin: 0 0 var(--space-lg); }
 .contact-actions{ display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-bottom: var(--space-xl); }
@@ -78,3 +95,6 @@
 #orderForm input:focus, #orderForm select:focus, #orderForm textarea:focus{ border-color: var(--purple-light); outline: none; }
 .order-dialog__foot{ display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); margin-top: var(--space-sm); flex-wrap: wrap; }
 .order-dialog__foot p{ font-size: 11px; color: var(--quiet); margin: 0; }
+.order-dialog__status{ width: 100%; color: var(--purple-light)!important; }
+.spn-honeypot{ position: absolute!important; left: -10000px!important; width: 1px!important; height: 1px!important; opacity: 0!important; }
+#orderForm button:disabled{ opacity: .6; cursor: wait; }

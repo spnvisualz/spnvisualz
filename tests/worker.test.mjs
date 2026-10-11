@@ -32,7 +32,8 @@ test("production Worker checkout, verification and signed webhooks", async (t) =
     STRIPE_RESTRICTED_KEY: "rk_live_localfixture",
     STRIPE_PUBLISHABLE_KEY: "pk_live_localfixture",
     STRIPE_WEBHOOK_SECRET: "whsec_localfixture",
-    PUBLIC_SITE_URL: "https://spnvisualz.com"
+    PUBLIC_SITE_URL: "https://spnvisualz.com",
+    EMAIL: { send: async (message) => ({ messageId: "local-enquiry", message }) }
   };
   const cart = {
     cartId: "cart_validation123", revision: 1, express: true,
@@ -49,6 +50,8 @@ test("production Worker checkout, verification and signed webhooks", async (t) =
     assert.equal(call.body.get("ui_mode"), "embedded_page");
     assert.equal(call.body.get("line_items[0][quantity]"), "2");
     assert.equal(call.body.get("line_items[2][quantity]"), "1");
+    assert.equal(call.body.get("line_items[2][price_data][unit_amount]"), "3520");
+    assert.equal(call.body.get("line_items[2][price_data][currency]"), "eur");
     assert.equal(call.body.get("adaptive_pricing[enabled]"), "false");
     assert.equal(call.body.get("automatic_tax[enabled]"), "false");
     assert.equal(call.body.has("branding_settings[logo][url]"), false);
@@ -106,6 +109,33 @@ test("production Worker checkout, verification and signed webhooks", async (t) =
       assert.equal(response.status, 200);
       assert.equal(calls.at(-1).body.get("metadata[order_status]"), expected);
     }
+  });
+
+  await t.test("delivers hosted enquiries without exposing an email app", async () => {
+    let delivered;
+    const enquiryEnv = {
+      ...env,
+      EMAIL: { send: async (message) => { delivered = message; return { messageId: "local-enquiry" }; } }
+    };
+    const response = await worker.fetch(new Request("https://spnvisualz.com/api/enquiry", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Origin: "https://spnvisualz.com" },
+      body: JSON.stringify({
+        type: "project", name: "A Client", contact: "client@example.com",
+        service: "Custom Project", message: "Build a visual world"
+      })
+    }), enquiryEnv);
+    assert.equal(response.status, 202);
+    assert.equal(delivered.to, "spnvisualz@gmail.com");
+    assert.equal(delivered.replyTo, "client@example.com");
+    assert.match(delivered.text, /Build a visual world/);
+
+    const crossOrigin = await worker.fetch(new Request("https://spnvisualz.com/api/enquiry", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Origin: "https://example.com" },
+      body: JSON.stringify({ type: "topic", topic: "Nope" })
+    }), enquiryEnv);
+    assert.equal(crossOrigin.status, 403);
   });
 });
 

@@ -109,8 +109,9 @@
   })).filter((entry) => entry.cart === true);
 
   const count = () => lines().reduce((sum, line) => sum + line.quantity, 0);
-  const subtotal = () => lines().reduce((sum, line) => sum + line.price * line.quantity, 0)
-    + (cart.express ? (item("express-delivery")?.price || 40) : 0);
+  const serviceSubtotal = () => lines().reduce((sum, line) => sum + line.price * line.quantity, 0);
+  const expressFee = () => serviceSubtotal() * (item("express-delivery")?.rate || 0.4);
+  const subtotal = () => serviceSubtotal() + (cart.express ? expressFee() : 0);
 
   const snapshot = () => ({
     cartId: cart.cartId,
@@ -123,7 +124,9 @@
   });
 
   const format = (amount) => new Intl.NumberFormat("en", {
-    style: "currency", currency: currency(), maximumFractionDigits: 0
+    style: "currency", currency: currency(),
+    minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+    maximumFractionDigits: Number.isInteger(amount) ? 0 : 2
   }).format(amount);
 
   const track = (eventName, sku, qty = 1) => {
@@ -308,6 +311,8 @@
     }
 
     basketEmpty.hidden = totalCount !== 0;
+    basketDialog.querySelector(".spn-cart__express").hidden = totalCount === 0;
+    if (totalCount === 0 && cart.express) cart.express = false;
     basketTotal.textContent = format(subtotal());
     expressInput.checked = cart.express;
     checkoutLink.classList.toggle("is-disabled", totalCount === 0);
@@ -336,7 +341,7 @@
         <header><div><p>YOUR ORDER</p><h2 id="spnCartTitle">Basket</h2></div><button type="button" data-cart-close aria-label="Close basket">×</button></header>
         <p class="spn-cart__empty">Your basket is empty. Choose a service to begin.</p>
         <ul class="spn-cart__lines"></ul>
-        <label class="spn-cart__express"><input type="checkbox"><span><strong>Express delivery</strong><small>Prioritised 24–48 hour delivery</small></span><b></b></label>
+        <label class="spn-cart__express"><input type="checkbox"><span><strong>Express delivery +40%</strong><small>Prioritised 24–48 hour delivery</small></span><b></b></label>
         <div class="spn-cart__total"><span>Order total</span><strong></strong></div>
         <a class="spn-cart__checkout" href="${storeCfg().checkoutUrl || "/checkout.html"}">Review &amp; pay securely <span aria-hidden="true">→</span></a>
         <p class="spn-cart__secure">Secure payment stays on SPNVISUALZ and is processed by Stripe.</p>
@@ -346,7 +351,7 @@
     basketTotal = basketDialog.querySelector(".spn-cart__total strong");
     expressInput = basketDialog.querySelector(".spn-cart__express input");
     checkoutLink = basketDialog.querySelector(".spn-cart__checkout");
-    basketDialog.querySelector(".spn-cart__express b").textContent = `+${format(item("express-delivery")?.price || 40)}`;
+    const expressPrice = basketDialog.querySelector(".spn-cart__express b");
 
     basketDialog.querySelector("[data-cart-close]").addEventListener("click", () => basketDialog.close());
     basketDialog.addEventListener("click", (event) => {
@@ -360,6 +365,9 @@
       if (action === "remove") setQuantity(sku, 0);
     });
     expressInput.addEventListener("change", () => setExpress(expressInput.checked));
+    const renderExpressPrice = () => { expressPrice.textContent = `+${format(expressFee())}`; };
+    listeners.add(renderExpressPrice);
+    renderExpressPrice();
     checkoutLink.addEventListener("click", (event) => {
       if (count() === 0) event.preventDefault();
       else {

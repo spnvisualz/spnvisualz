@@ -530,7 +530,7 @@
       <header class="section-head reveal">
         <p class="section-label">Clear packages</p>
         <h2>Pricing</h2>
-        <p class="offer-note">Launch pricing &mdash; up to 69% off. Express delivery in 24&ndash;48 hours.</p>
+        <p class="offer-note">Clear project pricing. Express delivery is available for +40%.</p>
       </header>
 
       <div class="price-tabs reveal" role="tablist" aria-label="Pricing type">
@@ -593,7 +593,7 @@
 
       <div class="delivery-bar reveal">
         <span><small>Standard</small>3&ndash;5 day delivery</span>
-        <span><small>Express</small>24&ndash;48h / +&euro;40</span>
+        <span><small>Express</small>24&ndash;48h / +40%</span>
         <span><small>Something different?</small><button type="button" data-buy="deposit-custom" data-order data-product="Custom Project" data-checkout-label="Request custom quote">Ask for custom</button></span>
       </div>
     </section>
@@ -665,6 +665,7 @@
              package, so the brief says whether they were looking at the
              monthly or the yearly price. -->
         <input type="hidden" name="billing" id="orderBilling" value="" />
+        <input class="spn-honeypot" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
         <label>Your name<input type="text" name="name" autocomplete="name" required /></label>
         <label>Email or Instagram<input type="text" name="contact" required /></label>
         <label>What do you need?
@@ -697,7 +698,8 @@
         </label>
         <label class="wide">Describe the vision<textarea name="brief" rows="4" placeholder="Name, style, colours, deadline and any references&hellip;" required></textarea></label>
         <div class="order-dialog__foot">
-          <p>Custom projects are quoted first. Once approved, SPNVISUALZ sends a Stripe deposit invoice to begin; the remaining balance is invoiced after delivery. This opens your email app with the brief already filled in.</p>
+          <p>Custom projects are quoted first. Once approved, SPNVISUALZ sends a Stripe deposit invoice to begin; the remaining balance is invoiced after delivery.</p>
+          <p class="order-dialog__status" data-enquiry-status role="status" aria-live="polite"></p>
           <button type="submit" class="btn btn--light"><span>Send project brief</span></button>
         </div>
       </form>

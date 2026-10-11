@@ -28,8 +28,15 @@
       row.querySelector("b").textContent = cartApi().format(entry.price * line.quantity);
       summaryLines.append(row);
     }
-    expressLine.hidden = !cart.express;
-    if (cart.express) expressLine.querySelector("b").textContent = cartApi().format(catalogue()["express-delivery"]?.price || 40);
+    expressLine.hidden = !cart.express || cart.count === 0;
+    if (cart.express) {
+      const serviceSubtotal = cart.items.reduce((sum, line) => {
+        const entry = catalogue()[line.sku];
+        return sum + (entry ? entry.price * line.quantity : 0);
+      }, 0);
+      const rate = catalogue()["express-delivery"]?.rate || 0.4;
+      expressLine.querySelector("b").textContent = `+${cartApi().format(serviceSubtotal * rate)}`;
+    }
     total.textContent = cartApi().format(cart.subtotal);
   };
 
@@ -47,8 +54,12 @@
     if (!cart || cart.count === 0) {
       loading.hidden = true;
       empty.hidden = false;
+      expressLine.hidden = true;
+      summaryLines.innerHTML = "";
+      total.textContent = cartApi()?.format(0) || "€0";
       return;
     }
+    empty.hidden = true;
     renderSummary(cart);
 
     try {

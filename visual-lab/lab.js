@@ -72,7 +72,7 @@
 
   const topicForm = document.querySelector("[data-topic-form]");
   if (topicForm) {
-    topicForm.addEventListener("submit", event => {
+    topicForm.addEventListener("submit", async event => {
       event.preventDefault();
       const input = topicForm.querySelector("input");
       const topic = input && input.value.trim();
@@ -80,9 +80,24 @@
       if (window.SPNAnalytics) {
         window.SPNAnalytics.track("visual_lab_topic_requested", { topic });
       }
-      location.href = "mailto:spnvisualz@gmail.com?subject=" +
-        encodeURIComponent("Visual Lab topic request") +
-        "&body=" + encodeURIComponent("I would like SPNVISUALZ to cover: " + topic);
+      const button = topicForm.querySelector("button");
+      const note = document.querySelector(".vl-request__note");
+      if (button) button.disabled = true;
+      if (note) note.textContent = "Sending your suggestion…";
+      try {
+        const response = await fetch("/api/enquiry", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "topic", topic })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.error || "Your suggestion could not be sent.");
+        input.value = "";
+        if (note) note.textContent = "Suggestion received. Thank you.";
+      } catch (error) {
+        if (note) note.textContent = error.message || "Your suggestion could not be sent. Please try again.";
+        if (button) button.disabled = false;
+      }
     });
   }
 })();

@@ -4,7 +4,9 @@
   "account_id": "d1e7b81209dbbc87a3d8371a8f2c6a34",
   "workers_dev": true,
   "vars": {
-    "PUBLIC_SITE_URL": "https://spnvisualz.com"
+    "PUBLIC_SITE_URL": "https://spnvisualz.com",
+    "ENQUIRY_TO": "spnvisualz@gmail.com",
+    "ENQUIRY_FROM": "enquiries@mail.spnvisualz.com"
   },
   "main": "worker/index.js",
   "compatibility_date": "2026-09-29",
@@ -16,5 +18,10 @@
   },
   "observability": {
     "enabled": true
-  }
+  },
+  "send_email": [{
+    "name": "EMAIL",
+    "allowed_sender_addresses": ["enquiries@mail.spnvisualz.com"],
+    "allowed_destination_addresses": ["spnvisualz@gmail.com"]
+  }]
 }
