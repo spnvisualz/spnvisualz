@@ -33,6 +33,7 @@ test("production Worker checkout, verification and signed webhooks", async (t) =
     STRIPE_PUBLISHABLE_KEY: "pk_live_localfixture",
     STRIPE_WEBHOOK_SECRET: "whsec_localfixture",
     PUBLIC_SITE_URL: "https://spnvisualz.com",
+    ENQUIRIES: { put: async () => {} },
     EMAIL: { send: async (message) => ({ messageId: "local-enquiry", message }) }
   };
   const cart = {
@@ -113,8 +114,10 @@ test("production Worker checkout, verification and signed webhooks", async (t) =
 
   await t.test("delivers hosted enquiries without exposing an email app", async () => {
     let delivered;
+    let stored;
     const enquiryEnv = {
       ...env,
+      ENQUIRIES: { put: async (key, value, options) => { stored = { key, value: JSON.parse(value), options }; } },
       EMAIL: { send: async (message) => { delivered = message; return { messageId: "local-enquiry" }; } }
     };
     const response = await worker.fetch(new Request("https://spnvisualz.com/api/enquiry", {
@@ -126,6 +129,9 @@ test("production Worker checkout, verification and signed webhooks", async (t) =
       })
     }), enquiryEnv);
     assert.equal(response.status, 202);
+    assert.match(stored.key, /^enquiry:/);
+    assert.equal(stored.value.contact, "client@example.com");
+    assert.equal(stored.options.expirationTtl, 60 * 60 * 24 * 90);
     assert.equal(delivered.to, "spnvisualz@gmail.com");
     assert.equal(delivered.replyTo, "client@example.com");
     assert.match(delivered.text, /Build a visual world/);

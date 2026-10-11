@@ -71,8 +71,8 @@ async function receiveEnquiry(request, env) {
   if (Number(request.headers.get("content-length") || 0) > 16_384) {
     return json({ error: "That message is too long." }, 413);
   }
-  if (!env.EMAIL?.send) {
-    console.error(JSON.stringify({ message: "enquiry email binding unavailable" }));
+  if (!env.ENQUIRIES?.put) {
+    console.error(JSON.stringify({ message: "enquiry storage binding unavailable" }));
     return json({ error: "Enquiries are temporarily unavailable. Please try again shortly." }, 503);
   }
 
@@ -101,18 +101,33 @@ async function receiveEnquiry(request, env) {
         ].join("\n");
     const html = `<h1>${escapeHtml(subject)}</h1><pre style="font:14px/1.6 sans-serif;white-space:pre-wrap">${escapeHtml(plain)}</pre>`;
     const emailContact = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) ? contact : null;
-    await env.EMAIL.send({
-      to: env.ENQUIRY_TO || "spnvisualz@gmail.com",
-      from: {
-        email: env.ENQUIRY_FROM || "enquiries@mail.spnvisualz.com",
-        name: "SPNVISUALZ Website"
-      },
-      ...(emailContact ? { replyTo: emailContact } : {}),
-      subject,
-      text: plain,
-      html
-    });
-    return json({ received: true }, 202);
+    const reference = crypto.randomUUID();
+    await env.ENQUIRIES.put(`enquiry:${Date.now()}:${reference}`, JSON.stringify({
+      reference, createdAt: new Date().toISOString(), type, name, contact, service, billing, message
+    }), { expirationTtl: 60 * 60 * 24 * 90 });
+
+    if (env.EMAIL?.send) {
+      try {
+        await env.EMAIL.send({
+          to: env.ENQUIRY_TO || "spnvisualz@gmail.com",
+          from: {
+            email: env.ENQUIRY_FROM || "enquiries@mail.spnvisualz.com",
+            name: "SPNVISUALZ Website"
+          },
+          ...(emailContact ? { replyTo: emailContact } : {}),
+          subject,
+          text: plain,
+          html
+        });
+      } catch (error) {
+        console.error(JSON.stringify({
+          message: "enquiry_notification_failed",
+          reference,
+          error: error instanceof Error ? error.message : String(error)
+        }));
+      }
+    }
+    return json({ received: true, reference }, 202);
   } catch (error) {
     console.error(JSON.stringify({
       message: "enquiry_delivery_failed",

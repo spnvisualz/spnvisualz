@@ -14,6 +14,10 @@
   "observability": {
     "enabled": true
   },
+  "kv_namespaces": [{
+    "binding": "ENQUIRIES",
+    "id": "12b4d82436d54f95aaf5aab89058bc5b"
+  }],
   "send_email": [{
     "name": "EMAIL",
     "allowed_sender_addresses": ["enquiries@mail.spnvisualz.com"],
