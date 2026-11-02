@@ -185,3 +185,25 @@ jobs:
 
           [ "$fail" -eq 0 ] || { echo "::error::production verification failed"; exit 1; }
           echo "Production verified."
+
+      - name: Check the store API route (report only)
+        # The basket posts to /api/* on the site's own domain, which only
+        # works if that path reaches the Cloudflare Worker. This reports
+        # where the domain points and what /api/* answers, without failing
+        # the deploy, so a broken checkout route shows up in every run.
+        run: |
+          set -uo pipefail
+          base=https://spnvisualz.com
+          echo "A records:  $(dig +short A spnvisualz.com | tr '\n' ' ')"
+          echo "NS records: $(dig +short NS spnvisualz.com | tr '\n' ' ')"
+          echo "www CNAME:  $(dig +short CNAME www.spnvisualz.com | tr '\n' ' ')"
+          for path in /api/checkout-session /checkout.html /thank-you.html; do
+            out=$(curl -s -o /tmp/body -w '%{http_code} %{content_type}' "$base$path")
+            server=$(curl -sI "$base$path" | tr -d '\r' | awk -F': ' 'tolower($1)=="server"{print $2}')
+            printf '%-26s %s  server=%s  %s\n' "$path" "$out" "$server" "$(head -c 120 /tmp/body | tr '\n' ' ')"
+          done
+          code=$(curl -s -o /dev/null -w '%{http_code}' "$base/api/checkout-session")
+          case "$code" in
+            400|405) echo "Worker answers /api/* on $base." ;;
+            *) echo "::warning::$base/api/checkout-session returned $code; the basket cannot open Stripe Checkout until /api/* reaches the Worker." ;;
+          esac
