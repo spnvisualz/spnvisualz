@@ -10,7 +10,12 @@
   const errorMessage = document.getElementById("checkoutErrorMessage");
   const retry = document.getElementById("checkoutRetry");
   const mount = document.getElementById("checkoutMount");
+  const consentForm = document.getElementById("checkoutConsent");
   let embeddedCheckout;
+  // Set once the customer ticks the terms box. The payment form is not
+  // requested before that, so no order can be paid without the consent
+  // that Norwegian law needs before work starts inside the 14-day window.
+  let consent = null;
 
   const store = () => window.SPN_CONFIG?.checkout?.store || {};
   const catalogue = () => window.SPN_CONFIG?.checkout?.items || {};
@@ -30,9 +35,10 @@
     }
     expressLine.hidden = !cart.express || cart.count === 0;
     if (cart.express) {
+      // Website packages are not part of Express (same rule as the server).
       const serviceSubtotal = cart.items.reduce((sum, line) => {
         const entry = catalogue()[line.sku];
-        return sum + (entry ? entry.price * line.quantity : 0);
+        return sum + (entry && entry.express !== false ? entry.price * line.quantity : 0);
       }, 0);
       const rate = catalogue()["express-delivery"]?.rate || 0.4;
       expressLine.querySelector("b").textContent = `+${cartApi().format(serviceSubtotal * rate)}`;
@@ -61,12 +67,17 @@
     }
     empty.hidden = true;
     renderSummary(cart);
+    if (!consent) {
+      loading.hidden = true;
+      consentForm.hidden = false;
+      return;
+    }
 
     try {
       const response = await fetch(store().createSessionUrl || "/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(cart)
+        body: JSON.stringify({ ...cart, consent })
       });
       const raw = await response.text();
       let payload = {};
@@ -85,6 +96,14 @@
       showError(error.message);
     }
   };
+
+  consentForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!consentForm.elements.consent.checked) return;
+    consent = { terms: store().termsVersion || "", startNow: true };
+    consentForm.hidden = true;
+    startCheckout();
+  });
 
   retry.addEventListener("click", async () => {
     if (embeddedCheckout) {

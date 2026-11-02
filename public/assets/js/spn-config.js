@@ -87,6 +87,8 @@
         currency: "EUR",
         storageKey: "spnvisualz_cart_v1",
         checkoutUrl: "/checkout.html",
+        // Must match TERMS_VERSION in server/store.js.
+        termsVersion: "2026-11-02",
         createSessionUrl: "/api/create-checkout-session",
         sessionStatusUrl: "/api/checkout-session"
       },

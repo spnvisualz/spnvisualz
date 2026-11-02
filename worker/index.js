@@ -193,7 +193,7 @@ async function createCheckout(request, env) {
       ],
       custom_text: {
         submit: {
-          message: "Production begins after payment. Standard delivery is 3–5 working days; Express orders are prioritised for 24–48 hour delivery."
+          message: "Production begins after payment. Standard delivery is 3–5 working days; Express orders are prioritised for 24–48 hour delivery. By paying you agree to the [Terms of sale](https://spnvisualz.com/terms/)."
         }
       },
       branding_settings: {
@@ -208,7 +208,8 @@ async function createCheckout(request, env) {
         cart_id: cart.cartId,
         cart_revision: String(cart.revision),
         order_items: cartDescription(cart),
-        order_source: "spnvisualz_store"
+        order_source: "spnvisualz_store",
+        terms_accepted: cart.termsVersion || "not_recorded"
       },
       payment_intent_data: {
         description: "SPNVISUALZ creative services order",

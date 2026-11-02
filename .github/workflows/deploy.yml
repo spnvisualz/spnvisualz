@@ -65,6 +65,7 @@ jobs:
             index.html \
             about/index.html \
             privacy/index.html \
+            terms/index.html \
             websites/index.html \
             work/index.html \
             visual-lab/index.html \
@@ -200,7 +201,7 @@ jobs:
           sleep 20
 
           fail=0
-          for path in "/" "/about/" "/privacy/" "/websites/" "/work/" \
+          for path in "/" "/about/" "/privacy/" "/terms/" "/websites/" "/work/" \
                       "/visual-lab/" "/visual-lab/author/chubae/" \
                       "/sitemap.xml" "/ads.txt"; do
             code=$(curl -s -o /dev/null -w '%{http_code}' -L "$base$path")

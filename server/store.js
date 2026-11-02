@@ -4,6 +4,10 @@ export const STORE_CURRENCY = "eur";
 export const STORE_SITE_URL = "https://spnvisualz.com";
 export const STORE_INTEGRATION_ID = "spn_store_yqnhvmtp";
 export const EXPRESS_RATE = 0.4;
+// Version of /terms/ the checkout consent refers to. Change it whenever the
+// terms change in substance; the browser sends the version it showed and
+// the order records it (public/assets/js/spn-config.js holds the same value).
+export const TERMS_VERSION = "2026-11-02";
 
 // This server-side allowlist is the source of truth for what can be charged.
 // The browser only sends SKUs and quantities; it can never choose a Price ID
@@ -79,7 +83,11 @@ export function parseCart(input) {
     ? input.cartId
     : "guest";
   const revision = Number.isInteger(input.revision) && input.revision >= 0 ? input.revision : 0;
-  return { items, express, cartId, revision };
+  // Recorded on the order, not enforced here: the checkout page will not
+  // load the payment form until the box is ticked, and an older cached page
+  // must not be locked out of paying.
+  const termsVersion = input.consent?.terms === TERMS_VERSION && input.consent?.startNow === true ? TERMS_VERSION : "";
+  return { items, express, cartId, revision, termsVersion };
 }
 
 export function lineItemsFor(cart) {

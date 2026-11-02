@@ -10,7 +10,8 @@ import {
   expressUnitAmountFor,
   idempotencyKeyFor,
   lineItemsFor,
-  parseCart
+  parseCart,
+  TERMS_VERSION
 } from "../server/store.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -148,4 +149,27 @@ test("anything the browser can put in the basket is known to the server at the s
     assert.ok(STORE_CATALOG[sku], `${sku} can be added in the browser but the server would reject it`);
     assert.equal(STORE_CATALOG[sku].unitAmount, item.price * 100, `${sku} amount differs`);
   }
+});
+
+test("checkout consent: same terms version in browser and server, recorded only when given", () => {
+  assert.equal(browserCatalogue.store.termsVersion, TERMS_VERSION);
+  const base = { items: [{ sku: "logo-basic", quantity: 1 }] };
+  assert.equal(parseCart({ ...base, consent: { terms: TERMS_VERSION, startNow: true } }).termsVersion, TERMS_VERSION);
+  assert.equal(parseCart({ ...base, consent: { terms: "1999-01-01", startNow: true } }).termsVersion, "");
+  assert.equal(parseCart({ ...base, consent: { terms: TERMS_VERSION } }).termsVersion, "");
+  assert.equal(parseCart(base).termsVersion, "");
+
+  const worker = readFileSync(join(root, "worker/index.js"), "utf8");
+  assert.match(worker, /terms_accepted: cart\.termsVersion/);
+  assert.match(worker, /\[Terms of sale\]\(https:\/\/spnvisualz\.com\/terms\/\)/);
+});
+
+test("the payment form waits for the terms checkbox", () => {
+  const page = readFileSync(join(root, "checkout.html"), "utf8");
+  assert.match(page, /<form id="checkoutConsent"[^>]*hidden>/);
+  assert.match(page, /<input type="checkbox" name="consent" required>/);
+  assert.match(page, /href="\/terms\/"/);
+  const script = readFileSync(join(root, "public/assets/js/spn-payment.js"), "utf8");
+  const gate = script.indexOf("if (!consent)");
+  assert.ok(gate > 0 && gate < script.indexOf("await fetch("), "the session request must come after the consent check");
 });

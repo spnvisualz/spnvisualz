@@ -60,6 +60,7 @@ export const PAGES = [
   { path: "/visual-lab/articles/tao-black-chrome-motion-loop-case-study/", changefreq: "monthly", priority: "0.8", images: ["/assets/work-3.jpg"] },
   { path: "/visual-lab/articles/3d-logo-design-that-still-works-in-2d/", changefreq: "monthly", priority: "0.8", images: ["/assets/spnvisualz-social.jpg"] },
   { path: "/privacy/", changefreq: "yearly", priority: "0.3" },
+  { path: "/terms/", changefreq: "yearly", priority: "0.3" },
   { path: "/about/", changefreq: "monthly", priority: "0.7" },
   { path: "/visual-lab/author/chubae/", changefreq: "monthly", priority: "0.6" }
 ];
@@ -102,11 +103,15 @@ function build() {
     );
   });
 
-  if (PAGES.length > 1 && dates.size === 1) {
+  // --same-day-ok: for the rare day a site-wide change (a footer link, a
+  // stylesheet version) really did touch every page. Check `git log` agrees
+  // before using it.
+  if (PAGES.length > 1 && dates.size === 1 && !process.argv.includes("--same-day-ok")) {
     throw new Error(
       `every page resolved to ${[...dates][0]} — this checkout has too little ` +
         "history for git to say when each one actually changed. Run it on a " +
-        "clone with real history and commit the result."
+        "clone with real history and commit the result. If every page really " +
+        "changed that day, rerun with --same-day-ok."
     );
   }
 

@@ -13,11 +13,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-  <link rel="stylesheet" href="/assets/css/checkout.css?v=20260928.2">
+  <link rel="stylesheet" href="/assets/css/checkout.css?v=20261102.1">
   <script src="https://js.stripe.com/dahlia/stripe.js" defer></script>
   <script src="/assets/js/spn-config.js?v=20261102.1"></script>
   <script src="/assets/js/spn-checkout.js?v=20261102.1" defer></script>
-  <script src="/assets/js/spn-payment.js?v=20260928.2" defer></script>
+  <script src="/assets/js/spn-payment.js?v=20261102.1" defer></script>
 </head>
 <body data-store-checkout="true">
   <header class="checkout-header">
@@ -64,12 +64,20 @@
         <p id="checkoutErrorMessage">Please try again.</p>
         <button id="checkoutRetry" type="button">Try again</button>
       </div>
+      <form id="checkoutConsent" class="checkout-consent" hidden>
+        <label>
+          <input type="checkbox" name="consent" required>
+          <span>I have read the <a href="/terms/" target="_blank" rel="noopener">Terms of sale</a>. I ask SPNVISUALZ to start work straight away, and I understand that I lose my 14-day right of withdrawal once the work has been fully delivered, and pay for work already done if I withdraw before then.</span>
+        </label>
+        <button type="submit">Continue to payment</button>
+      </form>
       <div id="checkoutMount"></div>
     </section>
   </main>
 
   <footer class="checkout-footer">
     <span>© 2026 SPNVISUALZ</span>
+    <a href="/terms/">Terms of sale</a>
     <a href="/privacy/">Privacy</a>
     <a href="mailto:spnvisualz@gmail.com">Need help?</a>
   </footer>
