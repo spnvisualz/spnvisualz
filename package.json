@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "SPNVISUALZ \u2014 cinematic motion-first creative studio site (SIGNAL rebuild).",
+  "description": "SPNVISUALZ — cinematic motion-first creative studio site (SIGNAL rebuild).",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "test": "node --test tests/*.test.mjs",
     "sitemap": "node scripts/build-sitemap.mjs",
-    "work": "node scripts/build-work.mjs"
+    "work": "node scripts/build-work.mjs",
+    "case-studies": "node scripts/build-case-studies.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.0",

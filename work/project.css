@@ -223,6 +223,8 @@ img, video { display: block; max-width: 100%; }
 .project-facts dd { margin: 0; color: rgba(255,255,255,.8); font-size: 13px; }
 .project-copy h2 { max-width: 850px; margin: 0 0 30px; font-size: clamp(38px, 5.5vw, 82px); line-height: .94; letter-spacing: -.055em; }
 .project-copy p { max-width: 730px; margin: 0 0 18px; color: var(--muted); font-size: clamp(15px, 1.2vw, 19px); line-height: 1.75; }
+.project-copy a { color: #fff; border-bottom: 1px solid var(--purple); }
+.project-copy a:hover { color: var(--purple); }
 .project-next {
   padding: 62px 0;
   border-top: 1px solid var(--line);
