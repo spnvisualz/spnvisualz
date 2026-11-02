@@ -1,6 +1,9 @@
 import { resolve } from "node:path";
 import { cpSync, existsSync } from "node:fs";
 import { defineConfig } from "vite";
+import { TESTIMONIALS } from "./src/testimonials/testimonials.js";
+import { MARKER, renderTestimonials } from "./src/testimonials/render.js";
+import { PROJECTS } from "./src/work/projects.js";
 
 const __dirname = import.meta.dirname;
 
@@ -72,13 +75,26 @@ function copyStaticSubsites() {
   };
 }
 
+// Replaces the <!-- testimonials --> marker in the homepage with the
+// approved quotes from src/testimonials/testimonials.js, in dev and build.
+// An empty list renders nothing, so the section does not exist until there
+// is something real to show.
+function testimonials() {
+  return {
+    name: "testimonials",
+    transformIndexHtml(html) {
+      return html.includes(MARKER) ? html.replace(MARKER, renderTestimonials(TESTIMONIALS, PROJECTS)) : html;
+    }
+  };
+}
+
 // Static multi-page site. HTML files stay at their existing public paths so
 // current URLs / SEO / GitHub Pages routing are unaffected by the move to
 // a build step. Large binary assets (video/image/audio) live in /public and
 // are copied through untouched — only JS/CSS get bundled and hashed.
 export default defineConfig({
   publicDir: "public",
-  plugins: [copyStaticSubsites()],
+  plugins: [testimonials(), copyStaticSubsites()],
   build: {
     outDir: "dist",
     assetsInlineLimit: 0,

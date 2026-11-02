@@ -16,6 +16,19 @@
   .process-line li:first-child{ border-top: 0; }
 }
 
+/* ============ TESTIMONIALS — only exists once real, approved quotes do ============ */
+.chapter--testimonials{ padding: var(--space-2xl) var(--pad-inline); }
+.testimonial-grid{
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: var(--space-md);
+  border-top: 1px solid var(--line); padding-top: var(--space-md);
+}
+.testimonial{ margin: 0; padding: var(--space-md) 0; display: flex; flex-direction: column; gap: var(--space-sm); }
+.testimonial blockquote{ margin: 0; }
+.testimonial blockquote p{ margin: 0; font-size: var(--type-lg, 20px); line-height: 1.45; letter-spacing: -.01em; }
+.testimonial blockquote p::before{ content: "\201C"; } .testimonial blockquote p::after{ content: "\201D"; }
+.testimonial figcaption strong{ display: block; font-size: 14px; }
+.testimonial figcaption span{ display: block; font-size: 12px; color: var(--muted); margin-top: 4px; }
+
 /* ============ VISUAL LAB portal — entering another part of the universe ============ */
 .chapter--lab{ padding: var(--space-3xl) var(--pad-inline); display: flex; justify-content: center; }
 .lab-portal{
