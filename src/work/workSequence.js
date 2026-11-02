@@ -41,6 +41,21 @@ const LOAD_MARGIN = "150% 0px 150% 0px";
 const RELEASE_MARGIN = "260% 0px 260% 0px";
 const PLAY_THRESHOLD = 0.32;
 
+// Posters load the same way the clips do: only as the reel approaches.
+//
+// They used to be poster attributes in the markup, and a browser fetches a
+// poster the moment it parses one — so all ten downloaded on page open,
+// 1.5 MB of 1920-wide JPEG for reels thousands of pixels down, competing
+// on a slow connection with the intro art that actually had to paint
+// first. A phone got the same 1920-wide stills it then showed 390 wide.
+//
+// Now each poster is set when its reel enters the load window, and the
+// phone or data-saver visitor who gets the light video cut also gets the
+// light poster: WebP at 960 wide instead of JPEG at 1920.
+function posterFor(project, useLight) {
+  return project.poster.replace(/\.jpg$/, useLight ? "-mobile.webp" : ".webp");
+}
+
 function sourceFor(project, useLight) {
   return useLight && project.videoMobile ? project.videoMobile : project.video;
 }
@@ -97,7 +112,15 @@ export function initWorkSequence({ reduceMotion = false } = {}) {
   // so the visible clip's request goes out first and gets the connection.
   const PRELOAD_DEFER_MS = 400;
 
+  const attachPoster = (item) => {
+    if (item.video.getAttribute("poster")) return;
+    item.video.poster = posterFor(item.project, useLight);
+  };
+
   const attachSource = (item, { eager = false } = {}) => {
+    // The poster goes up straight away, ahead of the clip's deferred
+    // fetch, so the panel is never an empty box while the video waits.
+    attachPoster(item);
     if (item.video.dataset.loaded) return;
 
     if (!eager) {
