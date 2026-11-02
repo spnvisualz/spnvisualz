@@ -20,8 +20,20 @@ export const STORE_CATALOG = Object.freeze({
   "visuals-brand":    { price: "price_1UKlxJAhjDLOnNqKOX4jWNtY", unitAmount: 7200,  label: "Visuals — Brand" },
   "bundle-starter":   { price: "price_1UJcsVAhjDLOnNqKk2vMvEDb", unitAmount: 16800, label: "Starter bundle" },
   "bundle-creator":   { price: "price_1UJcsVAhjDLOnNqKX286VOoJ", unitAmount: 24000, label: "Creator bundle" },
-  "bundle-business":  { price: "price_1UJcsWAhjDLOnNqKiRpEGpjO", unitAmount: 33600, label: "Business bundle" }
+  "bundle-business":  { price: "price_1UJcsWAhjDLOnNqKiRpEGpjO", unitAmount: 33600, label: "Business bundle" },
+
+  // Website packages, paid as one yearly payment. There is no Stripe Price
+  // object for these yet, so the amount is sent as price_data — still fixed
+  // here on the server, never taken from the browser. One per order, and
+  // never part of the Express surcharge (a website build is not a 24–48
+  // hour job). Monthly plans stay enquiry-first: they are a 12-month
+  // commitment and need a subscription, not a one-off Checkout payment.
+  "web-basic-yearly":     { unitAmount: 44900,  label: "Website Basic — yearly (1 year of care included)",     maxQuantity: 1, express: false },
+  "web-premium-yearly":   { unitAmount: 79900,  label: "Website Premium — yearly (1 year of care included)",   maxQuantity: 1, express: false },
+  "web-exclusive-yearly": { unitAmount: 129900, label: "Website Exclusive — yearly (1 year of care included)", maxQuantity: 1, express: false }
 });
+
+const maxQuantityFor = (sku) => STORE_CATALOG[sku].maxQuantity || 10;
 
 export const EXPRESS_DELIVERY = Object.freeze({
   label: "Express delivery — 24–48 hours (+40%)",
@@ -53,7 +65,9 @@ export function parseCart(input) {
       throw new Error("Service quantities must be between 1 and 10.");
     }
     const next = (quantities.get(sku) || 0) + quantity;
-    if (next > 10) throw new Error("A service quantity cannot exceed 10.");
+    if (next > maxQuantityFor(sku)) {
+      throw new Error(maxQuantityFor(sku) === 1 ? "Website packages are one per order." : "A service quantity cannot exceed 10.");
+    }
     quantities.set(sku, next);
   }
 
@@ -69,11 +83,19 @@ export function parseCart(input) {
 }
 
 export function lineItemsFor(cart) {
-  const lines = cart.items.map(({ sku, quantity }) => ({
-    price: STORE_CATALOG[sku].price,
-    quantity
-  }));
-  if (cart.express) {
+  const lines = cart.items.map(({ sku, quantity }) => {
+    const entry = STORE_CATALOG[sku];
+    if (entry.price) return { price: entry.price, quantity };
+    return {
+      price_data: {
+        currency: STORE_CURRENCY,
+        unit_amount: entry.unitAmount,
+        product_data: { name: entry.label }
+      },
+      quantity
+    };
+  });
+  if (cart.express && expressUnitAmountFor(cart) > 0) {
     lines.push({
       price_data: {
         currency: STORE_CURRENCY,
@@ -93,13 +115,22 @@ export function serviceSubtotalFor(cart) {
   );
 }
 
+// Express applies only to services that can be delivered in 24–48 hours.
+export function expressEligibleSubtotalFor(cart) {
+  return cart.items.reduce(
+    (sum, { sku, quantity }) =>
+      STORE_CATALOG[sku].express === false ? sum : sum + STORE_CATALOG[sku].unitAmount * quantity,
+    0
+  );
+}
+
 export function expressUnitAmountFor(cart) {
-  return Math.round(serviceSubtotalFor(cart) * EXPRESS_RATE);
+  return Math.round(expressEligibleSubtotalFor(cart) * EXPRESS_RATE);
 }
 
 export function cartDescription(cart) {
   const parts = cart.items.map(({ sku, quantity }) => `${sku}:${quantity}`);
-  if (cart.express) parts.push(`express-delivery:${expressUnitAmountFor(cart)}`);
+  if (cart.express && expressUnitAmountFor(cart) > 0) parts.push(`express-delivery:${expressUnitAmountFor(cart)}`);
   return parts.join(",").slice(0, 480);
 }
 

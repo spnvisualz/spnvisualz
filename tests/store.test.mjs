@@ -113,3 +113,39 @@ test("custom projects cannot enter instant checkout", () => {
   assert.equal(browserCatalogue.items["deposit-custom"].cart, undefined);
   assert.equal(browserCatalogue.items["deposit-custom"].url, "");
 });
+
+test("yearly website packages are priced by the server, one per order, outside Express", () => {
+  const plans = { "web-basic-yearly": 449, "web-premium-yearly": 799, "web-exclusive-yearly": 1299 };
+  for (const [sku, euros] of Object.entries(plans)) {
+    const entry = STORE_CATALOG[sku];
+    assert.ok(entry, `${sku} is missing from the server allowlist`);
+    assert.equal(entry.unitAmount, euros * 100);
+    assert.equal(browserCatalogue.items[sku].price, euros, `${sku}: browser shows a different amount`);
+    assert.equal(entry.maxQuantity, 1);
+    assert.equal(entry.express, false);
+
+    const [line] = lineItemsFor(parseCart({ items: [{ sku, quantity: 1, price: 1 }] }));
+    assert.equal(line.price, undefined);
+    assert.equal(line.price_data.currency, "eur");
+    assert.equal(line.price_data.unit_amount, euros * 100, "the browser's price is ignored");
+    assert.throws(() => parseCart({ items: [{ sku, quantity: 2 }] }), /one per order/);
+    assert.throws(() => parseCart({ items: [{ sku, quantity: 1 }, { sku, quantity: 1 }] }), /one per order/);
+  }
+});
+
+test("Express is charged on services only, never on a website package", () => {
+  const mixed = parseCart({ items: [{ sku: "logo-basic", quantity: 1 }, { sku: "web-basic-yearly", quantity: 1 }], express: true });
+  assert.equal(expressUnitAmountFor(mixed), Math.round(STORE_CATALOG["logo-basic"].unitAmount * EXPRESS_RATE));
+
+  const websiteOnly = parseCart({ items: [{ sku: "web-premium-yearly", quantity: 1 }], express: true });
+  assert.equal(expressUnitAmountFor(websiteOnly), 0);
+  assert.equal(lineItemsFor(websiteOnly).length, 1, "no zero-euro Express line");
+});
+
+test("anything the browser can put in the basket is known to the server at the same amount", () => {
+  for (const [sku, item] of Object.entries(browserCatalogue.items)) {
+    if (item.cart !== true) continue;
+    assert.ok(STORE_CATALOG[sku], `${sku} can be added in the browser but the server would reject it`);
+    assert.equal(STORE_CATALOG[sku].unitAmount, item.price * 100, `${sku} amount differs`);
+  }
+});

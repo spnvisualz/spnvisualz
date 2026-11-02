@@ -61,3 +61,9 @@ On 2026-09-30, the connected live Stripe account accepted a multi-service embedd
 Embedded Checkout rejects `branding_settings.logo`; omit that field. Load `https://js.stripe.com/dahlia/stripe.js` and mount with `stripe.createEmbeddedCheckoutPage({ fetchClientSecret })`. Live order IDs use `cs_live_`; verification must accept that prefix.
 
 Do not enable Stripe Tax until the business has active tax registrations in Stripe.
+
+## Yearly website packages
+
+`web-basic-yearly` (€449), `web-premium-yearly` (€799) and `web-exclusive-yearly` (€1,299) are in the server allowlist (`server/store.js`) as one-off yearly payments, priced with `price_data` on the server, one per order, and excluded from the Express surcharge. Monthly plans stay enquiry-first (they are 12-month commitments and would need Stripe subscriptions).
+
+The basket only offers them when `WEBSITE_PLANS_LIVE` in `public/assets/js/spn-config.js` is `true`. It ships `false` because a Worker deployed before this change rejects those SKUs. To switch on: deploy the Worker (`npm run deploy:cloudflare`, or let the `deploy-worker` CI job do it once `CLOUDFLARE_API_TOKEN` is set), then set the flag to `true` and push. While it is `false` the plan buttons open the project brief with the billing mode, as before.

@@ -5,6 +5,8 @@
   const storeCfg = () => (cfg() && cfg().store) || {};
   const items = () => (cfg() && cfg().items) || {};
   const item = (sku) => items()[sku] || null;
+  // Website packages are one per order; services go up to 10.
+  const maxFor = (sku) => item(sku)?.maxQuantity || 10;
   const storeEnabled = () => storeCfg().enabled === true;
   const storageKey = () => storeCfg().storageKey || "spnvisualz_cart_v1";
   const currency = () => storeCfg().currency || "EUR";
@@ -33,7 +35,7 @@
         const entry = item(sku);
         const quantity = Number(value);
         if (entry?.cart === true && Number.isInteger(quantity) && quantity > 0) {
-          clean.items[sku] = Math.min(quantity, 10);
+          clean.items[sku] = Math.min(quantity, maxFor(sku));
         }
       }
     }
@@ -69,11 +71,16 @@
   const add = (sku, amount = 1, { from } = {}) => {
     const entry = item(sku);
     if (!entry || entry.cart !== true) return false;
+    if (quantity(sku) >= maxFor(sku)) {
+      basketDialog?.showModal();
+      toast(`${entry.label} is already in your basket`);
+      return true;
+    }
     const launch = launchPoint(from);
     // Counted as in flight before the cart changes, so the badge keeps the
     // old number until the item actually lands in it.
     if (launch) inFlight += amount;
-    mutate((next) => { next.items[sku] = Math.min(10, quantity(sku) + amount); });
+    mutate((next) => { next.items[sku] = Math.min(maxFor(sku), quantity(sku) + amount); });
     track("add_to_cart", sku, amount);
     const confirm = () => toast(`${entry.label} added to basket`);
     if (!launch) {
@@ -92,7 +99,7 @@
 
   const setQuantity = (sku, value) => {
     if (!item(sku)?.cart) return;
-    const nextValue = Math.max(0, Math.min(10, Number(value) || 0));
+    const nextValue = Math.max(0, Math.min(maxFor(sku), Number(value) || 0));
     mutate((next) => {
       if (nextValue === 0) delete next.items[sku];
       else next.items[sku] = nextValue;
@@ -110,7 +117,10 @@
 
   const count = () => lines().reduce((sum, line) => sum + line.quantity, 0);
   const serviceSubtotal = () => lines().reduce((sum, line) => sum + line.price * line.quantity, 0);
-  const expressFee = () => serviceSubtotal() * (item("express-delivery")?.rate || 0.4);
+  // Same rule as the server: Express only covers services that can be
+  // delivered in 24–48 hours, so website packages are left out of it.
+  const expressSubtotal = () => lines().reduce((sum, line) => line.express === false ? sum : sum + line.price * line.quantity, 0);
+  const expressFee = () => expressSubtotal() * (item("express-delivery")?.rate || 0.4);
   const subtotal = () => serviceSubtotal() + (cart.express ? expressFee() : 0);
 
   const snapshot = () => ({
@@ -311,8 +321,9 @@
     }
 
     basketEmpty.hidden = totalCount !== 0;
-    basketDialog.querySelector(".spn-cart__express").hidden = totalCount === 0;
-    if (totalCount === 0 && cart.express) cart.express = false;
+    const canExpress = expressSubtotal() > 0;
+    basketDialog.querySelector(".spn-cart__express").hidden = !canExpress;
+    if (!canExpress && cart.express) cart.express = false;
     basketTotal.textContent = format(subtotal());
     expressInput.checked = cart.express;
     checkoutLink.classList.toggle("is-disabled", totalCount === 0);

@@ -1,6 +1,13 @@
 (() => {
   "use strict";
 
+  // Yearly website packages in the basket. Keep false until the Cloudflare
+  // Worker that knows these SKUs (server/store.js) is deployed: an older
+  // Worker rejects them, and the plan buttons fall back to the project
+  // brief while this is false. Flip to true in the same push as, or after,
+  // that deploy.
+  const WEBSITE_PLANS_LIVE = false;
+
   /*
    * SPNVISUALZ measurement and monetization configuration.
    *
@@ -113,11 +120,11 @@
 
         // --- website packages, recurring --------------------------
         "web-basic-monthly":     { price: 45,   label: "Website Basic — monthly",     url: "", recurring: "month" },
-        "web-basic-yearly":      { price: 449,  label: "Website Basic — yearly",      url: "", recurring: "year" },
+        "web-basic-yearly":      { price: 449, label: "Website Basic — yearly", cart: WEBSITE_PLANS_LIVE, maxQuantity: 1, express: false, url: "", recurring: "year" },
         "web-premium-monthly":   { price: 79,   label: "Website Premium — monthly",   url: "", recurring: "month" },
-        "web-premium-yearly":    { price: 799,  label: "Website Premium — yearly",    url: "", recurring: "year" },
+        "web-premium-yearly":    { price: 799, label: "Website Premium — yearly", cart: WEBSITE_PLANS_LIVE, maxQuantity: 1, express: false, url: "", recurring: "year" },
         "web-exclusive-monthly": { price: 129,  label: "Website Exclusive — monthly", url: "", recurring: "month" },
-        "web-exclusive-yearly":  { price: 1299, label: "Website Exclusive — yearly",  url: "", recurring: "year" },
+        "web-exclusive-yearly":  { price: 1299, label: "Website Exclusive — yearly", cart: WEBSITE_PLANS_LIVE, maxQuantity: 1, express: false, url: "", recurring: "year" },
         "care-monthly":          { price: 25,   label: "SPNVISUALZ Care — monthly",   url: "", recurring: "month" },
         "care-yearly":           { price: 249,  label: "SPNVISUALZ Care — yearly",    url: "", recurring: "year" }
       }
