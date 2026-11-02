@@ -529,16 +529,17 @@
 }.lab-policy__hero {
   margin-bottom: clamp(64px, 9vw, 110px);
 }
-/* The CHUBAE mark above the author heading. Deliberately sized as a mark
-   and not a banner: the h1 under it runs to 138px and should stay the
-   loudest thing in the hero. The art is transparent, so it sits straight
-   on the page with nothing boxing it in. Scoped to its own class because
-   .lab-policy is shared with the privacy page. */
+/* The CHUBAE mark is the author page's title: the h1 holds the image
+   (alt="CHUBAE") instead of sitting above a second, typed name. The art is
+   trimmed to its edges and transparent, so its left edge lines up with
+   the kicker and paragraph and nothing boxes it in. Scoped to its own
+   class because .lab-policy is shared with the privacy page. */
+.lab-author-title { line-height: 0; }
 .lab-author-mark {
   display: block;
-  width: min(400px, 64%);
+  width: min(560px, 100%);
   height: auto;
-  margin: 0 0 clamp(18px, 3vw, 30px);
+  margin-top: 18px;
 }
 .lab-policy__hero h1 {
   margin: 0;
