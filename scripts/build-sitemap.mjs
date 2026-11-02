@@ -41,6 +41,7 @@ export const PAGES = [
   { path: "/work/icekiid/", changefreq: "monthly", priority: "0.8", images: ["/assets/work-icekiid.webp"] },
   { path: "/websites/", changefreq: "monthly", priority: "0.9" },
   { path: "/visual-lab/", changefreq: "weekly", priority: "0.9", images: ["/assets/brand-glowvana.jpg"] },
+  { path: "/visual-lab/articles/how-to-build-a-brand-moodboard/", changefreq: "monthly", priority: "0.8", images: ["/assets/brand-glowvana.jpg"] },
   { path: "/visual-lab/articles/event-visual-design-trends-2026/", changefreq: "monthly", priority: "0.8", images: ["/assets/spnvisualz-social.jpg"] },
   { path: "/visual-lab/articles/how-to-make-a-brand-look-expensive/", changefreq: "monthly", priority: "0.8", images: ["/assets/brand-glowvana.jpg"] },
   { path: "/visual-lab/articles/logo-design-trends-2026/", changefreq: "monthly", priority: "0.8", images: ["/assets/brand-gezana.jpg"] },
