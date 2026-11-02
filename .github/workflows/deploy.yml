@@ -151,8 +151,44 @@ jobs:
       - id: deployment
         uses: actions/deploy-pages@v4
 
+  deploy-worker:
+    # The checkout API (worker/index.js) on spnvisualz.com/api/*. Runs only
+    # after lint and tests pass, and only once the CLOUDFLARE_API_TOKEN
+    # repository secret exists (token template "Edit Cloudflare Workers",
+    # limited to this account and the spnvisualz.com zone). Stripe keys stay
+    # as Worker secrets in Cloudflare; this job never sees them.
+    needs: build
+    runs-on: ubuntu-latest
+    concurrency:
+      group: worker
+      cancel-in-progress: false
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - name: Skip when no Cloudflare token is configured
+        if: env.CLOUDFLARE_API_TOKEN == ''
+        run: echo "::notice::CLOUDFLARE_API_TOKEN is not set; the Worker was not redeployed. Deploy manually with npm run deploy:cloudflare."
+
+      - uses: actions/checkout@v4
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        with:
+          lfs: false
+
+      - uses: actions/setup-node@v4
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        with:
+          node-version: 22
+          cache: npm
+
+      - if: env.CLOUDFLARE_API_TOKEN != ''
+        run: npm ci
+
+      - name: Deploy Worker
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: npx wrangler deploy
+
   verify-production:
-    needs: deploy
+    needs: [deploy, deploy-worker]
     runs-on: ubuntu-latest
     steps:
       - name: Check the live site
@@ -186,11 +222,11 @@ jobs:
           [ "$fail" -eq 0 ] || { echo "::error::production verification failed"; exit 1; }
           echo "Production verified."
 
-      - name: Check the store API route (report only)
+      - name: Check the store API route
         # The basket posts to /api/* on the site's own domain, which only
-        # works if that path reaches the Cloudflare Worker. This reports
-        # where the domain points and what /api/* answers, without failing
-        # the deploy, so a broken checkout route shows up in every run.
+        # works if that path reaches the Cloudflare Worker (route declared
+        # in wrangler.jsonc). A bare GET must get the Worker's JSON 400;
+        # GitHub Pages would answer 404 HTML, meaning checkout is broken.
         run: |
           set -uo pipefail
           base=https://spnvisualz.com
@@ -205,5 +241,5 @@ jobs:
           code=$(curl -s -o /dev/null -w '%{http_code}' "$base/api/checkout-session")
           case "$code" in
             400|405) echo "Worker answers /api/* on $base." ;;
-            *) echo "::warning::$base/api/checkout-session returned $code; the basket cannot open Stripe Checkout until /api/* reaches the Worker." ;;
+            *) echo "::error::$base/api/checkout-session returned $code; the basket cannot open Stripe Checkout until /api/* reaches the Worker."; exit 1 ;;
           esac

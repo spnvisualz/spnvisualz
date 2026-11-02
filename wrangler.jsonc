@@ -3,6 +3,14 @@
   "name": "spnvisualz",
   "account_id": "d1e7b81209dbbc87a3d8371a8f2c6a34",
   "workers_dev": true,
+  // The static site is served by GitHub Pages through Cloudflare's proxy;
+  // only /api/* runs this Worker. Declared here so a deploy can never drop
+  // the route the basket depends on. Note that wrangler deploy replaces
+  // this Worker's routes with exactly this list.
+  "routes": [
+    { "pattern": "spnvisualz.com/api/*", "zone_name": "spnvisualz.com" },
+    { "pattern": "www.spnvisualz.com/api/*", "zone_name": "spnvisualz.com" }
+  ],
   "vars": {
     "PUBLIC_SITE_URL": "https://spnvisualz.com",
     "ENQUIRY_TO": "spnvisualz@gmail.com",
