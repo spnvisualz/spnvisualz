@@ -1,5 +1,5 @@
 .spn-cart-button{
-  position:fixed;right:max(18px,env(safe-area-inset-right));top:max(18px,env(safe-area-inset-top));z-index:9000;
+  position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:9000;
   display:flex;align-items:center;gap:10px;padding:10px 12px 10px 16px;border:1px solid rgba(255,255,255,.2);
   border-radius:999px;background:rgba(5,3,12,.82);color:#f5f2fb;font:600 11px/1 "Space Grotesk",sans-serif;
   letter-spacing:.08em;text-transform:uppercase;backdrop-filter:blur(18px);box-shadow:0 12px 40px rgba(0,0,0,.28);cursor:pointer;
@@ -30,7 +30,7 @@
 .spn-cart__checkout.is-disabled{opacity:.35;pointer-events:none}.spn-cart__secure{margin:12px 0 0;color:rgba(245,242,251,.42);font-size:10px;text-align:center}
 .spn-store-toast{position:fixed;left:50%;bottom:24px;z-index:9100;transform:translate(-50%,16px);padding:12px 16px;border:1px solid rgba(198,167,255,.42);background:#0b0719;color:#f5f2fb;font:12px "Space Grotesk",sans-serif;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;box-shadow:0 16px 50px rgba(0,0,0,.4)}
 .spn-store-toast.is-visible{opacity:1;transform:translate(-50%,0)}
-@media(max-width:640px){.spn-cart-button{top:auto;bottom:max(16px,env(safe-area-inset-bottom));}.spn-cart{width:100%}.spn-cart__shell{padding:24px 20px 30px}.spn-cart__line{grid-template-columns:minmax(0,1fr) auto}.spn-cart__line> b{grid-column:2}.spn-cart__quantity{grid-row:2;grid-column:1;justify-self:start}.spn-cart__remove{grid-row:2;grid-column:2;justify-self:end}.spn-store-toast{bottom:76px;max-width:calc(100% - 32px);white-space:nowrap}}
+@media(max-width:640px){.spn-cart-button{bottom:max(16px,env(safe-area-inset-bottom));}.spn-cart{width:100%}.spn-cart__shell{padding:24px 20px 30px}.spn-cart__line{grid-template-columns:minmax(0,1fr) auto}.spn-cart__line> b{grid-column:2}.spn-cart__quantity{grid-row:2;grid-column:1;justify-self:start}.spn-cart__remove{grid-row:2;grid-column:2;justify-self:end}.spn-store-toast{bottom:76px;max-width:calc(100% - 32px);white-space:nowrap}}
 
 
 /* The jump into the basket. The token sits one layer under the basket
@@ -77,3 +77,16 @@
   .spn-cart-token{display:none}
   .spn-cart-button.is-catching,.spn-cart-button.is-catching b{animation:none}
 }
+
+/* Docked into the homepage header (see placeBasket in spn-checkout.js).
+   Dressed as a sibling of "Start a project" rather than as the floating
+   pill: same hairline, same type, no glass or shadow. */
+.spn-cart-button.is-docked{
+  position:static;z-index:auto;
+  padding:7px 8px 7px 14px;gap:9px;
+  border:1px solid rgba(255,255,255,.14);border-radius:999px;
+  background:transparent;backdrop-filter:none;box-shadow:none;
+  font:500 12px/1 "Space Grotesk",sans-serif;letter-spacing:.04em;text-transform:none;
+}
+.spn-cart-button.is-docked b{min-width:20px;height:20px;font-size:10px}
+.spn-cart-button.is-docked:hover,.spn-cart-button.is-docked:focus-visible{border-color:#c6a7ff;background:rgba(198,167,255,.06)}

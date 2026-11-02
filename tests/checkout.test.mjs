@@ -219,3 +219,18 @@ test("every add to the basket jumps in, from wherever it was pressed", () => {
   const services = readFileSync(join(root, "src/services/services.js"), "utf8");
   assert.doesNotMatch(services, /flyPreviewIntoBasket/);
 });
+
+test("the basket never sits on top of a header control", () => {
+  // It floated top-right on every page and covered Menu on the homepage,
+  // "Start a project" on /websites/, "Create your mark" on the articles and
+  // "Contact" on About and Privacy. Floating, it now lives bottom-right;
+  // on the homepage it docks into the header beside Menu instead.
+  const css = readFileSync(join(root, "public/assets/css/store.css"), "utf8");
+  const floating = css.match(/\.spn-cart-button\{[^}]*\}/)[0];
+  assert.match(floating, /bottom:/, "the floating basket must live at the bottom of the screen");
+  assert.doesNotMatch(floating, /(^|[;{])top:/, "a floating basket at the top covers each page's header controls");
+  assert.match(css, /\.spn-cart-button\.is-docked\{[^}]*position:static/);
+
+  const checkout = readFileSync(join(root, "public/assets/js/spn-checkout.js"), "utf8");
+  assert.match(checkout, /insertBefore\(basketButton, menu\)/, "on the homepage it docks before the Menu button");
+});

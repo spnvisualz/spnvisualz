@@ -324,7 +324,7 @@
     if (!document.querySelector('link[href*="/assets/css/store.css"]')) {
       const styles = document.createElement("link");
       styles.rel = "stylesheet";
-      styles.href = "/assets/css/store.css?v=20261004.1";
+      styles.href = "/assets/css/store.css?v=20261102.1";
       document.head.append(styles);
     }
     basketButton = document.createElement("button");
@@ -380,8 +380,43 @@
       }
     });
 
-    document.body.append(basketButton, basketDialog);
+    document.body.append(basketDialog);
+    placeBasket();
+    DOCK_QUERY.addEventListener?.("change", placeBasket);
     render();
+  };
+
+  /*
+   * Where the basket lives.
+   *
+   * It used to float top-right on every page at every width, and up there
+   * it sat on top of whatever each header put in its corner: the Menu
+   * button on the homepage, "Start a project" on /websites/, "Create your
+   * mark" on the articles, "Contact" on About and Privacy. Five of six
+   * pages had a header control that could not be clicked.
+   *
+   * Two homes now, chosen so it never covers anything:
+   *
+   *   - homepage, wider than a phone: docked into the header, between
+   *     "Start a project" and "Menu". That header is fixed, so the basket
+   *     is always on screen there.
+   *   - everywhere else, and every phone: floating bottom-right. The other
+   *     headers scroll away with the page, so a basket docked in one would
+   *     vanish exactly when someone scrolls down to the prices.
+   *
+   * The add-to-basket jump measures the button wherever it currently is,
+   * so it follows without knowing about any of this.
+   */
+  const DOCK_QUERY = window.matchMedia("(min-width: 641px)");
+  const placeBasket = () => {
+    const menu = document.querySelector(".site-header .header-actions #menuToggle");
+    if (menu && DOCK_QUERY.matches) {
+      if (basketButton.nextElementSibling !== menu) menu.parentElement.insertBefore(basketButton, menu);
+      basketButton.classList.add("is-docked");
+    } else {
+      if (basketButton.parentElement !== document.body) document.body.append(basketButton);
+      basketButton.classList.remove("is-docked");
+    }
   };
 
   const urlFor = (sku) => {
