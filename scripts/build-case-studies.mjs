@@ -34,10 +34,13 @@ export const SERVICE_FOR_TAG = {
   "ARTIST VISUALS": { name: "Visuals", skus: ["visuals-social", "visuals-brand"] }
 };
 
-// The date the reel was first published on the site, from git history, so
-// VideoObject.uploadDate is a real date rather than a guess.
+// When the reel was first published on the site, from git history, so
+// VideoObject.uploadDate is a real moment rather than a guess. Google wants
+// a full ISO 8601 date-time with a timezone (a bare date is flagged as
+// invalid / missing timezone), so this uses the commit's strict ISO time,
+// e.g. 2026-10-04T14:22:31+02:00.
 export function publishedDate(project) {
-  const out = execFileSync("git", ["log", "--diff-filter=A", "--follow", "--format=%as", "--", `public${project.video}`], {
+  const out = execFileSync("git", ["log", "--diff-filter=A", "--follow", "--format=%aI", "--", `public${project.video}`], {
     cwd: ROOT,
     encoding: "utf8"
   }).trim().split("\n").filter(Boolean);

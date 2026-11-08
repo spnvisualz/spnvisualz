@@ -36,3 +36,12 @@ test("the work index links every card to its case study", () => {
   const html = readFileSync(new URL("../work/index.html", import.meta.url), "utf8");
   for (const p of PROJECTS) assert.ok(html.includes(`href="/work/${p.slug}/"`), `work/index.html does not link /work/${p.slug}/`);
 });
+
+test("VideoObject.uploadDate is a full ISO 8601 date-time with a timezone", () => {
+  for (const page of caseStudyPages()) {
+    const m = page.html.match(/"uploadDate": "([^"]*)"/);
+    assert.ok(m, `${page.slug}: no uploadDate`);
+    assert.match(m[1], /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})$/, `${page.slug}: ${m[1]}`);
+    assert.ok(!Number.isNaN(Date.parse(m[1])), `${page.slug}: unparseable ${m[1]}`);
+  }
+});
