@@ -85,3 +85,7 @@
 /* ---------- contact: letters assemble ---------- */
 .contact-inner h2 .word--chars{ display: inline-block; white-space: nowrap; }
 .contact-inner h2 .char{ display: inline-block; will-change: transform, opacity; }
+
+/* The reel's text slides in from the side (scenes.js); its starting
+   offset must not widen the page. clip, not hidden: no scroll container. */
+.chapter--work{ overflow-x: clip; }

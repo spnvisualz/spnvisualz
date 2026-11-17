@@ -10,11 +10,10 @@ import "./styles/hero.css";
 import "./styles/studio.css";
 import "./styles/kinetic.css";
 import "./styles/scenes.css";
-import "./styles/voyage.css";
 
 import { createMasterScroll, getLenis, ScrollTrigger } from "./motion/scrollTimeline.js";
 import { mountSceneDirector, bindFacetToServices } from "./three/SceneDirector.js";
-import { initHeroReel, fitWordmark } from "./hero/heroReel.js";
+import { fitWordmark } from "./hero/hero.js";
 import { splitInto } from "./motion/parallax.js";
 import { initWorkSequence } from "./work/workSequence.js";
 import { initNav } from "./nav/nav.js";
@@ -23,7 +22,6 @@ import { initReveals } from "./motion/reveal.js";
 import { initDepth, playHeroEntrance } from "./motion/parallax.js";
 import { initKinetic } from "./motion/kinetic.js";
 import { initScenes } from "./motion/scenes.js";
-import { initVoyage } from "./motion/voyage.js";
 import { initServices } from "./services/services.js";
 import { initPricing } from "./pricing/pricing.js";
 import { initOrderDialog } from "./contact/orderDialog.js";
@@ -73,11 +71,6 @@ function boot() {
   // Park it explicitly now and re-measure once the page is really free.
   if (window.__spnIntroActive) lenis?.stop();
 
-  // The voyage pins its section, and ScrollTrigger measures in creation
-  // order: everything below a pin has to be created after it to account
-  // for the scroll distance the pin adds. So it goes first.
-  initVoyage({ reduceMotion });
-
   // Work is real DOM content now, so its height comes from the content
   // itself — there is no JS-sized spacer to measure, and nothing whose
   // height changes out from under the scroll position later.
@@ -92,11 +85,10 @@ function boot() {
   const heroWord = document.querySelector(".hero .origin-word");
   if (heroWord && !reduceMotion) splitInto(heroWord, "chars");
   fitWordmark();
-  const heroReel = initHeroReel({ reduceMotion });
 
   initKinetic({ reduceMotion });
-  // One scrubbed moment per chapter: through the wordmark, the work reel,
-  // the services follow, the Lab portal, the contact assembly.
+  // One scrubbed moment per chapter: the hero's exit, the work reel, the
+  // services follow, the Lab portal, the contact assembly.
   initScenes({ reduceMotion });
   initDepth({ reduceMotion });
 
@@ -142,8 +134,6 @@ function boot() {
 
     afterWorld.splice(0).forEach((fn) => fn());
     playHeroEntrance();
-    // The film waits for the intro, so the arrival keeps the bandwidth.
-    heroReel.start();
   };
 
   if (window.__spnIntroActive) {
