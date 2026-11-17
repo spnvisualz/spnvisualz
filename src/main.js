@@ -6,7 +6,7 @@ import "./styles/work.css";
 import "./styles/services.css";
 import "./styles/pricing.css";
 import "./styles/misc.css";
-import "./styles/depth.css";
+import "./styles/studio.css";
 import "./styles/kinetic.css";
 
 import { createMasterScroll, getLenis, ScrollTrigger } from "./motion/scrollTimeline.js";
@@ -74,9 +74,7 @@ function boot() {
   // The depth layer — scroll parallax, the hero's letters, the marquee.
   // Bound here, before the scene, so its triggers are measured in the
   // same refresh as everything else.
-  // Kinetic first: it pins the Process section, and ScrollTrigger
-  // measures in creation order — anything below a pin has to be created
-  // after it to account for the space the pin adds.
+  // Cursor, masked headings, the capabilities line, counters.
   initKinetic({ reduceMotion });
   initDepth({ reduceMotion });
 

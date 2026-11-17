@@ -1,27 +1,20 @@
 import { gsap, ScrollTrigger } from "./scrollTimeline.js";
 
-// The depth layer.
+// The depth layer: motion that answers scroll position.
 //
-// Everything here is decoration on top of content that already reads
-// without it: no element is created that carries meaning, and with
-// reduced motion every effect collapses to its resting state. Each effect
-// is a plain ScrollTrigger scrub so it rides the same Lenis-driven clock
-// as the rest of the page — there is no second scroll listener to drift.
+// Deliberately restrained. Each effect is a plain ScrollTrigger scrub on
+// the same Lenis-driven clock as the rest of the page, nothing here
+// carries meaning, and with reduced motion everything stays at rest.
 //
-// Two rules keep these from fighting the existing motion:
-//
-//  1. GSAP owns `transform`. Anything else that moves the same element
-//     uses an independent CSS property (`translate`, `opacity`), so the
-//     hero's mouse drift and the staggered reveals compose with the
-//     scroll parallax instead of overwriting it.
-//  2. Nothing here is put on a .btn or other magnetic element — magnetic.js
-//     writes style.transform directly and would be clobbered.
+// GSAP owns `transform` on anything it scrubs. The hero's cursor lean and
+// the staggered arrivals use the independent `translate`/`rotate`
+// properties instead, so the two compose rather than overwrite.
 
 const isFinePointer = () => matchMedia("(hover: hover) and (pointer: fine)").matches;
 
 // Splits text into spans without losing it: the element keeps its real
-// text content, so headings still read correctly to search and assistive
-// tech. <br> survives as-is.
+// text, so headings still read correctly to search and assistive tech.
+// <br> and other elements survive as they are.
 export function splitInto(el, mode) {
   if (el.dataset.split) return;
   el.dataset.split = mode;
@@ -51,13 +44,11 @@ export function splitInto(el, mode) {
 }
 
 // data-speed: vertical drift relative to the scroll. Positive values lag
-// behind (read as further away), negative values lead (read as closer).
+// (read as further away), negative values lead (read as closer).
 function bindSpeedLayers(isNarrow) {
   document.querySelectorAll("[data-speed]").forEach((el) => {
     const speed = parseFloat(el.dataset.speed) || 0;
     if (!speed) return;
-    // Phones get the same layering at half the travel: the viewport is
-    // short, and large offsets there read as content sliding about.
     const factor = isNarrow ? 0.5 : 1;
     const range = () => window.innerHeight * 0.35 * speed * factor;
     gsap.fromTo(
@@ -78,52 +69,47 @@ function bindSpeedLayers(isNarrow) {
   });
 }
 
-// The hero leaves rather than simply scrolling away: the wordmark sinks
-// a little slower than the page and dims, so the marquee arrives over it.
+// The hero leaves rather than simply scrolling away: the lockup sinks a
+// little slower than the page and dims.
 function bindHeroExit() {
   const hero = document.querySelector('[data-chapter="origin"]');
   const mark = hero?.querySelector("[data-hero-mark]");
   if (!hero || !mark) return;
   gsap.to(mark, {
-    yPercent: 28,
-    scale: 0.94,
+    yPercent: 18,
+    scale: 0.96,
     opacity: 0,
     ease: "none",
     scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: 0.4 }
   });
-  const meta = hero.querySelector(".origin-meta");
-  if (meta) {
-    gsap.to(meta, {
+  const foot = hero.querySelector(".origin-foot");
+  if (foot) {
+    gsap.to(foot, {
       opacity: 0,
-      y: -40,
       ease: "none",
-      scrollTrigger: { trigger: hero, start: "top top", end: "40% top", scrub: 0.4 }
+      scrollTrigger: { trigger: hero, start: "top top", end: "25% top", scrub: 0.4 }
     });
   }
 }
 
-// Desktop only: the wordmark and the depth layers lean toward the cursor
-// by different amounts. Written as CSS custom properties consumed by the
-// `translate` property, so it composes with GSAP's transform above.
+// Desktop only: the orb leans toward the cursor. Written as custom
+// properties consumed by `translate`/`rotate` in studio.css.
 function bindHeroPointer() {
   const hero = document.querySelector('[data-chapter="origin"]');
   if (!hero || !isFinePointer()) return;
-  let tx = 0, ty = 0, x = 0, y = 0, raf = 0, running = false;
+  let tx = 0, ty = 0, x = 0, y = 0, running = false;
   const step = () => {
-    x += (tx - x) * 0.08;
-    y += (ty - y) * 0.08;
+    x += (tx - x) * 0.07;
+    y += (ty - y) * 0.07;
     hero.style.setProperty("--px", x.toFixed(4));
     hero.style.setProperty("--py", y.toFixed(4));
-    if (Math.abs(tx - x) > 0.0005 || Math.abs(ty - y) > 0.0005) {
-      raf = requestAnimationFrame(step);
-    } else {
-      running = false;
-    }
+    if (Math.abs(tx - x) > 0.0005 || Math.abs(ty - y) > 0.0005) requestAnimationFrame(step);
+    else running = false;
   };
   const kick = () => {
     if (running) return;
     running = true;
-    raf = requestAnimationFrame(step);
+    requestAnimationFrame(step);
   };
   hero.addEventListener("pointermove", (e) => {
     if (e.pointerType !== "mouse") return;
@@ -136,34 +122,6 @@ function bindHeroPointer() {
     ty = 0;
     kick();
   });
-  // Stops work while the hero is off screen.
-  ScrollTrigger.create({
-    trigger: hero,
-    start: "top top",
-    end: "bottom top",
-    onLeave: () => cancelAnimationFrame(raf)
-  });
-}
-
-// Oversized outline words behind section headings, drifting sideways.
-function bindGhostWords() {
-  document.querySelectorAll("[data-drift]").forEach((el) => {
-    const dir = parseFloat(el.dataset.drift) || 1;
-    gsap.fromTo(
-      el,
-      { xPercent: dir * -12 },
-      {
-        xPercent: dir * 12,
-        ease: "none",
-        scrollTrigger: {
-          trigger: el.closest("section") || el,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 0.8
-        }
-      }
-    );
-  });
 }
 
 // Manifesto: each word brightens as the line passes through the middle
@@ -172,92 +130,38 @@ function bindManifesto() {
   const line = document.querySelector("[data-split-words]");
   if (!line) return;
   splitInto(line, "words");
-  const words = line.querySelectorAll(".word");
   gsap.fromTo(
-    words,
-    { opacity: 0.16 },
+    line.querySelectorAll(".word"),
+    { opacity: 0.18 },
     {
       opacity: 1,
       ease: "none",
       stagger: 0.1,
-      scrollTrigger: { trigger: line, start: "top 82%", end: "bottom 42%", scrub: 0.5 }
+      scrollTrigger: { trigger: line, start: "top 80%", end: "bottom 45%", scrub: 0.5 }
     }
   );
 }
 
-// Selected Work: a large outline index behind each project's text, moving
-// faster than the text itself, and the media panel opening from an inset
-// as it enters. The index is decoration built here so the shipped markup
-// (generated by scripts/build-work.mjs) stays exactly as tested.
-function bindWorkDepth(isNarrow) {
+// Selected Work: each panel opens from a slight inset as it arrives.
+function bindWorkReveal(isNarrow) {
+  if (isNarrow) return;
   document.querySelectorAll(".work-item").forEach((item) => {
-    const meta = item.querySelector(".work-item__meta");
-    const num = item.querySelector(".work-item__num")?.textContent?.trim();
-    if (meta && num && !item.querySelector(".work-item__ghost")) {
-      const ghost = document.createElement("span");
-      ghost.className = "work-item__ghost";
-      ghost.setAttribute("aria-hidden", "true");
-      ghost.textContent = num;
-      item.insertBefore(ghost, item.firstChild);
-      gsap.fromTo(
-        ghost,
-        { yPercent: 40 },
-        {
-          yPercent: -60,
-          ease: "none",
-          scrollTrigger: { trigger: item, start: "top bottom", end: "bottom top", scrub: 0.6 }
-        }
-      );
-    }
-
     const media = item.querySelector(".work-item__media");
-    if (media && !isNarrow) {
-      gsap.fromTo(
-        media,
-        { clipPath: "inset(10% 8% 10% 8%)" },
-        {
-          clipPath: "inset(0% 0% 0% 0%)",
-          ease: "none",
-          scrollTrigger: { trigger: item, start: "top bottom", end: "top 45%", scrub: 0.5 }
-        }
-      );
-    }
+    if (!media) return;
+    gsap.fromTo(
+      media,
+      { clipPath: "inset(8% 6% 8% 6%)" },
+      {
+        clipPath: "inset(0% 0% 0% 0%)",
+        ease: "none",
+        scrollTrigger: { trigger: item, start: "top bottom", end: "top 45%", scrub: 0.5 }
+      }
+    );
   });
 }
 
-export function initDepth({ reduceMotion = false } = {}) {
-  // Split the hero wordmark regardless of motion preference: the letters
-  // are styled individually either way, and under reduced motion they are
-  // simply shown at rest.
-  document.querySelectorAll("[data-split-chars]").forEach((el) => splitInto(el, "chars"));
-  document.documentElement.classList.add("depth-ready");
-
-  initStagger({ reduceMotion });
-  initSpotlights();
-
-  if (reduceMotion) {
-    document.documentElement.classList.add("depth-static");
-    return;
-  }
-
-  const isNarrow = matchMedia("(max-width: 720px)").matches;
-  bindSpeedLayers(isNarrow);
-  bindHeroExit();
-  bindHeroPointer();
-  bindGhostWords();
-  bindManifesto();
-  bindWorkDepth(isNarrow);
-}
-
-// The hero's letter-by-letter entrance is held until the page is actually
-// visible — underneath the intro overlay it would play to nobody.
-export function playHeroEntrance() {
-  document.querySelector('[data-chapter="origin"]')?.classList.add("is-live");
-}
-
-// Children of [data-stagger] arrive one after another. Uses the `translate`
-// property and opacity (see the note at the top) so items that also carry
-// a data-speed drift are not fought over.
+// Children of [data-stagger] arrive one after another (translate +
+// opacity, so nothing GSAP scrubs is fought over).
 function initStagger({ reduceMotion }) {
   document.querySelectorAll("[data-stagger]").forEach((list) => {
     const items = Array.from(list.children);
@@ -278,8 +182,7 @@ function initStagger({ reduceMotion }) {
   });
 }
 
-// A soft light that follows the cursor across a card. Pure CSS variables;
-// on touch it simply stays centred and dim.
+// A soft light that follows the cursor across a card (CSS variables only).
 function initSpotlights() {
   if (!isFinePointer()) return;
   document.querySelectorAll("[data-spotlight]").forEach((el) => {
@@ -289,4 +192,24 @@ function initSpotlights() {
       el.style.setProperty("--sy", `${((e.clientY - r.top) / r.height) * 100}%`);
     });
   });
+}
+
+export function initDepth({ reduceMotion = false } = {}) {
+  document.documentElement.classList.add("depth-ready");
+  initStagger({ reduceMotion });
+  initSpotlights();
+  if (reduceMotion) return;
+
+  const isNarrow = matchMedia("(max-width: 720px)").matches;
+  bindSpeedLayers(isNarrow);
+  bindHeroExit();
+  bindHeroPointer();
+  bindManifesto();
+  bindWorkReveal(isNarrow);
+}
+
+// The hero's entrance is held until the page is actually visible —
+// underneath the intro overlay it would play to nobody.
+export function playHeroEntrance() {
+  document.querySelector('[data-chapter="origin"]')?.classList.add("is-live");
 }

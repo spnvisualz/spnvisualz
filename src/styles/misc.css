@@ -22,8 +22,8 @@
 .process-card:hover{ border-color: rgba(198,167,255,.36); }
 .process-card:hover::before{ transform: scaleX(1); }
 .process-card span{
-  display: block; font-size: clamp(34px, 3.4vw, 52px); letter-spacing: -.02em; line-height: 1;
-  color: transparent; -webkit-text-stroke: 1px rgba(198,167,255,.55);
+  display: block; font-family: var(--font-mono); font-size: 12px; letter-spacing: .14em;
+  color: var(--purple-light);
 }
 .process-card strong{ display: block; font-size: 19px; margin: var(--space-md) 0 6px; letter-spacing: -.01em; }
 .process-card p{ font-size: 13px; color: var(--muted); line-height: 1.55; margin: 0; }
