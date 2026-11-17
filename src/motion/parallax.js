@@ -92,8 +92,8 @@ function bindHeroExit() {
   }
 }
 
-// Desktop only: the orb leans toward the cursor. Written as custom
-// properties consumed by `translate`/`rotate` in studio.css.
+// Desktop only: the wordmark leans toward the cursor. Written as custom
+// properties consumed by `translate` in studio.css.
 function bindHeroPointer() {
   const hero = document.querySelector('[data-chapter="origin"]');
   if (!hero || !isFinePointer()) return;
