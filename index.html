@@ -266,12 +266,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" />
   <link rel="preload" as="image" href="/assets/images/spn-mark-112.webp" type="image/webp" />
-  <link rel="preload" as="image" href="/assets/images/hero-reel.webp" type="image/webp" media="(min-width: 721px)" />
-  <link rel="preload" as="image" href="/assets/images/hero-reel-mobile.webp" type="image/webp" media="(max-width: 720px)" />
   <link rel="preload" as="image" href="/assets/images/spn-orb-arrival.webp" type="image/webp" fetchpriority="high" />
-  <link rel="preload" as="image" href="/assets/images/spn-planet-n.webp" type="image/webp" />
-  <link rel="preload" as="image" href="/assets/images/spn-planet-h.webp" type="image/webp" />
-  <link rel="preload" as="image" href="/assets/images/spn-planet-t.webp" type="image/webp" />
 
   <!-- ============ ARRIVAL — the intro overlay ============
        Inline on purpose. Every other stylesheet on this page is imported
@@ -293,8 +288,6 @@
        cut into the site reads as arriving rather than as a curtain. */
     #spnIntro.is-leaving{ opacity: 0; transform: scale(1.12); pointer-events: none; }
     #spnIntroCanvas{ position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
-    /* Base image styles must never expose these canvas-only sources. */
-    #spnIntro [data-planet-letter]{ display: none !important; }
 
     /* The planet art doubles as the canvas source and as the still frame
        shown when the flight cannot run. Kept at zero opacity rather than
@@ -395,7 +388,7 @@
 <body class="page-main is-loading">
 
   <!-- ============ ARRIVAL ============
-       Flight through the galaxy, decelerating in front of SPN-1. Driven
+       A hyperspace jump that drops out in front of SPN-1, the S planet. Driven
        by /assets/js/intro.js on a 2D canvas; the markup below is the
        resting state it animates out of, and the state it falls back to
        when the flight cannot run (reduced motion, no canvas context).
@@ -403,9 +396,6 @@
   <div class="spn-intro" id="spnIntro" role="presentation">
     <canvas id="spnIntroCanvas" aria-hidden="true"></canvas>
     <img class="spn-intro__poster" src="/assets/images/spn-orb-arrival.webp" alt="" aria-hidden="true" fetchpriority="high" decoding="async" />
-    <img hidden data-planet-letter="N" src="/assets/images/spn-planet-n.webp" alt="" aria-hidden="true" decoding="async" />
-    <img hidden data-planet-letter="H" src="/assets/images/spn-planet-h.webp" alt="" aria-hidden="true" decoding="async" />
-    <img hidden data-planet-letter="T" src="/assets/images/spn-planet-t.webp" alt="" aria-hidden="true" decoding="async" />
     <div class="spn-intro__ui">
       <p class="spn-intro__word">SPN<span>VISUALZ</span></p>
       <p class="spn-intro__tag">Visuals that connect</p>
@@ -479,30 +469,18 @@
 
     <!-- ============ ORIGIN ============ -->
     <section class="chapter chapter--origin hero" id="top" data-chapter="origin">
-      <!-- The showreel: six projects cut together (assets/videos/hero-reel*.mp4).
-           Painted as a still by CSS first; heroReel.js starts the film once
-           the intro has finished, and never on save-data or reduced motion. -->
-      <div class="hero-reel" aria-hidden="true">
-        <video class="hero-reel__video" muted loop playsinline preload="none" tabindex="-1"
-          data-src="/assets/videos/hero-reel.mp4" data-src-mobile="/assets/videos/hero-reel-mobile.mp4"></video>
-        <span class="hero-reel__shade"></span>
-      </div>
+      <!-- The 3D piece behind this frame is drawn by the site's WebGL layer
+           (src/three/scenes/Orbital.js) on the fixed canvas underneath, so
+           the section itself is transparent. Devices without WebGL get a
+           still render of the same piece (html.no-webgl, hero.css). -->
       <div class="hero-grid" data-hero-mark>
         <div class="hero-top">
           <p class="hero-statement">A motion &amp; identity studio from Oslo. <span>We make names move &mdash; logos, reveals and visual worlds for artists, brands and events.</span></p>
-          <a class="hero-now" href="/work/icekiid/" data-hero-now>
-            <span class="hero-now__label mono">Now playing</span>
-            <span class="hero-now__row">
-              <span class="hero-now__num"><b>01</b></span>
-              <span class="hero-now__total mono">/ 06</span>
-            </span>
-            <span class="hero-now__title"><b>Icekiid</b></span>
-            <span class="hero-now__bar" aria-hidden="true"><i></i></span>
-          </a>
+          <p class="hero-meta mono"><span>Oslo, Norway</span><span>Worldwide</span></p>
         </div>
         <h1 class="origin-word" data-fit>SPNVISUALZ</h1>
         <div class="hero-bottom">
-          <p class="origin-eyebrow mono">Visuals that connect &mdash; Oslo / worldwide</p>
+          <p class="origin-eyebrow mono">Visuals that connect</p>
           <div class="origin-scroll">
             <span>Scroll</span>
             <b aria-hidden="true"></b>
@@ -520,24 +498,11 @@
       </div>
     </div>
 
-    <!-- ============ VOYAGE — the studio statement, flown through the work ============
-         Pinned while the scroll carries the camera through the projects,
-         set at depth in 3D space around the statement (src/motion/voyage.js).
-         Without JS, or with reduced motion, it is simply the statement. -->
-    <section class="chapter chapter--voyage" data-chapter="manifesto" aria-labelledby="voyageStatement">
-      <div class="voyage-space" aria-hidden="true"><div class="voyage-track"></div></div>
-      <div class="voyage-copy">
-        <p class="section-label"><span class="section-index">01</span>The studio</p>
-        <p class="manifesto-line" id="voyageStatement" data-split-words>Oslo-based. Motion-first. Built for artists, brands and events that want to be remembered.</p>
-        <p class="voyage-count mono" aria-hidden="true"><b data-voyage-count>00</b> / 10 worlds</p>
-      </div>
-    </section>
-
     <!-- ============ SELECTED WORK ============ -->
     <section class="chapter chapter--work" id="work" data-chapter="work">
       <header class="work-head reveal">
         <div>
-          <p class="section-label"><span class="section-index">02</span>Selected work</p>
+          <p class="section-label"><span class="section-index">01</span>Selected work</p>
           <h2>Motion that carries a name.</h2>
         </div>
         <p class="work-head__count"><b id="workCurrent">01</b> / <span id="workTotal">10</span></p>
@@ -669,7 +634,7 @@
     <!-- ============ SERVICES ============ -->
     <section class="chapter chapter--services section-pad" id="services" data-chapter="services">
       <header class="section-head reveal">
-        <p class="section-label"><span class="section-index">03</span>What we create</p>
+        <p class="section-label"><span class="section-index">02</span>What we create</p>
         <h2>Services</h2>
       </header>
       <ol class="service-list" data-stagger>
@@ -727,7 +692,7 @@
     <!-- ============ PRICING ============ -->
     <section class="chapter chapter--pricing section-pad" id="pricing" data-chapter="pricing">
       <header class="section-head reveal">
-        <p class="section-label"><span class="section-index">04</span>Clear packages</p>
+        <p class="section-label"><span class="section-index">03</span>Clear packages</p>
         <h2>Pricing</h2>
         <p class="offer-note">Clear project pricing. Express delivery is available for +40%.</p>
       </header>
@@ -799,7 +764,7 @@
 
     <!-- ============ PROCESS ============ -->
     <section class="chapter chapter--process section-pad" id="process" data-chapter="process">
-      <header class="section-head reveal"><p class="section-label"><span class="section-index">05</span>Simple process</p><h2>How it works</h2></header>
+      <header class="section-head reveal"><p class="section-label"><span class="section-index">04</span>Simple process</p><h2>How it works</h2></header>
       <ol class="process-line" data-stagger data-process-line>
         <li class="process-card" data-spotlight><span class="mono">01</span><strong>Choose</strong><p>Select a service or ask for a custom project.</p></li>
         <li class="process-card" data-spotlight><span class="mono">02</span><strong>Send your idea</strong><p>Share the name, references and feeling you want.</p></li>
@@ -824,7 +789,7 @@
     <!-- ============ CONTACT ============ -->
     <section class="chapter chapter--contact section-pad" id="contact" data-chapter="contact">
       <div class="contact-inner">
-        <p class="section-label reveal"><span class="section-index">06</span>Contact</p>
+        <p class="section-label reveal"><span class="section-index">05</span>Contact</p>
         <h2 class="reveal">Start a project</h2>
         <p class="contact-lead reveal">Tell us what you need. We&rsquo;ll help shape the right visual direction.</p>
         <div class="contact-actions reveal">

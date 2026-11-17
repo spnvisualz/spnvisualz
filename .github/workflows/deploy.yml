@@ -89,7 +89,7 @@ jobs:
           # the document — which belongs to a pricing card — and silently
           # deleted the whole Services and Pricing sections. Nothing caught
           # it until it was live.
-          for chapter in origin manifesto work services pricing process lab contact; do
+          for chapter in origin work services pricing process lab contact; do
             grep -q "data-chapter=\"$chapter\"" dist/index.html || fail "homepage section missing: $chapter"
           done
 

@@ -4,7 +4,7 @@ import { splitInto } from "./parallax.js";
 // Scroll scenes — one signature moment per chapter, all scrubbed to the
 // scroll so the visitor drives them, forwards and backwards:
 //
-//   hero      the camera passes *through* the wordmark into the work
+//   hero      the frame comes apart and the name rises out ahead
 //   work      each reel grows from a dim card into the frame, then
 //             recedes; a "now showing" readout rolls with it
 //   services  the active row follows the scroll and recolours the
@@ -35,27 +35,19 @@ function seeded(seed) {
 function heroPassThrough() {
   const hero = document.querySelector(".hero");
   if (!hero) return;
-  const reel = hero.querySelector(".hero-reel");
-  const video = hero.querySelector(".hero-reel__video");
   const word = hero.querySelector(".origin-word");
   const top = hero.querySelector(".hero-top");
   const bottom = hero.querySelector(".hero-bottom");
 
-  // As the page moves on, the film recedes into a framed card that lags
-  // behind the scroll, while the name rushes up and out ahead of it.
+  // The frame comes apart as the page moves on: the statement lifts away
+  // first, the rule goes, and the name rises and thins out ahead of the
+  // scroll. The 3D piece behind leaves on its own track (SceneDirector).
   const tl = gsap.timeline({
-    scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: 0.5, invalidateOnRefresh: true }
+    scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: 0.5 }
   });
-  tl.fromTo(
-    reel,
-    { clipPath: "inset(0% 0% 0% 0% round 0px)" },
-    { clipPath: "inset(9% 6% 9% 6% round 22px)", y: () => hero.offsetHeight * 0.38, duration: 1, ease: "none" },
-    0
-  )
-    .to(video, { scale: 1.16, duration: 1, ease: "none" }, 0)
-    .to(top, { y: -70, opacity: 0, duration: 0.4, ease: "power1.in" }, 0)
+  tl.to(top, { y: -80, opacity: 0, duration: 0.4, ease: "power1.in" }, 0)
     .to(bottom, { opacity: 0, duration: 0.2, ease: "none" }, 0)
-    .to(word, { yPercent: -55, opacity: 0, duration: 0.65, ease: "power1.in" }, 0.04);
+    .to(word, { yPercent: -70, opacity: 0, duration: 0.7, ease: "power1.in" }, 0.04);
 }
 
 /* ---------------------------------------------------------- work */

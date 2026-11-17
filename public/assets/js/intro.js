@@ -4,8 +4,10 @@
   /*
    * SPNVISUALZ — the arrival.
    *
-   * A flight through the galaxy that decelerates in front of the SPN-1
-   * planet. This is the first thing a visitor sees, so it is deliberately
+   * A hyperspace jump. The stars hang still for a beat, stretch into
+   * streaks, and the frame is thrown down a blue-violet tunnel; then a
+   * flash, the streaks snap back to points, and SPN-1 — the S planet — is
+   * right there in front of you. This is the first thing a visitor sees, so it is deliberately
    * NOT built on the site's Three.js layer: that is a ~131 kB gzipped
    * chunk, and a loading screen that waits for a 131 kB download before
    * it can paint is not a loading screen. Canvas 2D starts on the frame
@@ -22,39 +24,35 @@
   // Version the key whenever the arrival is materially rebuilt so an
   // existing visitor sees the new cut once without being trapped into
   // replaying it on every page view.
-  const SEEN_KEY = "spn_intro_seen_v3";
+  const SEEN_KEY = "spn_intro_seen_v4";
 
-  // Every timing in one place, in ms from the first frame. The whole
-  // sequence is ~4.4s of content plus a 620ms exit — long enough to read
-  // as cinema, short enough that nobody waits on it twice (it runs once
-  // per tab session).
+  // Every timing in one place, in ms from the first frame: a beat of
+  // stillness, the jump, the tunnel, the drop out, then the planet at rest.
+  // ~4.2s of content plus a 620ms exit, once per tab session.
   const T = {
-    warpIn:    850,   // accelerating out of rest into the warp
-    warpHold:  1450,  // holding full speed
-    slowTo:    2950,  // braked down to a drift
-    planetIn:  2050,  // SPN-1 starts emerging from the far distance
-    planetSet: 3300,  // ...and reaches its resting size
-    wordIn:    3100,
-    enterIn:   3500,
+    still:     650,   // stars at rest, light gathering at the centre
+    jump:      1150,  // ...stretching into streaks, full speed by here
+    dropOut:   2350,  // the flash: out of hyperspace
+    settle:    3500,  // the planet has finished settling
+    wordIn:    2950,
+    enterIn:   3350,
     autoExit:  4200,
     fade:      620
   };
 
-  const DEPTH = 1500;   // z at which objects respawn / fade in from
-  const FOCAL = 520;    // projection focal length, in px at z=1
-  const WARP_SPEED = 1750;  // z-units per second at full warp
-  const DRIFT = 26;         // z-units per second once parked
-  const SPREAD = 1350;      // how far off-axis stars are scattered
-  // A streak is "where this star was TRAIL seconds ago", not "where it was
-  // last frame". Derived from the previous frame the length is a function
-  // of frame rate, so the same warp drew half-length streaks at 120Hz as
-  // it did at 60Hz. In seconds it is identical on every display.
-  const TRAIL = 0.055;
+  const DEPTH = 1600;       // z at which stars respawn
+  const FOCAL = 520;        // projection focal length, in px at z=1
+  const HYPER = 5400;       // z-units per second in hyperspace
+  const DRIFT = 22;         // z-units per second at rest
+  const SPREAD = 1300;      // how far off-axis stars are scattered
+  const HOLE = 70;          // nothing on the axis itself: the tunnel's eye
+  // A streak is "where this star was TRAIL seconds ago", so its length is
+  // the same at 60Hz and 120Hz. Longer in hyperspace, by design.
+  const TRAIL = 0.085;
 
   const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
   const easeIn = (t) => t * t * t;
   const easeOut = (t) => 1 - Math.pow(1 - t, 3);
-  const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
   const root = document.documentElement;
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -117,11 +115,10 @@
   let height = 0;
   let cx = 0;
   let cy = 0;
-  // Assigned further down, but declared here because finish() closes over
-  // it and can run from the reduced-motion path, which returns before the
-  // assignment is reached.
+  // Declared here because finish() closes over it and can run from the
+  // reduced-motion path, which returns before it is assigned.
   let onResize = null;
-  let scale = 1;   // shortest-edge scale, so the flight frames the same on any screen
+  let scale = 1;   // shortest-edge scale, so the jump frames the same on any screen
 
   // ---------------------------------------------------------------- exit
   function finish() {
@@ -136,10 +133,8 @@
     // The site is already mounted underneath; this only uncovers it.
     window.dispatchEvent(new CustomEvent("spn:intro-done"));
 
-    // Keep drawing through the fade. Tearing the scene down here instead
-    // would blank the planet's canvas on the first frame of the exit, so
-    // the thing the whole flight was travelling towards would pop out of
-    // existence just as the overlay starts to dissolve.
+    // Keep drawing through the fade, so the planet does not blink out
+    // just as the overlay starts to dissolve.
     setTimeout(() => {
       cancelAnimationFrame(raf);
       if (onResize) window.removeEventListener("resize", onResize);
@@ -178,157 +173,141 @@
     scale = Math.min(width, height) / 900;
   }
   resize();
-  // Named, because finish() removes it by reference. Registering an
-  // anonymous wrapper here left the listener attached for the life of the
-  // page, still resizing a canvas that had been torn down.
+  // Named, because finish() removes it by reference.
   onResize = () => {
     resize();
   };
   window.addEventListener("resize", onResize);
 
-  // Star count follows the device rather than the design: a mid-range
-  // phone should not be asked to draw 500 streaks a frame just because a
-  // desktop can.
+  // Star count follows the device: a mid-range phone should not be asked
+  // to draw 600 streaks a frame because a desktop can.
   const cores = navigator.hardwareConcurrency || 4;
   const area = window.innerWidth * window.innerHeight;
   const STARS = Math.round(
-    Math.min(760, Math.max(220, (area / 1750) * (cores <= 4 ? 0.6 : 1)))
+    Math.min(680, Math.max(240, (area / 1900) * (cores <= 4 ? 0.65 : 1)))
   );
 
   const rand = (a, b) => a + Math.random() * (b - a);
+  const place = (s) => {
+    // uniform over a disc with a hole in the middle
+    const a = Math.random() * Math.PI * 2;
+    const r = HOLE + Math.sqrt(Math.random()) * SPREAD;
+    s.x = Math.cos(a) * r;
+    s.y = Math.sin(a) * r;
+  };
 
   const stars = [];
   for (let i = 0; i < STARS; i++) {
-    stars.push({
-      x: rand(-SPREAD, SPREAD),
-      y: rand(-SPREAD, SPREAD),
-      z: rand(1, DEPTH),
-      pz: 0,
-      warm: Math.random() < 0.18   // a few gold stars break up the violet
-    });
+    const s = { x: 0, y: 0, z: rand(1, DEPTH), tint: Math.random() };
+    place(s);
+    stars.push(s);
   }
 
-  // Nebula: a handful of very large, very soft blobs travelling in the
-  // same z-space as the stars, so the galaxy has depth instead of being a
-  // flat backdrop that slides.
-  const clouds = [];
-  const CLOUDS = cores <= 4 ? 5 : 9;
-  for (let i = 0; i < CLOUDS; i++) {
-    clouds.push({
-      x: rand(-1500, 1500),
-      y: rand(-1500, 1500),
-      z: rand(120, DEPTH),
-      r: rand(420, 1000),
-      hue: Math.random() < 0.5 ? "138,77,255" : "90,120,255",
-      a: rand(0.022, 0.055)
-    });
-  }
-
-  // The worlds passed on the way. Pushed well off the flight path so they
-  // sweep past the edges of frame rather than through the middle, which
-  // is what sells "we are moving" instead of "things are scaling up".
-  // Ordered by depth, so the nearest is the one you pass first. Each
-  // carries a single letter, the way SPN-1 carries its mark — they are
-  // the studio's other worlds, not set dressing.
-  // Each companion is a bespoke rendered asset. The monograms, rock and
-  // lighting are one surface, so no browser font or separate letter layer
-  // can drift away from the planet during the fly-by.
-  const planets = [
-    { x: -430, y: -215, z: 1120, r: 110, letter: "N", spin: -0.08, bodyFraction: 0.80 },
-    { x:  520, y:  260, z: 1540, r: 134, letter: "H", spin:  0.06, bodyFraction: 0.74 },
-    { x: -330, y:  340, z: 1960, r: 118, letter: "T", spin: -0.06, bodyFraction: 0.80 }
-  ];
-  planets.forEach((p) => {
-    p.image = overlay.querySelector(`[data-planet-letter="${p.letter}"]`);
-  });
-
+  // Speed over time: still, then an accelerating lurch into hyperspace,
+  // held, then cut to a drift at the drop out.
   function speedAt(t) {
-    if (t < T.warpIn) return DRIFT + easeIn(t / T.warpIn) * (WARP_SPEED - DRIFT);
-    if (t < T.warpHold) return WARP_SPEED;
-    if (t < T.slowTo) {
-      const k = easeOut((t - T.warpHold) / (T.slowTo - T.warpHold));
-      return DRIFT + (WARP_SPEED - DRIFT) * (1 - k);
+    if (t < T.still) return DRIFT;
+    if (t < T.jump) {
+      const k = (t - T.still) / (T.jump - T.still);
+      return DRIFT + Math.pow(k, 2.6) * (HYPER - DRIFT);
     }
-    return DRIFT;
+    if (t < T.dropOut) return HYPER;
+    const k = clamp01((t - T.dropOut) / 260);
+    return HYPER + (DRIFT - HYPER) * easeOut(k);
+  }
+  // 0 at rest, 1 in hyperspace: drives colour, the tunnel and the shake.
+  function hyperAt(t) {
+    if (t < T.still) return 0;
+    if (t < T.jump) return easeIn((t - T.still) / (T.jump - T.still));
+    if (t < T.dropOut) return 1;
+    return 1 - clamp01((t - T.dropOut) / 200);
   }
 
   // ------------------------------------------------------------- drawing
-  function drawGalaxyBand(t) {
-    // A tilted band of light across the field — the Milky Way read. It
-    // rolls very slightly through the flight so the horizon is never
-    // quite level, which keeps the frame from feeling locked off.
-    const roll = -0.42 + Math.sin(t / 4200) * 0.05;
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(roll);
-    const span = Math.max(width, height) * 1.5;
-    const g = ctx.createLinearGradient(0, -span * 0.30, 0, span * 0.30);
-    g.addColorStop(0.00, "rgba(8,6,20,0)");
-    g.addColorStop(0.40, "rgba(46,32,96,0.055)");
-    g.addColorStop(0.48, "rgba(120,96,200,0.115)");
-    g.addColorStop(0.52, "rgba(138,116,214,0.10)");
-    g.addColorStop(0.60, "rgba(44,36,104,0.05)");
-    g.addColorStop(1.00, "rgba(8,6,20,0)");
+  function drawGather(t) {
+    // The light gathering at the centre before the jump.
+    const k = t < T.dropOut ? clamp01(t / T.jump) : 0;
+    if (k <= 0) return;
+    const r = Math.max(width, height) * (0.12 + k * 0.25);
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    g.addColorStop(0, `rgba(200,190,255,${(0.16 * k).toFixed(3)})`);
+    g.addColorStop(0.4, `rgba(120,90,255,${(0.07 * k).toFixed(3)})`);
+    g.addColorStop(1, "rgba(60,40,160,0)");
     ctx.fillStyle = g;
-    ctx.fillRect(-span, -span * 0.30, span * 2, span * 0.60);
-    ctx.restore();
+    ctx.fillRect(0, 0, width, height);
   }
 
-  function drawClouds(dt, speed) {
+  function drawTunnel(t, hyper) {
+    // Hyperspace itself: a bright eye down the axis and slow-turning
+    // bands of blue and violet on the tunnel walls.
+    if (hyper <= 0.01) return;
+    const R = Math.hypot(width, height) * 0.6;
+    const eye = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+    eye.addColorStop(0, `rgba(235,240,255,${(0.55 * hyper).toFixed(3)})`);
+    eye.addColorStop(0.08, `rgba(150,170,255,${(0.28 * hyper).toFixed(3)})`);
+    eye.addColorStop(0.35, `rgba(90,70,220,${(0.12 * hyper).toFixed(3)})`);
+    eye.addColorStop(1, "rgba(20,12,60,0)");
+    ctx.fillStyle = eye;
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(t * 0.00035);
     ctx.globalCompositeOperation = "lighter";
-    for (const c of clouds) {
-      c.z -= speed * dt * 0.55;
-      if (c.z < 60) {
-        c.z = DEPTH + rand(0, 400);
-        c.x = rand(-1500, 1500);
-        c.y = rand(-1500, 1500);
-      }
-      const k = FOCAL / c.z;
-      const x = cx + c.x * k * scale;
-      const y = cy + c.y * k * scale;
-      const r = c.r * k * scale;
-      if (r < 6 || x < -r * 2 || x > width + r * 2 || y < -r * 2 || y > height + r * 2) continue;
-      const near = clamp01(1 - c.z / DEPTH);
-      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-      g.addColorStop(0, `rgba(${c.hue},${(c.a * near).toFixed(3)})`);
-      g.addColorStop(1, `rgba(${c.hue},0)`);
+    const bands = 30;
+    for (let i = 0; i < bands; i++) {
+      const a0 = (i / bands) * Math.PI * 2;
+      const flicker = 0.5 + 0.5 * Math.sin(t * 0.011 + i * 2.3);
+      const g = ctx.createRadialGradient(0, 0, R * 0.05, 0, 0, R);
+      const hue = i % 3 === 0 ? "160,130,255" : "120,150,255";
+      g.addColorStop(0, `rgba(${hue},0)`);
+      g.addColorStop(0.5, `rgba(${hue},${(0.03 * hyper * flicker).toFixed(3)})`);
+      g.addColorStop(1, `rgba(${hue},0)`);
       ctx.fillStyle = g;
       ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, R, a0, a0 + 0.05);
+      ctx.closePath();
       ctx.fill();
     }
+    ctx.restore();
     ctx.globalCompositeOperation = "source-over";
   }
 
-  function drawStars(dt, speed) {
+  function drawStars(dt, speed, hyper) {
     ctx.lineCap = "round";
+    ctx.globalCompositeOperation = "lighter";
+    const trail = TRAIL * (0.35 + hyper * 0.65);
     for (const s of stars) {
       s.z -= speed * dt;
       if (s.z < 1) {
         s.z = DEPTH;
-        s.x = rand(-SPREAD, SPREAD);
-        s.y = rand(-SPREAD, SPREAD);
+        place(s);
       }
-      s.pz = s.z + speed * TRAIL;
       const k = FOCAL / s.z;
       const x = cx + s.x * k * scale;
       const y = cy + s.y * k * scale;
-      if (x < -60 || x > width + 60 || y < -60 || y > height + 60) continue;
+      if (x < -80 || x > width + 80 || y < -80 || y > height + 80) continue;
 
       const near = clamp01(1 - s.z / DEPTH);
-      const pk = FOCAL / s.pz;
+      const pz = s.z + speed * trail;
+      const pk = FOCAL / pz;
       const px = cx + s.x * pk * scale;
       const py = cy + s.y * pk * scale;
 
-      const alpha = 0.18 + near * 0.82;
-      const w = (0.4 + near * 1.7) * scale;
-      const trail = Math.hypot(x - px, y - py);
+      // starlight at rest; white-hot with a blue or violet edge in the jump
+      const rgb = s.tint < 0.12 && hyper < 0.3
+        ? "232,194,122"
+        : s.tint < 0.55 ? "214,222,255" : "206,186,255";
+      const alpha = 0.34 + near * 0.66;
+      const w = Math.max(0.8, (0.7 + near * (1.6 + hyper * 0.8)) * scale);
+      const len = Math.hypot(x - px, y - py);
 
-      if (trail > 1.2) {
+      if (len > 1.4) {
         const g = ctx.createLinearGradient(px, py, x, y);
-        const tint = s.warm ? "232,194,122" : "226,218,255";
-        g.addColorStop(0, `rgba(${tint},0)`);
-        g.addColorStop(1, `rgba(${tint},${alpha.toFixed(3)})`);
+        g.addColorStop(0, `rgba(${rgb},0)`);
+        g.addColorStop(0.7, `rgba(${rgb},${(alpha * 0.7).toFixed(3)})`);
+        g.addColorStop(1, `rgba(255,255,255,${alpha.toFixed(3)})`);
         ctx.strokeStyle = g;
         ctx.lineWidth = w;
         ctx.beginPath();
@@ -336,90 +315,53 @@
         ctx.lineTo(x, y);
         ctx.stroke();
       } else {
-        ctx.fillStyle = s.warm
-          ? `rgba(232,194,122,${alpha.toFixed(3)})`
-          : `rgba(230,224,255,${alpha.toFixed(3)})`;
+        ctx.fillStyle = `rgba(${rgb},${alpha.toFixed(3)})`;
         ctx.beginPath();
         ctx.arc(x, y, w * 0.62, 0, Math.PI * 2);
         ctx.fill();
       }
     }
-  }
-
-  // Stars respawn at DEPTH; the worlds need to be visible from further
-  // back than that or the last one never resolves before it is passed.
-  const PLANET_DEPTH = 2300;
-
-  function drawPassingPlanets(dt, speed, t) {
-    // Faded out across the same window SPN-1 grows in: by the time the
-    // destination is at rest, everything passed on the way is gone.
-    const receding = 1 - clamp01((t - T.planetIn) / (T.planetSet - T.planetIn));
-    if (receding <= 0) return;
-    for (const p of planets) {
-      p.z -= speed * dt * 0.85;
-      if (p.z < 40) continue;
-      const k = FOCAL / p.z;
-      const x = cx + p.x * k * scale;
-      const y = cy + p.y * k * scale;
-      const r = p.r * k * scale;
-      if (r < 2) continue;
-      if (x < -r * 1.6 || x > width + r * 1.6 || y < -r * 1.6 || y > height + r * 1.6) continue;
-
-      // Missing art never blocks arrival; slow networks simply omit a
-      // distant companion until its preloaded image has decoded.
-      if (!p.image?.complete || !p.image.naturalWidth) continue;
-      const near = clamp01(1 - p.z / PLANET_DEPTH);
-      const artSize = (r * 2) / p.bodyFraction;
-      ctx.save();
-      ctx.globalAlpha = clamp01(near * 1.9) * receding;
-      ctx.translate(x, y);
-      ctx.rotate(p.spin + t * 0.000012);
-
-      // Opaque planet silhouettes hide the stars behind their rocky body.
-      // Screen compositing removes only the asset's black outer backdrop;
-      // the H ring is already rendered with correct front/back occlusion.
-      ctx.fillStyle = "#010104";
-      ctx.beginPath();
-      ctx.arc(0, -artSize * 0.012, r * 0.975, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalCompositeOperation = "screen";
-      ctx.drawImage(p.image, -artSize / 2, -artSize / 2, artSize, artSize);
-      ctx.restore();
-    }
+    ctx.globalCompositeOperation = "source-over";
   }
 
   function drawHomePlanet(t) {
-    if (t < T.planetIn) return;
-
-    const k = easeInOut(clamp01((t - T.planetIn) / (T.planetSet - T.planetIn)));
+    if (t < T.dropOut) return;
+    // Out of hyperspace and already close: the planet fills in through the
+    // flash and settles back the last few percent, so the arrival lands.
+    const k = easeOut(clamp01((t - T.dropOut) / (T.settle - T.dropOut)));
+    const appear = clamp01((t - T.dropOut) / 260);
     const rest = Math.min(width * 0.72, height * 0.52);  // matches .spn-intro__poster
-    const size = rest * (0.035 + 0.965 * k);
-    const drift = Math.sin(t / 1500) * 5 * k;   // never fully still
+    const size = rest * (1.16 - 0.16 * k);
+    const drift = Math.sin(t / 1500) * 4 * k;
     const x = cx;
     const y = cy - height * 0.015 + drift;
 
-    // The atmosphere is painted here either way: this canvas sits behind
-    // the WebGL layer, so the glow reads as coming from behind the planet
-    // whichever one is drawing it.
-    const glow = ctx.createRadialGradient(x, y, size * 0.30, x, y, size * 0.92);
-    glow.addColorStop(0, `rgba(138,77,255,${(0.13 * k).toFixed(3)})`);
-    glow.addColorStop(0.55, `rgba(110,70,220,${(0.055 * k).toFixed(3)})`);
+    const glow = ctx.createRadialGradient(x, y, size * 0.28, x, y, size * 0.95);
+    glow.addColorStop(0, `rgba(138,77,255,${(0.16 * appear).toFixed(3)})`);
+    glow.addColorStop(0.55, `rgba(110,70,220,${(0.06 * appear).toFixed(3)})`);
     glow.addColorStop(1, "rgba(110,70,220,0)");
     ctx.fillStyle = glow;
     ctx.beginPath();
-    ctx.arc(x, y, size * 0.92, 0, Math.PI * 2);
+    ctx.arc(x, y, size * 0.95, 0, Math.PI * 2);
     ctx.fill();
 
     if (!poster || !poster.complete || !poster.naturalWidth) return;
-
     const ar = poster.naturalHeight / poster.naturalWidth;
-    const w = size;
-    const h = size * ar;
-    ctx.globalAlpha = clamp01(k * 1.25);
+    ctx.globalAlpha = appear;
     ctx.globalCompositeOperation = "screen";
-    ctx.drawImage(poster, x - w / 2, y - h / 2, w, h);
+    ctx.drawImage(poster, x - size / 2, y - (size * ar) / 2, size, size * ar);
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1;
+  }
+
+  function drawFlash(t) {
+    // The drop out: a white-violet flash that clears in half a second.
+    if (t < T.dropOut - 60) return;
+    const k = clamp01((t - (T.dropOut - 60)) / 520);
+    const a = k < 0.12 ? k / 0.12 : 1 - easeOut((k - 0.12) / 0.88);
+    if (a <= 0.003) return;
+    ctx.fillStyle = `rgba(236,230,255,${(a * 0.8).toFixed(3)})`;
+    ctx.fillRect(0, 0, width, height);
   }
 
   // ---------------------------------------------------------------- loop
@@ -431,21 +373,30 @@
     last = now;
 
     const speed = speedAt(t);
+    const hyper = hyperAt(t);
 
-    // Deep space, repainted every frame — no trail buffer, because a
-    // fading-canvas trail smears the planet at the end.
-    const ground = ctx.createRadialGradient(cx, cy * 0.92, 0, cx, cy, Math.max(width, height) * 0.78);
-    ground.addColorStop(0, "#0c0722");
-    ground.addColorStop(0.55, "#070418");
-    ground.addColorStop(1, "#03020a");
+    // a shudder through the jump, gone once in the tunnel
+    const shake = t > T.still && t < T.jump + 250
+      ? Math.sin(((t - T.still) / (T.jump + 250 - T.still)) * Math.PI) * 3.2 * scale
+      : 0;
+
+    ctx.save();
+    ctx.translate(rand(-shake, shake), rand(-shake, shake));
+
+    // deep space, repainted every frame
+    const ground = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(width, height) * 0.8);
+    ground.addColorStop(0, "#0b0720");
+    ground.addColorStop(0.6, "#060416");
+    ground.addColorStop(1, "#020109");
     ctx.fillStyle = ground;
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(-10, -10, width + 20, height + 20);
 
-    drawGalaxyBand(t);
-    drawClouds(dt, speed);
-    drawStars(dt, speed);
-    drawPassingPlanets(dt, speed, t);
+    drawGather(t);
+    drawTunnel(t, hyper);
+    drawStars(dt, speed, hyper);
     drawHomePlanet(t);
+    drawFlash(t);
+    ctx.restore();
 
     if (t >= T.wordIn) overlay.classList.add("is-arrived");
     if (t >= T.enterIn) overlay.classList.add("is-ready");
@@ -453,8 +404,8 @@
   }
 
   // Kick off once the planet art is decoded, so it is never missing at
-  // the moment the flight arrives. It is preloaded in the document head,
-  // so in practice this has already resolved.
+  // the moment of arrival. It is preloaded in the document head, so in
+  // practice this has already resolved.
   let begun = false;
   const begin = () => {
     if (begun || done) return;
