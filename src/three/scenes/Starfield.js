@@ -77,7 +77,7 @@ const streakVertex = /* glsl */ `
     p.z -= aEnd * uWarp * (5.0 + aSeed * 12.0);
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mv;
-    vAlpha = fade(-mv.z) * abs(uWarp) * (1.0 - aEnd) * 0.75 * uOpacity;
+    vAlpha = fade(-mv.z) * abs(uWarp) * (1.0 - aEnd) * 0.6 * uOpacity;
     vColor = aColor;
   }
 `;
@@ -192,7 +192,10 @@ export class Starfield {
   // travel: how far down the tunnel (world units); velocity: scroll speed
   // in px per frame, from Lenis.
   tick(dt, elapsed, { travel, velocity }) {
-    const target = Math.max(-1, Math.min(1, velocity / 32));
+    // Reading speed stays calm; only a real flick of the wheel or thumb
+    // pulls the stars into streaks.
+    const s = Math.min(1, Math.max(0, Math.abs(velocity) - 7) / 34);
+    const target = Math.sign(velocity) * s * s * (3 - 2 * s);
     this._warp += (target - this._warp) * Math.min(1, dt * 6);
     this.uniforms.uWarp.value = this._warp;
     this.uniforms.uTravel.value = travel;

@@ -186,8 +186,8 @@ export function bindFacetToServices(director) {
   // there's no side column for an object the way desktop has — so it
   // needs to sit further out AND smaller, not just further away.
   const distScale = distanceScale(director.camera);
-  const xOffset = 2.1 + Math.min(2.2, (distScale - 1) * 1.1);
-  const peakScale = 1.3 / Math.sqrt(distScale);
+  const xOffset = 1.75 + Math.min(2.2, (distScale - 1) * 1.1);
+  const peakScale = 1.02 / Math.sqrt(distScale);
 
   director.facet.mesh.position.set(xOffset, 0.15, director.camera.position.z - 5.6 * distScale);
 
