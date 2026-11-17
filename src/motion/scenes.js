@@ -33,22 +33,29 @@ function seeded(seed) {
 
 /* ---------------------------------------------------------- hero */
 function heroPassThrough() {
-  const hero = document.querySelector('[data-chapter="origin"]');
-  const word = hero?.querySelector(".origin-word");
-  if (!hero || !word) return;
-  const support = hero.querySelectorAll(".origin-eyebrow--top, .origin-tagline, .origin-sub, .origin-cta");
-  const foot = hero.querySelector(".origin-foot");
+  const hero = document.querySelector(".hero");
+  if (!hero) return;
+  const reel = hero.querySelector(".hero-reel");
+  const video = hero.querySelector(".hero-reel__video");
+  const word = hero.querySelector(".origin-word");
+  const top = hero.querySelector(".hero-top");
+  const bottom = hero.querySelector(".hero-bottom");
 
+  // As the page moves on, the film recedes into a framed card that lags
+  // behind the scroll, while the name rushes up and out ahead of it.
   const tl = gsap.timeline({
     scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: 0.5, invalidateOnRefresh: true }
   });
-  tl.to(support, { y: -50, opacity: 0, stagger: 0.02, duration: 0.16, ease: "power1.in" }, 0)
-    .to(foot, { opacity: 0, duration: 0.2 }, 0)
-    // y counters the scroll, so the name holds its place on screen while
-    // the camera flies through it rather than sliding off the top.
-    .to(word, { y: () => hero.offsetHeight * 0.85, duration: 1, ease: "none" }, 0)
-    .to(word, { scale: 4, duration: 1, ease: "power1.in" }, 0)
-    .to(word, { opacity: 0, duration: 0.45, ease: "power1.in" }, 0.55);
+  tl.fromTo(
+    reel,
+    { clipPath: "inset(0% 0% 0% 0% round 0px)" },
+    { clipPath: "inset(9% 6% 9% 6% round 22px)", y: () => hero.offsetHeight * 0.38, duration: 1, ease: "none" },
+    0
+  )
+    .to(video, { scale: 1.16, duration: 1, ease: "none" }, 0)
+    .to(top, { y: -70, opacity: 0, duration: 0.4, ease: "power1.in" }, 0)
+    .to(bottom, { opacity: 0, duration: 0.2, ease: "none" }, 0)
+    .to(word, { yPercent: -55, opacity: 0, duration: 0.65, ease: "power1.in" }, 0.04);
 }
 
 /* ---------------------------------------------------------- work */

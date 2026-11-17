@@ -266,6 +266,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" />
   <link rel="preload" as="image" href="/assets/images/spn-mark-112.webp" type="image/webp" />
+  <link rel="preload" as="image" href="/assets/images/hero-reel.webp" type="image/webp" media="(min-width: 721px)" />
+  <link rel="preload" as="image" href="/assets/images/hero-reel-mobile.webp" type="image/webp" media="(max-width: 720px)" />
   <link rel="preload" as="image" href="/assets/images/spn-orb-arrival.webp" type="image/webp" fetchpriority="high" />
   <link rel="preload" as="image" href="/assets/images/spn-planet-n.webp" type="image/webp" />
   <link rel="preload" as="image" href="/assets/images/spn-planet-h.webp" type="image/webp" />
@@ -476,24 +478,37 @@
   <main id="main">
 
     <!-- ============ ORIGIN ============ -->
-    <section class="chapter chapter--origin" id="top" data-chapter="origin">
-      <div class="origin-mark" data-hero-mark>
-        <p class="origin-eyebrow origin-eyebrow--top mono">Oslo &mdash; Motion &amp; identity studio</p>
-        <h1 class="origin-word">SPNVISUALZ</h1>
-        <p class="origin-tagline">Visuals that <span>connect.</span></p>
-        <p class="origin-sub">Logos, motion and visual worlds for artists, brands and events &mdash; designed in Oslo, delivered worldwide.</p>
-        <div class="origin-cta">
-          <a class="btn btn--light" href="#work"><span>View selected work</span></a>
-          <button class="btn btn--outline" type="button" data-order><span>Start a project</span></button>
-        </div>
+    <section class="chapter chapter--origin hero" id="top" data-chapter="origin">
+      <!-- The showreel: six projects cut together (assets/videos/hero-reel*.mp4).
+           Painted as a still by CSS first; heroReel.js starts the film once
+           the intro has finished, and never on save-data or reduced motion. -->
+      <div class="hero-reel" aria-hidden="true">
+        <video class="hero-reel__video" muted loop playsinline preload="none" tabindex="-1"
+          data-src="/assets/videos/hero-reel.mp4" data-src-mobile="/assets/videos/hero-reel-mobile.mp4"></video>
+        <span class="hero-reel__shade"></span>
       </div>
-      <div class="origin-foot">
-        <p class="origin-eyebrow mono">Logos &middot; Motion &middot; Visual worlds</p>
-        <div class="origin-scroll">
-          <span>Scroll</span>
-          <b aria-hidden="true"></b>
+      <div class="hero-grid" data-hero-mark>
+        <div class="hero-top">
+          <p class="hero-statement">A motion &amp; identity studio from Oslo. <span>We make names move &mdash; logos, reveals and visual worlds for artists, brands and events.</span></p>
+          <a class="hero-now" href="/work/icekiid/" data-hero-now>
+            <span class="hero-now__label mono">Now playing</span>
+            <span class="hero-now__row">
+              <span class="hero-now__num"><b>01</b></span>
+              <span class="hero-now__total mono">/ 06</span>
+            </span>
+            <span class="hero-now__title"><b>Icekiid</b></span>
+            <span class="hero-now__bar" aria-hidden="true"><i></i></span>
+          </a>
         </div>
-        <p class="origin-eyebrow origin-eyebrow--end mono">Booking worldwide</p>
+        <h1 class="origin-word" data-fit>SPNVISUALZ</h1>
+        <div class="hero-bottom">
+          <p class="origin-eyebrow mono">Visuals that connect &mdash; Oslo / worldwide</p>
+          <div class="origin-scroll">
+            <span>Scroll</span>
+            <b aria-hidden="true"></b>
+          </div>
+          <a class="hero-link" href="#work">Selected work <i aria-hidden="true">&darr;</i></a>
+        </div>
       </div>
     </section>
 

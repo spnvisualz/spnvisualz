@@ -4,11 +4,6 @@
    html.scenes is set only when the scroll scenes run (never under
    reduced motion); without it every element here sits at rest. */
 
-/* ---------- hero: entrance hands over to the scroll ---------- */
-.depth-ready .chapter--origin.is-live.is-settled .origin-mark > *{ animation: none; }
-.depth-ready .chapter--origin.is-live.is-settled .origin-word{ animation: chromeSweep 7s ease-in-out infinite; }
-.chapter--origin .origin-word{ transform-origin: 50% 55%; will-change: transform, opacity; }
-
 /* ---------- section hairlines draw in ---------- */
 .kinetic .chapter .section-head,
 .kinetic .work-head{ position: relative; border-top-color: transparent; }
