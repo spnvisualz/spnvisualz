@@ -6,6 +6,7 @@ import "./styles/work.css";
 import "./styles/services.css";
 import "./styles/pricing.css";
 import "./styles/misc.css";
+import "./styles/depth.css";
 
 import { createMasterScroll, getLenis, ScrollTrigger } from "./motion/scrollTimeline.js";
 import { mountSceneDirector, bindFacetToServices, bindPlanetToContact } from "./three/SceneDirector.js";
@@ -13,6 +14,7 @@ import { initWorkSequence } from "./work/workSequence.js";
 import { initNav } from "./nav/nav.js";
 import { initMagnetic } from "./nav/magnetic.js";
 import { initReveals } from "./motion/reveal.js";
+import { initDepth, playHeroEntrance } from "./motion/parallax.js";
 import { initServices } from "./services/services.js";
 import { initPricing } from "./pricing/pricing.js";
 import { initOrderDialog } from "./contact/orderDialog.js";
@@ -67,6 +69,11 @@ function boot() {
   // height changes out from under the scroll position later.
   initWorkSequence({ reduceMotion });
 
+  // The depth layer — scroll parallax, the hero's letters, the marquee.
+  // Bound here, before the scene, so its triggers are measured in the
+  // same refresh as everything else.
+  initDepth({ reduceMotion });
+
   // The 3D layer waits for the intro to finish.
   //
   // Building the renderer, compiling four shader programs and uploading
@@ -109,6 +116,7 @@ function boot() {
     ScrollTrigger.refresh();
 
     afterWorld.splice(0).forEach((fn) => fn());
+    playHeroEntrance();
   };
 
   if (window.__spnIntroActive) {

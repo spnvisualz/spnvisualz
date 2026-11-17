@@ -1,0 +1,222 @@
+/* ============================================================
+   DEPTH — the parallax layer and the UI upgrades that ride on it.
+   ============================================================
+   Driven by src/motion/parallax.js. Two conventions keep it from
+   fighting the motion that was already here:
+
+   - GSAP owns `transform` on anything with data-speed / data-drift /
+     data-marquee. Pointer drift and staggered reveals use the
+     independent `translate` property instead, so they compose.
+   - Every decorative element here is aria-hidden and pointer-events:
+     none. Remove this file and the page still reads in full. */
+
+/* ---------- shared depth pieces ---------- */
+.depth-orb{
+  position: absolute; z-index: 0; pointer-events: none;
+  width: clamp(280px, 42vw, 640px); aspect-ratio: 1; border-radius: 50%;
+  filter: blur(40px);
+  opacity: .9;
+}
+.depth-orb--violet{ background: radial-gradient(circle at 50% 50%, rgba(138,77,255,.38), rgba(138,77,255,0) 66%); }
+.depth-orb--gold{ background: radial-gradient(circle at 50% 50%, rgba(232,194,122,.2), rgba(232,194,122,0) 64%); }
+
+.ghost-word{
+  position: absolute; z-index: 0; left: -2vw; top: clamp(40px, 8vw, 120px);
+  pointer-events: none; user-select: none; white-space: nowrap;
+  font-size: clamp(96px, 19vw, 320px); font-weight: 700; line-height: .8; letter-spacing: -.05em;
+  color: transparent; -webkit-text-stroke: 1px rgba(198,167,255,.13);
+}
+.ghost-word--right{ left: auto; right: -2vw; }
+.ghost-word--contact{ top: auto; bottom: clamp(20px, 5vw, 80px); }
+
+/* Sections that hold a ghost word or an orb clip it at their own edge
+   (clip, not hidden: no new scroll container for Lenis to deal with),
+   and lift their real content above it. */
+.chapter--services, .chapter--pricing, .chapter--process, .chapter--contact{ overflow: clip; }
+.chapter--services > :not(.ghost-word):not(.depth-orb),
+.chapter--pricing > :not(.ghost-word):not(.depth-orb),
+.chapter--process > :not(.ghost-word):not(.depth-orb){ position: relative; z-index: 1; }
+
+.depth-orb--pricing{ right: -12vw; top: -6vw; }
+.depth-orb--contact{ left: -14vw; bottom: -18vw; }
+
+/* ---------- ORIGIN ---------- */
+.chapter--origin{ isolation: isolate; }
+.origin-depth{ position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.origin-depth .depth-orb--violet{
+  left: -10vw; top: -12vh;
+  translate: calc(var(--px, 0) * -34px) calc(var(--py, 0) * -24px);
+}
+.origin-depth .depth-orb--gold{
+  right: -8vw; bottom: -18vh; width: clamp(240px, 34vw, 520px);
+  translate: calc(var(--px, 0) * 26px) calc(var(--py, 0) * 20px);
+}
+
+/* Three hairline orbits around the wordmark; one carries a moving point. */
+.origin-rings{
+  position: absolute; left: 50%; top: 50%; width: 0; height: 0;
+  translate: calc(var(--px, 0) * 12px) calc(var(--py, 0) * 9px);
+}
+.origin-rings i{
+  position: absolute; left: 50%; top: 50%;
+  border-radius: 50%; border: 1px solid rgba(245,242,251,.09);
+  translate: -50% -50%;
+}
+.origin-rings i:nth-child(1){ width: min(62vw, 74vh); aspect-ratio: 1; }
+.origin-rings i:nth-child(2){ width: min(92vw, 108vh); aspect-ratio: 1; border-style: dashed; border-color: rgba(245,242,251,.06); animation: ringSpin 120s linear infinite; }
+.origin-rings i:nth-child(3){ width: min(128vw, 150vh); aspect-ratio: 1; border-color: rgba(198,167,255,.08); animation: ringSpin 70s linear infinite reverse; }
+.origin-rings i:nth-child(1)::after{
+  content: ""; position: absolute; left: 50%; top: -3px; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--purple-light); box-shadow: 0 0 14px 2px rgba(198,167,255,.7);
+}
+.origin-rings i:nth-child(1){ animation: ringSpin 38s linear infinite; }
+@keyframes ringSpin{ to{ rotate: 360deg; } }
+
+.origin-mark{ z-index: 1; padding: 0 var(--pad-inline); will-change: transform, opacity; }
+
+.origin-word{ translate: calc(var(--px, 0) * 14px) calc(var(--py, 0) * 10px); white-space: nowrap; }
+/* Split letters wait for the page to be visible (playHeroEntrance). */
+.origin-word .char{ display: inline-block; }
+.depth-ready .chapter--origin:not(.is-live) .origin-word[data-split] .char{ opacity: 0; }
+.chapter--origin.is-live .origin-word .char{
+  animation: charIn 1.15s var(--ease-depth) both;
+  animation-delay: calc(var(--i) * 55ms + 80ms);
+}
+@keyframes charIn{
+  from{ opacity: 0; transform: translateY(.42em) rotate(4deg); filter: blur(10px); }
+  to{ opacity: 1; transform: none; filter: blur(0); }
+}
+
+.origin-sub{
+  max-width: 34ch; margin: var(--space-md) auto 0;
+  font-size: var(--type-md); line-height: 1.5; color: var(--muted-on-surface);
+}
+.origin-cta{
+  display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-xs);
+  margin-top: var(--space-lg);
+}
+/* Only once parallax.js has run (html.depth-ready): without JS the hero
+   is simply there, never held at zero waiting for a class. */
+.depth-ready .chapter--origin:not(.is-live) .origin-mark > :not(h1){ opacity: 0; }
+.depth-ready .chapter--origin.is-live .origin-eyebrow,
+.depth-ready .chapter--origin.is-live .origin-sub,
+.depth-ready .chapter--origin.is-live .origin-cta{ animation: riseIn 1.1s var(--ease-depth) both; }
+.depth-ready .chapter--origin.is-live .origin-sub{ animation-delay: .55s; }
+.depth-ready .chapter--origin.is-live .origin-cta{ animation-delay: .7s; }
+@keyframes riseIn{ from{ opacity: 0; translate: 0 18px; } to{ opacity: 1; translate: 0 0; } }
+
+.origin-meta{
+  position: absolute; z-index: 1; left: var(--pad-inline); right: var(--pad-inline); bottom: var(--space-xl);
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 10px; letter-spacing: .2em; color: var(--quiet-on-surface);
+  pointer-events: none;
+}
+.origin-meta span{ display: inline-flex; align-items: center; gap: 10px; }
+.origin-meta__dot{
+  width: 7px; height: 7px; border-radius: 50%; background: var(--gold);
+  box-shadow: 0 0 0 0 rgba(232,194,122,.6); animation: metaPulse 2.4s ease-out infinite;
+}
+@keyframes metaPulse{ 70%{ box-shadow: 0 0 0 9px rgba(232,194,122,0); } 100%{ box-shadow: 0 0 0 0 rgba(232,194,122,0); } }
+.origin-scroll{ z-index: 1; }
+
+@media (max-width: 720px){
+  .origin-meta{ display: none; }
+  .origin-sub{ font-size: var(--type-sm); }
+  .origin-cta .btn{ padding: 13px 20px; }
+}
+@media (max-height: 640px) and (min-width: 721px){
+  .origin-meta, .origin-scroll{ display: none; }
+}
+
+/* ---------- MARQUEE ---------- */
+/* The band is wider than the page and tilted; main clips it (clip, not
+   hidden, so no scroll container appears for Lenis). */
+main{ overflow-x: clip; }
+.marquee-band{
+  position: relative; z-index: 2;
+  width: 112%; margin: 0 0 0 -6%;
+  padding: clamp(14px, 2vw, 26px) 0;
+  overflow: hidden;
+  rotate: -2.2deg;
+  background: linear-gradient(90deg, rgba(10,6,18,.42), rgba(18,10,30,.28), rgba(10,6,18,.42));
+  border-block: 1px solid rgba(198,167,255,.18);
+  backdrop-filter: blur(6px);
+}
+.marquee-row{
+  display: flex; align-items: center; gap: clamp(18px, 2.4vw, 40px);
+  width: max-content; white-space: nowrap;
+  font-size: clamp(34px, 6.4vw, 104px); font-weight: 600; line-height: 1.05; letter-spacing: -.035em;
+  color: var(--text);
+  will-change: transform;
+}
+.marquee-row i{ font-style: normal; font-size: .38em; color: var(--purple-light); }
+.marquee-row--outline{ color: transparent; -webkit-text-stroke: 1px rgba(245,242,251,.42); }
+.marquee-row--outline i{ -webkit-text-stroke: 0; color: var(--gold); }
+
+/* ---------- MANIFESTO ---------- */
+.manifesto-line .word{ display: inline; }
+.manifesto-line{ font-weight: 500; }
+
+/* ---------- SELECTED WORK ---------- */
+.work-item__ghost{
+  position: absolute; z-index: 0; top: 50%; right: var(--pad-inline);
+  margin-top: -.5em;
+  font-size: clamp(120px, 19vw, 300px); font-weight: 700; line-height: 1; letter-spacing: -.06em;
+  color: transparent; -webkit-text-stroke: 1px rgba(198,167,255,.14);
+  pointer-events: none; user-select: none;
+}
+.work-item:nth-child(even) .work-item__ghost{ right: auto; left: var(--pad-inline); }
+.work-item__media, .work-item__meta{ position: relative; z-index: 1; }
+@media (max-width: 860px){
+  .work-item__ghost, .work-item:nth-child(even) .work-item__ghost{
+    top: 0; left: auto; right: var(--pad-inline); margin-top: -.42em; font-size: clamp(96px, 30vw, 160px);
+  }
+}
+
+/* ---------- SERVICES ---------- */
+.service-row{ position: relative; }
+.service-row::before{
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+  background: linear-gradient(var(--purple-light), var(--purple));
+  transform: scaleY(0); transform-origin: top; transition: transform .45s var(--ease-depth);
+}
+.service-row:hover::before, .service-row.is-active::before{ transform: scaleY(1); }
+.service-row strong{ transition: letter-spacing .45s var(--ease-depth), color .3s; }
+.service-row:hover strong{ color: #fff; letter-spacing: -.01em; }
+
+/* ---------- STAGGERED ARRIVALS ---------- */
+.stagger-item{
+  opacity: 0; translate: 0 28px;
+  transition:
+    opacity .85s var(--ease-depth) calc(var(--stagger, 0) * 90ms),
+    translate .85s var(--ease-depth) calc(var(--stagger, 0) * 90ms),
+    border-color .4s var(--ease-signal);
+}
+.stagger-item.is-in{ opacity: 1; translate: 0 0; }
+
+/* ---------- VISUAL LAB portal ---------- */
+.lab-portal{ background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0)); }
+.lab-portal__rings{ position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; }
+.lab-portal__rings i{
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%;
+  border-radius: 50%; border: 1px solid rgba(198,167,255,.12);
+}
+.lab-portal__rings i:nth-child(1){ width: 420px; aspect-ratio: 1; }
+.lab-portal__rings i:nth-child(2){ width: 640px; aspect-ratio: 1; border-style: dashed; animation: ringSpin 90s linear infinite; }
+
+/* ---------- BUTTONS — a light sweep on the primary ---------- */
+.btn{ position: relative; overflow: hidden; isolation: isolate; }
+.btn > span{ position: relative; z-index: 1; }
+.btn--light::after{
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(138,77,255,.28) 48%, rgba(198,167,255,.4) 52%, transparent 70%);
+  translate: -120% 0; transition: translate .8s var(--ease-depth);
+}
+.btn--light:hover::after{ translate: 120% 0; }
+
+/* ---------- reduced motion: everything at rest ---------- */
+@media (prefers-reduced-motion: reduce){
+  .origin-rings i, .lab-portal__rings i, .origin-meta__dot{ animation: none !important; }
+  .chapter--origin .origin-word .char{ opacity: 1 !important; animation: none !important; }
+  .stagger-item{ opacity: 1; translate: none; }
+}

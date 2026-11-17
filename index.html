@@ -462,9 +462,25 @@
 
     <!-- ============ ORIGIN ============ -->
     <section class="chapter chapter--origin" id="top" data-chapter="origin">
-      <div class="origin-mark">
+      <!-- Depth layers: each drifts at its own rate as the page scrolls
+           (src/motion/parallax.js). Decorative only. -->
+      <div class="origin-depth" aria-hidden="true">
+        <span class="depth-orb depth-orb--violet" data-speed="0.45"></span>
+        <span class="depth-orb depth-orb--gold" data-speed="-0.3"></span>
+        <span class="origin-rings" data-speed="0.2"><i></i><i></i><i></i></span>
+      </div>
+      <div class="origin-mark" data-hero-mark>
         <p class="origin-eyebrow mono">OSLO &mdash; MOTION &amp; IDENTITY STUDIO</p>
-        <h1 class="origin-word">SPNVISUALZ</h1>
+        <h1 class="origin-word" data-split-chars>SPNVISUALZ</h1>
+        <p class="origin-sub">Cinematic logos, motion and visual worlds for artists, brands and events.</p>
+        <div class="origin-cta">
+          <a class="btn btn--light" href="#work"><span>View selected work</span></a>
+          <button class="btn btn--outline" type="button" data-order><span>Start a project</span></button>
+        </div>
+      </div>
+      <div class="origin-meta mono" aria-hidden="true">
+        <span>N 59.91&deg; / E 10.75&deg;</span>
+        <span><i class="origin-meta__dot"></i>Booking worldwide</span>
       </div>
       <div class="origin-scroll">
         <span>Scroll</span>
@@ -472,9 +488,21 @@
       </div>
     </section>
 
+    <!-- ============ MARQUEE — the service list, moving with the scroll ============ -->
+    <div class="marquee-band" aria-hidden="true">
+      <div class="marquee-row" data-marquee="-1">
+        <span>Logo design</span><i>&#10022;</i><span>Animated logos</span><i>&#10022;</i><span>Intros</span><i>&#10022;</i><span>Motion loops</span><i>&#10022;</i><span>Social visuals</span><i>&#10022;</i><span>Brand visuals</span><i>&#10022;</i><span>Websites</span><i>&#10022;</i>
+        <span>Logo design</span><i>&#10022;</i><span>Animated logos</span><i>&#10022;</i><span>Intros</span><i>&#10022;</i><span>Motion loops</span><i>&#10022;</i><span>Social visuals</span><i>&#10022;</i><span>Brand visuals</span><i>&#10022;</i><span>Websites</span><i>&#10022;</i>
+      </div>
+      <div class="marquee-row marquee-row--outline" data-marquee="1">
+        <span>Visuals that connect</span><i>&#10022;</i><span>Motion first</span><i>&#10022;</i><span>Built in Oslo</span><i>&#10022;</i><span>Visuals that connect</span><i>&#10022;</i><span>Motion first</span><i>&#10022;</i><span>Built in Oslo</span><i>&#10022;</i>
+        <span>Visuals that connect</span><i>&#10022;</i><span>Motion first</span><i>&#10022;</i><span>Built in Oslo</span><i>&#10022;</i><span>Visuals that connect</span><i>&#10022;</i><span>Motion first</span><i>&#10022;</i><span>Built in Oslo</span><i>&#10022;</i>
+      </div>
+    </div>
+
     <!-- ============ MANIFESTO (brief beat as the camera starts moving) ============ -->
     <section class="chapter chapter--manifesto" data-chapter="manifesto">
-      <p class="manifesto-line">Oslo-based. Motion-first.<br />Built for artists, brands and events.</p>
+      <p class="manifesto-line" data-split-words>Oslo-based. Motion-first.<br />Built for artists, brands and events.</p>
     </section>
 
     <!-- ============ SELECTED WORK ============ -->
@@ -602,11 +630,12 @@
 
     <!-- ============ SERVICES ============ -->
     <section class="chapter chapter--services section-pad" id="services" data-chapter="services">
+      <span class="ghost-word" aria-hidden="true" data-drift="-1">Create</span>
       <header class="section-head reveal">
         <p class="section-label">What we create</p>
         <h2>Services</h2>
       </header>
-      <ol class="service-list">
+      <ol class="service-list" data-stagger>
         <li>
           <button class="service-row is-active" type="button"
             data-product="Logo Design" data-sku="logo-basic" data-price="From &euro;22"
@@ -660,6 +689,7 @@
 
     <!-- ============ PRICING ============ -->
     <section class="chapter chapter--pricing section-pad" id="pricing" data-chapter="pricing">
+      <span class="depth-orb depth-orb--violet depth-orb--pricing" aria-hidden="true" data-speed="0.5"></span>
       <header class="section-head reveal">
         <p class="section-label">Clear packages</p>
         <h2>Pricing</h2>
@@ -733,12 +763,13 @@
 
     <!-- ============ PROCESS ============ -->
     <section class="chapter chapter--process section-pad" data-chapter="process">
+      <span class="ghost-word ghost-word--right" aria-hidden="true" data-drift="1">Process</span>
       <header class="section-head reveal"><p class="section-label">Simple process</p><h2>How it works</h2></header>
-      <ol class="process-line">
-        <li class="reveal"><span class="mono">01</span><strong>Choose</strong><p>Select a service or ask for a custom project.</p></li>
-        <li class="reveal"><span class="mono">02</span><strong>Send your idea</strong><p>Share the name, references and feeling you want.</p></li>
-        <li class="reveal"><span class="mono">03</span><strong>We create</strong><p>Your direction becomes a polished visual world.</p></li>
-        <li class="reveal"><span class="mono">04</span><strong>Receive</strong><p>Final files arrive ready for the platforms you use.</p></li>
+      <ol class="process-line" data-stagger>
+        <li class="process-card" data-spotlight><span class="mono">01</span><strong>Choose</strong><p>Select a service or ask for a custom project.</p></li>
+        <li class="process-card" data-spotlight data-speed="-0.06"><span class="mono">02</span><strong>Send your idea</strong><p>Share the name, references and feeling you want.</p></li>
+        <li class="process-card" data-spotlight data-speed="-0.12"><span class="mono">03</span><strong>We create</strong><p>Your direction becomes a polished visual world.</p></li>
+        <li class="process-card" data-spotlight data-speed="-0.18"><span class="mono">04</span><strong>Receive</strong><p>Final files arrive ready for the platforms you use.</p></li>
       </ol>
     </section>
 
@@ -747,7 +778,8 @@
 
     <!-- ============ VISUAL LAB portal ============ -->
     <section class="chapter chapter--lab section-pad" data-chapter="lab">
-      <a class="lab-portal reveal" href="/visual-lab/">
+      <a class="lab-portal reveal" href="/visual-lab/" data-spotlight>
+        <span class="lab-portal__rings" aria-hidden="true" data-speed="0.25"><i></i><i></i></span>
         <span class="lab-portal__label mono">SPNVISUALZ / EDITORIAL</span>
         <h2>Enter the<br />Visual Lab</h2>
         <p>Studio notes on identity, motion, chrome and digital worlds.</p>
@@ -757,6 +789,8 @@
 
     <!-- ============ CONTACT ============ -->
     <section class="chapter chapter--contact section-pad" id="contact" data-chapter="contact">
+      <span class="ghost-word ghost-word--contact" aria-hidden="true" data-drift="-1">Let&rsquo;s talk</span>
+      <span class="depth-orb depth-orb--violet depth-orb--contact" aria-hidden="true" data-speed="0.4"></span>
       <div class="contact-inner">
         <p class="section-label reveal">Contact</p>
         <h2 class="reveal">Start a project</h2>
