@@ -7,6 +7,7 @@ import "./styles/services.css";
 import "./styles/pricing.css";
 import "./styles/misc.css";
 import "./styles/depth.css";
+import "./styles/kinetic.css";
 
 import { createMasterScroll, getLenis, ScrollTrigger } from "./motion/scrollTimeline.js";
 import { mountSceneDirector, bindFacetToServices, bindPlanetToContact } from "./three/SceneDirector.js";
@@ -15,6 +16,7 @@ import { initNav } from "./nav/nav.js";
 import { initMagnetic } from "./nav/magnetic.js";
 import { initReveals } from "./motion/reveal.js";
 import { initDepth, playHeroEntrance } from "./motion/parallax.js";
+import { initKinetic } from "./motion/kinetic.js";
 import { initServices } from "./services/services.js";
 import { initPricing } from "./pricing/pricing.js";
 import { initOrderDialog } from "./contact/orderDialog.js";
@@ -72,6 +74,10 @@ function boot() {
   // The depth layer — scroll parallax, the hero's letters, the marquee.
   // Bound here, before the scene, so its triggers are measured in the
   // same refresh as everything else.
+  // Kinetic first: it pins the Process section, and ScrollTrigger
+  // measures in creation order — anything below a pin has to be created
+  // after it to account for the space the pin adds.
+  initKinetic({ reduceMotion });
   initDepth({ reduceMotion });
 
   // The 3D layer waits for the intro to finish.

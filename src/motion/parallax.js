@@ -22,7 +22,7 @@ const isFinePointer = () => matchMedia("(hover: hover) and (pointer: fine)").mat
 // Splits text into spans without losing it: the element keeps its real
 // text content, so headings still read correctly to search and assistive
 // tech. <br> survives as-is.
-function splitInto(el, mode) {
+export function splitInto(el, mode) {
   if (el.dataset.split) return;
   el.dataset.split = mode;
   const nodes = Array.from(el.childNodes);
@@ -145,26 +145,6 @@ function bindHeroPointer() {
   });
 }
 
-// Two rows of service names moving in opposite directions, driven by the
-// scroll rather than a clock — they move only when the visitor does.
-function bindMarquee(isNarrow) {
-  const band = document.querySelector(".marquee-band");
-  if (!band) return;
-  band.querySelectorAll("[data-marquee]").forEach((row) => {
-    const dir = parseFloat(row.dataset.marquee) || 1;
-    const travel = isNarrow ? 30 : 22;
-    gsap.fromTo(
-      row,
-      { xPercent: dir < 0 ? 0 : -travel },
-      {
-        xPercent: dir < 0 ? -travel : 0,
-        ease: "none",
-        scrollTrigger: { trigger: band, start: "top bottom", end: "bottom top", scrub: 0.6 }
-      }
-    );
-  });
-}
-
 // Oversized outline words behind section headings, drifting sideways.
 function bindGhostWords() {
   document.querySelectorAll("[data-drift]").forEach((el) => {
@@ -264,7 +244,6 @@ export function initDepth({ reduceMotion = false } = {}) {
   bindSpeedLayers(isNarrow);
   bindHeroExit();
   bindHeroPointer();
-  bindMarquee(isNarrow);
   bindGhostWords();
   bindManifesto();
   bindWorkDepth(isNarrow);

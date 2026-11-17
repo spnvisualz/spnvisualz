@@ -1,0 +1,131 @@
+/* ============================================================
+   KINETIC — styles for src/motion/kinetic.js.
+   ============================================================
+   Most of these only apply under html.kinetic, which kinetic.js
+   sets when it runs (never under reduced motion). Without it the
+   page is the static page. */
+
+/* ---------- cursor ---------- */
+.cursor{
+  position: fixed; left: 0; top: 0; z-index: 2147483000;
+  width: 0; height: 0; pointer-events: none;
+  opacity: 0; transition: opacity .3s;
+}
+.cursor.is-on{ opacity: 1; }
+.cursor.is-hidden{ opacity: 0; }
+.cursor__ring{
+  position: absolute; left: 0; top: 0; width: 34px; height: 34px;
+  translate: -50% -50%; border-radius: 50%;
+  border: 1px solid rgba(245,242,251,.5);
+  transition: width .45s var(--ease-depth), height .45s var(--ease-depth),
+    background-color .35s, border-color .35s, scale .25s var(--ease-signal);
+}
+.cursor.is-link .cursor__ring{
+  width: 58px; height: 58px; border-color: var(--purple-light); background: rgba(198,167,255,.1);
+}
+.cursor.has-label .cursor__ring{
+  width: 96px; height: 96px; border-color: transparent; background: var(--text);
+}
+.cursor.is-down .cursor__ring{ scale: .82; }
+.cursor__label{
+  position: absolute; left: 0; top: 0; translate: -50% -50%;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+  color: #050308; white-space: nowrap;
+  opacity: 0; scale: .6; transition: opacity .3s, scale .45s var(--ease-depth);
+}
+.cursor.has-label .cursor__label{ opacity: 1; scale: 1; }
+
+/* ---------- masked headings ---------- */
+.is-masked .mask{
+  display: inline-block; overflow: hidden; vertical-align: bottom;
+  /* room for descenders and the tight line-heights these headings use */
+  padding: .06em 0 .1em; margin: -.06em 0 -.1em;
+}
+.mask__inner{
+  display: inline-block; transform: translateY(115%) rotate(4deg); transform-origin: left top;
+  transition: transform 1.1s var(--ease-depth) calc(var(--i, 0) * 75ms);
+}
+.is-masked.is-in .mask__inner{ transform: none; }
+
+/* ---------- marquee leans with the scroll ---------- */
+.kinetic .marquee-band{ transform: skewX(var(--skew, 0deg)); }
+
+/* ---------- work panels ---------- */
+.work-item__media{ transform-style: preserve-3d; }
+.work-item__frame::after{
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255,255,255,.16), transparent 42%);
+  opacity: 0; transition: opacity .5s;
+  mix-blend-mode: overlay;
+}
+.work-item__media:hover .work-item__frame::after{ opacity: 1; }
+.work-item__media:hover .work-item__frame{ border-color: rgba(198,167,255,.75); }
+
+/* ---------- process timeline ---------- */
+.process-line{ position: relative; }
+.process-card{ overflow: visible; }
+.process-progress{ display: none; }
+@media (min-width: 901px){
+  .kinetic .process-line{ margin-top: var(--space-xl); }
+  .kinetic .process-progress{
+    display: block; position: absolute; left: 0; right: 0; top: calc(var(--space-md) * -1 - 1px);
+    height: 1px; background: var(--line); pointer-events: none;
+  }
+  .process-progress i{
+    position: absolute; inset: 0; transform-origin: left center; transform: scaleX(0);
+    background: linear-gradient(90deg, var(--purple), var(--purple-light) 80%, #fff);
+    box-shadow: 0 0 12px rgba(198,167,255,.7);
+  }
+  .kinetic .process-card::after{
+    content: ""; position: absolute; left: var(--space-md); top: calc(var(--space-md) * -1 - 5px);
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--bg); border: 1px solid rgba(198,167,255,.4);
+    transition: background-color .4s, box-shadow .4s, border-color .4s;
+  }
+  .kinetic .process-card.is-active::after{
+    background: var(--purple-light); border-color: var(--purple-light);
+    box-shadow: 0 0 0 5px rgba(198,167,255,.14), 0 0 18px rgba(198,167,255,.8);
+  }
+}
+.kinetic .process-card strong, .kinetic .process-card p{ transition: color .5s; }
+.kinetic .process-card:not(.is-active) strong{ color: var(--muted); }
+.kinetic .process-card.is-active{
+  border-color: rgba(198,167,255,.45);
+  box-shadow: 0 40px 90px -50px rgba(138,77,255,.75);
+}
+.kinetic .process-card.is-active::before{ transform: scaleX(1); }
+.process-card span{ transition: color .6s, -webkit-text-stroke-color .6s; }
+.kinetic .process-card.is-active span{ color: var(--purple-light); -webkit-text-stroke-color: transparent; }
+
+/* ---------- text roll on buttons ---------- */
+.project-button{ position: relative; overflow: hidden; }
+.kinetic .btn > span,
+.kinetic .project-button > span{
+  display: inline-block;
+  text-shadow: 0 3em 0 currentColor;
+  transition: transform .55s var(--ease-depth);
+}
+.kinetic .btn:hover > span,
+.kinetic .project-button:hover > span{ transform: translateY(-3em); }
+
+/* ---------- hero letters answer the cursor ---------- */
+.kinetic .origin-word .char{ transition: translate .6s var(--ease-depth), color .4s; }
+.kinetic .origin-word .char:hover{ translate: 0 -.07em; color: var(--purple-light); }
+
+/* ---------- footer wordmark ---------- */
+.footer-giant{
+  flex: 0 0 calc(100% + var(--pad-inline) * 2); order: -1;
+  overflow: hidden; text-align: center; white-space: nowrap;
+  font-size: 17vw; font-weight: 700; line-height: .82; letter-spacing: -.045em;
+  margin: var(--space-lg) calc(var(--pad-inline) * -1) var(--space-md);
+  padding-top: .04em;
+  user-select: none; pointer-events: none;
+  background: linear-gradient(180deg, rgba(245,242,251,.92) 10%, rgba(198,167,255,.22) 92%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.footer-giant[data-split]{ background: none; }
+.footer-giant .char{
+  display: inline-block;
+  background: linear-gradient(180deg, rgba(245,242,251,.92) 10%, rgba(198,167,255,.22) 92%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
