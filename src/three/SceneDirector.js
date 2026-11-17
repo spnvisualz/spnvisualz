@@ -196,6 +196,10 @@ export function bindFacetToServices(director) {
     scrollTrigger: { trigger: section, start: "bottom 60%", end: "bottom top", scrub: 1 }
   }).to(director.facet.mesh.scale, { x: 0.001, y: 0.001, z: 0.001, ease: "none" });
 
+  // The row in the middle of the screen drives it while scrolling
+  // (motion/scenes.js); hover and focus still take over directly.
+  window.addEventListener("spn:service", (e) => director.facet.setService(e.detail.index));
+
   rows.forEach((row, i) => {
     row.addEventListener("mouseenter", () => director.facet.setService(i));
     row.addEventListener("focus", () => director.facet.setService(i));

@@ -69,29 +69,6 @@ function bindSpeedLayers(isNarrow) {
   });
 }
 
-// The hero leaves rather than simply scrolling away: the lockup sinks a
-// little slower than the page and dims.
-function bindHeroExit() {
-  const hero = document.querySelector('[data-chapter="origin"]');
-  const mark = hero?.querySelector("[data-hero-mark]");
-  if (!hero || !mark) return;
-  gsap.to(mark, {
-    yPercent: 18,
-    scale: 0.96,
-    opacity: 0,
-    ease: "none",
-    scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: 0.4 }
-  });
-  const foot = hero.querySelector(".origin-foot");
-  if (foot) {
-    gsap.to(foot, {
-      opacity: 0,
-      ease: "none",
-      scrollTrigger: { trigger: hero, start: "top top", end: "25% top", scrub: 0.4 }
-    });
-  }
-}
-
 // Desktop only: the wordmark leans toward the cursor. Written as custom
 // properties consumed by `translate` in studio.css.
 function bindHeroPointer() {
@@ -142,24 +119,6 @@ function bindManifesto() {
   );
 }
 
-// Selected Work: each panel opens from a slight inset as it arrives.
-function bindWorkReveal(isNarrow) {
-  if (isNarrow) return;
-  document.querySelectorAll(".work-item").forEach((item) => {
-    const media = item.querySelector(".work-item__media");
-    if (!media) return;
-    gsap.fromTo(
-      media,
-      { clipPath: "inset(8% 6% 8% 6%)" },
-      {
-        clipPath: "inset(0% 0% 0% 0%)",
-        ease: "none",
-        scrollTrigger: { trigger: item, start: "top bottom", end: "top 45%", scrub: 0.5 }
-      }
-    );
-  });
-}
-
 // Children of [data-stagger] arrive one after another (translate +
 // opacity, so nothing GSAP scrubs is fought over).
 function initStagger({ reduceMotion }) {
@@ -202,14 +161,19 @@ export function initDepth({ reduceMotion = false } = {}) {
 
   const isNarrow = matchMedia("(max-width: 720px)").matches;
   bindSpeedLayers(isNarrow);
-  bindHeroExit();
   bindHeroPointer();
   bindManifesto();
-  bindWorkReveal(isNarrow);
 }
 
 // The hero's entrance is held until the page is actually visible —
 // underneath the intro overlay it would play to nobody.
 export function playHeroEntrance() {
-  document.querySelector('[data-chapter="origin"]')?.classList.add("is-live");
+  const hero = document.querySelector('[data-chapter="origin"]');
+  if (!hero) return;
+  hero.classList.add("is-live");
+  // Once the entrance has played, its animations are dropped (their end
+  // states equal the resting styles, so nothing moves). An animation that
+  // fills "both" outranks inline styles, and the scroll scene in
+  // scenes.js needs to own opacity on these same elements.
+  setTimeout(() => hero.classList.add("is-settled"), 2800);
 }

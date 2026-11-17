@@ -74,7 +74,7 @@ function initCursor() {
 /* ---------------------------------------------------------- masks */
 function initMasks() {
   document
-    .querySelectorAll(".section-head h2, .work-head h2, .contact-inner h2, .lab-portal h2, .work-item__title")
+    .querySelectorAll(".section-head h2, .work-head h2, .lab-portal h2, .work-item__title")
     .forEach((el) => {
       if (el.dataset.masked) return;
       el.dataset.masked = "1";

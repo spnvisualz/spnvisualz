@@ -8,6 +8,7 @@ import "./styles/pricing.css";
 import "./styles/misc.css";
 import "./styles/studio.css";
 import "./styles/kinetic.css";
+import "./styles/scenes.css";
 
 import { createMasterScroll, getLenis, ScrollTrigger } from "./motion/scrollTimeline.js";
 import { mountSceneDirector, bindFacetToServices, bindPlanetToContact } from "./three/SceneDirector.js";
@@ -17,6 +18,7 @@ import { initMagnetic } from "./nav/magnetic.js";
 import { initReveals } from "./motion/reveal.js";
 import { initDepth, playHeroEntrance } from "./motion/parallax.js";
 import { initKinetic } from "./motion/kinetic.js";
+import { initScenes } from "./motion/scenes.js";
 import { initServices } from "./services/services.js";
 import { initPricing } from "./pricing/pricing.js";
 import { initOrderDialog } from "./contact/orderDialog.js";
@@ -76,6 +78,9 @@ function boot() {
   // same refresh as everything else.
   // Cursor, masked headings, the capabilities line, counters.
   initKinetic({ reduceMotion });
+  // One scrubbed moment per chapter: through the wordmark, the work reel,
+  // the services follow, the Lab portal, the contact assembly.
+  initScenes({ reduceMotion });
   initDepth({ reduceMotion });
 
   // The 3D layer waits for the intro to finish.
