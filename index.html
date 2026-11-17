@@ -520,10 +520,17 @@
       </div>
     </div>
 
-    <!-- ============ MANIFESTO ============ -->
-    <section class="chapter chapter--manifesto" data-chapter="manifesto">
-      <p class="section-label"><span class="section-index">01</span>The studio</p>
-      <p class="manifesto-line" data-split-words>Oslo-based. Motion-first. Built for artists, brands and events that want to be remembered.</p>
+    <!-- ============ VOYAGE — the studio statement, flown through the work ============
+         Pinned while the scroll carries the camera through the projects,
+         set at depth in 3D space around the statement (src/motion/voyage.js).
+         Without JS, or with reduced motion, it is simply the statement. -->
+    <section class="chapter chapter--voyage" data-chapter="voyage" aria-labelledby="voyageStatement">
+      <div class="voyage-space" aria-hidden="true"><div class="voyage-track"></div></div>
+      <div class="voyage-copy">
+        <p class="section-label"><span class="section-index">01</span>The studio</p>
+        <p class="manifesto-line" id="voyageStatement" data-split-words>Oslo-based. Motion-first. Built for artists, brands and events that want to be remembered.</p>
+        <p class="voyage-count mono" aria-hidden="true"><b data-voyage-count>00</b> / 10 worlds</p>
+      </div>
     </section>
 
     <!-- ============ SELECTED WORK ============ -->

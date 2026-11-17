@@ -101,24 +101,6 @@ function bindHeroPointer() {
   });
 }
 
-// Manifesto: each word brightens as the line passes through the middle
-// of the viewport, so the sentence is read at the speed it is scrolled.
-function bindManifesto() {
-  const line = document.querySelector("[data-split-words]");
-  if (!line) return;
-  splitInto(line, "words");
-  gsap.fromTo(
-    line.querySelectorAll(".word"),
-    { opacity: 0.18 },
-    {
-      opacity: 1,
-      ease: "none",
-      stagger: 0.1,
-      scrollTrigger: { trigger: line, start: "top 80%", end: "bottom 45%", scrub: 0.5 }
-    }
-  );
-}
-
 // Children of [data-stagger] arrive one after another (translate +
 // opacity, so nothing GSAP scrubs is fought over).
 function initStagger({ reduceMotion }) {
@@ -162,7 +144,6 @@ export function initDepth({ reduceMotion = false } = {}) {
   const isNarrow = matchMedia("(max-width: 720px)").matches;
   bindSpeedLayers(isNarrow);
   bindHeroPointer();
-  bindManifesto();
 }
 
 // The hero's entrance is held until the page is actually visible —

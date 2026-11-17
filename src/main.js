@@ -10,6 +10,7 @@ import "./styles/hero.css";
 import "./styles/studio.css";
 import "./styles/kinetic.css";
 import "./styles/scenes.css";
+import "./styles/voyage.css";
 
 import { createMasterScroll, getLenis, ScrollTrigger } from "./motion/scrollTimeline.js";
 import { mountSceneDirector, bindFacetToServices } from "./three/SceneDirector.js";
@@ -22,6 +23,7 @@ import { initReveals } from "./motion/reveal.js";
 import { initDepth, playHeroEntrance } from "./motion/parallax.js";
 import { initKinetic } from "./motion/kinetic.js";
 import { initScenes } from "./motion/scenes.js";
+import { initVoyage } from "./motion/voyage.js";
 import { initServices } from "./services/services.js";
 import { initPricing } from "./pricing/pricing.js";
 import { initOrderDialog } from "./contact/orderDialog.js";
@@ -70,6 +72,11 @@ function boot() {
   // worked, which is why this got past the first round of testing.
   // Park it explicitly now and re-measure once the page is really free.
   if (window.__spnIntroActive) lenis?.stop();
+
+  // The voyage pins its section, and ScrollTrigger measures in creation
+  // order: everything below a pin has to be created after it to account
+  // for the scroll distance the pin adds. So it goes first.
+  initVoyage({ reduceMotion });
 
   // Work is real DOM content now, so its height comes from the content
   // itself — there is no JS-sized spacer to measure, and nothing whose

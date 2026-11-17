@@ -47,6 +47,13 @@ function readGpuTierHint() {
 
 export function assessDeviceTier() {
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Development only: ?webgl forces the full scene, so it can be checked
+  // in a headless browser whose software renderer would otherwise be
+  // (rightly) refused below. Stripped from production builds.
+  if (import.meta.env?.DEV && new URLSearchParams(location.search).has("webgl")) {
+    return { tier: "full", reason: "forced", reduceMotion, maxDpr: 1, sphereSegments: 160 };
+  }
   const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   const saveData = Boolean(connection && connection.saveData);
   const slowConnection = Boolean(

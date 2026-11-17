@@ -2,7 +2,8 @@ import { createRenderer } from "./createRenderer.js";
 import { assessDeviceTier } from "./deviceTier.js";
 import { LiquidSurface } from "./scenes/LiquidSurface.js";
 import { FacetObject } from "./scenes/FacetObject.js";
-import { gsap, ScrollTrigger } from "../motion/scrollTimeline.js";
+import { Starfield } from "./scenes/Starfield.js";
+import { gsap, ScrollTrigger, getLenis } from "../motion/scrollTimeline.js";
 
 // The 3D layer, after Selected Work moved into the DOM.
 //
@@ -45,13 +46,10 @@ function distanceScale(camera) {
 // because the CSS half needs no canvas, nothing about WebGL's health can
 // take the background away.
 //
-// Where it moves is deliberate, and unchanged from what the last attempt
-// settled on: nothing above Selected Work touches it. Scrubbing anywhere
-// in the hero or the manifesto — up, down, a flicked thumb, a trackpad
-// bounce — leaves the surface at exactly 1, so the opening cannot be
-// made to change brightness at all. The dissolve begins only once Work
-// reaches the top of the viewport and is spent over the screen-height of
-// scrolling that carries it up.
+// Where it moves: across the hero's exit. The hero is an opaque film, so
+// the surface is only ever seen behind the film as it recedes into its
+// card — and by the time the page reaches the voyage, it has dissolved
+// into the starfield. Nothing after the hero touches it.
 function bindOpeningSurface() {
   const root = document.documentElement;
   let presence = 1;
@@ -66,21 +64,19 @@ function bindOpeningSurface() {
 
   set(1);
 
+  // The plum atmosphere belongs to the opening. It thins out while the
+  // hero's film recedes, so the page beyond opens onto deep space (the
+  // starfield) rather than a flat colour.
   const trigger =
-    document.querySelector('[data-chapter="work"]') ||
-    document.querySelector('[data-chapter="origin"]');
+    document.querySelector('[data-chapter="origin"]') ||
+    document.querySelector('[data-chapter="work"]');
 
   if (trigger) {
     ScrollTrigger.create({
       trigger,
       start: "top top",
-      // A function so the distance re-resolves against the viewport on
-      // every refresh (orientation change), instead of baking in the
-      // height the page happened to load at.
-      end: () => "+=" + Math.round(window.innerHeight * 0.8),
+      end: "bottom top",
       scrub: 0.4,
-      // Eased here, once, so the surface leaves gently at both ends
-      // rather than tapering at a constant rate into nothing.
       onUpdate: (self) => set(smoothstep(clamp01(1 - self.progress)))
     });
   }
@@ -113,6 +109,12 @@ export function mountSceneDirector() {
   const liquid = new LiquidSurface();
   liquid.mesh.position.set(0, 0, 6.5);
   scene.add(liquid.mesh);
+
+  const stars = new Starfield({
+    count: tier.tier === "full" ? 2600 : 1300,
+    pixelRatio: Math.min(window.devicePixelRatio || 1, tier.maxDpr || 1)
+  });
+  scene.add(stars.group);
 
   const facet = new FacetObject();
   facet.mesh.scale.setScalar(0.001); // hidden until the Services chapter scrubs it in
@@ -155,6 +157,13 @@ export function mountSceneDirector() {
       liquid.tick(dt, elapsed);
     }
 
+    // The journey: scroll position is distance travelled down the
+    // tunnel (plus a slow drift so space is never frozen), and scroll
+    // speed is warp.
+    const lenis = getLenis();
+    const scrolled = lenis ? lenis.animatedScroll : window.scrollY;
+    stars.tick(dt, elapsed, { travel: scrolled * 0.018 + elapsed * 0.45, velocity: lenis ? lenis.velocity : 0 });
+
     facet.tick(dt, elapsed);
 
     camera.position.x = pointer.x * 0.3;
@@ -164,7 +173,7 @@ export function mountSceneDirector() {
     facet.mesh.position.z = camera.position.z - 5.6 * distScale;
   });
 
-  return { tier, scene, camera, liquid, facet, onTick };
+  return { tier, scene, camera, liquid, facet, stars, onTick };
 }
 
 export function bindFacetToServices(director) {
