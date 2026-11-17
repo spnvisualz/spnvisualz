@@ -1,0 +1,74 @@
+/* ============================================================
+   VOYAGE — styles for src/motion/voyage.js.
+   ============================================================
+   A full-screen stage. The 3D field is a perspective box behind the
+   statement; the statement itself never leaves the screen plane, so it
+   stays crisp while everything around it moves in depth. */
+
+.chapter--voyage{
+  position: relative; z-index: 2;
+  min-height: 100svh;
+  display: grid; place-items: center;
+  padding: var(--header-h) var(--pad-inline);
+  overflow: hidden;
+}
+.voyage-space{
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+  perspective: 900px; perspective-origin: 50% 50%;
+}
+.voyage-track{
+  position: absolute; left: 50%; top: 50%; width: 0; height: 0;
+  transform-style: preserve-3d; will-change: transform;
+}
+.voyage-card{
+  position: absolute; margin: 0;
+  left: calc(var(--x, 0) * 1vw); top: calc(var(--y, 0) * 1vh);
+  width: clamp(190px, 21vw, 380px);
+  translate: -50% -50%;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+.voyage-card img{
+  display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover;
+  border-radius: 4px; border: 1px solid rgba(198,167,255,.28);
+  box-shadow: 0 40px 90px -30px rgba(0,0,0,.85), 0 0 70px -18px rgba(138,77,255,.45);
+}
+.voyage-card figcaption{
+  margin-top: 10px;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+  color: rgba(245,242,251,.62);
+}
+@media (max-width: 720px){
+  .voyage-card{ width: 46vw; }
+}
+
+.voyage-copy{
+  position: relative; z-index: 2; width: min(92vw, 1100px); text-align: center;
+  will-change: transform, opacity;
+}
+.voyage-copy .section-label{ margin-bottom: var(--space-md); }
+.chapter--voyage .manifesto-line{
+  max-width: 17ch; margin: 0 auto; text-align: center;
+  font-size: clamp(30px, 4.6vw, 74px); font-weight: 500; line-height: 1.06; letter-spacing: -.035em;
+  text-shadow: 0 6px 40px rgba(3,2,7,.7);
+}
+.voyage-count{
+  margin: var(--space-lg) 0 0; font-size: 11px; letter-spacing: .2em; color: var(--muted);
+}
+.voyage-count b{ color: var(--purple-light); font-weight: 500; }
+
+/* Reduced motion: just the statement, no field and no counter. */
+.chapter--voyage.is-static .voyage-space,
+.chapter--voyage.is-static .voyage-count{ display: none; }
+.chapter--voyage:not(.is-flying) .voyage-count{ display: none; }
+
+/* Words never break at their hyphens ("Motion-first"). */
+.chapter--voyage .manifesto-line .word{ display: inline-block; }
+/* A soft dark halo behind the statement: cards that drift behind it read
+   as further away instead of competing with the words. */
+.voyage-copy::before{
+  content: ""; position: absolute; z-index: -1; left: 50%; top: 50%;
+  width: 135%; height: 175%; translate: -50% -50%;
+  background: radial-gradient(closest-side, rgba(5,3,10,.82), rgba(5,3,10,.55) 55%, transparent 100%);
+  pointer-events: none;
+}

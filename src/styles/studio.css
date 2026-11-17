@@ -1,0 +1,224 @@
+/* ============================================================
+   STUDIO — the brand lockup and the page's editorial system.
+   ============================================================
+   One mark (the chrome S-orb), one wordmark face (Michroma, tracked
+   wide, chrome fill), one section-header pattern used everywhere.
+   Motion lives in src/motion/; this file is only how things look,
+   and every rule here holds with JavaScript off. */
+
+.visually-hidden{
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ---------- brand lockup ---------- */
+.brand{ display: inline-flex; align-items: center; gap: 10px; }
+.brand__mark{
+  width: 36px; height: 36px; object-fit: contain; flex: none;
+  filter: drop-shadow(0 0 10px rgba(138,77,255,.35));
+}
+.brand__word,
+.footer-lockup .brand__word{
+  font-family: var(--font-brand); font-weight: 400;
+  background: var(--chrome);
+  -webkit-background-clip: text; background-clip: text;
+  color: #efecf5; -webkit-text-fill-color: transparent;
+}
+.brand__word{ font-size: 12px; letter-spacing: .16em; padding-top: 1px; }
+.brand--lg{ gap: clamp(14px, 1.6vw, 22px); }
+.brand--lg .brand__mark{ width: clamp(56px, 5.6vw, 84px); height: auto; }
+.brand--lg .brand__word{ font-size: clamp(17px, 1.75vw, 25px); letter-spacing: .09em; }
+
+/* ---------- header ---------- */
+.site-header .brand__word{ transition: opacity .3s; }
+.header-nav{
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%;
+  display: flex; gap: clamp(20px, 2.2vw, 34px);
+}
+.header-nav a{
+  position: relative; font-size: 13px; letter-spacing: .01em;
+  color: var(--muted-on-surface); transition: color .3s;
+}
+.header-nav a::after{
+  content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 1px;
+  background: var(--purple-light); transform: scaleX(0); transform-origin: right;
+  transition: transform .45s var(--ease-depth);
+}
+.header-nav a:hover{ color: var(--text); }
+.header-nav a:hover::after{ transform: scaleX(1); transform-origin: left; }
+@media (max-width: 1100px){ .header-nav{ display: none; } }
+@media (max-width: 420px){ .site-header .brand__word{ display: none; } }
+
+/* The hero lives in hero.css. */
+
+/* ---------- capabilities line ---------- */
+.capabilities{
+  position: relative; z-index: 2; overflow: hidden;
+  border-block: 1px solid rgba(245,242,251,.12);
+  background: rgba(6,3,12,.22);
+  padding: clamp(16px, 2.2vw, 24px) 0;
+}
+.capabilities__row{
+  display: flex; align-items: center; gap: clamp(22px, 3vw, 44px);
+  width: max-content; white-space: nowrap; will-change: transform;
+  font-size: clamp(17px, 1.8vw, 24px); font-weight: 400; letter-spacing: -.01em;
+  color: var(--text);
+}
+.capabilities__row i{
+  width: 7px; height: 7px; border-radius: 50%; flex: none;
+  background: radial-gradient(circle at 35% 30%, #fff, var(--purple-light) 45%, var(--purple) 100%);
+  box-shadow: 0 0 10px rgba(198,167,255,.6);
+}
+
+/* ---------- section header system ---------- */
+.section-index{ display: inline-block; margin-right: 1.1em; opacity: .62; }
+.section-index::after{ content: ""; display: inline-block; width: 18px; height: 1px; margin-left: 1.1em; vertical-align: middle; background: currentColor; opacity: .7; }
+
+@media (min-width: 900px){
+  .chapter .section-head,
+  .chapter--manifesto{
+    display: grid; grid-template-columns: minmax(200px, 1fr) 3fr; column-gap: var(--space-lg);
+  }
+  .chapter .section-head .section-label,
+  .chapter--manifesto .section-label{ grid-column: 1; grid-row: 1; margin-top: .9em; }
+  .chapter .section-head h2{ grid-column: 2; grid-row: 1; }
+  .chapter .section-head .offer-note{ grid-column: 2; grid-row: 2; }
+  .chapter--manifesto .manifesto-line{ grid-column: 2; grid-row: 1; }
+}
+.chapter .section-head{
+  border-top: 1px solid var(--line); padding-top: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+.chapter .section-head h2{
+  font-size: clamp(36px, 5vw, 76px); font-weight: 500; letter-spacing: -.035em; line-height: 1;
+  margin: 8px 0 0;
+}
+.chapter .section-head .offer-note{ margin: var(--space-sm) 0 0; }
+
+/* Selected Work keeps its own header (it carries the counter) on the
+   same grid. */
+.work-head{
+  margin: 0 var(--pad-inline) var(--space-2xl); padding: var(--space-md) 0 0;
+  border-top: 1px solid var(--line); align-items: end;
+}
+.work-head > div{ flex: 1 1 auto; }
+@media (min-width: 900px){
+  .work-head > div{ display: grid; grid-template-columns: minmax(200px, 1fr) 3fr; column-gap: var(--space-lg); }
+  .work-head .section-label{ margin-top: .9em; }
+}
+.work-head h2{ font-weight: 500; font-size: clamp(36px, 5vw, 76px); letter-spacing: -.035em; line-height: 1; }
+
+/* ---------- manifesto ---------- */
+.chapter--manifesto{
+  min-height: 0; display: block;
+  padding: clamp(90px, 14vw, 180px) var(--pad-inline);
+}
+.manifesto-line{
+  max-width: 24ch; margin: 0; text-align: left;
+  font-size: clamp(28px, 4.2vw, 62px); font-weight: 500; letter-spacing: -.03em; line-height: 1.1;
+}
+
+/* ---------- work: a way into each case study ---------- */
+.work-item__link{
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-top: var(--space-md); padding-bottom: 6px;
+  font-size: 13px; letter-spacing: .02em; color: var(--text);
+  border-bottom: 1px solid rgba(198,167,255,.35);
+  transition: border-color .3s, gap .45s var(--ease-depth);
+}
+.work-item__link i{ font-style: normal; color: var(--purple-light); }
+.work-item__link:hover{ border-color: var(--purple-light); gap: 16px; }
+.work-item__media{ cursor: pointer; }
+.work-item__media img, .work-item__media video{ transition: filter .6s; }
+.work-item__media:hover video{ filter: brightness(1.08) saturate(1.08); }
+
+/* ---------- services ---------- */
+.service-row{ position: relative; }
+.service-row::before{
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+  background: linear-gradient(var(--purple-light), var(--purple));
+  transform: scaleY(0); transform-origin: top; transition: transform .45s var(--ease-depth);
+}
+.service-row:hover::before, .service-row.is-active::before{ transform: scaleY(1); }
+
+/* ---------- staggered arrivals (parallax.js) ---------- */
+.stagger-item{
+  opacity: 0; translate: 0 24px;
+  transition:
+    opacity .8s var(--ease-depth) calc(var(--stagger, 0) * 80ms),
+    translate .8s var(--ease-depth) calc(var(--stagger, 0) * 80ms),
+    border-color .4s var(--ease-signal), box-shadow .5s;
+}
+.stagger-item.is-in{ opacity: 1; translate: 0 0; }
+
+/* ---------- primary button: light sweep ---------- */
+.btn{ position: relative; overflow: hidden; isolation: isolate; }
+.btn > span{ position: relative; z-index: 1; }
+.btn--light::after{
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(138,77,255,.22) 48%, rgba(198,167,255,.34) 52%, transparent 70%);
+  translate: -120% 0; transition: translate .9s var(--ease-depth);
+}
+.btn--light:hover::after{ translate: 120% 0; }
+
+/* ---------- footer ---------- */
+.site-footer{
+  display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 2fr);
+  gap: var(--space-xl) var(--space-lg); align-items: start;
+  padding: var(--space-2xl) var(--pad-inline) var(--space-md);
+  font-size: 14px; color: var(--muted);
+}
+.footer-tagline{
+  margin: var(--space-md) 0 0;
+  font-size: 11px; letter-spacing: .42em; text-transform: uppercase; color: var(--muted);
+}
+.footer-tagline span{ color: var(--purple-light); }
+.site-footer-links{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-lg); }
+.site-footer-links > div{ display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.footer-head{
+  margin: 0 0 4px; font-family: var(--font-mono); font-size: 10px; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--quiet);
+}
+.site-footer-links a, .footer-link-button{ color: var(--muted); transition: color .25s; }
+.site-footer-links a:hover, .footer-link-button:hover{ color: var(--text); }
+.footer-link-button{ padding: 0; border: 0; background: none; cursor: pointer; font-size: inherit; text-align: left; }
+.footer-base{
+  grid-column: 1 / -1;
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-sm);
+  padding-top: var(--space-md); border-top: 1px solid var(--line);
+  font-size: 12px; color: var(--quiet);
+}
+.footer-base p{ margin: 0; }
+.footer-legal{ display: flex; flex-wrap: wrap; gap: var(--space-md); }
+.footer-legal a:hover{ color: var(--text); }
+@media (max-width: 860px){
+  .site-footer{ grid-template-columns: 1fr; }
+  .site-footer-links{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* the basket floats bottom-right on phones; keep the legal links clear of it */
+  .footer-base{ padding-bottom: 76px; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .stagger-item{ opacity: 1; translate: none; }
+}
+
+/* ---------- contact: a closing spread ----------
+   The heading carries the left side; the ways to reach the studio sit
+   in their own column on the right, bottom-aligned with it. */
+.chapter--contact{ min-height: 0; padding-block: clamp(110px, 16vw, 200px); }
+.chapter--contact .contact-inner{ max-width: none; width: 100%; }
+.chapter--contact .contact-inner h2{ font-size: clamp(54px, 10.5vw, 168px); letter-spacing: -.045em; line-height: .9; font-weight: 500; }
+@media (min-width: 900px){
+  .chapter--contact .contact-inner{
+    display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr);
+    column-gap: var(--space-xl); align-items: end;
+  }
+  .chapter--contact .contact-inner > *{ grid-column: 1; }
+  .chapter--contact .contact-details{
+    grid-column: 2; grid-row: 2 / span 3; align-self: end;
+    flex-direction: column; gap: var(--space-md);
+    border-top: 0; padding: 0 0 0 var(--space-lg); border-left: 1px solid var(--line);
+    margin-bottom: var(--space-xl);
+  }
+  .chapter--contact .contact-details a strong{ font-size: clamp(18px, 1.6vw, 24px); }
+}

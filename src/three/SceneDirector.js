@@ -2,8 +2,8 @@ import { createRenderer } from "./createRenderer.js";
 import { assessDeviceTier } from "./deviceTier.js";
 import { LiquidSurface } from "./scenes/LiquidSurface.js";
 import { FacetObject } from "./scenes/FacetObject.js";
-import { Planet } from "./Planet.js";
-import { gsap, ScrollTrigger } from "../motion/scrollTimeline.js";
+import { Starfield } from "./scenes/Starfield.js";
+import { gsap, ScrollTrigger, getLenis } from "../motion/scrollTimeline.js";
 
 // The 3D layer, after Selected Work moved into the DOM.
 //
@@ -11,7 +11,7 @@ import { gsap, ScrollTrigger } from "../motion/scrollTimeline.js";
 // lived inside. That coupling is gone: the camera no longer travels, so
 // nothing here depends on measuring page height, and there is no way for
 // scroll and camera to fall out of step. What remains is atmosphere —
-// the liquid chrome opening, the Services object, the Contact planet —
+// the liquid chrome opening and the Services object —
 // each bound to its own section by a plain ScrollTrigger.
 //
 // A fixed vertical FOV projects a fixed world-space object to very
@@ -46,13 +46,10 @@ function distanceScale(camera) {
 // because the CSS half needs no canvas, nothing about WebGL's health can
 // take the background away.
 //
-// Where it moves is deliberate, and unchanged from what the last attempt
-// settled on: nothing above Selected Work touches it. Scrubbing anywhere
-// in the hero or the manifesto — up, down, a flicked thumb, a trackpad
-// bounce — leaves the surface at exactly 1, so the opening cannot be
-// made to change brightness at all. The dissolve begins only once Work
-// reaches the top of the viewport and is spent over the screen-height of
-// scrolling that carries it up.
+// Where it moves: across the hero's exit. The hero is an opaque film, so
+// the surface is only ever seen behind the film as it recedes into its
+// card — and by the time the page reaches the voyage, it has dissolved
+// into the starfield. Nothing after the hero touches it.
 function bindOpeningSurface() {
   const root = document.documentElement;
   let presence = 1;
@@ -67,21 +64,19 @@ function bindOpeningSurface() {
 
   set(1);
 
+  // The plum atmosphere belongs to the opening. It thins out while the
+  // hero's film recedes, so the page beyond opens onto deep space (the
+  // starfield) rather than a flat colour.
   const trigger =
-    document.querySelector('[data-chapter="work"]') ||
-    document.querySelector('[data-chapter="origin"]');
+    document.querySelector('[data-chapter="origin"]') ||
+    document.querySelector('[data-chapter="work"]');
 
   if (trigger) {
     ScrollTrigger.create({
       trigger,
       start: "top top",
-      // A function so the distance re-resolves against the viewport on
-      // every refresh (orientation change), instead of baking in the
-      // height the page happened to load at.
-      end: () => "+=" + Math.round(window.innerHeight * 0.8),
+      end: "bottom top",
       scrub: 0.4,
-      // Eased here, once, so the surface leaves gently at both ends
-      // rather than tapering at a constant rate into nothing.
       onUpdate: (self) => set(smoothstep(clamp01(1 - self.progress)))
     });
   }
@@ -115,13 +110,16 @@ export function mountSceneDirector() {
   liquid.mesh.position.set(0, 0, 6.5);
   scene.add(liquid.mesh);
 
+  const stars = new Starfield({
+    count: tier.tier === "full" ? 2600 : 1300,
+    pixelRatio: Math.min(window.devicePixelRatio || 1, tier.maxDpr || 1)
+  });
+  scene.add(stars.group);
+
   const facet = new FacetObject();
   facet.mesh.scale.setScalar(0.001); // hidden until the Services chapter scrubs it in
   scene.add(facet.mesh);
 
-  const planet = new Planet({ segments: tier.sphereSegments || 120, reduceMotion: tier.reduceMotion });
-  planet.mesh.scale.setScalar(0.001);
-  scene.add(planet.mesh);
 
   // Pointer parallax is a mouse affordance only. Pointer Events unify
   // touch and mouse, so without this filter a finger dragged across the
@@ -159,18 +157,23 @@ export function mountSceneDirector() {
       liquid.tick(dt, elapsed);
     }
 
+    // The journey: scroll position is distance travelled down the
+    // tunnel (plus a slow drift so space is never frozen), and scroll
+    // speed is warp.
+    const lenis = getLenis();
+    const scrolled = lenis ? lenis.animatedScroll : window.scrollY;
+    stars.tick(dt, elapsed, { travel: scrolled * 0.018 + elapsed * 0.45, velocity: lenis ? lenis.velocity : 0 });
+
     facet.tick(dt, elapsed);
-    planet.tick(dt, elapsed);
 
     camera.position.x = pointer.x * 0.3;
     camera.position.y = pointer.y * 0.18;
     camera.lookAt(0, 0, camera.position.z - 6);
 
     facet.mesh.position.z = camera.position.z - 5.6 * distScale;
-    planet.mesh.position.z = camera.position.z - 4 * distScale;
   });
 
-  return { tier, scene, camera, liquid, facet, planet, onTick };
+  return { tier, scene, camera, liquid, facet, stars, onTick };
 }
 
 export function bindFacetToServices(director) {
@@ -183,8 +186,8 @@ export function bindFacetToServices(director) {
   // there's no side column for an object the way desktop has — so it
   // needs to sit further out AND smaller, not just further away.
   const distScale = distanceScale(director.camera);
-  const xOffset = 2.1 + Math.min(2.2, (distScale - 1) * 1.1);
-  const peakScale = 1.3 / Math.sqrt(distScale);
+  const xOffset = 1.75 + Math.min(2.2, (distScale - 1) * 1.1);
+  const peakScale = 1.02 / Math.sqrt(distScale);
 
   director.facet.mesh.position.set(xOffset, 0.15, director.camera.position.z - 5.6 * distScale);
 
@@ -196,24 +199,12 @@ export function bindFacetToServices(director) {
     scrollTrigger: { trigger: section, start: "bottom 60%", end: "bottom top", scrub: 1 }
   }).to(director.facet.mesh.scale, { x: 0.001, y: 0.001, z: 0.001, ease: "none" });
 
+  // The row in the middle of the screen drives it while scrolling
+  // (motion/scenes.js); hover and focus still take over directly.
+  window.addEventListener("spn:service", (e) => director.facet.setService(e.detail.index));
+
   rows.forEach((row, i) => {
     row.addEventListener("mouseenter", () => director.facet.setService(i));
     row.addEventListener("focus", () => director.facet.setService(i));
   });
-}
-
-export function bindPlanetToContact(director) {
-  if (!director || !director.planet) return;
-  const section = document.querySelector('[data-chapter="contact"]');
-  if (!section) return;
-
-  const distScale = distanceScale(director.camera);
-  const xOffset = 2.4 + Math.min(2.2, (distScale - 1) * 1.1);
-  const peakScale = 1 / Math.sqrt(distScale);
-
-  director.planet.mesh.position.set(xOffset, -0.1, director.camera.position.z - 4 * distScale);
-
-  gsap.timeline({
-    scrollTrigger: { trigger: section, start: "top bottom", end: "top 45%", scrub: 1 }
-  }).to(director.planet.mesh.scale, { x: peakScale, y: peakScale, z: peakScale, ease: "none" });
 }

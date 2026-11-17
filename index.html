@@ -264,7 +264,10 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" />
+  <link rel="preload" as="image" href="/assets/images/spn-mark-112.webp" type="image/webp" />
+  <link rel="preload" as="image" href="/assets/images/hero-reel.webp" type="image/webp" media="(min-width: 721px)" />
+  <link rel="preload" as="image" href="/assets/images/hero-reel-mobile.webp" type="image/webp" media="(max-width: 720px)" />
   <link rel="preload" as="image" href="/assets/images/spn-orb-arrival.webp" type="image/webp" fetchpriority="high" />
   <link rel="preload" as="image" href="/assets/images/spn-planet-n.webp" type="image/webp" />
   <link rel="preload" as="image" href="/assets/images/spn-planet-h.webp" type="image/webp" />
@@ -328,12 +331,16 @@
     #spnIntro.is-ready .spn-intro__enter,
     #spnIntro.is-static .spn-intro__enter{ opacity: 1; transform: none; }
 
+    /* The brand wordmark: Michroma, tracked wide, chrome. Same lockup as
+       the header, hero and footer (src/styles/studio.css). */
     .spn-intro__word{
-      margin: 0; font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-      font-size: clamp(30px, 7vw, 62px); font-weight: 700; letter-spacing: -.03em;
-      line-height: 1; color: #fff;
+      margin: 0; font-family: "Michroma", "Space Grotesk", ui-sans-serif, sans-serif;
+      font-size: clamp(22px, 5.6vw, 48px); font-weight: 400; letter-spacing: .08em;
+      line-height: 1; color: #f3f0f8;
+      background: linear-gradient(180deg, #ffffff 0%, #e4dfee 40%, #8e86a3 52%, #f1eef7 66%, #bdb5cc 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .spn-intro__word span{ color: #c6a7ff; }
+    .spn-intro__word span{ color: inherit; }
     .spn-intro__tag{
       margin: 0; font-family: "IBM Plex Mono", ui-monospace, monospace;
       font-size: clamp(9px, 2.2vw, 11px); letter-spacing: .34em; text-transform: uppercase;
@@ -420,7 +427,17 @@
 
   <!-- ============ NAVIGATION ============ -->
   <header class="site-header" id="siteHeader">
-    <a class="wordmark" href="#top" aria-label="SPNVISUALZ home">SPN<span>VISUALZ</span></a>
+    <a class="brand" href="#top" aria-label="SPNVISUALZ home">
+      <img class="brand__mark" src="/assets/images/spn-mark-112.webp" alt="" width="56" height="56" decoding="async" />
+      <span class="brand__word">SPNVISUALZ</span>
+    </a>
+    <nav class="header-nav" aria-label="Sections">
+      <a href="#work">Work</a>
+      <a href="#services">Services</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#process">Process</a>
+      <a href="#contact">Contact</a>
+    </nav>
     <div class="header-actions">
       <button class="project-button" type="button" data-order><span>Start a project</span></button>
       <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="siteMenu">
@@ -461,27 +478,66 @@
   <main id="main">
 
     <!-- ============ ORIGIN ============ -->
-    <section class="chapter chapter--origin" id="top" data-chapter="origin">
-      <div class="origin-mark">
-        <p class="origin-eyebrow mono">OSLO &mdash; MOTION &amp; IDENTITY STUDIO</p>
-        <h1 class="origin-word">SPNVISUALZ</h1>
+    <section class="chapter chapter--origin hero" id="top" data-chapter="origin">
+      <!-- The showreel: six projects cut together (assets/videos/hero-reel*.mp4).
+           Painted as a still by CSS first; heroReel.js starts the film once
+           the intro has finished, and never on save-data or reduced motion. -->
+      <div class="hero-reel" aria-hidden="true">
+        <video class="hero-reel__video" muted loop playsinline preload="none" tabindex="-1"
+          data-src="/assets/videos/hero-reel.mp4" data-src-mobile="/assets/videos/hero-reel-mobile.mp4"></video>
+        <span class="hero-reel__shade"></span>
       </div>
-      <div class="origin-scroll">
-        <span>Scroll</span>
-        <b aria-hidden="true"></b>
+      <div class="hero-grid" data-hero-mark>
+        <div class="hero-top">
+          <p class="hero-statement">A motion &amp; identity studio from Oslo. <span>We make names move &mdash; logos, reveals and visual worlds for artists, brands and events.</span></p>
+          <a class="hero-now" href="/work/icekiid/" data-hero-now>
+            <span class="hero-now__label mono">Now playing</span>
+            <span class="hero-now__row">
+              <span class="hero-now__num"><b>01</b></span>
+              <span class="hero-now__total mono">/ 06</span>
+            </span>
+            <span class="hero-now__title"><b>Icekiid</b></span>
+            <span class="hero-now__bar" aria-hidden="true"><i></i></span>
+          </a>
+        </div>
+        <h1 class="origin-word" data-fit>SPNVISUALZ</h1>
+        <div class="hero-bottom">
+          <p class="origin-eyebrow mono">Visuals that connect &mdash; Oslo / worldwide</p>
+          <div class="origin-scroll">
+            <span>Scroll</span>
+            <b aria-hidden="true"></b>
+          </div>
+          <a class="hero-link" href="#work">Selected work <i aria-hidden="true">&darr;</i></a>
+        </div>
       </div>
     </section>
 
-    <!-- ============ MANIFESTO (brief beat as the camera starts moving) ============ -->
-    <section class="chapter chapter--manifesto" data-chapter="manifesto">
-      <p class="manifesto-line">Oslo-based. Motion-first.<br />Built for artists, brands and events.</p>
+    <!-- ============ CAPABILITIES — one quiet line, moving with the scroll ============ -->
+    <div class="capabilities" aria-hidden="true">
+      <div class="capabilities__row" data-marquee="-1">
+        <span>Logo design</span><i></i><span>Animated logos</span><i></i><span>Intros</span><i></i><span>Motion loops</span><i></i><span>Social visuals</span><i></i><span>Brand systems</span><i></i><span>Websites</span><i></i>
+        <span>Logo design</span><i></i><span>Animated logos</span><i></i><span>Intros</span><i></i><span>Motion loops</span><i></i><span>Social visuals</span><i></i><span>Brand systems</span><i></i><span>Websites</span><i></i>
+      </div>
+    </div>
+
+    <!-- ============ VOYAGE — the studio statement, flown through the work ============
+         Pinned while the scroll carries the camera through the projects,
+         set at depth in 3D space around the statement (src/motion/voyage.js).
+         Without JS, or with reduced motion, it is simply the statement. -->
+    <section class="chapter chapter--voyage" data-chapter="manifesto" aria-labelledby="voyageStatement">
+      <div class="voyage-space" aria-hidden="true"><div class="voyage-track"></div></div>
+      <div class="voyage-copy">
+        <p class="section-label"><span class="section-index">01</span>The studio</p>
+        <p class="manifesto-line" id="voyageStatement" data-split-words>Oslo-based. Motion-first. Built for artists, brands and events that want to be remembered.</p>
+        <p class="voyage-count mono" aria-hidden="true"><b data-voyage-count>00</b> / 10 worlds</p>
+      </div>
     </section>
 
     <!-- ============ SELECTED WORK ============ -->
     <section class="chapter chapter--work" id="work" data-chapter="work">
       <header class="work-head reveal">
         <div>
-          <p class="section-label">Selected work</p>
+          <p class="section-label"><span class="section-index">02</span>Selected work</p>
           <h2>Motion that carries a name.</h2>
         </div>
         <p class="work-head__count"><b id="workCurrent">01</b> / <span id="workTotal">10</span></p>
@@ -496,6 +552,7 @@
             <p class="work-item__tag mono"><span class="work-item__num">01</span>ARTIST MOTION LOOP</p>
             <h3 class="work-item__title">Icekiid</h3>
             <p class="work-item__desc">Ice-built lettering and sharp stage motion designed to land with impact.</p>
+            <a class="work-item__link" href="/work/icekiid/">Case study<span class="visually-hidden"> &mdash; Icekiid</span> <i aria-hidden="true">&rarr;</i></a>
           </div>
         </article>
         <article class="work-item" data-index="1" id="work-byron-messia">
@@ -507,6 +564,7 @@
             <p class="work-item__tag mono"><span class="work-item__num">02</span>ARTIST MOTION LOOP</p>
             <h3 class="work-item__title">Byron Messia</h3>
             <p class="work-item__desc">Motion identity built for an artist's release cycle.</p>
+            <a class="work-item__link" href="/work/byron-messia/">Case study<span class="visually-hidden"> &mdash; Byron Messia</span> <i aria-hidden="true">&rarr;</i></a>
           </div>
         </article>
         <article class="work-item" data-index="2" id="work-illegal-vybz-darkoo">
@@ -518,6 +576,7 @@
             <p class="work-item__tag mono"><span class="work-item__num">03</span>ARTIST TITLE</p>
             <h3 class="work-item__title">Illegal Vybz × Darkoo</h3>
             <p class="work-item__desc">Darkoo's name tears into frame beneath the Illegal Vybz mark.</p>
+            <a class="work-item__link" href="/work/illegal-vybz-darkoo/">Case study<span class="visually-hidden"> &mdash; Illegal Vybz × Darkoo</span> <i aria-hidden="true">&rarr;</i></a>
           </div>
         </article>
         <article class="work-item" data-index="3" id="work-3-nation-studios">
@@ -529,6 +588,7 @@
             <p class="work-item__tag mono"><span class="work-item__num">04</span>LOGO MOTION</p>
             <h3 class="work-item__title">3 Nation Studios</h3>
             <p class="work-item__desc">Diamond-set type, high-gloss lighting and a reveal made to feel expensive.</p>
+            <a class="work-item__link" href="/work/3-nation-studios/">Case study<span class="visually-hidden"> &mdash; 3 Nation Studios</span> <i aria-hidden="true">&rarr;</i></a>
           </div>
         </article>
         <article class="work-item" data-index="4" id="work-motion-view">
@@ -540,6 +600,7 @@
             <p class="work-item__tag mono"><span class="work-item__num">05</span>BRAND VISUAL</p>
             <h3 class="work-item__title">Motion View</h3>
             <p class="work-item__desc">An atmospheric motion loop built for screens and social playback.</p>
+            <a class="work-item__link" href="/work/motion-view/">Case study<span class="visually-hidden"> &mdash; Motion View</span> <i aria-hidden="true">&rarr;</i></a>
           </div>
         </article>
         <article class="work-item" data-index="5" id="work-prince-o">
@@ -551,6 +612,7 @@
             <p class="work-item__tag mono"><span class="work-item__num">06</span>ARTIST VISUALS</p>
             <h3 class="work-item__title">Prince O</h3>
             <p class="work-item__desc">A dark chrome signature engineered to land with impact in every reveal.</p>
+            <a class="work-item__link" href="/work/prince-o/">Case study<span class="visually-hidden"> &mdash; Prince O</span> <i aria-hidden="true">&rarr;</i></a>
           </div>
         </article>
         <article class="work-item" data-index="6" id="work-no-one-is-illegal">
@@ -562,6 +624,7 @@
             <p class="work-item__tag mono"><span class="work-item__num">07</span>BRAND VISUAL</p>
             <h3 class="work-item__title">No One Is Illegal</h3>
             <p class="work-item__desc">The Illegal Vybz mark caged in a glowing sphere beneath its headline.</p>
+            <a class="work-item__link" href="/work/no-one-is-illegal/">Case study<span class="visually-hidden"> &mdash; No One Is Illegal</span> <i aria-hidden="true">&rarr;</i></a>
           </div>
         </article>
         <article class="work-item" data-index="7" id="work-illegal-vybz-truck">
@@ -573,6 +636,7 @@
             <p class="work-item__tag mono"><span class="work-item__num">08</span>BRAND VISUAL</p>
             <h3 class="work-item__title">Illegal Vybz Truck</h3>
             <p class="work-item__desc">An Illegal Vybz truck tearing down a wet motorway at night, tracked by a helicopter.</p>
+            <a class="work-item__link" href="/work/illegal-vybz-truck/">Case study<span class="visually-hidden"> &mdash; Illegal Vybz Truck</span> <i aria-hidden="true">&rarr;</i></a>
           </div>
         </article>
         <article class="work-item" data-index="8" id="work-tao-1">
@@ -584,6 +648,7 @@
             <p class="work-item__tag mono"><span class="work-item__num">09</span>ARTIST MOTION LOOP</p>
             <h3 class="work-item__title">TAO 1.0</h3>
             <p class="work-item__desc">A cinematic artist mark shaped through metal, movement and atmosphere.</p>
+            <a class="work-item__link" href="/work/tao-1/">Case study<span class="visually-hidden"> &mdash; TAO 1.0</span> <i aria-hidden="true">&rarr;</i></a>
           </div>
         </article>
         <article class="work-item" data-index="9" id="work-tao-2">
@@ -595,6 +660,7 @@
             <p class="work-item__tag mono"><span class="work-item__num">10</span>ARTIST INTRO</p>
             <h3 class="work-item__title">TAO 2.0</h3>
             <p class="work-item__desc">An extended visual world built around the same identity.</p>
+            <a class="work-item__link" href="/work/tao-2/">Case study<span class="visually-hidden"> &mdash; TAO 2.0</span> <i aria-hidden="true">&rarr;</i></a>
           </div>
         </article>
       </div>
@@ -603,10 +669,10 @@
     <!-- ============ SERVICES ============ -->
     <section class="chapter chapter--services section-pad" id="services" data-chapter="services">
       <header class="section-head reveal">
-        <p class="section-label">What we create</p>
+        <p class="section-label"><span class="section-index">03</span>What we create</p>
         <h2>Services</h2>
       </header>
-      <ol class="service-list">
+      <ol class="service-list" data-stagger>
         <li>
           <button class="service-row is-active" type="button"
             data-product="Logo Design" data-sku="logo-basic" data-price="From &euro;22"
@@ -661,7 +727,7 @@
     <!-- ============ PRICING ============ -->
     <section class="chapter chapter--pricing section-pad" id="pricing" data-chapter="pricing">
       <header class="section-head reveal">
-        <p class="section-label">Clear packages</p>
+        <p class="section-label"><span class="section-index">04</span>Clear packages</p>
         <h2>Pricing</h2>
         <p class="offer-note">Clear project pricing. Express delivery is available for +40%.</p>
       </header>
@@ -671,7 +737,7 @@
         <button id="bundleTab" type="button" role="tab" aria-selected="false" aria-controls="bundlePrices">Bundles</button>
       </div>
 
-      <div class="price-panel is-active" id="singlePrices" role="tabpanel" aria-labelledby="singleTab">
+      <div class="price-panel is-active" id="singlePrices" role="tabpanel" aria-labelledby="singleTab" data-stagger>
         <article class="price-row">
           <div class="price-row__head"><span class="mono">01 / LOGO</span><h3>Logo design</h3></div>
           <div class="price-row__tiers">
@@ -732,13 +798,13 @@
     </section>
 
     <!-- ============ PROCESS ============ -->
-    <section class="chapter chapter--process section-pad" data-chapter="process">
-      <header class="section-head reveal"><p class="section-label">Simple process</p><h2>How it works</h2></header>
-      <ol class="process-line">
-        <li class="reveal"><span class="mono">01</span><strong>Choose</strong><p>Select a service or ask for a custom project.</p></li>
-        <li class="reveal"><span class="mono">02</span><strong>Send your idea</strong><p>Share the name, references and feeling you want.</p></li>
-        <li class="reveal"><span class="mono">03</span><strong>We create</strong><p>Your direction becomes a polished visual world.</p></li>
-        <li class="reveal"><span class="mono">04</span><strong>Receive</strong><p>Final files arrive ready for the platforms you use.</p></li>
+    <section class="chapter chapter--process section-pad" id="process" data-chapter="process">
+      <header class="section-head reveal"><p class="section-label"><span class="section-index">05</span>Simple process</p><h2>How it works</h2></header>
+      <ol class="process-line" data-stagger data-process-line>
+        <li class="process-card" data-spotlight><span class="mono">01</span><strong>Choose</strong><p>Select a service or ask for a custom project.</p></li>
+        <li class="process-card" data-spotlight><span class="mono">02</span><strong>Send your idea</strong><p>Share the name, references and feeling you want.</p></li>
+        <li class="process-card" data-spotlight><span class="mono">03</span><strong>We create</strong><p>Your direction becomes a polished visual world.</p></li>
+        <li class="process-card" data-spotlight><span class="mono">04</span><strong>Receive</strong><p>Final files arrive ready for the platforms you use.</p></li>
       </ol>
     </section>
 
@@ -747,7 +813,7 @@
 
     <!-- ============ VISUAL LAB portal ============ -->
     <section class="chapter chapter--lab section-pad" data-chapter="lab">
-      <a class="lab-portal reveal" href="/visual-lab/">
+      <a class="lab-portal reveal" href="/visual-lab/" data-spotlight>
         <span class="lab-portal__label mono">SPNVISUALZ / EDITORIAL</span>
         <h2>Enter the<br />Visual Lab</h2>
         <p>Studio notes on identity, motion, chrome and digital worlds.</p>
@@ -758,7 +824,7 @@
     <!-- ============ CONTACT ============ -->
     <section class="chapter chapter--contact section-pad" id="contact" data-chapter="contact">
       <div class="contact-inner">
-        <p class="section-label reveal">Contact</p>
+        <p class="section-label reveal"><span class="section-index">06</span>Contact</p>
         <h2 class="reveal">Start a project</h2>
         <p class="contact-lead reveal">Tell us what you need. We&rsquo;ll help shape the right visual direction.</p>
         <div class="contact-actions reveal">
@@ -775,21 +841,45 @@
   </main>
 
   <footer class="site-footer">
-    <a class="wordmark" href="#top">SPN<span>VISUALZ</span></a>
+    <div class="footer-lockup">
+      <a class="brand brand--lg" href="#top" aria-label="SPNVISUALZ home">
+        <img class="brand__mark" src="/assets/images/spn-mark.webp" alt="" width="562" height="562" loading="lazy" decoding="async" />
+        <span class="brand__word">SPNVISUALZ</span>
+      </a>
+      <p class="footer-tagline">Visuals that <span>connect.</span></p>
+    </div>
     <nav class="site-footer-links" aria-label="Footer navigation">
-      <a href="/about/">About</a>
-      <a href="/websites/">Website Services</a>
-      <a href="/visual-lab/">Visual Lab</a>
-      <a href="/terms/">Terms of sale</a>
-      <a href="/privacy/">Privacy</a>
-      <!-- consent.js opens its preferences panel from this hook. Every
-           other page carried one; without it here the banner's own
-           "change this later in the footer" line was false on the page
-           most visitors see, and an accepted choice could not be
-           withdrawn without clearing site data. -->
-      <a href="#" data-consent-settings>Privacy settings</a>
+      <div>
+        <p class="footer-head">Studio</p>
+        <a href="#work">Selected work</a>
+        <a href="#services">Services</a>
+        <a href="#pricing">Pricing</a>
+        <a href="/about/">About</a>
+      </div>
+      <div>
+        <p class="footer-head">Explore</p>
+        <a href="/websites/">Website services</a>
+        <a href="/visual-lab/">Visual Lab</a>
+        <a href="/work/">Case studies</a>
+      </div>
+      <div>
+        <p class="footer-head">Contact</p>
+        <a href="mailto:spnvisualz@gmail.com">spnvisualz@gmail.com</a>
+        <a href="https://instagram.com/na.flamez" target="_blank" rel="noopener noreferrer">Instagram</a>
+        <button class="footer-link-button" type="button" data-order>Start a project</button>
+      </div>
     </nav>
-    <p>&copy; <span id="year">2026</span> SPNVISUALZ. All rights reserved.</p>
+    <div class="footer-base">
+      <p>&copy; <span id="year">2026</span> SPNVISUALZ. All rights reserved.</p>
+      <p class="footer-legal">
+        <a href="/terms/">Terms of sale</a>
+        <a href="/privacy/">Privacy</a>
+        <!-- consent.js opens its preferences panel from this hook. Without it
+             the banner's "change this later in the footer" line is false on
+             the page most visitors see. -->
+        <a href="#" data-consent-settings>Privacy settings</a>
+      </p>
+    </div>
   </footer>
 
   <dialog class="order-dialog" id="orderDialog" aria-labelledby="orderDialogTitle">
