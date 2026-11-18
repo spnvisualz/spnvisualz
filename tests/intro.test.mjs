@@ -76,9 +76,9 @@ test('the arrival is the S planet alone; the old companion worlds are gone', () 
 });
 
 for (const [width, height] of [[390, 844], [360, 640], [1440, 900], [844, 390]]) {
-  test(`jump lands on the S planet and exits at ${width}×${height}`, () => {
+  test(`planet rise lands on the S planet and exits at ${width}×${height}`, () => {
     const r = runtime({ width, height });
-    r.advance(5100);
+    r.advance(6400);
     assert.deepEqual([...new Set(r.draws.map(d => d.letter))], ['S']);
     assert.ok(r.removed);
     assert.equal(r.window.__spnIntroActive, false);
@@ -88,11 +88,11 @@ for (const [width, height] of [[390, 844], [360, 640], [1440, 900], [844, 390]])
   });
 }
 
-test('the planet is not drawn before the drop out', () => {
-  const r = runtime(); r.advance(2000);
-  assert.equal(r.draws.length, 0, 'still in hyperspace at 2s');
-  r.advance(3000);
-  assert.ok(r.draws.length > 0, 'arrived by 3s');
+test('the planet art stays a silhouette until the ring is drawn', () => {
+  const r = runtime(); r.advance(3600);
+  assert.equal(r.draws.length, 0, 'horizon, pull-back and ring trace use no artwork');
+  r.advance(4600);
+  assert.ok(r.draws.length > 0, 'lit by 4.6s');
 });
 test('reduced motion shows static main Orb and exits without animation', () => {
   const r = runtime({ reduced: true }); r.advance(2400);
@@ -121,5 +121,5 @@ test('a late poster load cannot start a second animation loop', () => {
   r.poster.complete = true; r.poster.naturalWidth = 1254;
   r.poster.emit('load');
   assert.equal(r.frames.size, 1);
-  r.advance(6000); assert.ok(r.removed);
+  r.advance(7200); assert.ok(r.removed);
 });
