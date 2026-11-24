@@ -44,9 +44,7 @@
   line-height: .9;
   mix-blend-mode: overlay;
   color: #fff;
-  /* The entrance is per letter now (depth.css), and an animation filling
-     `both` would pin transform on the heading forever. Without JS the
-     heading is simply there. */
+  animation: originFade 1.6s var(--ease-depth) both;
 }
 @keyframes originFade{
   from{ opacity: 0; transform: translateY(28px) scale(.97); }

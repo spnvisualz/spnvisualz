@@ -43,10 +43,6 @@
   --gold: #e8c27a;
 
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  /* The wordmark face. Wide, geometric and light — the closest webfont to
-     the drawn SPNVISUALZ lockup. Used for the brand name only. */
-  --font-brand: "Michroma", "Space Grotesk", ui-sans-serif, sans-serif;
-  --chrome: linear-gradient(180deg, #ffffff 0%, #e4dfee 40%, #8e86a3 52%, #f1eef7 66%, #bdb5cc 100%);
   --font-mono: "IBM Plex Mono", "Courier New", monospace;
 
   --type-2xs: clamp(.6875rem, .66rem + .1vw, .75rem);

@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import { test } from 'node:test';
 
 const code = readFileSync(new URL('../public/assets/js/intro.js', import.meta.url), 'utf8');
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
-function runtime({ width = 390, height = 844, reduced = false, seen = false, posterLoaded = true } = {}) {
+function runtime({ width = 390, height = 844, reduced = false, seen = false, loaded = true, posterLoaded = true } = {}) {
   let now = 1, id = 0, removed = false;
   const frames = new Map(), timers = new Map(), draws = [], events = [];
   const target = () => ({
@@ -30,6 +30,7 @@ function runtime({ width = 390, height = 844, reduced = false, seen = false, pos
   } });
   const canvas = { style: {}, getContext: () => context };
   const poster = { ...target(), letter: 'S', complete: posterLoaded, naturalWidth: posterLoaded ? 1254 : 0, naturalHeight: 1254 };
+  const images = Object.fromEntries(['N', 'H', 'T'].map(letter => [letter, { letter, complete: loaded, naturalWidth: loaded ? 768 : 0 }]));
   const enter = target(), skip = target();
   const overlay = {
     classList: classes(), remove: () => { removed = true; },
@@ -37,7 +38,7 @@ function runtime({ width = 390, height = 844, reduced = false, seen = false, pos
       if (selector === '.spn-intro__poster') return poster;
       if (selector === '.spn-intro__enter') return enter;
       if (selector === '.spn-intro__skip') return skip;
-      return null;
+      return images[selector.match(/data-planet-letter="([NHT])"/)?.[1]];
     }
   };
   const root = { classList: classes() };
@@ -67,19 +68,24 @@ function runtime({ width = 390, height = 844, reduced = false, seen = false, pos
   return { advance, draws, events, root, overlay, window, document, enter, skip, poster, frames, get removed() { return removed; } };
 }
 
-test('the arrival is the S planet alone; the old companion worlds are gone', () => {
+test('N, H, T are preloaded and shipped; the approved main Orb is unchanged', () => {
+  for (const letter of ['N', 'H', 'T']) {
+    const path = `/assets/images/spn-planet-${letter.toLowerCase()}.webp`;
+    assert.ok(existsSync(new URL(`../public${path}`, import.meta.url)));
+    assert.ok(html.includes(`data-planet-letter="${letter}" src="${path}"`));
+    assert.ok(html.includes(`as="image" href="${path}"`));
+  }
   assert.ok(html.includes('src="/assets/images/spn-orb-arrival.webp"'));
-  assert.ok(html.includes('as="image" href="/assets/images/spn-orb-arrival.webp"'));
-  assert.ok(!html.includes('data-planet-letter'), 'no companion planet markup');
-  assert.ok(!/spn-planet-[nht]\.webp/.test(html), 'no companion planet assets referenced');
-  assert.ok(!code.includes('fillText'), 'no browser-font lettering in the canvas');
+  assert.ok(!code.includes('makePlanetSurface'));
+  assert.ok(!code.includes('fillText'));
+  assert.ok(html.includes('#spnIntro [data-planet-letter]{ display: none !important; }'));
 });
 
 for (const [width, height] of [[390, 844], [360, 640], [1440, 900], [844, 390]]) {
-  test(`planet rise lands on the S planet and exits at ${width}×${height}`, () => {
+  test(`flight draws N/H/T/S and exits at ${width}×${height}`, () => {
     const r = runtime({ width, height });
-    r.advance(6400);
-    assert.deepEqual([...new Set(r.draws.map(d => d.letter))], ['S']);
+    r.advance(5100);
+    assert.deepEqual([...new Set(r.draws.map(d => d.letter))].sort(), ['H', 'N', 'S', 'T']);
     assert.ok(r.removed);
     assert.equal(r.window.__spnIntroActive, false);
     assert.equal(r.root.classList.contains('intro-active'), false);
@@ -88,11 +94,10 @@ for (const [width, height] of [[390, 844], [360, 640], [1440, 900], [844, 390]])
   });
 }
 
-test('the planet art stays a silhouette until the ring is drawn', () => {
-  const r = runtime(); r.advance(3600);
-  assert.equal(r.draws.length, 0, 'horizon, pull-back and ring trace use no artwork');
-  r.advance(4600);
-  assert.ok(r.draws.length > 0, 'lit by 4.6s');
+test('missing companion assets do not block arrival', () => {
+  const r = runtime({ loaded: false }); r.advance(5100);
+  assert.deepEqual([...new Set(r.draws.map(d => d.letter))], ['S']);
+  assert.ok(r.removed);
 });
 test('reduced motion shows static main Orb and exits without animation', () => {
   const r = runtime({ reduced: true }); r.advance(2400);
@@ -121,5 +126,5 @@ test('a late poster load cannot start a second animation loop', () => {
   r.poster.complete = true; r.poster.naturalWidth = 1254;
   r.poster.emit('load');
   assert.equal(r.frames.size, 1);
-  r.advance(7200); assert.ok(r.removed);
+  r.advance(6000); assert.ok(r.removed);
 });

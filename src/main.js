@@ -6,22 +6,13 @@ import "./styles/work.css";
 import "./styles/services.css";
 import "./styles/pricing.css";
 import "./styles/misc.css";
-import "./styles/hero.css";
-import "./styles/studio.css";
-import "./styles/kinetic.css";
-import "./styles/scenes.css";
 
 import { createMasterScroll, getLenis, ScrollTrigger } from "./motion/scrollTimeline.js";
-import { mountSceneDirector, bindFacetToServices } from "./three/SceneDirector.js";
-import { fitWordmark } from "./hero/hero.js";
-import { splitInto } from "./motion/parallax.js";
+import { mountSceneDirector, bindFacetToServices, bindPlanetToContact } from "./three/SceneDirector.js";
 import { initWorkSequence } from "./work/workSequence.js";
 import { initNav } from "./nav/nav.js";
 import { initMagnetic } from "./nav/magnetic.js";
 import { initReveals } from "./motion/reveal.js";
-import { initDepth, playHeroEntrance } from "./motion/parallax.js";
-import { initKinetic } from "./motion/kinetic.js";
-import { initScenes } from "./motion/scenes.js";
 import { initServices } from "./services/services.js";
 import { initPricing } from "./pricing/pricing.js";
 import { initOrderDialog } from "./contact/orderDialog.js";
@@ -76,26 +67,10 @@ function boot() {
   // height changes out from under the scroll position later.
   initWorkSequence({ reduceMotion });
 
-  // The depth layer — scroll parallax, the hero's letters, the marquee.
-  // Bound here, before the scene, so its triggers are measured in the
-  // same refresh as everything else.
-  // Cursor, masked headings, the capabilities line, counters.
-  // The hero: its letters are split for the entrance (the text itself
-  // is untouched), then the word is fitted edge to edge.
-  const heroWord = document.querySelector(".hero .origin-word");
-  if (heroWord && !reduceMotion) splitInto(heroWord, "chars");
-  fitWordmark();
-
-  initKinetic({ reduceMotion });
-  // One scrubbed moment per chapter: the hero's exit, the work reel, the
-  // services follow, the Lab portal, the contact assembly.
-  initScenes({ reduceMotion });
-  initDepth({ reduceMotion });
-
   // The 3D layer waits for the intro to finish.
   //
   // Building the renderer, compiling four shader programs and uploading
-  // the textures is the heaviest thing this page does, and doing it
+  // the planet texture is the heaviest thing this page does, and doing it
   // while the arrival is flying costs exactly the frames the arrival is
   // there to make an impression with. Deferring it is only safe because
   // the background is CSS now (body::before in base.css): a late scene
@@ -130,10 +105,10 @@ function boot() {
 
     const director = mountSceneDirector();
     bindFacetToServices(director);
+    bindPlanetToContact(director);
     ScrollTrigger.refresh();
 
     afterWorld.splice(0).forEach((fn) => fn());
-    playHeroEntrance();
   };
 
   if (window.__spnIntroActive) {

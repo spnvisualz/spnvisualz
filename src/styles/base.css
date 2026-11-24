@@ -99,17 +99,18 @@ button, input, select, textarea{ font: inherit; color: inherit; }
    one flat plum rather than the elaborate gradient stack the
    transient seemed to call for.
 
-   Retired with the plum opening: the site now opens on deep space
-   (the hero orbital and the starfield), so the surface defaults to
-   off. --surface-presence is kept as the one dial should a page ever
-   want the plum back. */
+   --surface-presence is the one dial. SceneDirector drives it from
+   the same scrub that fades the plane, and both layers converge on
+   --bg together, so the handoff into Selected Work has nothing to
+   fall out of step with. It defaults to 1: with no JS at all, the
+   surface simply stays. */
 body::before{
   content: "";
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: var(--surface-presence, 0);
+  opacity: var(--surface-presence, 1);
   background:
     /* the vignette the shader multiplies in toward the frame edges */
     radial-gradient(128% 92% at 50% 48%, transparent 52%, rgba(10,6,18,.30) 100%),

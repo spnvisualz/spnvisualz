@@ -4,11 +4,8 @@
   /*
    * SPNVISUALZ — the arrival.
    *
-   * Planet rise. Low over a curved horizon, a light rises behind it; the
-   * camera pulls back until the horizon is SPN-1 — the S planet — in
-   * silhouette, and the light itself draws the planet's ring around it,
-   * passing behind the planet on the far side. When the loop closes, the
-   * planet is lit. This is the first thing a visitor sees, so it is deliberately
+   * A flight through the galaxy that decelerates in front of the SPN-1
+   * planet. This is the first thing a visitor sees, so it is deliberately
    * NOT built on the site's Three.js layer: that is a ~131 kB gzipped
    * chunk, and a loading screen that waits for a 131 kB download before
    * it can paint is not a loading screen. Canvas 2D starts on the frame
@@ -25,39 +22,39 @@
   // Version the key whenever the arrival is materially rebuilt so an
   // existing visitor sees the new cut once without being trapped into
   // replaying it on every page view.
-  const SEEN_KEY = "spn_intro_seen_v5";
+  const SEEN_KEY = "spn_intro_seen_v3";
 
-  // Every timing in one place, in ms from the first frame. A light rises
-  // over a curved horizon; the camera pulls back until the horizon is the
-  // planet in silhouette; the light draws the planet's ring round it; the
-  // loop closes and the planet is lit. ~5.4s plus a 620ms exit, once per
-  // tab session.
+  // Every timing in one place, in ms from the first frame. The whole
+  // sequence is ~4.4s of content plus a 620ms exit — long enough to read
+  // as cinema, short enough that nobody waits on it twice (it runs once
+  // per tab session).
   const T = {
-    rise0:     150,   // the light starts to clear the horizon
-    rise1:     1400,  // ...and is fully up
-    pull0:     1250,  // the camera starts pulling back
-    pull1:     2650,  // ...and the horizon has become the planet
-    trace0:    2650,  // the light starts drawing the ring
-    trace1:    3950,  // ...and closes the loop
-    lit0:      3750,  // the planet starts to light
-    lit1:      4550,
-    wordIn:    4250,
-    enterIn:   4650,
-    autoExit:  5400,
+    warpIn:    850,   // accelerating out of rest into the warp
+    warpHold:  1450,  // holding full speed
+    slowTo:    2950,  // braked down to a drift
+    planetIn:  2050,  // SPN-1 starts emerging from the far distance
+    planetSet: 3300,  // ...and reaches its resting size
+    wordIn:    3100,
+    enterIn:   3500,
+    autoExit:  4200,
     fade:      620
   };
 
-  // Where the sphere and its ring sit inside spn-orb-arrival.webp, as
-  // fractions of the artwork, so the drawn ring lands on the painted one.
-  const BODY = { cx: 0.508, cy: 0.482, r: 0.362 };
-  const RING = { cx: 0.49, cy: 0.49, a: 0.533, b: 0.088, rot: -0.49 };
-  const TAU = Math.PI * 2;
+  const DEPTH = 1500;   // z at which objects respawn / fade in from
+  const FOCAL = 520;    // projection focal length, in px at z=1
+  const WARP_SPEED = 1750;  // z-units per second at full warp
+  const DRIFT = 26;         // z-units per second once parked
+  const SPREAD = 1350;      // how far off-axis stars are scattered
+  // A streak is "where this star was TRAIL seconds ago", not "where it was
+  // last frame". Derived from the previous frame the length is a function
+  // of frame rate, so the same warp drew half-length streaks at 120Hz as
+  // it did at 60Hz. In seconds it is identical on every display.
+  const TRAIL = 0.055;
 
   const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+  const easeIn = (t) => t * t * t;
   const easeOut = (t) => 1 - Math.pow(1 - t, 3);
   const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-  const seg = (t, a, b) => clamp01((t - a) / (b - a));
-  const lerp = (a, b, k) => a + (b - a) * k;
 
   const root = document.documentElement;
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -115,14 +112,16 @@
   let done = false;
   let raf = 0;
   let start = 0;
+  let last = 0;
   let width = 0;
   let height = 0;
   let cx = 0;
   let cy = 0;
-  // Declared here because finish() closes over it and can run from the
-  // reduced-motion path, which returns before it is assigned.
+  // Assigned further down, but declared here because finish() closes over
+  // it and can run from the reduced-motion path, which returns before the
+  // assignment is reached.
   let onResize = null;
-  let scale = 1;   // shortest-edge scale, so the jump frames the same on any screen
+  let scale = 1;   // shortest-edge scale, so the flight frames the same on any screen
 
   // ---------------------------------------------------------------- exit
   function finish() {
@@ -137,8 +136,10 @@
     // The site is already mounted underneath; this only uncovers it.
     window.dispatchEvent(new CustomEvent("spn:intro-done"));
 
-    // Keep drawing through the fade, so the planet does not blink out
-    // just as the overlay starts to dissolve.
+    // Keep drawing through the fade. Tearing the scene down here instead
+    // would blank the planet's canvas on the first frame of the exit, so
+    // the thing the whole flight was travelling towards would pop out of
+    // existence just as the overlay starts to dissolve.
     setTimeout(() => {
       cancelAnimationFrame(raf);
       if (onResize) window.removeEventListener("resize", onResize);
@@ -177,238 +178,274 @@
     scale = Math.min(width, height) / 900;
   }
   resize();
-  // Named, because finish() removes it by reference.
+  // Named, because finish() removes it by reference. Registering an
+  // anonymous wrapper here left the listener attached for the life of the
+  // page, still resizing a canvas that had been torn down.
   onResize = () => {
     resize();
   };
   window.addEventListener("resize", onResize);
 
-  // A still field: the drama here is light and camera, not speed, so the
-  // stars only twinkle. Fewer on a smaller or slower device.
+  // Star count follows the device rather than the design: a mid-range
+  // phone should not be asked to draw 500 streaks a frame just because a
+  // desktop can.
   const cores = navigator.hardwareConcurrency || 4;
   const area = window.innerWidth * window.innerHeight;
-  const STARS = Math.round(Math.min(420, Math.max(160, (area / 3200) * (cores <= 4 ? 0.7 : 1))));
+  const STARS = Math.round(
+    Math.min(760, Math.max(220, (area / 1750) * (cores <= 4 ? 0.6 : 1)))
+  );
+
+  const rand = (a, b) => a + Math.random() * (b - a);
+
   const stars = [];
   for (let i = 0; i < STARS; i++) {
-    stars.push({ x: Math.random(), y: Math.random(), m: Math.random(), p: Math.random() * TAU, warm: Math.random() < 0.1 });
+    stars.push({
+      x: rand(-SPREAD, SPREAD),
+      y: rand(-SPREAD, SPREAD),
+      z: rand(1, DEPTH),
+      pz: 0,
+      warm: Math.random() < 0.18   // a few gold stars break up the violet
+    });
   }
 
-  // The planet at rest: the same box .spn-intro__poster uses, and the
-  // sphere and ring inside it.
-  function rest() {
-    const size = Math.min(width * 0.72, height * 0.52);
-    const x = cx, y = cy - height * 0.015;
-    return {
-      size, x, y,
-      bx: x + (BODY.cx - 0.5) * size, by: y + (BODY.cy - 0.5) * size, br: BODY.r * size,
-      rx: x + (RING.cx - 0.5) * size, ry: y + (RING.cy - 0.5) * size,
-      ra: RING.a * size, rb: RING.b * size
-    };
+  // Nebula: a handful of very large, very soft blobs travelling in the
+  // same z-space as the stars, so the galaxy has depth instead of being a
+  // flat backdrop that slides.
+  const clouds = [];
+  const CLOUDS = cores <= 4 ? 5 : 9;
+  for (let i = 0; i < CLOUDS; i++) {
+    clouds.push({
+      x: rand(-1500, 1500),
+      y: rand(-1500, 1500),
+      z: rand(120, DEPTH),
+      r: rand(420, 1000),
+      hue: Math.random() < 0.5 ? "138,77,255" : "90,120,255",
+      a: rand(0.022, 0.055)
+    });
   }
-  const cosR = Math.cos(RING.rot), sinR = Math.sin(RING.rot);
-  function ringAt(g, th) {
-    const x = Math.cos(th) * g.ra, y = Math.sin(th) * g.rb;
-    return [g.rx + x * cosR - y * sinR, g.ry + x * sinR + y * cosR];
-  }
-  // The far half of the ring is hidden wherever the sphere is in front of it.
-  function hidden(g, th, x, y) {
-    return Math.sin(th) < 0 && Math.hypot(x - g.bx, y - g.by) < g.br * 0.99;
-  }
-  // Where the light steps onto the ring: nearest the top of the planet,
-  // clear of its face.
-  function ringStart(g) {
-    let best = Infinity, th0 = 0;
-    for (let i = 0; i < 360; i++) {
-      const th = (i / 360) * TAU;
-      const [x, y] = ringAt(g, th);
-      const clear = Math.hypot(x - g.bx, y - g.by) > g.br * 1.04;
-      const d = Math.hypot(x - g.bx, y - (g.by - g.br));
-      if (clear && d < best) { best = d; th0 = th; }
+
+  // The worlds passed on the way. Pushed well off the flight path so they
+  // sweep past the edges of frame rather than through the middle, which
+  // is what sells "we are moving" instead of "things are scaling up".
+  // Ordered by depth, so the nearest is the one you pass first. Each
+  // carries a single letter, the way SPN-1 carries its mark — they are
+  // the studio's other worlds, not set dressing.
+  // Each companion is a bespoke rendered asset. The monograms, rock and
+  // lighting are one surface, so no browser font or separate letter layer
+  // can drift away from the planet during the fly-by.
+  const planets = [
+    { x: -430, y: -215, z: 1120, r: 110, letter: "N", spin: -0.08, bodyFraction: 0.80 },
+    { x:  520, y:  260, z: 1540, r: 134, letter: "H", spin:  0.06, bodyFraction: 0.74 },
+    { x: -330, y:  340, z: 1960, r: 118, letter: "T", spin: -0.06, bodyFraction: 0.80 }
+  ];
+  planets.forEach((p) => {
+    p.image = overlay.querySelector(`[data-planet-letter="${p.letter}"]`);
+  });
+
+  function speedAt(t) {
+    if (t < T.warpIn) return DRIFT + easeIn(t / T.warpIn) * (WARP_SPEED - DRIFT);
+    if (t < T.warpHold) return WARP_SPEED;
+    if (t < T.slowTo) {
+      const k = easeOut((t - T.warpHold) / (T.slowTo - T.warpHold));
+      return DRIFT + (WARP_SPEED - DRIFT) * (1 - k);
     }
-    return th0;
+    return DRIFT;
   }
 
-  function glow(x, y, r, rgb, a) {
-    if (a <= 0.003 || r <= 0) return;
-    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, `rgba(${rgb},${a.toFixed(3)})`);
-    g.addColorStop(1, `rgba(${rgb},0)`);
+  // ------------------------------------------------------------- drawing
+  function drawGalaxyBand(t) {
+    // A tilted band of light across the field — the Milky Way read. It
+    // rolls very slightly through the flight so the horizon is never
+    // quite level, which keeps the frame from feeling locked off.
+    const roll = -0.42 + Math.sin(t / 4200) * 0.05;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(roll);
+    const span = Math.max(width, height) * 1.5;
+    const g = ctx.createLinearGradient(0, -span * 0.30, 0, span * 0.30);
+    g.addColorStop(0.00, "rgba(8,6,20,0)");
+    g.addColorStop(0.40, "rgba(46,32,96,0.055)");
+    g.addColorStop(0.48, "rgba(120,96,200,0.115)");
+    g.addColorStop(0.52, "rgba(138,116,214,0.10)");
+    g.addColorStop(0.60, "rgba(44,36,104,0.05)");
+    g.addColorStop(1.00, "rgba(8,6,20,0)");
     ctx.fillStyle = g;
-    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+    ctx.fillRect(-span, -span * 0.30, span * 2, span * 0.60);
+    ctx.restore();
   }
 
-  function drawStars(t, alpha) {
-    if (alpha <= 0.003) return;
+  function drawClouds(dt, speed) {
+    ctx.globalCompositeOperation = "lighter";
+    for (const c of clouds) {
+      c.z -= speed * dt * 0.55;
+      if (c.z < 60) {
+        c.z = DEPTH + rand(0, 400);
+        c.x = rand(-1500, 1500);
+        c.y = rand(-1500, 1500);
+      }
+      const k = FOCAL / c.z;
+      const x = cx + c.x * k * scale;
+      const y = cy + c.y * k * scale;
+      const r = c.r * k * scale;
+      if (r < 6 || x < -r * 2 || x > width + r * 2 || y < -r * 2 || y > height + r * 2) continue;
+      const near = clamp01(1 - c.z / DEPTH);
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, `rgba(${c.hue},${(c.a * near).toFixed(3)})`);
+      g.addColorStop(1, `rgba(${c.hue},0)`);
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalCompositeOperation = "source-over";
+  }
+
+  function drawStars(dt, speed) {
+    ctx.lineCap = "round";
     for (const s of stars) {
-      const a = alpha * (0.2 + 0.8 * s.m * s.m) * (0.72 + 0.28 * Math.sin(t * 0.0021 + s.p));
-      const size = Math.max(0.6, (0.55 + s.m * 1.25) * scale);
-      ctx.fillStyle = s.warm ? `rgba(232,200,140,${a.toFixed(3)})` : `rgba(226,222,255,${a.toFixed(3)})`;
-      ctx.fillRect(s.x * width, s.y * height, size, size);
+      s.z -= speed * dt;
+      if (s.z < 1) {
+        s.z = DEPTH;
+        s.x = rand(-SPREAD, SPREAD);
+        s.y = rand(-SPREAD, SPREAD);
+      }
+      s.pz = s.z + speed * TRAIL;
+      const k = FOCAL / s.z;
+      const x = cx + s.x * k * scale;
+      const y = cy + s.y * k * scale;
+      if (x < -60 || x > width + 60 || y < -60 || y > height + 60) continue;
+
+      const near = clamp01(1 - s.z / DEPTH);
+      const pk = FOCAL / s.pz;
+      const px = cx + s.x * pk * scale;
+      const py = cy + s.y * pk * scale;
+
+      const alpha = 0.18 + near * 0.82;
+      const w = (0.4 + near * 1.7) * scale;
+      const trail = Math.hypot(x - px, y - py);
+
+      if (trail > 1.2) {
+        const g = ctx.createLinearGradient(px, py, x, y);
+        const tint = s.warm ? "232,194,122" : "226,218,255";
+        g.addColorStop(0, `rgba(${tint},0)`);
+        g.addColorStop(1, `rgba(${tint},${alpha.toFixed(3)})`);
+        ctx.strokeStyle = g;
+        ctx.lineWidth = w;
+        ctx.beginPath();
+        ctx.moveTo(px, py);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      } else {
+        ctx.fillStyle = s.warm
+          ? `rgba(232,194,122,${alpha.toFixed(3)})`
+          : `rgba(230,224,255,${alpha.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(x, y, w * 0.62, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
   }
 
-  function drawPlanetArt(g, alpha) {
-    if (alpha <= 0.003) return;
-    const gl = ctx.createRadialGradient(g.bx, g.by, g.br * 0.7, g.bx, g.by, g.br * 2.3);
-    gl.addColorStop(0, `rgba(138,77,255,${(0.22 * alpha).toFixed(3)})`);
-    gl.addColorStop(0.5, `rgba(100,60,220,${(0.07 * alpha).toFixed(3)})`);
-    gl.addColorStop(1, "rgba(90,60,200,0)");
-    ctx.fillStyle = gl;
-    ctx.fillRect(g.bx - g.br * 2.3, g.by - g.br * 2.3, g.br * 4.6, g.br * 4.6);
+  // Stars respawn at DEPTH; the worlds need to be visible from further
+  // back than that or the last one never resolves before it is passed.
+  const PLANET_DEPTH = 2300;
+
+  function drawPassingPlanets(dt, speed, t) {
+    // Faded out across the same window SPN-1 grows in: by the time the
+    // destination is at rest, everything passed on the way is gone.
+    const receding = 1 - clamp01((t - T.planetIn) / (T.planetSet - T.planetIn));
+    if (receding <= 0) return;
+    for (const p of planets) {
+      p.z -= speed * dt * 0.85;
+      if (p.z < 40) continue;
+      const k = FOCAL / p.z;
+      const x = cx + p.x * k * scale;
+      const y = cy + p.y * k * scale;
+      const r = p.r * k * scale;
+      if (r < 2) continue;
+      if (x < -r * 1.6 || x > width + r * 1.6 || y < -r * 1.6 || y > height + r * 1.6) continue;
+
+      // Missing art never blocks arrival; slow networks simply omit a
+      // distant companion until its preloaded image has decoded.
+      if (!p.image?.complete || !p.image.naturalWidth) continue;
+      const near = clamp01(1 - p.z / PLANET_DEPTH);
+      const artSize = (r * 2) / p.bodyFraction;
+      ctx.save();
+      ctx.globalAlpha = clamp01(near * 1.9) * receding;
+      ctx.translate(x, y);
+      ctx.rotate(p.spin + t * 0.000012);
+
+      // Opaque planet silhouettes hide the stars behind their rocky body.
+      // Screen compositing removes only the asset's black outer backdrop;
+      // the H ring is already rendered with correct front/back occlusion.
+      ctx.fillStyle = "#010104";
+      ctx.beginPath();
+      ctx.arc(0, -artSize * 0.012, r * 0.975, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = "screen";
+      ctx.drawImage(p.image, -artSize / 2, -artSize / 2, artSize, artSize);
+      ctx.restore();
+    }
+  }
+
+  function drawHomePlanet(t) {
+    if (t < T.planetIn) return;
+
+    const k = easeInOut(clamp01((t - T.planetIn) / (T.planetSet - T.planetIn)));
+    const rest = Math.min(width * 0.72, height * 0.52);  // matches .spn-intro__poster
+    const size = rest * (0.035 + 0.965 * k);
+    const drift = Math.sin(t / 1500) * 5 * k;   // never fully still
+    const x = cx;
+    const y = cy - height * 0.015 + drift;
+
+    // The atmosphere is painted here either way: this canvas sits behind
+    // the WebGL layer, so the glow reads as coming from behind the planet
+    // whichever one is drawing it.
+    const glow = ctx.createRadialGradient(x, y, size * 0.30, x, y, size * 0.92);
+    glow.addColorStop(0, `rgba(138,77,255,${(0.13 * k).toFixed(3)})`);
+    glow.addColorStop(0.55, `rgba(110,70,220,${(0.055 * k).toFixed(3)})`);
+    glow.addColorStop(1, "rgba(110,70,220,0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(x, y, size * 0.92, 0, Math.PI * 2);
+    ctx.fill();
+
     if (!poster || !poster.complete || !poster.naturalWidth) return;
-    const drift = Math.sin(performance.now() / 1500) * 3 * alpha;
-    ctx.globalAlpha = alpha;
+
+    const ar = poster.naturalHeight / poster.naturalWidth;
+    const w = size;
+    const h = size * ar;
+    ctx.globalAlpha = clamp01(k * 1.25);
     ctx.globalCompositeOperation = "screen";
-    ctx.drawImage(poster, g.x - g.size / 2, g.y - g.size / 2 + drift, g.size, g.size);
+    ctx.drawImage(poster, x - w / 2, y - h / 2, w, h);
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1;
   }
 
-  let th0 = null;
-  let lastW = 0, lastH = 0;
-
   // ---------------------------------------------------------------- loop
   function frame(now) {
     raf = requestAnimationFrame(frame);
-    if (!start) start = now;
-    const t = done ? Math.max(now - start, T.autoExit) : now - start;
+    if (!start) { start = now; last = now; }
+    const t = done ? T.autoExit : now - start;
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
 
-    const g = rest();
-    if (th0 === null || width !== lastW || height !== lastH) {
-      th0 = ringStart(g);
-      lastW = width; lastH = height;
-    }
+    const speed = speedAt(t);
 
-    // deep space
-    const ground = ctx.createRadialGradient(cx, cy * 0.9, 0, cx, cy, Math.hypot(width, height) * 0.55);
-    ground.addColorStop(0, "#0d0822");
-    ground.addColorStop(0.6, "#060416");
-    ground.addColorStop(1, "#020109");
+    // Deep space, repainted every frame — no trail buffer, because a
+    // fading-canvas trail smears the planet at the end.
+    const ground = ctx.createRadialGradient(cx, cy * 0.92, 0, cx, cy, Math.max(width, height) * 0.78);
+    ground.addColorStop(0, "#0c0722");
+    ground.addColorStop(0.55, "#070418");
+    ground.addColorStop(1, "#03020a");
     ctx.fillStyle = ground;
     ctx.fillRect(0, 0, width, height);
 
-    // The camera pulls back: a huge circle whose top is the horizon
-    // becomes the planet's own sphere.
-    const pull = easeInOut(seg(t, T.pull0, T.pull1));
-    const big = Math.hypot(width, height) * 2.2;
-    const horizon = height * 0.66;
-    const px = lerp(cx, g.bx, pull);
-    const py = lerp(horizon + big, g.by, pull);
-    const R = lerp(big, g.br, pull);
-    const top = py - R;
-
-    drawStars(t, 0.12 + 0.6 * pull);
-
-    const rise = easeOut(seg(t, T.rise0, T.rise1));
-    const lit = easeInOut(seg(t, T.lit0, T.lit1));
-
-    // Where the light is: rising over the limb, riding it as the camera
-    // pulls back, gliding onto the ring, then drawing it.
-    const sunX = px, sunY = top + lerp(42, -24, rise) * scale;
-    const [sx0, sy0] = ringAt(g, th0);
-    const glide = easeInOut(seg(t, T.pull1 - 380, T.trace0));
-    const k = easeInOut(seg(t, T.trace0, T.trace1));
-    const headTh = th0 + k * TAU;
-    let hx, hy;
-    if (k > 0) [hx, hy] = ringAt(g, headTh);
-    else { hx = lerp(sunX, sx0, glide); hy = lerp(sunY, sy0, glide); }
-
-    // the big light behind the limb, which shrinks into a point
-    const bigA = rise * (1 - easeInOut(seg(t, T.pull0 + 300, T.pull1)));
-    ctx.globalCompositeOperation = "lighter";
-    glow(sunX, sunY, Math.hypot(width, height) * 0.45, "120,80,240", 0.36 * bigA);
-    glow(sunX, sunY, 150 * scale, "235,228,255", 0.9 * bigA);
-    ctx.globalCompositeOperation = "source-over";
-
-    // the planet, dark, with its atmosphere on the limb until it is lit
-    ctx.fillStyle = "#040210";
-    ctx.beginPath();
-    ctx.arc(px, py, R, 0, TAU);
-    ctx.fill();
-    const atm = 1 - lit;
-    if (atm > 0.003) {
-      ctx.globalCompositeOperation = "lighter";
-      ctx.strokeStyle = `rgba(150,110,255,${(0.4 * atm).toFixed(3)})`;
-      ctx.lineWidth = (10 + 18 * (1 - pull)) * scale;
-      ctx.beginPath(); ctx.arc(px, py, R, 0, TAU); ctx.stroke();
-      ctx.strokeStyle = `rgba(236,230,255,${(0.9 * atm).toFixed(3)})`;
-      ctx.lineWidth = Math.max(1, 1.8 * scale);
-      ctx.beginPath(); ctx.arc(px, py, R, 0, TAU); ctx.stroke();
-      ctx.globalCompositeOperation = "source-over";
-    }
-
-    // the anamorphic flare as the light clears the horizon
-    const fl = seg(t, 650, 2100);
-    if (fl > 0 && fl < 1) {
-      const peak = Math.sin(fl * Math.PI) * (1 - pull);
-      const fy = top - 4 * scale;
-      const sg = ctx.createLinearGradient(0, fy, width, fy);
-      sg.addColorStop(0, "rgba(150,160,255,0)");
-      sg.addColorStop(0.5, `rgba(240,240,255,${(0.8 * peak).toFixed(3)})`);
-      sg.addColorStop(1, "rgba(150,160,255,0)");
-      ctx.globalCompositeOperation = "lighter";
-      ctx.fillStyle = sg;
-      ctx.fillRect(0, fy - 1.4 * scale, width, 2.8 * scale);
-      ctx.globalCompositeOperation = "source-over";
-    }
-
-    // Planet artwork only from the moment it starts to light; before
-    // that it is a silhouette.
-    if (t >= T.lit0) drawPlanetArt(g, lit);
-
-    // the ring, as drawn so far
-    const trailA = 1 - easeInOut(seg(t, T.lit0 + 200, T.lit1 + 300));
-    if (k > 0 && trailA > 0.003) {
-      ctx.globalCompositeOperation = "lighter";
-      // flat ends: round caps overlap at every joint and bead the line
-      ctx.lineCap = "butt";
-      const steps = 150;
-      for (let i = 0; i < steps; i++) {
-        const a0 = th0 + k * TAU * (i / steps), a1 = th0 + k * TAU * ((i + 1) / steps);
-        const [x0, y0] = ringAt(g, a0), [x1, y1] = ringAt(g, a1);
-        if (hidden(g, a0, x0, y0) && hidden(g, a1, x1, y1)) continue;
-        const w = i / steps;
-        ctx.strokeStyle = `rgba(200,180,255,${((0.12 + 0.45 * w * w) * trailA).toFixed(3)})`;
-        ctx.lineWidth = (6 + 4 * w) * scale;
-        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
-        ctx.strokeStyle = `rgba(245,242,255,${((0.4 + 0.6 * w) * trailA).toFixed(3)})`;
-        ctx.lineWidth = Math.max(1, 1.6 * scale);
-        ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
-      }
-      ctx.globalCompositeOperation = "source-over";
-    }
-
-    // the light itself, dimmed while it is behind the planet
-    if (t > T.rise0 && t < T.trace1 + 500) {
-      const behind = k > 0 && hidden(g, headTh, hx, hy) ? 0.15 : 1;
-      const a = rise * behind * (1 - seg(t, T.trace1, T.trace1 + 500));
-      ctx.globalCompositeOperation = "lighter";
-      glow(hx, hy, 46 * scale, "190,160,255", 0.7 * a);
-      glow(hx, hy, 9 * scale, "255,255,255", a);
-      ctx.strokeStyle = `rgba(255,255,255,${(0.5 * a).toFixed(3)})`;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(hx - 22 * scale, hy); ctx.lineTo(hx + 22 * scale, hy);
-      ctx.moveTo(hx, hy - 22 * scale); ctx.lineTo(hx, hy + 22 * scale);
-      ctx.stroke();
-      ctx.globalCompositeOperation = "source-over";
-    }
-
-    // the loop closes: one glint where it began
-    const gl = seg(t, T.trace1 - 80, T.trace1 + 700);
-    if (gl > 0 && gl < 1) {
-      const peak = gl < 0.2 ? gl / 0.2 : 1 - easeOut((gl - 0.2) / 0.8);
-      ctx.globalCompositeOperation = "lighter";
-      glow(sx0, sy0, 120 * scale, "220,200,255", 0.6 * peak);
-      const span = 200 * scale;
-      const sg = ctx.createLinearGradient(sx0 - span, 0, sx0 + span, 0);
-      sg.addColorStop(0, "rgba(200,190,255,0)");
-      sg.addColorStop(0.5, `rgba(255,255,255,${(0.75 * peak).toFixed(3)})`);
-      sg.addColorStop(1, "rgba(200,190,255,0)");
-      ctx.fillStyle = sg;
-      ctx.fillRect(sx0 - span, sy0 - 1.2 * scale, span * 2, 2.4 * scale);
-      ctx.globalCompositeOperation = "source-over";
-    }
+    drawGalaxyBand(t);
+    drawClouds(dt, speed);
+    drawStars(dt, speed);
+    drawPassingPlanets(dt, speed, t);
+    drawHomePlanet(t);
 
     if (t >= T.wordIn) overlay.classList.add("is-arrived");
     if (t >= T.enterIn) overlay.classList.add("is-ready");
@@ -416,8 +453,8 @@
   }
 
   // Kick off once the planet art is decoded, so it is never missing at
-  // the moment of arrival. It is preloaded in the document head, so in
-  // practice this has already resolved.
+  // the moment the flight arrives. It is preloaded in the document head,
+  // so in practice this has already resolved.
   let begun = false;
   const begin = () => {
     if (begun || done) return;
@@ -438,6 +475,7 @@
     if (document.hidden) {
       cancelAnimationFrame(raf);
     } else {
+      last = performance.now();
       raf = requestAnimationFrame(frame);
     }
   });

@@ -1,13 +1,12 @@
 import { IcosahedronGeometry, Mesh, ShaderMaterial, Color } from "three";
 import { facetVertex, facetFragment } from "../shaders/facet.js";
 
-// Kept inside the brand: violet, gold and chrome, one pairing per service.
 const SERVICE_PALETTE = [
   ["#c6a7ff", "#8a4dff"],
-  ["#ffd48a", "#b0662e"],
-  ["#ece8f6", "#6f6296"],
-  ["#d9bfff", "#5a2dbf"],
-  ["#ffe2a8", "#8a4dff"],
+  ["#ffd48a", "#ff8a4d"],
+  ["#8affea", "#4d9aff"],
+  ["#ff8ac6", "#8a4dff"],
+  ["#a7ffc6", "#4dff9a"],
   ["#ffffff", "#c6a7ff"]
 ];
 
