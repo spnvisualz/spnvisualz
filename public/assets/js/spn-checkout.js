@@ -347,6 +347,10 @@
     basketDialog = document.createElement("dialog");
     basketDialog.className = "spn-cart";
     basketDialog.setAttribute("aria-labelledby", "spnCartTitle");
+    // Pages with smooth scrolling (Lenis, on the homepage) take every wheel
+    // event for the page itself; without this a long basket on a short
+    // laptop screen could not be scrolled to its checkout button.
+    basketDialog.setAttribute("data-lenis-prevent", "");
     basketDialog.innerHTML = `
       <div class="spn-cart__shell">
         <header><div><p>YOUR ORDER</p><h2 id="spnCartTitle">Basket</h2></div><button type="button" data-cart-close aria-label="Close basket">×</button></header>
