@@ -159,6 +159,37 @@ function boot() {
   // here, so rather than leave a visitor on a page they cannot scroll,
   // watch for the signature — a wheel gesture that moves nothing on a
   // document that is clearly scrollable — and re-measure once.
+  // Watchdog for the scroll engine. The menu, the service preview, the
+  // order dialog and the intro all stop Lenis and start it again; if any
+  // of those pairs is ever missed, the wheel and trackpad go dead while
+  // nothing on screen explains why. Whenever a visitor tries to scroll,
+  // check that something actually should be holding the page, and if
+  // nothing is, let it go. Also catches a scroll position stranded on
+  // <body> (see base.css) and hands it back to the window.
+  const somethingHoldsScroll = () =>
+    document.documentElement.classList.contains("intro-active") ||
+    document.body.classList.contains("menu-open") ||
+    document.body.classList.contains("consent-open") ||
+    Boolean(document.querySelector("dialog[open]"));
+  const ensureScrollable = () => {
+    if (document.body.scrollTop > 0) {
+      const y = document.body.scrollTop;
+      document.body.scrollTop = 0;
+      window.scrollTo(0, y);
+    }
+    const scroll = getLenis();
+    if (scroll?.isStopped && worldStarted && !somethingHoldsScroll()) {
+      scroll.resize();
+      scroll.start();
+    }
+  };
+  for (const type of ["wheel", "touchstart", "keydown"]) {
+    window.addEventListener(type, ensureScrollable, { passive: true });
+  }
+  // Native scroll (touch, scrollbar, keyboard) always reaches every
+  // trigger, whatever state Lenis is in.
+  window.addEventListener("scroll", () => ScrollTrigger.update(), { passive: true });
+
   let wheelProbe = 0;
   window.addEventListener("wheel", () => {
     const before = window.scrollY;

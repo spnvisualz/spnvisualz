@@ -79,6 +79,30 @@
   if (!alreadySeen) {
     root.classList.add("intro-active");
     try { sessionStorage.setItem(SEEN_KEY, "1"); } catch (_) {}
+
+    // Hold the page still while the intro is up. overflow:hidden on <html>
+    // does not stop a touch swipe on iOS, so without this a visitor who
+    // swipes during the arrival lands halfway down the page — or, before
+    // base.css stopped <body> from being a scroll box, scrolled the body
+    // instead of the window and froze every scroll effect on the page.
+    // Each handler checks the class rather than a local flag, so the hold
+    // ends however the intro ends (finish(), the reduced-motion path, or
+    // main.js's fallback timer).
+    const holding = () => root.classList.contains("intro-active");
+    const SCROLL_KEYS = new Set(["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "]);
+    const hold = (e) => {
+      if (!holding()) return release();
+      if (e.type === "keydown" && !SCROLL_KEYS.has(e.key)) return;
+      if (e.cancelable) e.preventDefault();
+    };
+    const release = () => {
+      window.removeEventListener("wheel", hold, { passive: false });
+      window.removeEventListener("touchmove", hold, { passive: false });
+      window.removeEventListener("keydown", hold);
+    };
+    window.addEventListener("wheel", hold, { passive: false });
+    window.addEventListener("touchmove", hold, { passive: false });
+    window.addEventListener("keydown", hold);
   }
 
   const onReady = (fn) => {

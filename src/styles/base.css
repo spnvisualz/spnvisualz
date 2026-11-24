@@ -9,7 +9,16 @@ html{
   overflow-anchor: none; /* JS resizes .chapter--work's height after load; without this, scroll anchoring fights Lenis and the page loads scrolled far down */
 }
 
-html, body{ height: 100%; }
+/* min-height, never height. With html and body both pinned to 100%,
+   any moment html is overflow:hidden (the intro, the menu, a dialog,
+   Lenis's stopped state) turns <body> into its own scroll box: a swipe
+   or wheel then scrolls the body while window.scrollY stays at 0, so
+   every ScrollTrigger reads "nothing has moved" and the page freezes in
+   its starting state: hidden headings, dimmed reels, the hero planet
+   parked mid-screen. Reloading only "fixed" it because a repeat visit
+   skips the intro and its lock. The window must be the only scroller. */
+html{ min-height: 100%; }
+body{ min-height: 100%; }
 
 body{
   margin: 0;
@@ -18,7 +27,12 @@ body{
   font-family: var(--font-display);
   font-size: var(--type-md);
   line-height: 1.5;
+  /* clip, not hidden: overflow-x:hidden forces overflow-y to auto,
+     which is what made <body> capable of scrolling on its own. clip
+     trims the sideways overflow without creating a scroll container.
+     hidden stays first as the fallback for browsers without clip. */
   overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }

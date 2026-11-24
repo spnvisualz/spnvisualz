@@ -1,4 +1,5 @@
-import { gsap, ScrollTrigger } from "./scrollTimeline.js";
+import { gsap } from "./scrollTimeline.js";
+import { onVisible } from "./onVisible.js";
 
 // The depth layer: motion that answers scroll position.
 //
@@ -114,12 +115,7 @@ function initStagger({ reduceMotion }) {
       items.forEach((child) => child.classList.add("is-in"));
       return;
     }
-    ScrollTrigger.create({
-      trigger: list,
-      start: "top 85%",
-      once: true,
-      onEnter: () => items.forEach((child) => child.classList.add("is-in"))
-    });
+    onVisible(list, () => items.forEach((child) => child.classList.add("is-in")), { edge: 0.15 });
   });
 }
 

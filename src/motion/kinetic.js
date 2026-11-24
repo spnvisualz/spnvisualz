@@ -1,4 +1,5 @@
 import { gsap, ScrollTrigger, getLenis } from "./scrollTimeline.js";
+import { onVisible } from "./onVisible.js";
 import { splitInto } from "./parallax.js";
 
 // Kinetic layer — motion that answers the visitor rather than the scroll
@@ -91,7 +92,7 @@ function initMasks() {
       // also fade on its own.
       el.classList.remove("reveal");
       el.classList.add("is-masked");
-      ScrollTrigger.create({ trigger: el, start: "top 88%", once: true, onEnter: () => el.classList.add("is-in") });
+      onVisible(el, () => el.classList.add("is-in"));
     });
 }
 
@@ -180,11 +181,7 @@ function initCounters() {
     const [, pre, num, post] = match;
     const to = parseInt(num, 10);
     el.style.fontVariantNumeric = "tabular-nums";
-    ScrollTrigger.create({
-      trigger: el,
-      start: "top 92%",
-      once: true,
-      onEnter: () => {
+    onVisible(el, () => {
         const state = { v: 0 };
         gsap.to(state, {
           v: to,
@@ -193,8 +190,7 @@ function initCounters() {
           onUpdate: () => (el.textContent = `${pre}${Math.round(state.v)}${post}`),
           onComplete: () => (el.textContent = original)
         });
-      }
-    });
+    }, { edge: 0.08 });
   });
 }
 
