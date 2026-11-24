@@ -12,7 +12,7 @@
 // does, in Safari's engine (WebKit) and Chrome's, and fails on exactly
 // those symptoms.
 
-/* global document, getComputedStyle, innerHeight, scrollY, scrollBy, scrollTo */
+/* global window, document, getComputedStyle, innerHeight, scrollY, scrollBy, scrollTo */
 // (browser globals: used inside page.evaluate callbacks, which run in the page)
 import { spawn } from "node:child_process";
 import { setTimeout as sleep } from "node:timers/promises";
@@ -139,6 +139,53 @@ for (const run of RUNS) {
     return meta ? Number(getComputedStyle(meta).opacity) : 1;
   });
   if (card < 0.6) fail(tag(`work card text stuck at opacity ${card.toFixed(2)} (scroll effects frozen)`));
+
+  // The menu pauses smooth scrolling and must hand it back on close.
+  await page.evaluate(() => scrollTo(0, 0));
+  await sleep(600);
+  await page.click("#menuToggle");
+  await sleep(600);
+  await page.click("#menuToggle");
+  await sleep(700);
+  const m0 = await page.evaluate(() => scrollY);
+  if (run.touch) {
+    await page.evaluate(() => scrollBy(0, 800));
+  } else {
+    await page.mouse.move(700, 450);
+    for (let i = 0; i < 2; i++) { await page.mouse.wheel(0, 600); await sleep(300); }
+  }
+  await sleep(1200);
+  const m1 = await page.evaluate(() => scrollY);
+  if (m1 < m0 + 200) fail(tag(`page stopped scrolling after opening and closing the menu (${m0} -> ${m1})`));
+
+  // A basket taller than the screen must scroll with the wheel (smooth
+  // scrolling used to swallow it), so the checkout button can be reached.
+  if (!run.touch) {
+    await page.evaluate(() => {
+      const items = { "logo-basic": 1, "logo-premium": 1, "intro-standard": 1, "intro-premium": 1, "loop-basic": 1, "loop-premium": 1, "visuals-social": 1, "visuals-brand": 1 };
+      for (const [sku] of Object.entries(items)) window.SPN_CHECKOUT?.cart?.add(sku);
+    });
+    await sleep(2500);
+    await page.setViewportSize({ width: 1280, height: 560 });
+    await page.locator(".spn-cart-button").first().click();
+    await sleep(900);
+    const box = await page.evaluate(() => {
+      const d = document.querySelector("dialog.spn-cart[open]");
+      const sc = d && [d, ...d.querySelectorAll("*")].find((e) => e.scrollHeight > e.clientHeight + 5 && /(auto|scroll)/.test(getComputedStyle(e).overflowY));
+      if (!sc) return null;
+      sc.dataset.smokeScroll = "1";
+      const r = sc.getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top + Math.min(r.height / 2, 250) };
+    });
+    if (box) {
+      await page.mouse.move(box.x, box.y);
+      await page.mouse.wheel(0, 400);
+      await sleep(700);
+      const moved = await page.evaluate(() => document.querySelector("[data-smoke-scroll]").scrollTop);
+      if (moved < 50) fail(tag("a long basket did not scroll with the mouse wheel"));
+    }
+    await page.keyboard.press("Escape");
+  }
 
   if (errors.length) fail(tag(`page errors: ${errors.join(" | ")}`));
   console.log(`${run.name}: checked`);
