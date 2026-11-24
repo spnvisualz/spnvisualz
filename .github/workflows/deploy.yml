@@ -136,6 +136,16 @@ jobs:
 
           echo "Build verified: $(find dist -name '*.html' | wc -l) HTML pages, $(du -sh dist | cut -f1) total"
 
+      - name: Browser smoke test (Safari engine + Chrome)
+        # Drives the built homepage like a visitor in WebKit (iPhone and
+        # desktop) and Chromium: scroll during the intro, then scroll and
+        # read the page. The Nov 17-18 redesign passed every other check
+        # and still froze after the intro on real phones; this is the
+        # check that would have caught it. See tests/browser/smoke.mjs.
+        run: |
+          npx playwright install --with-deps webkit chromium
+          npm run test:browser
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
