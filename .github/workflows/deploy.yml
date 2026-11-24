@@ -249,6 +249,11 @@ jobs:
             server=$(curl -sI "$base$path" | tr -d '\r' | awk -F': ' 'tolower($1)=="server"{print $2}')
             printf '%-26s %s  server=%s  %s\n' "$path" "$out" "$server" "$(head -c 120 /tmp/body | tr '\n' ' ')"
           done
+          # The project-brief form posts to /api/enquiry on the same Worker;
+          # a bare GET must get its JSON 405, not a GitHub Pages 404.
+          ecode=$(curl -s -o /dev/null -w '%{http_code}' "$base/api/enquiry")
+          printf '%-26s %s\n' "/api/enquiry (GET)" "$ecode"
+          [ "$ecode" = "405" ] || { echo "::error::$base/api/enquiry returned $ecode; the 'Start a project' form cannot send briefs."; exit 1; }
           code=$(curl -s -o /dev/null -w '%{http_code}' "$base/api/checkout-session")
           case "$code" in
             400|405) echo "Worker answers /api/* on $base." ;;

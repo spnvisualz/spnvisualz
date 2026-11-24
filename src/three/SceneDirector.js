@@ -90,7 +90,11 @@ export function mountSceneDirector() {
     orbital.group.visible = exit < 0.999;
     if (orbital.group.visible) {
       orbital.group.scale.setScalar(fit * (1 - exit * 0.18));
-      orbital.group.position.set(0, visibleH * (camera.aspect < 1 ? 0.04 : 0.05) + exit * visibleH * 0.62, 0);
+      // A phone on its side is too short for the statement above the
+      // planet: centred, the rings ran straight through the text. On a
+      // short, wide screen the planet moves into the empty right half.
+      const shortWide = window.innerHeight < 560 && camera.aspect > 1.3;
+      orbital.group.position.set(shortWide ? visibleW * 0.2 : 0, visibleH * (camera.aspect < 1 ? 0.04 : 0.05) + exit * visibleH * 0.62, 0);
       orbital.tick(dt, elapsed, { pointer, exit });
     }
 
