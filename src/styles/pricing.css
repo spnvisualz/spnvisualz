@@ -91,8 +91,15 @@
 @media (max-width: 900px){
   .price-row{ grid-template-columns: 1fr; gap: var(--space-sm); }
   .price-row__tiers{ grid-template-columns: 1fr; gap: var(--space-xs); }
-  .price-tier{ padding: 10px 0; border-top: 1px solid var(--line); }
-  .price-tier div{ text-align: left; }
+  /* The desktop rule pulls the tier out by -8px/-10px so its hover box
+     frames the text; with no side padding here that left the label and
+     the price sitting on the box edges and "Add" printed over the price.
+     On a phone the tier is a plain full-width row, with "Add" as the
+     last item in it rather than floating over the number. */
+  .price-tier{ margin: 0; padding: 14px 12px; align-items: center; border-top: 1px solid var(--line); }
+  .price-tier p{ flex: 1; }
+  .price-tier div{ text-align: right; }
+  .price-tier__go{ position: static; flex: none; }
   .price-row > button{ justify-self: start; }
   .bundle-panel.is-active{ grid-template-columns: 1fr; }
 }
