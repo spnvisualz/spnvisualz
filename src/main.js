@@ -281,6 +281,8 @@ function boot() {
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
   document.body.classList.remove("is-loading");
+  // Tells the inline backstop in index.html that the page started properly.
+  window.__spnBooted = true;
 
   // Mobile browsers change innerHeight when the address bar collapses,
   // firing resize mid-scroll. Refreshing ScrollTrigger on those events is

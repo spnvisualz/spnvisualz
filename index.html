@@ -369,8 +369,32 @@
     @media (prefers-reduced-motion: reduce){
       #spnIntro, #spnIntro *{ transition-duration: .2s !important; }
     }
+
+    /* Page-level backstop (see the script below): if /src/main.js never
+       finishes starting, the page is shown as plain content. Text that
+       normally fades in on scroll is simply visible. */
+    html.boot-failed .reveal, html.boot-failed .reveal-line{ opacity: 1 !important; transform: none !important; }
   </style>
-  <noscript><style>#spnIntro{ display: none; }</style></noscript>
+  <noscript><style>
+    #spnIntro{ display: none; }
+    body.is-loading main, body.is-loading .site-header{ opacity: 1 !important; }
+    .reveal, .reveal-line{ opacity: 1 !important; transform: none !important; }
+  </style></noscript>
+  <script>
+    // The homepage starts hidden (body.is-loading) and scroll-locked while
+    // the intro plays, and only /src/main.js reveals it. If that script
+    // fails to load or throws before it is done (an old browser, a blocked
+    // request, a content blocker), the visitor would be left on a blank,
+    // frozen page. main.js sets __spnBooted when it finishes; if it has
+    // not after 12s, show the page and give scrolling back.
+    setTimeout(function () {
+      if (window.__spnBooted) return;
+      var root = document.documentElement;
+      root.classList.remove("intro-active");
+      root.classList.add("boot-failed");
+      if (document.body) document.body.classList.remove("is-loading");
+    }, 12000);
+  </script>
 
   <!-- Google consent defaults must run before analytics or advertising tags. -->
   <script src="/assets/js/spn-config.js?v=20261102.1"></script>
