@@ -5,7 +5,7 @@
   letter-spacing:.08em;text-transform:uppercase;backdrop-filter:blur(18px);box-shadow:0 12px 40px rgba(0,0,0,.28);cursor:pointer;
 }
 .spn-cart-button b{display:grid;place-items:center;min-width:23px;height:23px;padding:0 6px;border-radius:999px;background:#c6a7ff;color:#090510;font-size:11px}
-.spn-cart-button:hover,.spn-cart-button:focus-visible{border-color:#c6a7ff;outline:none}
+.spn-cart-button:hover{border-color:#c6a7ff}.spn-cart-button:focus-visible{border-color:#c6a7ff;outline:2px solid #c6a7ff;outline-offset:3px}
 .spn-cart{width:min(520px,calc(100% - 20px));max-width:none;height:100dvh;max-height:none;margin:0 0 0 auto;padding:0;border:0;background:#080611;color:#f5f2fb;box-shadow:-30px 0 100px rgba(0,0,0,.55)}
 .spn-cart::backdrop{background:rgba(2,1,6,.72);backdrop-filter:blur(8px)}
 .spn-cart__shell{min-height:100%;display:flex;flex-direction:column;padding:clamp(24px,5vw,44px)}

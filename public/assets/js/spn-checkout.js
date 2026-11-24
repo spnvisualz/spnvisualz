@@ -335,7 +335,7 @@
     if (!document.querySelector('link[href*="/assets/css/store.css"]')) {
       const styles = document.createElement("link");
       styles.rel = "stylesheet";
-      styles.href = "/assets/css/store.css?v=20261102.1";
+      styles.href = "/assets/css/store.css?v=20261124.1";
       document.head.append(styles);
     }
     basketButton = document.createElement("button");
