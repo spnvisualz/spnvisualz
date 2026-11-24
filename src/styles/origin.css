@@ -44,7 +44,9 @@
   line-height: .9;
   mix-blend-mode: overlay;
   color: #fff;
-  animation: originFade 1.6s var(--ease-depth) both;
+  /* The entrance is per letter now (depth.css), and an animation filling
+     `both` would pin transform on the heading forever. Without JS the
+     heading is simply there. */
 }
 @keyframes originFade{
   from{ opacity: 0; transform: translateY(28px) scale(.97); }

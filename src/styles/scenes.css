@@ -1,0 +1,91 @@
+/* ============================================================
+   SCENES — styles for src/motion/scenes.js.
+   ============================================================
+   html.scenes is set only when the scroll scenes run (never under
+   reduced motion); without it every element here sits at rest. */
+
+/* ---------- section hairlines draw in ---------- */
+.kinetic .chapter .section-head,
+.kinetic .work-head{ position: relative; border-top-color: transparent; }
+.kinetic .chapter .section-head::after,
+.kinetic .work-head::after{
+  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 1px;
+  background: linear-gradient(90deg, var(--purple-light), rgba(255,255,255,.14) 34%);
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform 1.6s var(--ease-depth) .1s;
+}
+.kinetic .chapter .section-head.is-revealed::after,
+.kinetic .work-head.is-revealed::after{ transform: scaleX(1); }
+
+/* ---------- work reel ---------- */
+.work-item__media{ will-change: transform; }
+.work-item__media::after{
+  background:
+    linear-gradient(rgba(3,2,7,var(--shade, 0)), rgba(3,2,7,var(--shade, 0))),
+    linear-gradient(180deg, rgba(3,2,7,.28) 0%, transparent 30%, transparent 70%, rgba(3,2,7,.42) 100%);
+}
+.work-item__frame{ border-radius: inherit; }
+
+.work-hud{
+  position: fixed; z-index: 50; left: var(--pad-inline); bottom: 26px;
+  display: grid; grid-template-columns: auto auto 1fr; align-items: baseline; column-gap: 8px; row-gap: 6px;
+  min-width: 250px; max-width: 340px; padding: 14px 18px 16px;
+  background: rgba(8,5,14,.6); border: 1px solid var(--line);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  pointer-events: none;
+  opacity: 0; translate: 0 14px;
+  transition: opacity .5s var(--ease-depth), translate .6s var(--ease-depth);
+}
+.work-hud.is-on{ opacity: 1; translate: 0 0; }
+.work-hud__label{
+  grid-column: 1 / -1; font-family: var(--font-mono); font-size: 9px; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--quiet);
+}
+.work-hud__num, .work-hud__title{
+  position: relative; display: inline-block; overflow: hidden; vertical-align: bottom; white-space: nowrap;
+}
+.work-hud__num{ font-family: var(--font-brand); font-size: 22px; line-height: 1.25; height: 1.25em; color: var(--text); }
+.work-hud__total{ font-family: var(--font-mono); font-size: 11px; color: var(--quiet); }
+.work-hud__title{
+  grid-column: 1 / -1; font-size: 14px; line-height: 1.4; height: 1.4em; color: var(--muted);
+  text-overflow: ellipsis;
+}
+.work-hud__num b, .work-hud__title b{
+  display: block; font-weight: inherit; transition: transform .65s var(--ease-depth);
+}
+.work-hud__num b.is-out, .work-hud__title b.is-out{ position: absolute; left: 0; top: 0; }
+.work-hud__bar{ grid-column: 1 / -1; height: 1px; margin-top: 6px; background: var(--line); }
+.work-hud__bar i{
+  display: block; height: 100%; transform-origin: left center; transform: scaleX(0);
+  background: linear-gradient(90deg, var(--purple), var(--purple-light));
+}
+@media (max-width: 860px){ .work-hud{ display: none; } }
+
+/* ---------- services: the active row ---------- */
+.service-row strong{ transition: color .4s, translate .5s var(--ease-depth); }
+.service-row.is-active strong{ color: #fff; }
+.service-row.is-active b{ color: var(--purple-light); }
+
+/* ---------- lab portal opens ---------- */
+.chapter--lab{ position: relative; }
+.scenes .chapter--lab::before{
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(circle at 50% 50%,
+    rgba(138,77,255,.24) 0%,
+    rgba(138,77,255,.08) calc(var(--aperture, 0%) * .55),
+    transparent var(--aperture, 0%));
+}
+.scenes .lab-portal{
+  z-index: 1;
+  scale: var(--portal-scale, 1);
+  border-radius: var(--portal-r, 2px);
+  background: rgba(6,3,12,.5);
+}
+
+/* ---------- contact: letters assemble ---------- */
+.contact-inner h2 .word--chars{ display: inline-block; white-space: nowrap; }
+.contact-inner h2 .char{ display: inline-block; will-change: transform, opacity; }
+
+/* The reel's text slides in from the side (scenes.js); its starting
+   offset must not widen the page. clip, not hidden: no scroll container. */
+.chapter--work{ overflow-x: clip; }
