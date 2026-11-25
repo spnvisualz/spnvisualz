@@ -104,9 +104,17 @@ for (const run of RUNS) {
     fail(tag("<body> scrolled on its own during the intro (it must never be a scroll container)"));
   }
 
-  await sleep(9000);
-  await page.locator("#spnConsentNecessary").click({ timeout: 3000 }).catch(() => {});
-  await sleep(500);
+  // Wait for the intro to finish (on the live site, over a real network,
+  // it ends later than on a local preview), then for the privacy banner,
+  // which is held back until the intro is gone, and answer it.
+  await page.waitForFunction(() => !document.documentElement.classList.contains("intro-active"), null, { timeout: 25000 })
+    .catch(() => fail(tag("intro still running after 25s")));
+  await sleep(1500);
+  const banner = page.locator("#spnConsentNecessary");
+  await banner.waitFor({ state: "visible", timeout: 8000 }).catch(() => {});
+  if (await banner.isVisible().catch(() => false)) await banner.click();
+  await page.waitForFunction(() => !document.querySelector("#spnConsent:not([hidden])") || getComputedStyle(document.querySelector("#spnConsent")).display === "none" || !document.querySelector("#spnConsent").offsetParent, null, { timeout: 5000 }).catch(() => {});
+  await sleep(800);
 
   const state = await page.evaluate(() => ({
     introActive: document.documentElement.classList.contains("intro-active"),
