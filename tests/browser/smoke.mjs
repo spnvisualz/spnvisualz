@@ -19,33 +19,40 @@ import { setTimeout as sleep } from "node:timers/promises";
 import { chromium, webkit, devices } from "playwright";
 
 const PORT = Number(process.env.SMOKE_PORT || 4179);
-const BASE = `http://127.0.0.1:${PORT}`;
+// SMOKE_URL tests an already-running site (the live one, after a deploy)
+// instead of starting a preview server for ./dist.
+const LIVE = process.env.SMOKE_URL ? process.env.SMOKE_URL.replace(/\/$/, "") : "";
+const BASE = LIVE || `http://127.0.0.1:${PORT}`;
 const failures = [];
 const fail = (msg) => failures.push(msg);
 
-// Started directly (not through npx, whose child would outlive a kill)
-// and in its own process group, so stop() takes the whole server down.
-const server = spawn(process.execPath, ["node_modules/vite/bin/vite.js", "preview", "--outDir", process.env.SMOKE_DIST || "dist", "--host", "127.0.0.1", "--port", String(PORT), "--strictPort"], { stdio: "ignore", detached: true });
-const stop = () => { try { process.kill(-server.pid); } catch { /* already gone */ } };
-process.on("exit", stop);
+let stop = () => {};
+if (!LIVE) {
+  // Refuse to start if the port is taken: we would test someone else's server.
+  let up = false;
+  try { await fetch(BASE + "/"); up = true; } catch { /* expected: nothing there yet */ }
+  if (up) {
+    console.error(`Something is already serving ${BASE}; refusing to test it instead of this build.`);
+    process.exit(1);
+  }
+  // Started directly (not through npx, whose child would outlive a kill)
+  // and in its own process group, so stop() takes the whole server down.
+  const server = spawn(process.execPath, ["node_modules/vite/bin/vite.js", "preview", "--outDir", process.env.SMOKE_DIST || "dist", "--host", "127.0.0.1", "--port", String(PORT), "--strictPort"], { stdio: "ignore", detached: true });
+  stop = () => { try { process.kill(-server.pid); } catch { /* already gone */ } };
+  process.on("exit", stop);
 
-let up = false;
-try { await fetch(BASE + "/"); up = true; } catch { /* expected: nothing there yet */ }
-if (up) {
-  console.error(`Something is already serving ${BASE}; refusing to test it instead of this build.`);
-  process.exit(1);
-}
-// Bound to 127.0.0.1 explicitly: plain "localhost" resolves to ::1 on
-// GitHub's runners, and the browsers below are pointed at IPv4.
-let ready = false;
-for (let i = 0; i < 60 && !ready; i++) {
-  try { ready = (await fetch(BASE + "/")).ok; } catch { /* not up yet */ }
-  if (!ready) await sleep(500);
-}
-if (!ready) {
-  console.error(`The preview server never answered on ${BASE}.`);
-  stop();
-  process.exit(1);
+  // Bound to 127.0.0.1 explicitly: plain "localhost" resolves to ::1 on
+  // GitHub's runners, and the browsers below are pointed at IPv4.
+  let ready = false;
+  for (let i = 0; i < 60 && !ready; i++) {
+    try { ready = (await fetch(BASE + "/")).ok; } catch { /* not up yet */ }
+    if (!ready) await sleep(500);
+  }
+  if (!ready) {
+    console.error(`The preview server never answered on ${BASE}.`);
+    stop();
+    process.exit(1);
+  }
 }
 
 // Share of visible, in-viewport text inside <main> that is actually readable.

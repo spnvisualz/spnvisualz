@@ -259,3 +259,23 @@ jobs:
             400|405) echo "Worker answers /api/* on $base." ;;
             *) echo "::error::$base/api/checkout-session returned $code; the basket cannot open Stripe Checkout until /api/* reaches the Worker."; exit 1 ;;
           esac
+
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Browser smoke test against the live site
+        # The same visitor walk-through as the pre-deploy check, run on
+        # https://spnvisualz.com itself, so a problem that only appears
+        # behind GitHub Pages and Cloudflare (stale caches, a missing
+        # file, a header) fails the run. It answers the privacy banner with
+        # "Necessary only", so these visits load no analytics.
+        run: |
+          npm ci
+          npx playwright install --with-deps webkit chromium
+          SMOKE_URL=https://spnvisualz.com npm run test:browser
